@@ -1,0 +1,157 @@
+
+
+<script>
+function swapDisplayed(idA,idB){
+
+
+	var docA = document.getElementById(idA);
+	if (docA.style.display == "none")
+		docA.style.display = "inline";
+
+	var docB = document.getElementById(idB);
+        if (docB.style.display == "inline")
+                docB.style.display = "none";
+
+
+	}
+</script>
+
+
+<h2>QUERY THE CORE INFORMATION SYSTEM</h2>
+
+<table border=0 height=500>
+	<tr>
+		<td>
+
+<div id="search" style='display:inline'>
+<form method="post" action="/cgi-bin/coreInSys/query">
+<table border=0 >
+	<tr>
+		<td colspan=4>
+			<a href="javascript:swapDisplayed('detailedSearch','search')">Switch to Detailed Search</a>
+		<hr>
+		</td>
+	</tr>
+	<tr>
+		<td colspan=4>
+			Search for (or leave blank):
+		</td>
+	</tr>
+	<tr>
+		<td>
+                Genomics Project ID:
+                <br />
+                <input type="text" name="SEQ_EXPT_ID" size="20">
+                </td>
+		<td>
+		Flowcell ID:
+		<br />
+		<input type="text" name="FLOWCELL_ID" size="20">
+		</td>
+
+	</tr>
+        <tr>
+                <td>
+                        <input type="submit" value="Splodge!">
+                </td>
+		<td></td><td></td><td><input type="reset" value="reset form"></td>
+        </tr>
+
+
+
+</table>
+
+</form>
+</div>
+
+<div id="detailedSearch" style='display:none'>
+<form method="post" action="/cgi-bin/exomeSampleDB/query">
+<table border=2 >
+	<tr>
+		<td colspan=8>
+		<a href="javascript:swapDisplayed('search','detailedSearch')">Switch to Normal Search</a>
+		</td>
+	</tr>
+	<tr>
+                <td colspan=8>
+                        Search for (or leave blank):
+                </td>
+        </tr>
+	<tr>
+		<td>
+                Genomics Project ID:
+                <br />
+                <input type="text" name="SEQ_EXPT_ID" size="20">
+                </td>
+                <td>
+                Flowcell ID:
+                <br />
+                <input type="text" name="FLOWCELL_ID" size="20">
+                </td>
+	
+	</tr>
+	<tr>
+                <td>
+                        <input type="submit" value="Splodge!">
+                </td>
+		<td></td><td></td><td><input type="reset" value="reset form"></td>
+
+        </tr>
+
+
+
+</table>
+
+</form>
+</div>
+
+		</td>
+	</tr>
+<tr><td><hr>
+<form method="post" action="/cgi-bin/exomeSampleDB/last">
+</td></tr><tr><td>
+                View last n entries:
+                <br />
+                <input type="text" name="LAST" size="20">
+                </td>
+</td></tr>
+ <tr>
+                <td>
+                        <input type="submit" value="Splodge!">
+                </td>
+</tr>
+</form>
+<tr><td><hr>
+<p>View a range of entries by sampleID</p>
+<form method="post" action="/cgi-bin/exomeSampleDB/range">
+</td></tr>
+<tr><td>
+                From:
+                <br />
+                <input type="text" name="FROM" size="20">
+                </td>
+</td></tr>
+
+<tr><td>
+                To:
+                <br />
+                <input type="text" name="TO" size="20">
+                </td>
+</td></tr>
+ <tr>
+                <td>
+                        <input type="submit" value="Splodge!">
+                </td>
+</tr>
+</form>
+
+
+</table>
+<script>
+checkAdmin("AdmN","AdmY");
+checkAdmin("AdmNs","AdmYs");
+checkAdmin("AdmNo","AdmYo");
+</script>
+
+
+

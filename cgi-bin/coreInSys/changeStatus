@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+
+import cgi
+link = cgi.FieldStorage()
+
+
+CH=open("./cgi_header","r")
+cgiHeader=CH.readlines()
+CH.close()
+
+HF=open("./template_top","r")
+topLines=HF.readlines()
+HF.close()
+
+FF=open("./template_bottom","r")
+bottomLines=FF.readlines()
+FF.close()
+
+from API.getState import getState
+from API.runQuery import runQuery
+
+for ch in cgiHeader:
+        print ch[:-1]
+for he in topLines:
+	print he[:-1]
+
+if link.has_key('state'):
+	state = link["state"].value
+
+if link.has_key('projectID'):
+	projectID=link["projectID"].value
+
+
+if link.has_key('type'):
+        itemType=link["type"].value
+
+
+DBquery="update state set state='"+state+"' where itemID='"+projectID+"' and type='"+itemType+"'"
+res=runQuery(DBquery)
+
+
+
+
+if itemType=="sequencing":
+	print '<script language="javascript" type="text/javascript">'
+	print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'&backurl="+window.location.href;'
+	print '</script>'
+
+
+
+
+
+for fo in bottomLines:
+	print fo[:-1]
+
+
+
+

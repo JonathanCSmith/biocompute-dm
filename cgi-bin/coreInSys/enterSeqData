@@ -1,0 +1,69 @@
+#!/usr/bin/python
+
+import os
+import cgi
+#import cgitb; cgitb.enable()
+from API.exptObj2array import exptObj2array
+from API.getExptByID import getExptByID
+from API.seqExpt import seqExpt
+from API.getTagSequence import getTagSequence
+
+
+csvFile = cgi.FieldStorage()
+
+
+
+CH=open("./cgi_header","r")
+cgiHeader=CH.readlines()
+CH.close()
+
+HF=open("./template_top","r")
+topLines=HF.readlines()
+HF.close()
+
+FF=open("./template_bottom","r")
+bottomLines=FF.readlines()
+FF.close()
+
+for ch in cgiHeader:
+        print ch[:-1]
+
+for he in topLines:
+	print he[:-1]
+
+
+
+
+
+#Create a seqExperiment instance
+i=[]
+
+i.append(seqExpt())
+i[-1].addSeqProject()
+i[-1].seqProjs[0].addLaneData()
+i[-1].seqProjs[0].lanes[0].addSamples()
+
+#expArr=[]
+#expArr.append(projs)
+#d=exptObj2array(expArr)
+print """<p>Mandatory fields are in red. Leave seqProjectName as "SeqProjName" if you don't wish to add sequencing project information.</p>"""
+
+d=exptObj2array(i)
+#print "<p>",d,"</p>"
+print '<form id="newSeqExpt" name="newSeqExpt" method="post" action="/cgi-bin/coreInSys/insertSeqExpt">'
+print "<script src='/CoreInSys/js/manualExptFormTable.js'></script>"
+print "<script>"
+print d
+print "experimentTable(experArr);"
+print "</script>"
+print '<input id="Insert" type="submit" value="Insert">'
+print '</form>'
+
+
+
+for fo in bottomLines:
+	print fo[:-1]
+
+
+
+

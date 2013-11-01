@@ -1,0 +1,46 @@
+
+<h2>CREATE A NEW PROJECT</h2>
+
+<table border=0 >
+	<tr>
+		<td>
+
+<form id="inForm" name="inptForm" method="post" action="/cgi-bin/coreInSys/newProject">
+<input id="numExtra" type="hidden" name="EXTRA_EXPT" value="0">
+<table id="inptTab" border=2 >
+	<tr>
+                <td class="InTitle1" colspan=8>
+                        Enter project title:
+                </td>
+        </tr>
+        <tr>
+                <td>
+                Project name:
+                <br />
+                <input type="text" name="PROJ_NAME" size="50">
+                </td>
+		<td colspan=2> </td>
+        </tr>
+	<tr>
+                <td>
+                Project lead:
+                <br />
+                <input type="text" name="PROJ_LEAD" size="50">
+                </td>
+                <td colspan=2> </td>
+        </tr>
+
+	<tr><td><input id="Submit" type="submit" value="Submit!"></td></tr>
+
+
+</table>
+
+
+
+
+
+
+</form>
+
+
+

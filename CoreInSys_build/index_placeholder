@@ -1,0 +1,27 @@
+
+<h1>If your name is Aaron and you're looking for the clostridia stuff, let me know and I'll put the page back. Just had to set the server to a web interface that I'm working on right now .</h1>
+
+<h4>In the meantime here is a humorous image.</h4>
+<img src="images/drummer.jpg">
+
+<h2>Basic Quadruplex Search</h2>
+   
+<form method="post" action="cgi-bin/GeneAnalyzer"> 
+ 
+  <p> Ensembl ID: <input type="text" name="query" size="32" maxlength="80">  
+  
+
+<input type="submit" value="search">
+</p>   </form>
+
+<a href="advanced.html"><p>Advenced search</p></a>
+
+
+
+
+ <br>
+
+
+
+
+

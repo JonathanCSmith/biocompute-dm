@@ -1,0 +1,17 @@
+
+
+<h2>Administrator login</h2>
+
+
+<form method="post" action="/cgi-bin/exomeSampleDB/login">
+		<p>
+                Admin Password:
+                <input type="password" name="ADMIN_PASS" size="20">
+		</p>
+		<p>		
+                <input type="submit" value="Splodge!">
+		</p>
+</form>
+
+
+

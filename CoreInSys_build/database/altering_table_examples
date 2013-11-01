@@ -1,0 +1,5 @@
+
+alter table demultiplex add column JID int unsigned;
+
+delete from demultiplex where seqProjectID=4;
+

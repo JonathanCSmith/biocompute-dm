@@ -1,0 +1,61 @@
+#!/usr/bin/python
+
+import cgi
+link = cgi.FieldStorage()
+
+
+
+
+CH=open("./cgi_header","r")
+cgiHeader=CH.readlines()
+CH.close()
+
+
+HF=open("./template_top","r")
+topLines=HF.readlines()
+HF.close()
+
+FF=open("./template_bottom","r")
+bottomLines=FF.readlines()
+FF.close()
+
+
+from API.getAllUnlinkedSeqProjects import getAllUnlinkedSeqProjects
+
+
+for ch in cgiHeader:
+        print ch[:-1]
+
+for he in topLines:
+	print he[:-1]
+
+projectType=link["projType"].value
+
+
+projectName = link["projName"].value
+
+projectID=link["projID"].value
+
+if projectType=="sequencing":
+	projects=getAllUnlinkedSeqProjects()
+	print '<form name="link" action="/cgi-bin/coreInSys/seqProjLinker" method="post">'
+	print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+	print '<tr><th>link</th><th>seqProjectID</th><th>seqProjectName</th><th>seqExptID</th><th>customerID</th></tr>'
+	for prDat in range(0,len(projects)):
+		print '<tr><td> <input type="checkbox" name="link_'+str(prDat)+'" value="'+str(projects[prDat][0])+'"> </td><td>'+str(projects[prDat][0])+'</td><td>'+str(projects[prDat][1])+'</td><td>'+str(projects[prDat][2])+'</td><td>'+str(projects[prDat][3])+'</td>'
+		print '</tr>'
+	print '</table>'
+	print '<input type="hidden" name="projectID" value='+str(projectID)+'>'
+	print '<input type="submit" value="Link" >'
+
+
+
+
+
+
+for fo in bottomLines:
+	print fo[:-1]
+
+
+
+

@@ -1,0 +1,19 @@
+
+<h2>BioCIS Data Entry</h2>
+<p>
+<a href="/CoreInSys/newProject.html">Add a new project.</a>
+</p><p>
+<a href="/cgi-bin/coreInSys/upLoadSeqData">Upload sequencing experiment data</a>
+</p>
+<p>
+<a href="/cgi-bin/coreInSys/enterSeqData">Manually enter sequencing experiment data</a>
+</p>
+<p>
+<a href="/cgi-bin/coreInSys/upLoadSeqProjData">Upload sequencing project data</a>
+</p>
+
+
+
+
+
+

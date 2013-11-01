@@ -1,0 +1,56 @@
+BioCIS
+
+ToDo List
+
+	Re-write overall project tracking base system
+		Create "linking" system where local projects can be linked to master projects
+			Add a project links table to the database
+			
+
+	Expand project tracking areas
+		Collect details of requirements for flow cytometry
+		Collect details of updated requirements for sequencing experiments 
+			non-standard experiments, 
+			"description" section for one off non-standard experiments
+
+	Input systems
+		Create manual input system for the sequencing experiments
+		Generate input system for the flow cytometry area, upload and manual input.
+		Create customer database input method.
+
+
+	Implement search pages 
+		Basic search, where it is possible to search on a number of selected fields.
+		Advanced search, where it is possible to search on any field. 
+
+
+	Set up user authentication
+		User database
+		Password logins
+	Set up access control mechanism
+		Set up access levels for different pages
+		Associate access levels with users
+			Status and report 
+
+
+	Work on "look and feel"
+		Make general layout more appealling.
+		Implement expand and hide for data browsing.
+		Create logo.
+
+	Build database "liftover" methods for updating the database while keeping the current data 
+
+	Set up mechanism to back-up the database and web-code
+
+		
+	Building		
+	Testing
+	Deployment
+	In-situ testing
+
+
+
+
+
+
+
