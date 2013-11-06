@@ -31,7 +31,7 @@ function experOnlyTable(exptArr)
 		var expRow=document.createElement("tr");
 		///////////////////////////////////////////////////////////////////////////Exp Cell0
 		var expCell0=document.createElement("td"); 				 //This is the cell that the experimental stuff goes in
-		expCell0.style.verticalAlign="top"
+		expCell0.style.verticalAlign="top";
 		var expDataTab=document.createElement("table");
 		for (var exData=0;exData<exptArr[ex][0].length;exData++)
 			{

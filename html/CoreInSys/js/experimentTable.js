@@ -31,7 +31,7 @@ function experimentTable(exptArr)
 		var expRow=document.createElement("tr");
 		///////////////////////////////////////////////////////////////////////////Exp Cell0
 		var expCell0=document.createElement("td"); 				 //This is the cell that the experimental stuff goes in
-		expCell0.style.verticalAlign="top"
+		expCell0.style.verticalAlign="top";
 		var expDataTab=document.createElement("table");
 		for (var exData=0;exData<exptArr[ex][0].length;exData++)
 			{
@@ -60,7 +60,7 @@ function experimentTable(exptArr)
 			var projRow=document.createElement("tr");
 			///////////////////////////////////////////////////////////////////////////////Pro Cell0
 			var projCell0=document.createElement("td"); 					//This is the cell that the project data goes in
-			projCell0.style.verticalAlign="top"
+			projCell0.style.verticalAlign="top";
 			var projDataTab=document.createElement("table");
 			for (var prData=0;prData<exptArr[ex][1][pr][0].length;prData++)
                         	{
@@ -114,7 +114,7 @@ function experimentTable(exptArr)
 				var laneRow=document.createElement("tr");
 				/////////////////////////////////////////////////////////////////////////////////////Lane Cell0
 				var laneCell0=document.createElement("td"); //This is the cell that the lane data goes in
-				laneCell0.style.verticalAlign="top"
+				laneCell0.style.verticalAlign="top";
 				var laneDataTab=document.createElement("table");
 				laneDataTab.border=0;
 				

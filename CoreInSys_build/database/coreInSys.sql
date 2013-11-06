@@ -39,11 +39,11 @@ primary key (stateID)
 );
 
 
-create table flowCellProject
+create table flowCytProject
 (
-flowCellProjectID int unsigned auto_increment,
-flowCellProjectName varchar(40),
-primary key (flowCellProjectID)
+flowCytProjectID int unsigned auto_increment,
+flowCytProjectName varchar(40),
+primary key (flowCytProjectID)
 );
 
 
@@ -76,12 +76,22 @@ primary key (seqExptID)
 
 create table customer
 (
-customerID int,
+customerID int unsigned auto_increment,
+name varchar(40),
+primary key (customerID)
+);
+
+create table customerContact
+(
+contactID int unsigned auto_increment,
+customerID int unsigned,
 name varchar(40),
 email varchar(50),
 tel varchar(30),
-primary key (customerID)
+primary key (contactID)
 );
+
+
 
 create table laneData
 (
