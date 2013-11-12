@@ -1,0 +1,5 @@
+*.pyc
+*.swp
+*~
+cgi-bin/mypol.pp
+cgi-bin/mypol.te

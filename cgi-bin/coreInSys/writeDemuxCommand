@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-
+import sys
 import cgi
 link = cgi.FieldStorage()
 
@@ -20,19 +20,14 @@ FF.close()
 from API.getSeqProjByID import getSeqProjByID
 from API.getExptByID import getExptByID
 
-
-
 for ch in cgiHeader:
         print ch[:-1]
-
-
-
 
 for he in topLines:
 	print he[:-1]
 
 #projectType=link["projType"].value
-
+print "<h2>Do not use your browser's refresh button on this page</h2>"
 
 projectName = link["projName"].value
 
@@ -100,20 +95,42 @@ if 1:
 
 
 	#print "<p>Make sampleSheet</p>"
-	dm.writeCommandFile()
-	dm.makeSampleSheet()
-	#print "<p>Demux bit.</p>"	
-	dm.queueDemuxJob()
-	#print "<p>Job queued?</p>"
-	dm.insertDB()
-	dm.getDemuxStatus()
-
+	try:
+		dm.writeCommandFile()
+	except Exception:
+		print "<p>Failure point 1</p>"
+		sys.exit()
+	try:
+		dm.makeSampleSheet()
+	except Exception:
+		print "<p>Failure point 2</p>"
+                sys.exit()
+	try:
+	
+		#print "<p>Demux bit.</p>"	
+		dm.queueDemuxJob()
+	except Exception:
+		print "<p>Failure point 3</p>"
+                sys.exit()
+	try:		
+		#print "<p>Job queued?</p>"
+		dm.insertDB()
+	except Exception:
+		print "<p>Failure point 4</p>"
+                sys.exit()
+	try:
+		dm.getDemuxStatus()
+	except Exception:
+		print "<p>Failed to get status</p>"
 	
 	#send it back to the projects page
-	"""	
+
 	print '<script language="javascript" type="text/javascript">'
-	print 'window.location.href="/cgi-bin/coreInSys/projects?backurl="+window.location.href;'
+	#print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'&backurl="+window.location.href;'
+	print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'";'
 	print '</script>'
+
+	"""
 	"""
 
 for fo in bottomLines:
