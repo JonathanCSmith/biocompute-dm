@@ -38,7 +38,7 @@ class laneData:
 	def getSampleIDs(self):
 		import runQuery
 		
-		DBquery="select sampleID from sampleData where laneID="+str(self.laneID)
+		DBquery="select sampleID from sampleData where laneID="+str(self.laneID)+" order by sampleID"
 
 		res=runQuery.runQuery(DBquery)
 

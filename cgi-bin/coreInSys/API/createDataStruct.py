@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
 
-import seqExpt
+import seqRun
 
 
-i=seqExpt.seqExpt()
+i=seqRun.seqRun()
 
 i.addSeqProject()
 
@@ -19,9 +19,9 @@ print i.seqProjs[0].lanes[0].samples[0].sampleName
 
 #Down and up and down again
 
-print i.seqProjs[0].lanes[0].samples[0].laneData.seqProject.seqExpt.seqProjs[0].lanes[0].samples[0].sampleName
+print i.seqProjs[0].lanes[0].samples[0].laneData.seqProject.seqRun.seqProjs[0].lanes[0].samples[0].sampleName
 
-i.seqProjs[0].lanes[0].samples[0].laneData.seqProject.seqExpt.seqProjs[0].lanes[0].samples[0].sampleName="Meh!"
+i.seqProjs[0].lanes[0].samples[0].laneData.seqProject.seqRun.seqProjs[0].lanes[0].samples[0].sampleName="Meh!"
 
 
 

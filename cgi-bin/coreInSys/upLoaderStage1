@@ -3,9 +3,9 @@
 import os
 import cgi
 #import cgitb; cgitb.enable()
-from API.exptObj2array import exptObj2array
-from API.getExptByID import getExptByID
-from API.seqExpt import seqExpt
+from API.runObj2array import runObj2array
+from API.getRunByID import getRunByID
+from API.seqRun import seqRun
 from API.getTagSequence import getTagSequence
 
 

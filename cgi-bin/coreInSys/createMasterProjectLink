@@ -38,17 +38,18 @@ i.appendChildren()
 
 #get all Sequencing projects
 
-DBquery="select seqProject.seqProjectID, seqProject.seqProjectName, seqProject.seqExptID, seqExperiment.seqExptName, seqExperiment.startDate from seqProject, seqExperiment where seqProject.seqExptID=seqExperiment.seqExptID"	# order by seqProject.seqProjectID"
+DBquery="select seqProject.seqProjectID, seqProject.seqProjectName, seqProject.seqRunID, seqRun.seqRunName, seqRun.startDate from seqProject, seqRun where seqProject.seqRunID=seqRun.seqRunID"	# order by seqProject.seqProjectID"
 
 #print "<p>",DBquery,"</p>"
 
 sPs=runQuery(DBquery)
 
 
-
+print "<p>",sPs,"</p>"
 seqProjects={} 
 for t in range(0,len(sPs)):
-	seqProjects[sPs[t][0]]=[sPs[t][1],sPs[t][2],sPs[t][3],sPs[t][4]]
+	print str(sPs[t][0])
+	seqProjects[sPs[t][0]]=[sPs[t][1],str(sPs[t][2]),sPs[t][3],sPs[t][4]]
 
 
 #get all flow cytometry projects

@@ -60,12 +60,12 @@ projects=getAllProjects()
 #print "<p>",projects,"</p>"
 
 print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-print '<tr><th>Project Name</th><th>Experiment Name</th><th>Project Type</th><th>Customer ID</th><th>Project Status</th></tr>'
+print '<tr><th>Project Name</th><th>Run Name</th><th>Project Type</th><th>Customer ID</th><th>Project Status</th></tr>'
 
 """
 
 for pro in range(0,len(projects)):
-	print '<tr><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName='+projects[pro][4]+'&projType='+projects[pro][2]+'&projID='+str(projects[pro][1])+'"> '+projects[pro][4]+'</a></td><td><a href="/cgi-bin/coreInSys/getSeqExptFromDB.cgi?projID='+projects[pro][6]+'"> '+projects[pro][6]+' </a></td><td>'+projects[pro][2]+'</td><td>'+str(projects[pro][7])+'</td><td>'+projects[pro][3]+'</td></tr>'
+	print '<tr><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName='+projects[pro][4]+'&projType='+projects[pro][2]+'&projID='+str(projects[pro][1])+'"> '+projects[pro][4]+'</a></td><td><a href="/cgi-bin/coreInSys/getSeqRunFromDB.cgi?projID='+projects[pro][6]+'"> '+projects[pro][6]+' </a></td><td>'+projects[pro][2]+'</td><td>'+str(projects[pro][7])+'</td><td>'+projects[pro][3]+'</td></tr>'
 
 
 """

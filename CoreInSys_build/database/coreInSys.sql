@@ -53,16 +53,16 @@ create table seqProject
 seqProjectID int unsigned auto_increment,
 seqProjectName varchar(40),
 masterProjectID int unsigned,
-seqExptID varchar(10),
+seqRunID varchar(10),
 customerID int,
 primary key (seqProjectID)
 );
 
 
-create table seqExperiment
+create table seqRun
 (
-seqExptID int unsigned auto_increment,
-seqExptName varchar(40),
+seqRunID int unsigned auto_increment,
+seqRunName varchar(40),
 flowcellID varchar(20),
 startDate date,
 completionDate date,
@@ -71,7 +71,7 @@ dataLocation varchar(40),
 indexTagCycles tinyint,
 readCycles tinyint,
 pairedEnd enum('Y','N'),
-primary key (seqExptID)
+primary key (seqRunID)
 );
 
 create table customer
@@ -140,6 +140,19 @@ sourceLocation varchar(500),
 JID int unsigned,
 primary key (demuxID)
 );
+
+create table fastQC
+(
+fastQCID int unsigned auto_increment,
+status enum('setup','running','complete','finished'),
+seqProjectID int unsigned,
+sampleID int unsigned,
+location varchar(500),
+sourceLocation varchar(500),
+JID int unsigned,
+primary key (fastQCID)
+);
+
 
 
 

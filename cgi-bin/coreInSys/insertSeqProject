@@ -4,7 +4,7 @@ import cgi
 import os
 
 
-from API.seqExpt import seqExpt
+from API.seqRun import seqRun
 
 
 form=cgi.FieldStorage()
@@ -110,7 +110,7 @@ print "<p>projectTree",projectTree,"</p>"
 
 
 
-i=seqExpt()
+i=seqRun()
 
 
 
@@ -128,7 +128,7 @@ for m in range(0,len(projectTree)):
 		prDat[projectTree[m][0][md][0]]=projectTree[m][0][md][1]
 	#print "<p>",prDat,"</p>"
 
-	i.setSeqExptByDict(prDat)
+	i.setSeqRunByDict(prDat)
 	
 	for n in range(0,len(projectTree[m][1])):
 		i.addSeqProject()
@@ -136,7 +136,7 @@ for m in range(0,len(projectTree)):
 		for sp in range(0,len(projectTree[m][1][n][0])):
 			spDat[projectTree[m][1][n][0][sp][0]]=projectTree[m][1][n][0][sp][1]
 		i.seqProjs[-1].setSeqProjByDict(spDat)
-		i.seqProjs[-1].seqExptID=i.seqExptID
+		i.seqProjs[-1].seqRunID=i.seqRunID
 		#i.localProjectID=i.seqProjs[-1].seqProjectID
 		#i.seqProjs[-1].masterProjectID=i.masterProjectID
 		for o in range(0,len(projectTree[m][1][n][1])):
@@ -171,13 +171,13 @@ for t in range(0,1):
 #except:
 #	print "<p>Failed to update DB</p>"	
 
-#i.insertSeqExpt()
-i.seqExptID="0"
-#i.getLastSeqExptID()
+#i.insertSeqRun()
+i.seqRunID="0"
+#i.getLastSeqRunID()
 
 for m in range(0,len(i.seqProjs)):
         #print i.seqProjs[m].seqProjectID
-	i.seqProjs[m].seqExptID="0"
+	i.seqProjs[m].seqRunID="0"
         i.seqProjs[m].insertSeqProj()
         # At this stage we need to add to the master Project object and then add to the DB
         i.seqProjs[m].getLastSeqProjectID()
@@ -218,8 +218,8 @@ for m in range(0,len(i.seqProjs)):
 projArr=[]
 projArr.append(i)
 #print projArr
-from API.exptObj2array import exptObj2array 
-d=exptObj2array(projArr)
+from API.runObj2array import runObj2array 
+d=runObj2array(projArr)
 
 #print "<p>",d,"</p>"
 

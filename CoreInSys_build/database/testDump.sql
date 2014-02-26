@@ -153,14 +153,14 @@ INSERT INTO `sampleData` VALUES (1,'A1',1,1,'AAAAAA',1,NULL),(2,'A2',2,1,'GAAAAA
 UNLOCK TABLES;
 
 --
--- Table structure for table `seqExperiment`
+-- Table structure for table `seqRun`
 --
 
-DROP TABLE IF EXISTS `seqExperiment`;
+DROP TABLE IF EXISTS `seqRun`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `seqExperiment` (
-  `seqExptID` varchar(10) NOT NULL DEFAULT '',
+CREATE TABLE `seqRun` (
+  `seqRunID` varchar(10) NOT NULL DEFAULT '',
   `flowcellID` varchar(20) DEFAULT NULL,
   `startDate` date DEFAULT NULL,
   `completionDate` date DEFAULT NULL,
@@ -168,18 +168,18 @@ CREATE TABLE `seqExperiment` (
   `dataLocation` varchar(40) DEFAULT NULL,
   `indexTagCycles` tinyint(4) DEFAULT NULL,
   `readCycles` tinyint(4) DEFAULT NULL,
-  PRIMARY KEY (`seqExptID`)
+  PRIMARY KEY (`seqRunID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `seqExperiment`
+-- Dumping data for table `seqRun`
 --
 
-LOCK TABLES `seqExperiment` WRITE;
-/*!40000 ALTER TABLE `seqExperiment` DISABLE KEYS */;
-INSERT INTO `seqExperiment` VALUES ('P211',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('P222',NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-/*!40000 ALTER TABLE `seqExperiment` ENABLE KEYS */;
+LOCK TABLES `seqRun` WRITE;
+/*!40000 ALTER TABLE `seqRun` DISABLE KEYS */;
+INSERT INTO `seqRun` VALUES ('P211',NULL,NULL,NULL,NULL,NULL,NULL,NULL),('P222',NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `seqRun` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -193,7 +193,7 @@ CREATE TABLE `seqProject` (
   `seqProjectID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `seqProjectName` varchar(20) DEFAULT NULL,
   `masterProjectID` int(10) unsigned DEFAULT NULL,
-  `seqExptID` varchar(10) DEFAULT NULL,
+  `seqRunID` varchar(10) DEFAULT NULL,
   `customerID` int(11) DEFAULT NULL,
   PRIMARY KEY (`seqProjectID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;

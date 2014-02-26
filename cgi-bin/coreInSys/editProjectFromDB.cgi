@@ -18,7 +18,7 @@ bottomLines=FF.readlines()
 FF.close()
 
 
-from API.makeExptObj import makeExptObj
+from API.makeRunObj import makeRunObj
 from API.masterProjSeq2array import masterProjSeq2array
 from API.getProjByID import getProjByID
 

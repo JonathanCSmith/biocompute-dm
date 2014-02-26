@@ -18,14 +18,14 @@ for he in topLines:
 
 #Give it a search precedence.
 
-ExperimentSearchList=[]
+RunSearchList=[]
 
 if form.has_key("SEQ_EXPT_ID"):
-        searchList.append(["seqExptID",form["SEQ_EXPT_ID"].value])
+        searchList.append(["seqRunID",form["SEQ_EXPT_ID"].value])
 if form.has_key("FLOWCELL_ID"):
         searchList.append(["flowcellID",form["FLOWCELL_ID"].value])
 
-#if len(ExperimentSearchList)>0:
+#if len(RunSearchList)>0:
 		
 
 

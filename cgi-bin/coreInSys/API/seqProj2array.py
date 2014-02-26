@@ -2,16 +2,16 @@
 
 
 
-# Convert experiment objects to an array and send a javascript var as a return.
+# Convert run objects to an array and send a javascript var as a return.
 def seqProj2array(expts):
-	jsArray="var experArr=["
+	jsArray="var runArr=["
 	for m in range(0,len(expts)):
 
 		jsArray=jsArray+"[["
 		jsArray=jsArray+"['seqProjectID','"+str(expts[m].seqProjectID)+"'],"
 		jsArray=jsArray+"['seqProjectName','"+str(expts[m].seqProjectName)+"'],"
 		jsArray=jsArray+"['masterProjectID','"+str(expts[m].masterProjectID)+"'],"
-		jsArray=jsArray+"['seqExptID','"+str(expts[m].seqExptID)+"'],"
+		jsArray=jsArray+"['seqRunID','"+str(expts[m].seqRunID)+"'],"
 		jsArray=jsArray+"['customerID','"+str(expts[m].customerID)+"']"
 		jsArray=jsArray+"],["
 
@@ -43,7 +43,7 @@ def seqProj2array(expts):
 
 			jsArray=jsArray[:-1]+"]],"	#Close the samples part and remove the ","
 		jsArray=jsArray[:-1]+"]],"		#Close the lane part and remove the ","
-	jsArray=jsArray+"];"			 	#Close the experiment part and remove the ","
+	jsArray=jsArray+"];"			 	#Close the run part and remove the ","
 
 	return(jsArray)
 

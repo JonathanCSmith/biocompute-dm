@@ -4,7 +4,7 @@ import cgi
 import os
 
 
-from API.seqExpt import seqExpt
+from API.seqRun import seqRun
 
 
 form=cgi.FieldStorage()
@@ -110,7 +110,7 @@ for projData in form.keys():
 
 
 
-i=seqExpt()
+i=seqRun()
 
 #i.addSeqProject()
 #i.seqProjs[0].addLaneData()
@@ -125,7 +125,7 @@ for m in range(0,len(projectTree)):
 		prDat[projectTree[m][0][md][0]]=projectTree[m][0][md][1]
 	#print "<p>",prDat,"</p>"
 
-	i.setSeqExptByDict(prDat)
+	i.setSeqRunByDict(prDat)
 	
 	for n in range(0,len(projectTree[m][1])):
 		i.addSeqProject()
@@ -133,7 +133,7 @@ for m in range(0,len(projectTree)):
 		for sp in range(0,len(projectTree[m][1][n][0])):
 			spDat[projectTree[m][1][n][0][sp][0]]=projectTree[m][1][n][0][sp][1]
 		i.seqProjs[-1].setSeqProjByDict(spDat)
-		i.seqProjs[-1].seqExptID=i.seqExptID
+		i.seqProjs[-1].seqRunID=i.seqRunID
 		#i.localProjectID=i.seqProjs[-1].seqProjectID
 		#i.seqProjs[-1].masterProjectID=i.masterProjectID
 		for o in range(0,len(projectTree[m][1][n][1])):
@@ -163,12 +163,12 @@ i.seqProjs[-1].lanes[-1].addSamples()
 projArr=[]
 projArr.append(i)
 #print projArr
-from API.exptObj2array import exptObj2array 
-d=exptObj2array(projArr)
+from API.runObj2array import runObj2array 
+d=runObj2array(projArr)
 
 #print "<p>",d,"</p>"
-print '<form id="newSeqExpt" name="newSeqExpt" method="post" action="/cgi-bin/coreInSys/insertSeqExpt">'
-print "<script src='/CoreInSys/js/manualExptFormTable.js'></script>"
+print '<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/coreInSys/insertSeqRun">'
+print "<script src='/CoreInSys/js/manualRunFormTable.js'></script>"
 print "<script>"
 print d
 print "experimentTable(experArr);"

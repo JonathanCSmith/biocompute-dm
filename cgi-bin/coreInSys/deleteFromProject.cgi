@@ -18,7 +18,7 @@ bottomLines=FF.readlines()
 FF.close()
 
 
-from API.makeExptObj import makeExptObj
+from API.makeRunObj import makeRunObj
 from API.masterProjSeq2array import masterProjSeq2array
 from API.getProjByID import getProjByID
 
@@ -38,8 +38,8 @@ projectID=link["projID"].value
 
 #id="P211"
 i=getProjByID(projectID,projectType)
-#print i.seqProjs[0].seqExptID
-if i.seqProjs[0].seqExptID=="NULL":
+#print i.seqProjs[0].seqRunID
+if i.seqProjs[0].seqRunID=="NULL":
 	print "<p>This project isn't associated with any experiment.</p>"	
 	print '<p><a href="/cgi-bin/coreInSys/linkProject?projName='+projectName+'&projType='+projectType+'&projID='+projectID+'">Click here</a> to link this project to an experiment</p>'
 

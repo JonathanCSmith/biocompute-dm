@@ -19,7 +19,7 @@ FF=open("./template_bottom","r")
 bottomLines=FF.readlines()
 FF.close()
 
-from API.seqExpt import seqExpt
+from API.seqRun import seqRun
 
 
 for ch in cgiHeader:
@@ -32,7 +32,7 @@ for he in topLines:
 
 laneID=link["laneID"].value
 
-i=seqExpt()
+i=seqRun()
 i.addSeqProject()
 i.seqProjs[0].addLaneData()
 #i.seqProjs[0].lanes[0].addSamples()

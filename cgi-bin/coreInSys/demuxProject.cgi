@@ -17,9 +17,9 @@ FF=open("./template_bottom","r")
 bottomLines=FF.readlines()
 FF.close()
 
-#from API.makeExptObj import makeExptObj
+#from API.makeRunObj import makeRunObj
 from API.getSeqProjByID import getSeqProjByID
-from API.getExptByID import getExptByID
+from API.getRunByID import getRunByID
 
 
 
@@ -35,16 +35,16 @@ projectID=link["projID"].value
 
 
 i=getSeqProjByID(0,projectID)
-#print i.seqProjs[0].seqExptID
-if i.seqExptID=="NULL":
+#print i.seqProjs[0].seqRunID
+if i.seqRunID=="NULL":
 	print "<p>This project isn't associated with any experiment.</p>"	
 	print '<p><a href="/cgi-bin/coreInSys/linkProject?projName='+projectName+'&projType='+projectType+'&projID='+projectID+'">Click here</a> to link this project to an experiment</p>'
 else:
 
 	#get experimental details
 
-	j=getExptByID(i.seqExptID)
-	projectName=j.seqExptName
+	j=getRunByID(i.seqRunID)
+	projectName=j.seqRunName
 
 	#print "<p>",j.flowcellID,"</p>"
 	#print "<p>",j.dataLocation,"</p>"

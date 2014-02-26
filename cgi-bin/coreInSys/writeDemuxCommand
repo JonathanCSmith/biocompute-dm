@@ -18,7 +18,7 @@ bottomLines=FF.readlines()
 FF.close()
 
 from API.getSeqProjByID import getSeqProjByID
-from API.getExptByID import getExptByID
+from API.getRunByID import getRunByID
 
 for ch in cgiHeader:
         print ch[:-1]
@@ -36,11 +36,11 @@ projectID=link["projID"].value
 
 #i=getProjByID(projectID,"sequencing")
 i=getSeqProjByID(0,projectID)
-#print i.seqProjs[0].seqExptID
+#print i.seqProjs[0].seqRunID
 if 1:
 	#get experimental details
 
-	j=getExptByID(i.seqExptID)
+	j=getRunByID(i.seqRunID)
 
 	#print "<p>",j.flowcellID,"</p>"
 	#print "<p>",j.dataLocation,"</p>"
@@ -76,6 +76,12 @@ if 1:
 
 	if link.has_key('--sample-sheet'):
                 dm.params['--sample-sheet']=link['--sample-sheet'].value
+
+	if link.has_key('--mismatches'):
+                dm.params['--mismatches']=link['--mismatches'].value
+
+	#print "<p>Link mismatches",link['--mismatches'].value,"</p>"
+
 	#options
 	if link.has_key('--no-eamss'):
                 dm.options['--no-eamss']=link['--no-eamss'].value

@@ -22,7 +22,7 @@ function experimentTable(exptArr)
 
 	
 	//var contentCell=document.getElementById("content");
-	var exptDetailsShown=document.getElementById("exptDetailsShown");
+	var runDetailsShown=document.getElementById("runDetailsShown");
 		
 	//var numbLanes=8;
 		
@@ -127,7 +127,7 @@ function experimentTable(exptArr)
 
 
 		
-		exptDetailsShown.appendChild(projTab);
+		runDetailsShown.appendChild(projTab);
 		}	
 	
 	}

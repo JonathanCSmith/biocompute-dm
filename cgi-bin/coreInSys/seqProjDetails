@@ -3,7 +3,7 @@
 
 import cgi
 link = cgi.FieldStorage()
-import os
+import os,sys
 
 CH=open("./cgi_header","r")
 cgiHeader=CH.readlines()
@@ -18,12 +18,21 @@ bottomLines=FF.readlines()
 FF.close()
 
 
+
+
 from API.seqProj2array import seqProj2array
 from API.seqProject import seqProject
 from API.runQuery import runQuery
 from API.getState import getState
-from API.getExptByID import getExptByID
+from API.getRunByID import getRunByID
 from PL_CONTROL.demux import demux
+from PL_CONTROL.fastQC import fastQC
+
+
+#print "<p>Loaded modules</p>"
+
+
+
 
 for ch in cgiHeader:
         print ch[:-1]
@@ -31,8 +40,15 @@ for he in topLines:
 	print he[:-1]
 
 
+
+
+
+
+#print "<p>",link.keys(),"</p>"
 projectID=link["projID"].value
 #print "<p>ProjectID",projectID,"</p>"
+
+
 
 
 DBquery="select parentID from typeLinker where childID="+projectID
@@ -54,21 +70,43 @@ status=getState("sequencing",projectID)
 
 print "<p>Project status: <a href='/cgi-bin/coreInSys/status?type=sequencing&itemID="+str(projectID)+"'><img src='/CoreInSys/images/status_"+status+".gif' alt='status_"+status+"' ></a></p>"
 
+#for fo in bottomLines:
+#        print fo[:-1]
+
+#sys.exit()
+
+
+
 #setup the seqProject
 i=seqProject(0)
 i.getSeqProjByID(projectID)
 
 
-	
 
 
 
 
-DBquery="select seqProject.seqExptID, seqExperiment.seqExptName from seqProject, seqExperiment  where seqProjectID="+projectID+" and seqProject.seqExptID=seqExperiment.seqExptID"
-seqExptStuff=runQuery(DBquery)
-print "<p>This sequencing project belongs to experiment:"
-print '<a href="/cgi-bin/coreInSys/getSeqExptFromDB.cgi?projID='+seqExptStuff[0][0]+'">'+seqExptStuff[0][1]+'</a>'
+DBquery="select seqProject.seqRunID, seqRun.seqRunName from seqProject, seqRun  where seqProjectID="+projectID+" and seqProject.seqRunID=seqRun.seqRunID"
+
+#print "<p>",DBquery,"</p>"
+
+
+
+seqRunStuff=runQuery(DBquery)
+
+#print "<p>",seqRunStuff,"</p>"
+
+
+
+
+print "<p>This sequencing project belongs to sequencing run:"
+print '<a href="/cgi-bin/coreInSys/getSeqRunFromDB.cgi?projID='+str(seqRunStuff[0][0])+'">'+seqRunStuff[0][1]+'</a>'
 print "</p>"
+
+
+
+
+
 
 
 #Get the IDs of all of the lanes in this project
@@ -98,13 +136,25 @@ for la in range(0,len(laneDataIDs)):
 		i.lanes[-1].samples[-1].getSampleDataByID(sampleIDs[sa][0])
 
 
+
+
+
 projArr=[]
 projArr.append(i)
 #print projArr
 
+
+
 d=seqProj2array(projArr)
 
 #print "<p>",d,"</p>"
+
+
+
+
+
+
+
 
 print '<script>'
 print 'function swapDisplayed(idA,idB){'
@@ -122,26 +172,28 @@ print '</script>'
 print "<hr>"
 print "<h3>Sequencing Project Details</h3>"
 
-print '<div id="exptDetailsShown" style="display:inline">'
-print """<a href="javascript:swapDisplayed('exptDetailsHidden','exptDetailsShown')">hide details</a> """ 
+print '<div id="runDetailsShown" style="display:inline">'
+print """<a href="javascript:swapDisplayed('runDetailsHidden','runDetailsShown')">hide details</a> """ 
 print "<script src='/CoreInSys/js/seqProjectTable.js'></script>"
 print "<script>"
 print d
-print "experimentTable(experArr);"
+print "experimentTable(runArr);"
 print "</script>"
 print '</div>'
 
-print '<div id="exptDetailsHidden" style="display:none">'
-print """<a href="javascript:swapDisplayed('exptDetailsShown','exptDetailsHidden')">show details</a> """
+print '<div id="runDetailsHidden" style="display:none">'
+print """<a href="javascript:swapDisplayed('runDetailsShown','runDetailsHidden')">show details</a> """
 print '</div>'
 
 print '<script>'
 print 'var contentCell=document.getElementById("content");'
-print 'var exptDetailsShown=document.getElementById("exptDetailsShown");'
-print 'var exptDetailsHidden=document.getElementById("exptDetailsHidden");'
-print 'var contentCell.appendChild(exptDetailsShown);'
-print 'var contentCell.appendChild(exptDetailsHidden);'
+print 'var runDetailsShown=document.getElementById("runDetailsShown");'
+print 'var runDetailsHidden=document.getElementById("runDetailsHidden");'
+print 'var contentCell.appendChild(runDetailsShown);'
+print 'var contentCell.appendChild(runDetailsHidden);'
 print '</script>'
+
+
 
 
 
@@ -158,14 +210,33 @@ demuxed=runQuery(DBquery)
 #print demuxed
 #demuxed="0"
 print "<hr>"
+
+
+#for fo in bottomLines:
+#        print fo[:-1]
+
+#sys.exit()
+
+
+
 if len(demuxed)==0:
         print "<p>This sequencing project has not been demultiplexed using BioCIS</p>"
 else:
         print "<h3>Demultiplexing:</h3>"
         #print "<p>",demuxed,"</p>"
-        j=getExptByID(i.seqExptID)
 
-        #print "<p>",j.seqExptID,"</p>"
+        j=getRunByID(i.seqRunID)
+
+	#for fo in bottomLines:
+        #	print fo[:-1]
+
+	#sys.exit()
+
+
+
+
+
+        #print "<p>",j.seqRunID,"</p>"
         #print "<p>",j.dataLocation,"</p>"
 
         #os.environ['PATH']='/var/www/cgi-bin/coreInSys/PL_CONTROL'
@@ -183,6 +254,45 @@ else:
 
 print '<p><a href="/cgi-bin/coreInSys/demuxProject.cgi?projID='+str(projectID)+'">Demultiplex this project.</a></p>'
 
+
+#put fastQC stuff here
+### ONLY LET IT RUN FASTQC IF THE SAMPLE FILE ACTUALLY EXISTS ###
+
+
+
+
+DBquery='select * from fastQC where seqProjectID='+str(projectID)
+#print "<p>",DBquery,"</p>"
+fastQCed=runQuery(DBquery)
+print "<hr>"
+
+
+if len(fastQCed)==0:
+        print "<p>FastQC has not been run on these samples using BioCIS</p>"
+
+else:
+        print "<h3>FastQC:</h3>"
+
+        j=getRunByID(i.seqRunID)
+
+        #os.environ['PATH']='/var/www/cgi-bin/coreInSys/PL_CONTROL'
+        #from PL_CONTROL.fastQC import fastQC
+
+        try:
+                fq=fastQC(i,j)
+        except Exception:
+                print "<p>Error - Unable to create fastQC object instance.</p>"
+
+        try:
+                fq.establishPaths()
+                fq.getFastQCStatus()
+        except Exception:
+                print "<p>EError - Unable to get fastQC status.</p>"
+
+#print '<p><a href="/cgi-bin/coreInSys/fastQC.cgi?projID='+str(projectID)+'">Run FastQC on the samples in sequencing project.</a></p>'
+
+
+print "<br><br><br><hr>"
 
 
 

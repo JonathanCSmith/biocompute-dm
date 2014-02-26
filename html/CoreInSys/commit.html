@@ -86,8 +86,8 @@ else
                 <th class="buttons" width="1"></th>
 
 		<th class="buttons" width=85  style="background: url(images/75pxbutton.gif)">
-                <a href="/cgi-bin/coreInSys/seqExper" style="text-decoration:none; color:black">
-                Sequencing Experiments
+                <a href="/cgi-bin/coreInSys/seqRun" style="text-decoration:none; color:black">
+                Sequencing Runs
                 </a>
                 </th>
                 <th class="buttons" width="1"></th>
@@ -125,13 +125,13 @@ else
 
 <tr><td id="content">
 <script>
-function experimentTable()
+function runTable()
 	{
 	//Need to pass a whole data hierachy as an array
 
 	//Organize diaplay as tables
-	//One for each experiment contining two cells
-	//	First cell is the experiment ID and info
+	//One for each run contining two cells
+	//	First cell is the run ID and info
 	//	Second cell contains a table
 	//		This table has two cells
 	//		First cell is the Project details name...
@@ -147,9 +147,9 @@ function experimentTable()
 
 	
 	var contentCell=document.getElementById("content");
-	var numbExpts=1;
+	var numbRuns=1;
 	var numbProjects=8;
-	for (var ex=0;ex<numbExpts;ex++)	//
+	for (var ex=0;ex<numbRuns;ex++)	//
 		{
 		var expTab=document.createElement("table");
 		expTab.id="expTab_"+ex.toString();
@@ -265,12 +265,12 @@ function experimentTable()
 
 </script>
 
-<script type="text/javascript" src="./inc/getSeqExpt.cgi"></script>
+<script type="text/javascript" src="./inc/getSeqRun.cgi"></script>
 <script>
 alert("Got here!");
-alert(experArr);
+alert(runArr);
 alert("Got there!");
-experimentTable();
+runTable();
 </script>
 
 

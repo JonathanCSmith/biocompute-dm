@@ -35,7 +35,7 @@ class flowCytProject:
 	def getSeqProjByID(self,projID):
 		import runQuery
 
-		DBquery="select seqProjectName, masterProjectID, customerID, seqExptID from seqProject where seqProjectID="+str(projID)
+		DBquery="select seqProjectName, masterProjectID, customerID, seqRunID from seqProject where seqProjectID="+str(projID)
 		
 		res=runQuery.runQuery(DBquery)
 
@@ -43,7 +43,7 @@ class flowCytProject:
                 self.seqProjectName=res[0][0]
 		self.masterProjectID=res[0][1]
                 self.customerID=res[0][2]
-		self.seqExptID=res[0][3]
+		self.seqRunID=res[0][3]
 
 	def getLaneDataIDs(self):
 		import runQuery
@@ -60,16 +60,16 @@ class flowCytProject:
 
 
 		try:
-                        self.seqExptID=self.parent.seqExptID
+                        self.seqRunID=self.parent.seqRunID
                 except AttributeError:
-                        self.seqExptID="NULL"
+                        self.seqRunID="NULL"
 
 
 
 		import runQuery
 
-		insQuery="INSERT INTO seqProject (seqProjectName,masterProjectID, seqExptID,customerID) "
-                vals=" VALUES('"+self.seqProjectName+"','"+str(self.masterProjectID)+"','"+self.seqExptID+"',"+str(self.customerID)+")"
+		insQuery="INSERT INTO seqProject (seqProjectName,masterProjectID, seqRunID,customerID) "
+                vals=" VALUES('"+self.seqProjectName+"','"+str(self.masterProjectID)+"','"+self.seqRunID+"',"+str(self.customerID)+")"
 
                 DBins=insQuery+vals
 

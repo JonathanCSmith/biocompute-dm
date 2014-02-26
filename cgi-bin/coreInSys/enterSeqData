@@ -3,9 +3,9 @@
 import os
 import cgi
 #import cgitb; cgitb.enable()
-from API.exptObj2array import exptObj2array
-from API.getExptByID import getExptByID
-from API.seqExpt import seqExpt
+from API.runObj2array import runObj2array
+from API.getRunByID import getRunByID
+from API.seqRun import seqRun
 from API.getTagSequence import getTagSequence
 
 
@@ -35,26 +35,26 @@ for he in topLines:
 
 
 
-#Create a seqExperiment instance
+#Create a seqRun instance
 i=[]
 
-i.append(seqExpt())
+i.append(seqRun())
 i[-1].addSeqProject()
 i[-1].seqProjs[0].addLaneData()
 i[-1].seqProjs[0].lanes[0].addSamples()
 
 #expArr=[]
 #expArr.append(projs)
-#d=exptObj2array(expArr)
+#d=runObj2array(expArr)
 print """<p>Mandatory fields are in red. Leave seqProjectName as "SeqProjName" if you don't wish to add sequencing project information.</p>"""
 
-d=exptObj2array(i)
+d=runObj2array(i)
 #print "<p>",d,"</p>"
-print '<form id="newSeqExpt" name="newSeqExpt" method="post" action="/cgi-bin/coreInSys/insertSeqExpt">'
-print "<script src='/CoreInSys/js/manualExptFormTable.js'></script>"
+print '<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/coreInSys/insertSeqRun">'
+print "<script src='/CoreInSys/js/manualRunFormTable.js'></script>"
 print "<script>"
 print d
-print "experimentTable(experArr);"
+print "experimentTable(runArr);"
 print "</script>"
 print '<input id="Insert" type="submit" value="Insert">'
 print '</form>'

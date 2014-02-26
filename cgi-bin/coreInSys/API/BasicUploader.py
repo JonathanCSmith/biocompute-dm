@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
-import seqExpt
+import seqRun
 import masterProject
 
 
 #Create a container for the masterProjects
 maPr=[]
 
-#Create a seqExperiment instance
+#Create a seqRun instance
 
 
-i=seqExpt.seqExpt()
+i=seqRun.seqRun()
 i.addSeqProject()
 i.seqProjs[0].addLaneData()
 i.seqProjs[0].lanes[0].addSamples()
@@ -35,21 +35,21 @@ for t in lines:
 		dataArr.append(li)
 
 #Initialize dictionaries for the insertion methods
-seqExptRecord= {'seqExptID':'NULL', 'flowcellID':'NULL', 'startDate':'NULL', 'completionDate':'NULL', 'genomicsLead':'NULL', 'dataLocation':'NULL', 'indexTagCycles':'NULL', 'readCycles':'NULL'}
-seqProjRecord= {'seqProjectName':'NULL', 'seqExptID':'NULL', 'customerID':'NULL'}
+seqRunRecord= {'seqRunID':'NULL', 'flowcellID':'NULL', 'startDate':'NULL', 'completionDate':'NULL', 'genomicsLead':'NULL', 'dataLocation':'NULL', 'indexTagCycles':'NULL', 'readCycles':'NULL'}
+seqProjRecord= {'seqProjectName':'NULL', 'seqRunID':'NULL', 'customerID':'NULL'}
 laneRecord= {'seqProjectID':'NULL', 'laneNumber':'NULL', 'sequencingConc':'NULL', 'read1ClusterDensity':'NULL', 'PhiXspiked':'NULL' ,'spike':'NULL', 'spikeRatio':'NULL'}
 sampleRecord= {'sampleName':'NULL', 'tagID':'NULL', 'laneID':'NULL', 'tagSequence':'NULL', 'analysisID':'NULL', 'adaptorSequence':'NULL'}		
 
-#Put the data into the seqExperiment instance
+#Put the data into the seqRun instance
 
 for t in range(0,len(dataArr)):
-	if i.seqExptID=="NULL":			#Has the experiment ID been initialized?	
-		i.seqExptID=dataArr[t][0]
+	if i.seqRunID=="NULL":			#Has the run ID been initialized?	
+		i.seqRunID=dataArr[t][0]
 			
 	if i.seqProjs[-1].seqProjectName=="":			#Has the seqProjectID been initialized?
 		i.seqProjs[-1].seqProjectName=dataArr[t][1]
 		i.projectName=dataArr[t][1]
-	elif i.seqProjs[-1].seqProjectName!=dataArr[t][1]:	#Do we need to make a new seqProject object within this seqExperiment?		
+	elif i.seqProjs[-1].seqProjectName!=dataArr[t][1]:	#Do we need to make a new seqProject object within this seqRun?		
 		i.addSeqProject()
 		i.seqProjs[-1].addLaneData()
 		i.seqProjs[-1].lanes[-1].addSamples()
@@ -81,7 +81,7 @@ for t in range(0,len(dataArr)):
 
 
 
-i.insertSeqExpt()
+i.insertSeqRun()
 for m in range(0,len(i.seqProjs)):
 	#print i.seqProjs[m].seqProjectID		
 	i.seqProjs[m].insertSeqProj()
@@ -119,7 +119,7 @@ for m in range(0,len(i.seqProjs)):
 
 
 """
-#seqExptID,	seqProjID,	laneID,	sequencingConc,	PhiXspiked,	SampleID,	tagID,	tagSequence,	analysisID
+#seqRunID,	seqProjID,	laneID,	sequencingConc,	PhiXspiked,	SampleID,	tagID,	tagSequence,	analysisID
 P211, 		AlProj,		1, 	0.5, 		0.5,		A1,		1,	AAAAAA,		1
 P211,           AlProj,         1,      0.5,            0.5,            A2,             2,      GAAAAA,         1
 """

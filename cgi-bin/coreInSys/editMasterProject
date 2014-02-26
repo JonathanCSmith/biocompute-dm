@@ -34,7 +34,7 @@ if link.has_key('projID'):
 
 i=masterProject()
 i.getMasterProjectByID(projectID)
-#print i.seqProjs[0].seqExptID
+#print i.seqProjs[0].seqRunID
 
 print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
 print '<form id="upDateMastProj" name="upDateMastProj" method="post" action="/cgi-bin/coreInSys/updateMasterProject">'

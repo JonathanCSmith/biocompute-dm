@@ -19,7 +19,7 @@ FF=open("./template_bottom","r")
 bottomLines=FF.readlines()
 FF.close()
 
-from API.seqExpt import seqExpt
+from API.seqRun import seqRun
 
 
 for ch in cgiHeader:
@@ -49,7 +49,7 @@ res=runQuery(DBquery)
 #res=runQuery(DBquery)
 
 
-i=seqExpt()
+i=seqRun()
 i.addSeqProject()
 i.seqProjs[0].getSeqProjByID(seqProjectID)
 i.seqProjs[0].deleteSeqProjectTree()

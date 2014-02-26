@@ -6,9 +6,9 @@ class seqProject:
 	def __init__(self,parent):
 		self.parent=parent
 		try:
-			self.seqExptID=self.parent.seqExptID
+			self.seqRunID=self.parent.seqRunID
                 except AttributeError:
-			self.seqExptID="NULL"
+			self.seqRunID="NULL"
 	
 		self.masterProjectID=0
 		self.seqProjectID=0
@@ -34,7 +34,7 @@ class seqProject:
 	def setStateDB(self):
 		import runQuery
 
-                DBquery="update state set state='"+self.state+"'  where itemID='"+str(self.seqProjectID)+"' and type='sequencing':/state"
+                DBquery="update state set state='"+self.state+"'  where itemID='"+str(self.seqProjectID)+"' and type='sequencing'"
 		#print "<p>",DBquery,"</p>"
 		res=runQuery.runQuery(DBquery)
 
@@ -55,7 +55,7 @@ class seqProject:
 	def getSeqProjByID(self,projID):
 		import runQuery
 
-		DBquery="select seqProjectName, masterProjectID, customerID, seqExptID from seqProject where seqProjectID="+str(projID)
+		DBquery="select seqProjectName, masterProjectID, customerID, seqRunID from seqProject where seqProjectID="+str(projID)
 		
 		res=runQuery.runQuery(DBquery)
 		#if len(res[0])>2:
@@ -63,14 +63,14 @@ class seqProject:
                 self.seqProjectName=res[0][0]
 		self.masterProjectID=res[0][1]
                 self.customerID=res[0][2]
-		self.seqExptID=res[0][3]
+		self.seqRunID=res[0][3]
 
 		self.getStateDB()
 
 	def getLaneDataIDs(self):
 		import runQuery
 
-		DBquery="select laneID from laneData where seqProjectID="+str(self.seqProjectID)
+		DBquery="select laneID from laneData where seqProjectID="+str(self.seqProjectID)+" order by laneNumber"
 		res=runQuery.runQuery(DBquery)
 
                 return(res)
@@ -86,7 +86,7 @@ class seqProject:
                         self.lanes[-1].getLaneDataByID(laneDataIDs[la][0])      
                         self.lanes[-1].deleteLaneTree() 
 
-                #Now remove this seqExperiment
+                #Now remove this seqRun
                 import runQuery
                 DBquery="delete from seqProject where seqProjectID="+str(self.seqProjectID)
                 res=runQuery.runQuery(DBquery)
@@ -107,15 +107,15 @@ class seqProject:
 
 
 		try:
-                        self.seqExptID=self.parent.seqExptID
+                        self.seqRunID=self.parent.seqRunID
                 except AttributeError:
-                        self.seqExptID="NULL"
+                        self.seqRunID="NULL"
 
 
 		import runQuery
 
-		insQuery="INSERT INTO seqProject (seqProjectName,masterProjectID, seqExptID,customerID) "
-                vals=" VALUES('"+self.seqProjectName+"','"+str(self.masterProjectID)+"','"+str(self.seqExptID)+"',"+str(self.customerID)+")"
+		insQuery="INSERT INTO seqProject (seqProjectName,masterProjectID, seqRunID,customerID) "
+                vals=" VALUES('"+self.seqProjectName+"','"+str(self.masterProjectID)+"','"+str(self.seqRunID)+"',"+str(self.customerID)+")"
 
                 DBins=insQuery+vals
 
@@ -132,7 +132,7 @@ class seqProject:
 	#Update the database with the current object
 	def updateDB(self):
 		import runQuery
-		updateQuery="UPDATE seqProject SET seqExptID='"+str(self.seqExptID)+"', seqProjectName='"+self.seqProjectName+"', masterProjectID="+str(self.masterProjectID)+", customerID="+str(self.customerID)+" where seqProjectID="+str(self.seqProjectID)
+		updateQuery="UPDATE seqProject SET seqRunID='"+str(self.seqRunID)+"', seqProjectName='"+self.seqProjectName+"', masterProjectID="+str(self.masterProjectID)+", customerID="+str(self.customerID)+" where seqProjectID="+str(self.seqProjectID)
 		#print "<p>",updateQuery,"</p>"
 		update=runQuery.runQuery(updateQuery)
 
@@ -157,8 +157,8 @@ class seqProject:
 		if seqProjRecord.has_key('customerID'):
 			self.customerID=seqProjRecord['customerID']
 
-		if seqProjRecord.has_key('seqExptID'):
-                        self.seqExptID=seqProjRecord['seqExptID']
+		if seqProjRecord.has_key('seqRunID'):
+                        self.seqRunID=seqProjRecord['seqRunID']
 
 
 	

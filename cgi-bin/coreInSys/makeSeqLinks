@@ -18,7 +18,7 @@ bottomLines=FF.readlines()
 FF.close()
 
 from API.runQuery import runQuery
-from API.getExptByID import getExptByID
+from API.getRunByID import getRunByID
 from API.getSeqProjByID import getSeqProjByID
 
 for ch in cgiHeader:
@@ -27,10 +27,10 @@ for he in topLines:
 	print he[:-1]
 
 
-iD = link["exptID"].value
+iD = link["runID"].value
 #iD="P211"
 
-i=getExptByID(iD)
+i=getRunByID(iD)
 #Get unlinked seq projects
 
 sPs=link.keys()
@@ -43,7 +43,7 @@ for li in range(0,len(sPs)):
 		
 		i.addSeqProject()
 		i.seqProjs[-1].getSeqProjByID(IDsp[1])
-		i.seqProjs[-1].seqExptID=iD
+		i.seqProjs[-1].seqRunID=iD
 		i.seqProjs[-1].updateDB()
 
 

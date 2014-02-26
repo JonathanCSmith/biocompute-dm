@@ -3,9 +3,9 @@
 import os
 import cgi
 #import cgitb; cgitb.enable()
-from API.exptObj2array import exptObj2array
-from API.getExptByID import getExptByID
-from API.seqExpt import seqExpt
+from API.runObj2array import runObj2array
+from API.getRunByID import getRunByID
+from API.seqRun import seqRun
 from API.getTagSequence import getTagSequence
 
 
@@ -79,10 +79,10 @@ for t in range(1,len(lines)):
 #print "<p>dataArr[0]",dataArr[0],"</p>"
 #print "<p>dataArr[1]",dataArr[1],"</p>"
 
-#Create a seqExperiment instance
+#Create a seqRun instance
 i=[]
 
-i.append(seqExpt())
+i.append(seqRun())
 i[-1].addSeqProject()
 i[-1].seqProjs[0].addLaneData()
 i[-1].seqProjs[0].lanes[0].addSamples()
@@ -106,7 +106,7 @@ i[-1].seqProjs[0].lanes[0].addSamples()
 16      # of Index Tag Cycles,
 17      Sequencing Concentration
 """
-#Put the data into the seqExperiment instance
+#Put the data into the seqRun instance
 #default_form=1
 
 
@@ -140,7 +140,7 @@ for t in range(0,len(dataArr)):
 	if i[-1].flowcellID=="NULL":			#Has the experiment ID been initialized?	
 		i[-1].flowcellID=dataArr[t][csvForm["Flow Cell I.D."]]
 		if csvForm.has_key("Hi-Seq/Flow Cell Project number"):
-			i[-1].seqExptName=dataArr[t][csvForm["Hi-Seq/Flow Cell Project number"]]
+			i[-1].seqRunName=dataArr[t][csvForm["Hi-Seq/Flow Cell Project number"]]
 		if csvForm.has_key("# of Index Tag Cycles"):
 			i[-1].indexTagCycles=dataArr[t][csvForm["# of Index Tag Cycles"]]
 		if csvForm.has_key("# of Read Cycles"):
@@ -168,18 +168,18 @@ for t in range(0,len(dataArr)):
 		if csvForm.has_key("Sequencing Operator"):
 			i[-1].genomicsLead=dataArr[t][csvForm["Sequencing Operator"]]
 	elif i[-1].flowcellID!=dataArr[t][csvForm["Flow Cell I.D."]]:
-		i.append(seqExpt())
+		i.append(seqRun())
 		i[-1].addSeqProject()
 		i[-1].seqProjs[0].addLaneData()
 		i[-1].seqProjs[0].lanes[0].addSamples()
 		i[-1].flowcellID=dataArr[t][csvForm["Flow Cell I.D."]]	
 		if csvForm.has_key("Hi-Seq/Flow Cell Project number"):
-			i[-1].seqExptName=dataArr[t][csvForm["Hi-Seq/Flow Cell Project number"]]
+			i[-1].seqRunName=dataArr[t][csvForm["Hi-Seq/Flow Cell Project number"]]
 		if csvForm.has_key("# of Index Tag Cycles"):
 			i[-1].indexTagCycles=dataArr[t][csvForm["# of Index Tag Cycles"]]
 		if csvForm.has_key("# of Read Cycles"):
                         i[-1].readCycles=dataArr[t][csvForm["# of Read Cycles"]]
-		i[-1].seqExptID=0
+		i[-1].seqRunID=0
 		if csvForm.has_key("Sequencing Start Date"):
 			stDa=dataArr[t][csvForm["Sequencing Start Date"]].split("/")
                 	startDate=""
@@ -203,7 +203,7 @@ for t in range(0,len(dataArr)):
 		i[-1].seqProjs[-1].seqProjectName=dataArr[t][csvForm["P.I."]]
 		if csvForm.has_key("Customer Sample ID"):
 			i[-1].projectName=dataArr[t][csvForm["Customer Sample ID"]]
-	elif i[-1].seqProjs[-1].seqProjectName!=dataArr[t][csvForm["P.I."]]:	#Do we need to make a new seqProject object within this seqExperiment?		
+	elif i[-1].seqProjs[-1].seqProjectName!=dataArr[t][csvForm["P.I."]]:	#Do we need to make a new seqProject object within this seqRun?		
 		i[-1].addSeqProject()
 		i[-1].seqProjs[-1].addLaneData()
 		i[-1].seqProjs[-1].lanes[-1].addSamples()
@@ -272,11 +272,11 @@ for t in range(0,len(dataArr)):
 
 #expArr=[]
 #expArr.append(projs)
-#d=exptObj2array(expArr)
+#d=runObj2array(expArr)
 
-d=exptObj2array(i)
+d=runObj2array(i)
 #print "<p>",d,"</p>"
-print '<form id="newSeqExpt" name="newSeqExpt" method="post" action="/cgi-bin/coreInSys/insertSeqExpt">'
+print '<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/coreInSys/insertSeqRun">'
 print "<script src='/CoreInSys/js/experimentFormTable.js'></script>"
 print "<script>"
 print d

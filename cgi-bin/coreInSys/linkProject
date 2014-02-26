@@ -40,7 +40,7 @@ if projectType=="sequencing":
 	projects=getAllUnlinkedSeqProjects()
 	print '<form name="link" action="/cgi-bin/coreInSys/seqProjLinker" method="post">'
 	print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-	print '<tr><th>link</th><th>seqProjectID</th><th>seqProjectName</th><th>seqExptID</th><th>customerID</th></tr>'
+	print '<tr><th>link</th><th>seqProjectID</th><th>seqProjectName</th><th>seqRunID</th><th>customerID</th></tr>'
 	for prDat in range(0,len(projects)):
 		print '<tr><td> <input type="checkbox" name="link_'+str(prDat)+'" value="'+str(projects[prDat][0])+'"> </td><td>'+str(projects[prDat][0])+'</td><td>'+str(projects[prDat][1])+'</td><td>'+str(projects[prDat][2])+'</td><td>'+str(projects[prDat][3])+'</td>'
 		print '</tr>'

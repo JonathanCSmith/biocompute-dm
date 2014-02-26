@@ -20,7 +20,7 @@ function experimentTable(exptArr)
 	//	etc to organize the data
 	// 	Come back later and add the ability to show and hide the data that is displayed
 
-	var inForm=document.forms['newSeqExpt'];
+	var inForm=document.forms['newSeqRun'];
 
 	var contentCell=document.getElementById("content");
 	//var numbLanes=8;
@@ -30,7 +30,7 @@ function experimentTable(exptArr)
 		expTab.id="expTab_"+ex.toString();
 		expTab.border=1;
 		var expRow=document.createElement("tr");
-		///////////////////////////////////////////////////////////////////////////Exp Cell0
+		///////////////////////////////////////////////////////////////////////////Run Cell0
 		var expCell0=document.createElement("td"); 				 //This is the cell that the experimental stuff goes in
 		expCell0.style.verticalAlign="top";
 		var expDataTab=document.createElement("table");
@@ -57,7 +57,7 @@ function experimentTable(exptArr)
 
 		expCell0.appendChild(expDataTab);
 		expRow.appendChild(expCell0);
-		//////////////////////////////////////////////////////////////////////////Exp Cell1
+		//////////////////////////////////////////////////////////////////////////Run Cell1
 		var expCell1=document.createElement("td");  				//This is the cell that the rest go in
 		
 		for (var pr=0;pr<exptArr[ex][1].length;pr++)

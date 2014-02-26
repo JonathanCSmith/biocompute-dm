@@ -46,7 +46,7 @@ class demux:
 		self.params["--flowcell-id"]=j.flowcellID
 		self.params["--tiles"]=""
 		self.params["--sample-sheet"]=os.path.join(self.projectsRoot,self.projectDir,"sampleSheet.csv")
-
+		self.params["--mismatches"]="0"
 		self.options={}
                 self.options["--no-eamss"]="Y"
 		self.options["--force"]="Y"
@@ -77,7 +77,7 @@ class demux:
 
 
 	def setTiles(self):
-		#get the lanes from the seqExpt object
+		#get the lanes from the seqRun object
 		lanes=[]
 		for la in range(0,len(self.i.lanes)):
 			lanes.append(self.i.lanes[la].laneNumber)

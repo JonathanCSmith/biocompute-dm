@@ -4,7 +4,7 @@
 
 def getProjByID(projectID,projectType):
 	import masterProject
-	#Create a seqExperiment instance
+	#Create a seqRun instance
 	i=masterProject.masterProject()
 	i.getMasterProjectByID(projectID)
 	#i.addSeqProject()

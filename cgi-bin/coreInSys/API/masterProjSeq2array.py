@@ -3,9 +3,9 @@
 #import masterProject
 
 
-# Convert experiment objects to an array and send a javascript var as a return.
+# Convert run objects to an array and send a javascript var as a return.
 def masterProjSeq2array(expts):
-	jsArray="var experArr=["
+	jsArray="var runArr=["
 	for l in range(0,len(expts)):
 		jsArray=jsArray+"[["
 		jsArray=jsArray+"['masterProjectID','"+str(expts[l].masterProjectID)+"'],"
@@ -20,7 +20,7 @@ def masterProjSeq2array(expts):
 			jsArray=jsArray+"['seqProjectID','"+str(expts[l].seqProjs[m].seqProjectID)+"'],"
 			jsArray=jsArray+"['seqProjectName','"+str(expts[l].seqProjs[m].seqProjectName)+"'],"
 			jsArray=jsArray+"['masterProjectID','"+str(expts[l].seqProjs[m].masterProjectID)+"'],"
-			jsArray=jsArray+"['seqExptID','"+str(expts[l].seqProjs[m].seqExptID)+"'],"
+			jsArray=jsArray+"['seqRunID','"+str(expts[l].seqProjs[m].seqRunID)+"'],"
 			jsArray=jsArray+"['customerID','"+str(expts[l].seqProjs[m].customerID)+"']"
 			jsArray=jsArray+"],["
 
@@ -53,7 +53,7 @@ def masterProjSeq2array(expts):
 				jsArray=jsArray[:-1]+"]],"	#Close the samples part and remove the ","
 			jsArray=jsArray[:-1]+"]],"		#Close the lane part and remove the ","
 		jsArray=jsArray[:-1]+"]]"			#Close the project part and remove the ","
-	jsArray=jsArray+"];"			 	#Close the experiment part and remove the ","
+	jsArray=jsArray+"];"			 	#Close the run part and remove the ","
 
 	return(jsArray)
 

@@ -19,7 +19,7 @@ FF=open("./template_bottom","r")
 bottomLines=FF.readlines()
 FF.close()
 
-from API.seqExpt import seqExpt
+from API.seqRun import seqRun
 
 
 for ch in cgiHeader:

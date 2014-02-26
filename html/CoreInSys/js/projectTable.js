@@ -29,7 +29,7 @@ function experimentTable(exptArr)
 		expTab.id="expTab_"+ex.toString();
 		expTab.border=1;
 		var expRow=document.createElement("tr");
-		///////////////////////////////////////////////////////////////////////////Exp Cell0
+		///////////////////////////////////////////////////////////////////////////Run Cell0
 		var expCell0=document.createElement("td"); 				 //This is the cell that the experimental stuff goes in
 		var expDataTab=document.createElement("table");
 		for (var exData=0;exData<exptArr[ex][0].length;exData++)
@@ -48,7 +48,7 @@ function experimentTable(exptArr)
 
 		expCell0.appendChild(expDataTab);
 		expRow.appendChild(expCell0);
-		//////////////////////////////////////////////////////////////////////////Exp Cell1
+		//////////////////////////////////////////////////////////////////////////Run Cell1
 		var expCell1=document.createElement("td");  				//This is the cell that the rest go in
 		
 		for (var pr=0;pr<exptArr[ex][1].length;pr++)

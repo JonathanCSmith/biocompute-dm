@@ -38,7 +38,7 @@ projectName=i.projectName
 
 i.appendChildren()
 
-#print i.seqProjs[0].seqExptID
+#print i.seqProjs[0].seqRunID
 
 
 print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'

@@ -6,9 +6,9 @@ import cgi
 
 
 #import cgitb; cgitb.enable()
-from API.exptObj2array import exptObj2array
-from API.getExptByID import getExptByID
-from API.seqExpt import seqExpt
+from API.runObj2array import runObj2array
+from API.getRunByID import getRunByID
+from API.seqRun import seqRun
 from API.getTagSequence import getTagSequence
 
 
@@ -79,10 +79,10 @@ for w in range(0,len(formKeys)):
 		csvForm[form[formKeys[w]].value]=int(dA[1])
 
 
-#Create a seqExperiment instance
+#Create a seqRun instance
 i=[]
 
-i.append(seqExpt())
+i.append(seqRun())
 i[-1].addSeqProject()
 i[-1].seqProjs[0].addLaneData()
 i[-1].seqProjs[0].lanes[0].addSamples()
@@ -106,7 +106,7 @@ i[-1].seqProjs[0].lanes[0].addSamples()
 16      # of Index Tag Cycles,
 17      Sequencing Concentration
 """
-#Put the data into the seqExperiment instance
+#Put the data into the seqRun instance
 #default_form=1
 
 
@@ -140,7 +140,7 @@ for t in range(0,len(dataArr)):
 			i[-1].seqProjs[-1].seqProjectName=dataArr[t][csvForm["Sequencing Project Title"]]
 			if csvForm.has_key("Customer Sample ID"):
 				i[-1].projectName=dataArr[t][csvForm["Customer Sample ID"]]
-		elif i[-1].seqProjs[-1].seqProjectName!=dataArr[t][csvForm["Sequencing Project Title"]]:	#Do we need to make a new seqProject object within this seqExperiment?		
+		elif i[-1].seqProjs[-1].seqProjectName!=dataArr[t][csvForm["Sequencing Project Title"]]:	#Do we need to make a new seqProject object within this seqRun?		
 			#if we have a more than one seqProject here we want to take only the first so we break here.
 			break
 			"""
@@ -221,15 +221,15 @@ for t in range(0,len(dataArr)):
 
 #expArr=[]
 #expArr.append(projs)
-#d=exptObj2array(expArr)
+#d=runObj2array(expArr)
 
-d=exptObj2array(i)
+d=runObj2array(i)
 #print "<p>",d,"</p>"
-print '<form id="newSeqExpt" name="newSeqExpt" method="post" action="/cgi-bin/coreInSys/insertSeqProject">'
+print '<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/coreInSys/insertSeqProject">'
 print "<script src='/CoreInSys/js/projectUploadTable.js'></script>"
 print "<script>"
 print d
-print "experimentTable(experArr);"
+print "experimentTable(runArr);"
 print "</script>"
 print '<input id="Insert" type="submit" value="Insert">'
 print '</form>'
