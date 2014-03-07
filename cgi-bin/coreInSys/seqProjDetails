@@ -289,7 +289,7 @@ else:
         except Exception:
                 print "<p>EError - Unable to get fastQC status.</p>"
 
-#print '<p><a href="/cgi-bin/coreInSys/fastQC.cgi?projID='+str(projectID)+'">Run FastQC on the samples in sequencing project.</a></p>'
+print '<p><a href="/cgi-bin/coreInSys/fastQC.cgi?projID='+str(projectID)+'">Run FastQC on the samples in sequencing project.</a></p>'
 
 
 print "<br><br><br><hr>"

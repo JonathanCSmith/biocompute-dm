@@ -33,13 +33,14 @@ class fastQC:
 
 	def establishPaths(self):
 		import os
+		import re
 		for la in self.i.lanes:
                         self.currentLane=la
 		
                         for sa in la.samples:
 
 				self.currentSample=sa
-				self.currentSamplePath=os.path.join(self.projectsRoot,self.projectDir,'processed','Project_'+self.i.seqProjectName,'Sample_'+self.currentSample.sampleName)
+				self.currentSamplePath=os.path.join(self.projectsRoot,self.projectDir,'processed','Project_'+re.sub('\s+', '_',self.i.seqProjectName),'Sample_'+self.currentSample.sampleName)
 				laneNumber="%03g" %(self.currentLane.laneNumber)
 				self.currentOutDirName=os.path.join(self.fastQCdir,self.currentSample.sampleName)+"_L"+laneNumber
 
@@ -52,6 +53,7 @@ class fastQC:
 	def getFastQCStatus(self):
 		import runQuery
 		import subprocess as sub
+		import os
 
 		print "<table border='1'>"
                 print "<tr><th>sample name</th><th>status</th><th>location</th><th>source location</th><th>JID</th><th>Read1</th><th>Read2</th></tr>"
@@ -66,7 +68,7 @@ class fastQC:
 		for sa in range(0,len(self.samples)):
                 	DBquery="select fastQCID,status,location,sourceLocation, JID from fastQC where sampleID="+str(self.samples[sa].sampleID)
                 	res=runQuery.runQuery(DBquery)
-
+			laneNumber="%03g" %(self.lanes[sa].laneNumber)
 			for arr in range(0,len(res)):
                         	runStat=""
                         	running="N"
@@ -82,21 +84,27 @@ class fastQC:
                                         	runStat=qstatLine[lineOut]
                                         	running="Y"
 
-
+		
 			fastQCID=res[arr][0]
                         status=res[arr][1]
                         location=res[arr][2]
                         sourceLocation=res[arr][3]
-                        #self.updateDBStatus(demuxID,status)
+			loc=location.split("/")
+			loca=os.path.join("/CoreInSys/demux/",loc[4],loc[5],loc[6],loc[7])
+			
+			read1StatsLocation=os.path.join(loca,self.samples[sa].sampleName+"_"+self.samples[sa].tagSequence+"_L"+laneNumber+"_R1_001_fastqc","fastqc_report.html")
+			read2StatsLocation=os.path.join(loca,self.samples[sa].sampleName+"_"+self.samples[sa].tagSequence+"_L"+laneNumber+"_R2_001_fastqc","fastqc_report.html")
+
+
                         if running=="Y":
                                 status="running"
 				print "<tr><td>"+self.samples[sa].sampleName+"</td><td>"+status+"</td><td>"+location+"</td><td>"+sourceLocation+"</td><td>"+JID+"</td><td>--</td><td>--</td></tr>"
                         else:
                                 status="finished"
-				#/home/biocis/demux/66_Bockett_P323/QCreports/FastQC/BCX-1112-5_L004/BCX-1112-5_TAAGGCGA_L004_R1_001_fastqc/fastqc_report.html	
 					
-				print "<tr><td>"+self.samples[sa].sampleName+"</td><td>"+status+"</td><td>"+location+"</td><td>"+sourceLocation+"</td><td>"+JID+"</td>"	
-				#print "<td>"+self.outDirNames[sa]+"</td>"				
+				print "<tr><td>"+self.samples[sa].sampleName+"</td><td>"+status+"</td><td>"+location+"</td><td>"+sourceLocation+"</td><td>"+JID+"</td>"
+				print "<td><a href='"+read1StatsLocation+"'>read1</a></td>"	
+				print "<td><a href='"+read2StatsLocation+"'>read2</a></td>"
 	
 				print "</tr>"
 			"""
@@ -136,8 +144,9 @@ class fastQC:
 
 	def makeComFile(self):
 		import os
+		import re
 
-		self.currentSamplePath=os.path.join(self.projectsRoot,self.projectDir,'processed','Project_'+self.i.seqProjectName,'Sample_'+self.currentSample.sampleName)
+		self.currentSamplePath=os.path.join(self.projectsRoot,self.projectDir,'processed','Project_'+re.sub('\s+', '_',self.i.seqProjectName),'Sample_'+self.currentSample.sampleName)
 	
 		laneNumber="%03g" %(self.currentLane.laneNumber)
                 read1sampleName=self.currentSample.sampleName+"_"+self.currentSample.tagSequence+"_L"+laneNumber+"_R1_001.fastq.gz"
