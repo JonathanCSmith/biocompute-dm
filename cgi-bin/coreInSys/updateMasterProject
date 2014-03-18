@@ -64,13 +64,17 @@ print '<tr><td colspan=7><a href="/cgi-bin/coreInSys/editMasterProject?projID='+
 print '<tr><td colspan=7><a href="/cgi-bin/coreInSys/createMasterProjectLink?projID='+i.masterProjectID+'">Create Master Project Link</a></td></tr>'
 
 print '<tr>'
-
-
-
-
-
-
 print "</table>"
+
+
+print '<script language="javascript" type="text/javascript">'
+print 'window.location.href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projID='+projectID+'";'
+print '</script>'
+
+
+
+
+
 
 for fo in bottomLines:
 	print fo[:-1]

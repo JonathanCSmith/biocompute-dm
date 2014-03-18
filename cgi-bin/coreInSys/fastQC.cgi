@@ -60,6 +60,9 @@ else:
 	
 	fq.goAllSamples()
 	
+print '<script language="javascript" type="text/javascript">'
+print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'";'
+print '</script>'
 
 
 for fo in bottomLines:

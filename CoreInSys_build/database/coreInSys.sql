@@ -154,6 +154,14 @@ primary key (fastQCID)
 );
 
 
+create table masterProjectDocuments
+(
+documentID int unsigned auto_increment,
+docDescription text,
+docLocation varchar(500),
+masterProjectID int unsigned,
+primary key (documentID)
+);
 
 
 

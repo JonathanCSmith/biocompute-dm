@@ -49,14 +49,12 @@ i.setLastUpdate()
 
 
 i.insertMasterProject()
-#i.getLastMasterProjectID
+i.getLastMasterProjectID()
 
-projects=getAllProjects()
+#projects=getAllProjects()
 
 #print projects
-
 #Get a list of all of the projects in the database:
-
 #print "<p>",projects,"</p>"
 
 print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
@@ -70,6 +68,11 @@ for pro in range(0,len(projects)):
 
 """
 
+#send it back to the project page
+
+print '<script language="javascript" type="text/javascript">'
+print 'window.location.href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projID='+i.masterProjectID+'";'
+print '</script>'
 
 
 for fo in bottomLines:

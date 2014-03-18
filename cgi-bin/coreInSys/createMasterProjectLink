@@ -45,10 +45,10 @@ DBquery="select seqProject.seqProjectID, seqProject.seqProjectName, seqProject.s
 sPs=runQuery(DBquery)
 
 
-print "<p>",sPs,"</p>"
+#print "<p>",sPs,"</p>"
 seqProjects={} 
 for t in range(0,len(sPs)):
-	print str(sPs[t][0])
+	#print str(sPs[t][0])
 	seqProjects[sPs[t][0]]=[sPs[t][1],str(sPs[t][2]),sPs[t][3],sPs[t][4]]
 
 
