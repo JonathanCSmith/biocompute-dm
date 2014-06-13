@@ -99,6 +99,11 @@ function experimentTable(exptArr)
 				for (var sa=0;sa<exptArr[pr][1][la][1].length;sa++)
 					{
 					var rw=document.createElement("tr");
+
+					var da=document.createElement("td");
+					var cellText=document.createTextNode(sa+1);
+					da.appendChild(cellText);
+					rw.appendChild(da);
 					for (var saData=0;saData<exptArr[pr][1][la][1][sa].length;saData++)
 						{
 

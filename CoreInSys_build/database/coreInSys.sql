@@ -164,6 +164,29 @@ primary key (documentID)
 );
 
 
+create table transfer
+(
+transferID int unsigned auto_increment,
+seqProjectID int unsigned,
+transLocation varchar(500),
+sftpAccountID int unsigned,
+dataStatus enum('origin','sftp'),
+primary key (transferID)
+);
+
+
+create table sftpAccount
+(
+sftpAccountID int unsigned auto_increment,
+accountLocation varchar(500),
+username varchar(20),
+userContact varchar(100),
+creationDate date,
+accountStatus enum('created','deleted','restore'),
+primary key (sftpAccountID)
+);
+
+
 
 
 

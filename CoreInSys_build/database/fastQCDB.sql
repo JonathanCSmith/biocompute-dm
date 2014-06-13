@@ -106,6 +106,7 @@ create table Sequence_Duplication_Levels
 fastqFileID int unsigned not null,
 Duplication_Level tinyint,
 Relative_count double,
+Total_Duplicate_Percentage double,
 primary key (fastqFileID)
 );
 
