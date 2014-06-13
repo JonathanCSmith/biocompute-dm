@@ -2,6 +2,8 @@
 
 import os
 import cgi
+import sys
+
 #import re
 
 
@@ -71,21 +73,42 @@ for u in range(0,len(formKeys)):
 		dataArr[A][B]=form[formKeys[u]].value
 
 
+try:
+	csvForm={}
+	for w in range(0,len(formKeys)):
+		if formKeys[w][:9]=="colHeader":
+			dA=formKeys[w].split("_")
+			csvForm[form[formKeys[w]].value]=int(dA[1])
 
-csvForm={}
-for w in range(0,len(formKeys)):
-	if formKeys[w][:9]=="colHeader":
-		dA=formKeys[w].split("_")
-		csvForm[form[formKeys[w]].value]=int(dA[1])
+except Exception:
+        print "<p>Unable to read form data.</p>"     
+        for fo in bottomLines:
+                print fo[:-1]
+        sys.exit()
 
 
+
+try:
 #Create a seqRun instance
-i=[]
+	i=[]
 
-i.append(seqRun())
-i[-1].addSeqProject()
-i[-1].seqProjs[0].addLaneData()
-i[-1].seqProjs[0].lanes[0].addSamples()
+	i.append(seqRun())
+	i[-1].addSeqProject()
+	i[-1].seqProjs[0].addLaneData()
+	i[-1].seqProjs[0].lanes[0].addSamples()
+
+except Exception:
+        print "<p>Unable to make seqRun instance seqExpt object tree</p>"     
+        for fo in bottomLines:
+                print fo[:-1]
+        sys.exit()
+
+
+
+
+
+
+
 """
 0       Well ,
 1       Customer Sample ID,
@@ -133,97 +156,172 @@ if default_form==1:
         csvForm["Sequencing Concentration"]=17                  #
 	#csvForm["Index sequence"]=18
 """
-for t in range(0,len(dataArr)):
-#for t in range(0,1):	#take only the first seqProject
-	if csvForm.has_key("Sequencing Project Title"):
-		if i[-1].seqProjs[-1].seqProjectName=="SeqProjName":			#Has the seqProjectID been initialized?
-			i[-1].seqProjs[-1].seqProjectName=dataArr[t][csvForm["Sequencing Project Title"]]
-			if csvForm.has_key("Customer Sample ID"):
-				i[-1].projectName=dataArr[t][csvForm["Customer Sample ID"]]
-		elif i[-1].seqProjs[-1].seqProjectName!=dataArr[t][csvForm["Sequencing Project Title"]]:	#Do we need to make a new seqProject object within this seqRun?		
-			#if we have a more than one seqProject here we want to take only the first so we break here.
-			break
-			"""
-			i[-1].addSeqProject()
-			i[-1].seqProjs[-1].addLaneData()
-			i[-1].seqProjs[-1].lanes[-1].addSamples()
-			i[-1].seqProjs[-1].seqProjectName=dataArr[t][csvForm["Sequencing Project Title"]]
-			"""
+
+try:
+	for t in range(0,len(dataArr)):
+	#for t in range(0,1):	#take only the first seqProject
+		if csvForm.has_key("Sequencing Project Title"):
+			if i[-1].seqProjs[-1].seqProjectName=="SeqProjName":			#Has the seqProjectID been initialized?
+				i[-1].seqProjs[-1].seqProjectName=dataArr[t][csvForm["Sequencing Project Title"]]
+				if csvForm.has_key("Customer Sample ID"):
+					i[-1].projectName=dataArr[t][csvForm["Customer Sample ID"]]
+			elif i[-1].seqProjs[-1].seqProjectName!=dataArr[t][csvForm["Sequencing Project Title"]]:	#Do we need to make a new seqProject object within this seqRun?		
+				#if we have a more than one seqProject here we want to take only the first so we break here.
+				break
+				"""
+				i[-1].addSeqProject()
+				i[-1].seqProjs[-1].addLaneData()
+				i[-1].seqProjs[-1].lanes[-1].addSamples()
+				i[-1].seqProjs[-1].seqProjectName=dataArr[t][csvForm["Sequencing Project Title"]]
+				"""
 
 
-	#else:
-		#print "<p>No data column named 'Sequencing Project Title'</p>"
-                #break
+		#else:
+			#print "<p>No data column named 'Sequencing Project Title'</p>"
+                	#break
 
 		
-	if csvForm.has_key("Lane")==0:
-		print "<p>No data column named 'Lane'</p>"
-		#break
+		if csvForm.has_key("Lane")==0:
+			print "<p>No data column named 'Lane'</p>"
+			#break
 
-	if i[-1].seqProjs[-1].lanes[-1].laneNumber=="NULL":		#Has the laneData been initialized?
-		i[-1].seqProjs[-1].lanes[-1].laneNumber=dataArr[t][csvForm["Lane"]]
-		#Nasty. Need to find a better way to extract the value of this in case the number is changed
-		if csvForm.has_key("Sequencing Concentration"):
-                	dataArr[t][csvForm["Sequencing Concentration"]].strip()
-                	if dataArr[t][csvForm["Sequencing Concentration"]][-2:]=="pM":
-                        	dataArr[t][17]=dataArr[t][csvForm["Sequencing Concentration"]][:-2]
-                	i[-1].seqProjs[-1].lanes[-1].sequencingConc=dataArr[t][csvForm["Sequencing Concentration"]]
+		if i[-1].seqProjs[-1].lanes[-1].laneNumber=="NULL":		#Has the laneData been initialized?
+			i[-1].seqProjs[-1].lanes[-1].laneNumber=dataArr[t][csvForm["Lane"]]
 
-		#i.seqProjs[-1].lanes[-1].PhiXspiked=dataArr[t][4]
+			if csvForm.has_key("Sequencing Concentration"):
+                		dataArr[t][csvForm["Sequencing Concentration"]].strip()
+                		if dataArr[t][csvForm["Sequencing Concentration"]][-2:]=="pM":
+                        		dataArr[t][17]=dataArr[t][csvForm["Sequencing Concentration"]][:-2]
+                		i[-1].seqProjs[-1].lanes[-1].sequencingConc=dataArr[t][csvForm["Sequencing Concentration"]]
 
-	elif i[-1].seqProjs[-1].lanes[-1].laneNumber!=dataArr[t][csvForm["Lane"]]:
-		i[-1].seqProjs[-1].addLaneData()
-		i[-1].seqProjs[-1].lanes[-1].addSamples()
-		i[-1].seqProjs[-1].lanes[-1].laneNumber=dataArr[t][csvForm["Lane"]]
-		#Nasty. Need to find a better way to extract the value of this in case the units/number format is changed
-		if csvForm.has_key("Sequencing Concentration"):
-			dataArr[t][csvForm["Sequencing Concentration"]].strip()
-			if dataArr[t][csvForm["Sequencing Concentration"]][-2:]=="pM":
-				dataArr[t][csvForm["Sequencing Concentration"]]=dataArr[t][csvForm["Sequencing Concentration"]][:-2]
-			i[-1].seqProjs[-1].lanes[-1].sequencingConc=dataArr[t][csvForm["Sequencing Concentration"]]
-
-                #i.seqProjs[-1].lanes[-1].PhiXspiked=dataArr[t][4]
-	if  csvForm.has_key("Customer Sample ID")==0:
-		print "<p>No column named 'Customer Sample ID'</p>"
-                #break
+			#if i[-1].seqProjs[-1].lanes[-1].PhiXspiked=="NULL":
+                	if csvForm.has_key("PhiXspiked"):
+				try:
+                                	float(dataArr[t][csvForm["PhiXspiked"]])
+                                	i[-1].seqProjs[-1].lanes[-1].PhiXspiked=dataArr[t][csvForm["PhiXspiked"]]
+                        	except ValueError:
+                                	i[-1].seqProjs[-1].lanes[-1].PhiXspiked="NULL"
 
 
+                	#if i[-1].seqProjs[-1].lanes[-1].read1ClusterDensity==0:
+                	if csvForm.has_key("Read1 Cluster Density"):
+                		i[-1].seqProjs[-1].lanes[-1].read1ClusterDensity=dataArr[t][csvForm["Read1 Cluster Density"]]
+                
+                	#if i[-1].seqProjs[-1].lanes[-1].spike=="NULL":
+                	if csvForm.has_key("spike"):
+                		i[-1].seqProjs[-1].lanes[-1].spike=dataArr[t][csvForm["spike"]]
 
-	if i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=="NULL":
-		i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
-		if csvForm.has_key("Index sequence"):
-                        i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
-		else:
-			if csvForm.has_key("Index ID"):
-				i[-1].seqProjs[-1].lanes[-1].samples[-1].tagID=dataArr[t][csvForm["Index ID"]]
-			if csvForm.has_key("Index kit I.D."):
-				i[-1].seqProjs[-1].lanes[-1].samples[-1].tagKit=dataArr[t][csvForm["Index kit I.D."]]
+                	#if i[-1].seqProjs[-1].lanes[-1].spikeRatio==0.0:
+                	if csvForm.has_key("spikeRatio"):
+                		i[-1].seqProjs[-1].lanes[-1].spikeRatio=dataArr[t][csvForm["spikeRatio"]]
+
+
+
+
+			#i.seqProjs[-1].lanes[-1].PhiXspiked=dataArr[t][4]
+
+		elif i[-1].seqProjs[-1].lanes[-1].laneNumber!=dataArr[t][csvForm["Lane"]]:
+			i[-1].seqProjs[-1].addLaneData()
+			i[-1].seqProjs[-1].lanes[-1].addSamples()
+			i[-1].seqProjs[-1].lanes[-1].laneNumber=dataArr[t][csvForm["Lane"]]
+			#Nasty. Need to find a better way to extract the value of this in case the units/number format is changed
+			if csvForm.has_key("Sequencing Concentration"):
+				dataArr[t][csvForm["Sequencing Concentration"]].strip()
+				if dataArr[t][csvForm["Sequencing Concentration"]][-2:]=="pM":
+					dataArr[t][csvForm["Sequencing Concentration"]]=dataArr[t][csvForm["Sequencing Concentration"]][:-2]
+				i[-1].seqProjs[-1].lanes[-1].sequencingConc=dataArr[t][csvForm["Sequencing Concentration"]]
+
+			#if i[-1].seqProjs[-1].lanes[-1].PhiXspiked=="NULL":
+                	if csvForm.has_key("PhiXspiked"):
+				try:
+    					float(dataArr[t][csvForm["PhiXspiked"]])
+					i[-1].seqProjs[-1].lanes[-1].PhiXspiked=dataArr[t][csvForm["PhiXspiked"]]
+				except ValueError:
+					i[-1].seqProjs[-1].lanes[-1].PhiXspiked="NULL"
+
+			#if i[-1].seqProjs[-1].lanes[-1].read1ClusterDensity==0:
+                	if csvForm.has_key("Read1 Cluster Density"):
+                		i[-1].seqProjs[-1].lanes[-1].read1ClusterDensity=dataArr[t][csvForm["Read1 Cluster Density"]]
+
+			#if i[-1].seqProjs[-1].lanes[-1].spike=="NULL":
+                	if csvForm.has_key("spike"):
+                		i[-1].seqProjs[-1].lanes[-1].spike=dataArr[t][csvForm["spike"]]
+
+			#if i[-1].seqProjs[-1].lanes[-1].spikeRatio==0.0:
+                	if csvForm.has_key("spikeRatio"):
+                		i[-1].seqProjs[-1].lanes[-1].spikeRatio=dataArr[t][csvForm["spikeRatio"]]
+
+
+	
+
+
+
+                	#i.seqProjs[-1].lanes[-1].PhiXspiked=dataArr[t][4]
+
+			
+
+
+		if  csvForm.has_key("Customer Sample ID")==0:
+			print "<p>No column named 'Customer Sample ID'</p>"
+                	#break
+
+
+
+		if i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=="NULL":
+			i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
+			if csvForm.has_key("Index sequence"):
+                        	i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
+			else:
 				if csvForm.has_key("Index ID"):
-					seq=getTagSequence(dataArr[t][csvForm["Index kit I.D."]],dataArr[t][csvForm["Index ID"]])
-					i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=seq
-		#i.seqProjs[-1].lanes[-1].samples[-1].analysisID=dataArr[t][8]
-	else:
-		i[-1].seqProjs[-1].lanes[-1].addSamples()
-		i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
-		if csvForm.has_key("Index sequence"):
-			i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
-		else:
-			if csvForm.has_key("Index ID"):
-                		i[-1].seqProjs[-1].lanes[-1].samples[-1].tagID=dataArr[t][csvForm["Index ID"]]
-			if csvForm.has_key("Index kit I.D."):
-				i[-1].seqProjs[-1].lanes[-1].samples[-1].tagKit=dataArr[t][csvForm["Index kit I.D."]]
-				if csvForm.has_key("Index ID"):
-					seq=getTagSequence(dataArr[t][csvForm["Index kit I.D."]],dataArr[t][csvForm["Index ID"]])
-                			i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=seq
+					i[-1].seqProjs[-1].lanes[-1].samples[-1].tagID=dataArr[t][csvForm["Index ID"]]
+				if csvForm.has_key("Index kit I.D."):
+					i[-1].seqProjs[-1].lanes[-1].samples[-1].tagKit=dataArr[t][csvForm["Index kit I.D."]]
+					if csvForm.has_key("Index ID"):
+						seq=getTagSequence(dataArr[t][csvForm["Index kit I.D."]],dataArr[t][csvForm["Index ID"]])
+						i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=seq
+				if csvForm.has_key("adaptorSequence"):
+					i[-1].seqProjs[-1].lanes[-1].samples[-1].adaptorSequence=dataArr[t][csvForm["adaptorSequence"]]
 
-                #i.seqProjs[-1].lanes[-1].samples[-1].analysisID=dataArr[t][8]
+			#i.seqProjs[-1].lanes[-1].samples[-1].analysisID=dataArr[t][8]
+		else:
+			i[-1].seqProjs[-1].lanes[-1].addSamples()
+			i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
+			if csvForm.has_key("Index sequence"):
+				i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
+			else:
+				if csvForm.has_key("Index ID"):
+                			i[-1].seqProjs[-1].lanes[-1].samples[-1].tagID=dataArr[t][csvForm["Index ID"]]
+				if csvForm.has_key("Index kit I.D."):
+					i[-1].seqProjs[-1].lanes[-1].samples[-1].tagKit=dataArr[t][csvForm["Index kit I.D."]]
+					if csvForm.has_key("Index ID"):
+						seq=getTagSequence(dataArr[t][csvForm["Index kit I.D."]],dataArr[t][csvForm["Index ID"]])
+                				i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=seq
+				if csvForm.has_key("adaptorSequence"):
+                                	i[-1].seqProjs[-1].lanes[-1].samples[-1].adaptorSequence=dataArr[t][csvForm["adaptorSequence"]]
+
+                	#i.seqProjs[-1].lanes[-1].samples[-1].analysisID=dataArr[t][8]
+
+except Exception:
+	print "<p>Unable to read data into seqExpt object tree</p>"
+	for fo in bottomLines:
+        	print fo[:-1]
+	sys.exit()	
+
 
 
 #expArr=[]
 #expArr.append(projs)
 #d=runObj2array(expArr)
+try:
+	d=runObj2array(i)
+except Exception:
+        print "<p>Unable to make javaScript data array</p>"
+        for fo in bottomLines:
+                print fo[:-1]
+        sys.exit()
 
-d=runObj2array(i)
+
+
 #print "<p>",d,"</p>"
 print '<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/coreInSys/insertSeqProject">'
 print "<script src='/CoreInSys/js/projectUploadTable.js'></script>"

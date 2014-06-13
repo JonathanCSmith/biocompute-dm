@@ -19,22 +19,26 @@ FF.close()
 
 
 
+
 from API.seqProj2array import seqProj2array
 from API.seqProject import seqProject
 from API.runQuery import runQuery
 from API.getState import getState
 from API.getRunByID import getRunByID
 from PL_CONTROL.demux import demux
-from PL_CONTROL.fastQC import fastQC
-
 
 #print "<p>Loaded modules</p>"
+
+
 
 
 for ch in cgiHeader:
         print ch[:-1]
 for he in topLines:
 	print he[:-1]
+
+
+
 
 
 
@@ -75,17 +79,32 @@ print "<p>Project status: <a href='/cgi-bin/coreInSys/status?type=sequencing&ite
 i=seqProject(0)
 i.getSeqProjByID(projectID)
 
+
+
+
+
+
 DBquery="select seqProject.seqRunID, seqRun.seqRunName from seqProject, seqRun  where seqProjectID="+projectID+" and seqProject.seqRunID=seqRun.seqRunID"
 
 #print "<p>",DBquery,"</p>"
+
+
+
 seqRunStuff=runQuery(DBquery)
 
 #print "<p>",seqRunStuff,"</p>"
 
 
+
+
 print "<p>This sequencing project belongs to sequencing run:"
 print '<a href="/cgi-bin/coreInSys/getSeqRunFromDB.cgi?projID='+str(seqRunStuff[0][0])+'">'+seqRunStuff[0][1]+'</a>'
 print "</p>"
+
+
+
+
+
 
 
 #Get the IDs of all of the lanes in this project
@@ -130,6 +149,11 @@ d=seqProj2array(projArr)
 
 
 
+
+
+
+
+
 print '<script>'
 print 'function swapDisplayed(idA,idB){'
 print '		var docA = document.getElementById(idA);'
@@ -166,6 +190,8 @@ print 'var runDetailsHidden=document.getElementById("runDetailsHidden");'
 print 'var contentCell.appendChild(runDetailsShown);'
 print 'var contentCell.appendChild(runDetailsHidden);'
 print '</script>'
+
+
 
 
 
@@ -212,7 +238,7 @@ else:
         #print "<p>",j.dataLocation,"</p>"
 
         #os.environ['PATH']='/var/www/cgi-bin/coreInSys/PL_CONTROL'
-        #from PL_CONTROL.demux import demux
+        from PL_CONTROL.demux import demux
 
 	try:
         	dm=demux(i,j)
@@ -225,132 +251,6 @@ else:
 		print "<p>Error - Unable to get demultiplexing status.</p>"
 
 print '<p><a href="/cgi-bin/coreInSys/demuxProject.cgi?projID='+str(projectID)+'">Demultiplex this project.</a></p>'
-
-
-#put fastQC stuff here
-### ONLY LET IT RUN FASTQC IF THE SAMPLE FILE ACTUALLY EXISTS ###
-
-
-
-
-DBquery='select * from fastQC where seqProjectID='+str(projectID)
-#print "<p>",DBquery,"</p>"
-fastQCed=runQuery(DBquery)
-print "<hr>"
-
-
-if len(fastQCed)==0:
-        print "<p>FastQC has not been run on these samples using BioCIS</p>"
-
-else:
-        print "<h3>FastQC:</h3>"
-
-        j=getRunByID(i.seqRunID)
-
-	print '<div id="QCdetailsShown" style="display:inline">'
-	print """<a href="javascript:swapDisplayed('QCdetailsHidden','QCdetailsShown')">hide details</a> """
-
-
-
-
-        #os.environ['PATH']='/var/www/cgi-bin/coreInSys/PL_CONTROL'
-        #from PL_CONTROL.fastQC import fastQC
-
-        try:
-                fq=fastQC(i,j)
-        except Exception:
-                print "<p>Error - Unable to create fastQC object instance.</p>"
-
-        try:
-                fq.establishPaths()
-                fq.getFastQCStatus()
-        except Exception:
-                print "<p>EError - Unable to get fastQC status.</p>"
-
-
-	print '</div>'
-
-	print '<div id="QCdetailsHidden" style="display:none">'
-	print """<a href="javascript:swapDisplayed('QCdetailsShown','QCdetailsHidden')">show details</a> """
-	print '</div>'
-
-
-
-
-
-print '<p><a href="/cgi-bin/coreInSys/fastQC.cgi?projID='+str(projectID)+'" onclick="return confirm('
-print "'Are you sure you want to run fastQC on all samples?'"
-print ')">Run FastQC on the samples in sequencing project.</a></p>'
-
-print "<br><br>"
-print "<br><hr>"
-print "<h3>sftp Access:</h3>"
-
-
-from PL_CONTROL.sftpTransfer import sftpTransfer
-
-
-
-
-ST=sftpTransfer()
-ST.seqProjectID=projectID
-ST.genUsername()
-
-ST.loadSftpByUsername()
-
-
-
-
-if ST.sftpAccountID==0:
-	print '<p><a href="/cgi-bin/coreInSys/sftpSetup?seqProjectID='+str(ST.seqProjectID)+'">Create an sftp account.</p>'
-else:
-	if ST.accountStatus=="deleted":
-		print """<p>This account has been deleted. <a href="/cgi-bin/coreInSys/sftpRestore?seqProjectID="""+str(ST.seqProjectID)+"""&username="""+ST.username+"""" onclick="return confirm('Are you sure you want to restore this account?')"> Click here </a>to restore it.</p>"""
-		print "<br><br>"
-	else:
-		print '<p>An sftp account with the name '+ST.username+' exists, with status "'+ST.accountStatus+'"</p>'
-	if ST.accountStatus=="created": 
-
-		ST.setTransfer()
-		
-
-
-		if ST.transferID!=0:
-        		print "<p>This transfer exists in the database with transferID "+str(ST.transferID)+" and location "+ST.transLocation+".</p>"
-			if ST.dataStatus=="":
-				print "<p>dataStatus=NULL</p>"
-			else:
-				print "<p>dataStatus="+ST.dataStatus+"</p>"
-			if ST.dataStatus=="sftp":
-				print '<p>'
-				print '<form method="post" action="/cgi-bin/coreInSys/resetPswd">'
-                       		print '<input type="hidden" name="username" value="'+ST.username+'">'
-                        	print '<input  type="hidden" name="seqProjectID" value="'+str(ST.seqProjectID)+'">'
-                        	print """<input type="submit" value="Set the password." onclick="return confirm('This will replace any existing password.')">"""
-                        	print '</form>'
-				print '</p>'
-
-
-		if ST.dataStatus!="sftp":
-			print '<form method="post" action="/cgi-bin/coreInSys/migrateData">'
-			print '<input type="hidden" name="username" value="'+ST.username+'">'
-			print '<input  type="hidden" name="seqProjectID" value="'+str(ST.seqProjectID)+'">'
-			print """<input type="submit" value="Migrate data to sftp account." onclick="return confirm('This will move the data to the sftp area. Please make sure that demultiplexing and QC have finished before pressing OK to proceeding.')">"""
-			print '</form>'
-
-			print '<form method="post" action="/cgi-bin/coreInSys/sftpAccountDel">'
-                        print '<input type="hidden" name="username" value="'+ST.username+'">'
-                        print '<input  type="hidden" name="seqProjectID" value="'+str(ST.seqProjectID)+'">'
-                        print """<input type="submit" value="Delete sftp account." onclick="return confirm('This will delete the sftp account for this seq project and any of its files still in the sftp area.')">"""
-                        print '</form>'
-
-		
-		else:
-			print '<form method="post" action="/cgi-bin/coreInSys/restoreToOrigin">'
-                        print '<input type="hidden" name="username" value="'+ST.username+'">'
-                        print '<input  type="hidden" name="seqProjectID" value="'+str(ST.seqProjectID)+'">'
-                        print """<input type="submit" value="Restore data to origin." onclick="return confirm('This will move the data from the sftp area back to the biocis area.')">"""
-                        print '</form>'
 
 
 

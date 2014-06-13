@@ -103,8 +103,21 @@ class fastQC:
                                 status="finished"
 					
 				print "<tr><td>"+self.samples[sa].sampleName+"</td><td>"+status+"</td><td>"+location+"</td><td>"+sourceLocation+"</td><td>"+JID+"</td>"
-				print "<td><a href='"+read1StatsLocation+"'>read1</a></td>"	
-				print "<td><a href='"+read2StatsLocation+"'>read2</a></td>"
+
+				try:
+					fastQChtmlFile1=os.path.join(location,self.samples[sa].sampleName+"_"+self.samples[sa].tagSequence+"_L"+laneNumber+"_R1_001_fastqc","fastqc_report.html")
+					os.stat(fastQChtmlFile1)
+					print "<td><a href='"+read1StatsLocation+"'>read1</a></td>"	
+				except Exception:
+					print "<td>_____</td>"
+
+				try:
+					fastQChtmlFile2=os.path.join(location,self.samples[sa].sampleName+"_"+self.samples[sa].tagSequence+"_L"+laneNumber+"_R2_001_fastqc","fastqc_report.html")
+					os.stat(fastQChtmlFile2)
+					print "<td><a href='"+read2StatsLocation+"'>read2</a></td>"
+				except Exception:
+					print "<td>_____</td>"
+
 	
 				print "</tr>"
 			"""
@@ -114,8 +127,8 @@ class fastQC:
 				print "<tr><td>"+self.samples[sa].sampleName+"</td><td>QC not run</td><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>"
 			"""
 		
-		print "</tr>"
-		print "<table>"
+		#print "</tr>"
+		print "</table>"
 	
 
 	def makeDir(self,dirToMake):

@@ -46,7 +46,10 @@ DBquery="select location from demultiplex where seqProjectID="+projID
 res=runQuery(DBquery)
 #print res[0][0]
 sourcePATH="/gpfs"+res[0][0]
-sourcePATH=sourcePATH+"/processed"
+qcSourcePATH=sourcePATH+"/QCreports"
+dataSourcePATH=sourcePATH+"/processed"
+
+
 
 #print sourcePATH
 #print i.seqProjectName
@@ -58,20 +61,37 @@ j=getRunByID(int(i.seqRunID))
 
 sftpPath=sftpPath+j.seqRunName
 
-if os.path.islink(sourcePATH):
-	print "Source directory is a symbolic link. Aborting"
-	print "(This probably means the data has already been copied to the sftp area)"
-	sys.exit()
+if os.path.islink(dataSourcePATH):
+	print "Data source directory is a symbolic link. Aborting"
+	print "(This probably means the data have already been moved to the sftp area)"
+	
 
 else:
 
-	command="mv "+sourcePATH+" "+sftpPath
-
+	command="ssh root@159.92.115.5 'mkdir "+sftpPath+"'"
 	print command
 
-	linkCommand="ln -s "+sftpPath+" "+sourcePATH
+	command="ssh root@159.92.115.5 'mv "+dataSourcePATH+" "+sftpPath+"'"
+	print command
 
+	linkCommand="ssh root@159.92.115.5 'ln -s "+sftpPath+"/processed "+dataSourcePATH+"'"
 	print linkCommand
+
+if os.path.islink(qcSourcePATH):
+        print "QC source directory is a symbolic link. Aborting"
+        print "(This probably means the QC stats have already been moved to the sftp area)"
+        
+
+else:
+
+	command="ssh root@159.92.115.5 'mv "+qcSourcePATH+" "+sftpPath+"'"
+        print command
+
+        linkCommand="ssh root@159.92.115.5 'ln -s "+sftpPath+"/QCreports "+qcSourcePATH+"'"
+        print linkCommand
+
+
+
 
 """
 try:
