@@ -55,6 +55,7 @@ seqProjectName varchar(40),
 masterProjectID int unsigned,
 seqRunID varchar(10),
 customerID int,
+exptType enum('exome','RNAseq','ChIPseq','other'),
 primary key (seqProjectID)
 );
 
@@ -151,6 +152,18 @@ location varchar(500),
 sourceLocation varchar(500),
 JID int unsigned,
 primary key (fastQCID)
+);
+
+create table postAlignQC
+(
+postAlignQCID int unsigned auto_increment,
+status enum('setup','running','complete','finished'),
+seqProjectID int unsigned,
+sampleID int unsigned,
+location varchar(500),
+sourceLocation varchar(500),
+JID int unsigned,
+primary key (postAlignQCID)
 );
 
 

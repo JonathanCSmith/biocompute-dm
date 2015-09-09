@@ -15,6 +15,7 @@ class seqRun():
 		self.indexTagCycles="0"
 		self.readCycles="0"
 
+
 		self.seqProjs=[]
 		#self.laneData=[[]]
 		#self.sampleData=[[[]]]

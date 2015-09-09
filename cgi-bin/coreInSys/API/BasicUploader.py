@@ -36,7 +36,7 @@ for t in lines:
 
 #Initialize dictionaries for the insertion methods
 seqRunRecord= {'seqRunID':'NULL', 'flowcellID':'NULL', 'startDate':'NULL', 'completionDate':'NULL', 'genomicsLead':'NULL', 'dataLocation':'NULL', 'indexTagCycles':'NULL', 'readCycles':'NULL'}
-seqProjRecord= {'seqProjectName':'NULL', 'seqRunID':'NULL', 'customerID':'NULL'}
+seqProjRecord= {'seqProjectName':'NULL', 'seqRunID':'NULL', 'customerID':'NULL', 'exptType':'NULL'}
 laneRecord= {'seqProjectID':'NULL', 'laneNumber':'NULL', 'sequencingConc':'NULL', 'read1ClusterDensity':'NULL', 'PhiXspiked':'NULL' ,'spike':'NULL', 'spikeRatio':'NULL'}
 sampleRecord= {'sampleName':'NULL', 'tagID':'NULL', 'laneID':'NULL', 'tagSequence':'NULL', 'analysisID':'NULL', 'adaptorSequence':'NULL'}		
 

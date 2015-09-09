@@ -46,12 +46,12 @@ i[-1].seqProjs[0].lanes[0].addSamples()
 #expArr=[]
 #expArr.append(projs)
 #d=runObj2array(expArr)
-print """<p>Enter the sequence run parameters.</p>"""
+print """<p>Mandatory fields are in red. Leave seqProjectName as "SeqProjName" if you don't wish to add sequencing project information.</p>"""
 
 d=runObj2array(i)
 #print "<p>",d,"</p>"
 print '<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/coreInSys/insertSeqRun">'
-print "<script src='/CoreInSys/js/manualRunFormTable.js'></script>"
+print "<script src='/CoreInSys/js/manualRunFormTable_exptDataOnly.js'></script>"
 print "<script>"
 print d
 print "experimentTable(runArr);"

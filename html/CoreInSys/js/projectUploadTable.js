@@ -92,6 +92,32 @@ function experimentTable(exptArr)
                                 	da.appendChild(cellIn);
                                 	rw.appendChild(da);
                                 	}	
+				else if (exptArr[ex][1][pr][0][prData][0]=="exptType")
+					{
+					var cellIn=document.createElement('select');
+					cellIn.name=exptArr[ex][1][pr][0][prData][0]+"_"+ex.toString()+"_"+pr.toString();
+					cellIn.type='select-one';
+
+					var option1=document.createElement("option");
+					option1.text="other";
+					cellIn.add(option1);
+					var option2=document.createElement("option");
+					option2.text="exome";
+					cellIn.add(option2);
+					var option3=document.createElement("option");
+                                        option3.text="RNAseq";
+                                        cellIn.add(option3);
+					var option4=document.createElement("option");
+                                        option4.text="ChIPseq";
+                                        cellIn.add(option4);
+                                        var option5=document.createElement("option");
+                                        option5.text="WGS";
+                                        cellIn.add(option5);
+					
+					da.appendChild(cellIn);
+                                        rw.appendChild(da);
+
+					}
 				else
 					{	
 					var cellIn=document.createElement('input');

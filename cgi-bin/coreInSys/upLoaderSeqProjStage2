@@ -16,6 +16,8 @@ from API.getTagSequence import getTagSequence
 
 form = cgi.FieldStorage()
 
+#Illegal characters ? ( ) [ ] / \ = + < > : ; " ' , * ^ | & .
+illChars=set("?()[]/\=+<>:;\"',*^|&.")
 
 
 CH=open("./cgi_header","r")
@@ -165,6 +167,18 @@ try:
 				i[-1].seqProjs[-1].seqProjectName=dataArr[t][csvForm["Sequencing Project Title"]]
 				if csvForm.has_key("Customer Sample ID"):
 					i[-1].projectName=dataArr[t][csvForm["Customer Sample ID"]]
+			
+					#Illegal characters ? ( ) [ ] / \ = + < > : ; " ' , * ^ | & .
+					illChars=set("?()[]/\=+<>:;\"',*^|&.")
+					if any((c in illChars) for c in dataArr[t][csvForm["Customer Sample ID"]]):
+						print "<p>Illegal character in sample name: "+dataArr[t][csvForm["Customer Sample ID"]]+"</p>"
+						raise Exception
+		
+					else:
+						i[-1].projectName=dataArr[t][csvForm["Customer Sample ID"]]
+		
+
+
 			elif i[-1].seqProjs[-1].seqProjectName!=dataArr[t][csvForm["Sequencing Project Title"]]:	#Do we need to make a new seqProject object within this seqRun?		
 				#if we have a more than one seqProject here we want to take only the first so we break here.
 				break
@@ -268,9 +282,29 @@ try:
 
 
 		if i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=="NULL":
-			i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
+
+			#Stop if sample ID has any illegal characters ? ( ) [ ] / \ = + < > : ; " ' , * ^ | & .
+                        if any((c in illChars) for c in dataArr[t][csvForm["Customer Sample ID"]]):
+				print "<p><b>Illegal character in sample name: "+dataArr[t][csvForm["Customer Sample ID"]]+"</b></p>"
+				raise Exception
+
+                        else:
+                        	i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
+
+
+			#i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
+
 			if csvForm.has_key("Index sequence"):
-                        	i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
+				indexSequence=dataArr[t][csvForm["Index sequence"]]
+				if csvForm.has_key("Index 2 sequence"):
+					if dataArr[t][csvForm["Index 2 sequence"]]!="Ignore": ########################################Rev comp this is certain circumstances
+						indexSequence=indexSequence+"-"+dataArr[t][csvForm["Index 2 sequence"]]				
+				i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=indexSequence
+                        	#i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
+
+
+
+
 			else:
 				if csvForm.has_key("Index ID"):
 					i[-1].seqProjs[-1].lanes[-1].samples[-1].tagID=dataArr[t][csvForm["Index ID"]]
@@ -285,9 +319,23 @@ try:
 			#i.seqProjs[-1].lanes[-1].samples[-1].analysisID=dataArr[t][8]
 		else:
 			i[-1].seqProjs[-1].lanes[-1].addSamples()
-			i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
+
+			#Stop if sample ID has any illegal characters ? ( ) [ ] / \ = + < > : ; " ' , * ^ | & .
+                        if any((c in illChars) for c in dataArr[t][csvForm["Customer Sample ID"]]):
+                                print "<p><b>Illegal character in sample name: "+dataArr[t][csvForm["Customer Sample ID"]]+"</b></p>"
+                                raise Exception
+
+                        else:
+                                i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
+				#i[-1].seqProjs[-1].lanes[-1].samples[-1].sampleName=dataArr[t][csvForm["Customer Sample ID"]]
 			if csvForm.has_key("Index sequence"):
-				i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
+				indexSequence=dataArr[t][csvForm["Index sequence"]]
+                                if csvForm.has_key("Index 2 sequence"):
+                                        if dataArr[t][csvForm["Index 2 sequence"]]!="Ignore": ########################################Rev comp this is certain circumstances
+                                                indexSequence=indexSequence+"-"+dataArr[t][csvForm["Index 2 sequence"]]  
+                                i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=indexSequence
+				#i[-1].seqProjs[-1].lanes[-1].samples[-1].tagSequence=dataArr[t][csvForm["Index sequence"]]
+		
 			else:
 				if csvForm.has_key("Index ID"):
                 			i[-1].seqProjs[-1].lanes[-1].samples[-1].tagID=dataArr[t][csvForm["Index ID"]]

@@ -1,26 +1,88 @@
+////////////////
+//To add lanes, samples etc.
+//Send back to data object.
+//Add row or sample etc.
+//Send data back to browser.
+//BOSH! JOB DONE!
+////////////////
 
 
 function experimentTable(exptArr)
 	{
+
+	function nodeInPage(node)
+		{
+   		return document.contains(node);
+		}
+
+
+	function remElement(elemID)
+		{
+		return (elem=document.getElementById(elemID)).parentNode.removeChild(elem);
+		}
+
+	function removeSample(elemID)
+                {
+
+		//split up the index of the current row
+		var nnn=elemID.split("_");
+
+
+		//remove the row
+		remElement(elemID);
+
+		//get the last index of the row being removed	
+		var lastIndex=nnn[nnn.length-1];	
+
+		//was that the last sample
+
+
+		lastSam=Number(lastIndex)+1;
+		var lane=nnn[1]+"_"+nnn[2]+"_"+nnn[3]
+		var sampID=nnn[0]+"_"+nnn[1]+"_"+nnn[2]+"_"+nnn[3]+"_"+lastSam.toString();
+
+		
+		var sample=document.getElementById(sampID);
+		while (nodeInPage(sample))
+			{
+			var sampRow=document.getElementById("sampleRow_"+lane+"_"+lastSam);
+			newSam=lastSam-1;
+			sampRow.id="sampleRow_"+lane+"_"+newSam.toString();
+			cn=sample.childNodes;
+
+			for (var Chn=0;Chn<cn.length;Chn++)
+				{
+				cnch=cn[Chn].childNodes;
+				for (var ChnCh=0;ChnCh<cnch.length;ChnCh++)
+					{
+					if (cnch[ChnCh].type=='text' || cnch[ChnCh].type=='hidden' || cnch[ChnCh].type=='button')
+						{
+						var nna=cnch[ChnCh].name.split("_");
+						newName=nna[0]+"_"+nna[1]+"_"+nna[2]+"_"+nna[3]+"_"+newSam.toString();
+						cnch[ChnCh].name=newName;
+						}
+					}
+				}
+			lastSam++;
+			sample=document.getElementById(nnn[0]+"_"+nnn[1]+"_"+nnn[2]+"_"+nnn[3]+"_"+lastSam.toString());
+			sampID=nnn[0]+"_"+nnn[1]+"_"+nnn[2]+"_"+nnn[3]+"_"+lastSam.toString();
+			}
+
+		return
+                }
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
         function addSample(laneNo)
                 {
                 var frm=document.getElementById("newSeqRun");
-                frm.action="/cgi-bin/coreInSys/updateAddSample";
+                frm.action="/cgi-bin/coreInSys/addSample";
                 var laneAddTo=document.createElement("input");
                 laneAddTo.type='hidden';
                 laneAddTo.name="laneAddTo";
                 laneAddTo.value=laneNo;
                 frm.appendChild(laneAddTo);
 
-		var nTA=document.getElementById("numSamps_"+laneNo);
-		numbToAdd=document.createElement("input");
-		numbToAdd.type='hidden';
-		numbToAdd.name="numbToAdd";
-		numbToAdd.value=nTA.value;
-		frm.appendChild(numbToAdd);
                 frm.submit();
 
                 }
@@ -28,7 +90,7 @@ function experimentTable(exptArr)
 	function remSample(sampNo)
                 {
                 var frm=document.getElementById("newSeqRun");
-                frm.action="/cgi-bin/coreInSys/updateRemSample";
+                frm.action="/cgi-bin/coreInSys/remSample";
                 var sampToRem=document.createElement("input");
                 sampToRem.type='hidden';
                 sampToRem.name="sampToRem";
@@ -38,6 +100,70 @@ function experimentTable(exptArr)
                 frm.submit();
 
                 }
+
+
+
+
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function addSampleJS(lastSample)
+                {
+                var sampleRow=document.getElementById("sampleRow_"+lastSample);
+                var laneCell1=document.getElementById("laneCell_"+lastSample);
+
+		//get all the inputs in the entire samples area
+                var sampRows= laneCell1.getElementsByTagName('input');
+
+		//clone the original sampleRow
+		var newRow=sampleRow.cloneNode(true);
+
+		//get all the inputs of the cloned row
+                var newRowInputs=newRow.getElementsByTagName('input');
+
+		//get the idices of the last input in the sample area
+		var nnn=sampRows[sampRows.length-1].name.split("_");
+		
+		//add 1 to the lat index of the last data item of the last sample
+                newIndex=Number(nnn[nnn.length-1])+1;
+                newIndexStr=newIndex.toString();
+
+		//make a new ID for the doc with the new index	
+		var ri=newRowInputs[newRowInputs.length-1].name.split("_");
+		var rowIDforDoc="sampleRow_"+ri[1]+"_"+ri[2]+"_"+ri[3]+"_"+newIndexStr;
+		newRow.id=rowIDforDoc;
+
+		//Go through all of the data items in the newly cloned row adding the new indexes to their names
+                for (var i=0; i<newRowInputs.length;i++)
+                        {
+                        var n=newRowInputs[i].name.split("_");
+			//set the value of the sampleID for the newly cloned row to 0
+                        if (n[0]=="sampleID")
+                                {
+                                newRowInputs[i].value="0";
+                                }
+			//add the new indexes
+                        newRowInputs[i].name=n[0]+"_"+n[1]+"_"+n[2]+"_"+n[3]+"_"+newIndexStr;
+                        }
+
+
+		//add a remove sample button
+                var da=document.createElement("td");
+                var remSampButton=document.createElement('input');
+                remSampButton.type='button';
+                remSampButton.value='Remove sample';
+
+                //send the rowIDforDoc to the removeSample function. This has the _current_ id for the row being removed.
+                remSampButton.name=rowIDforDoc;
+                remSampButton.addEventListener('click',function() {removeSample(this.name);}, false);
+
+                da.appendChild(remSampButton);
+
+		newRow.appendChild(da);
+
+                laneCell1.appendChild(newRow);
+                }
+
 
 
 
@@ -76,9 +202,6 @@ function experimentTable(exptArr)
                                         da.appendChild(cellIn);
                                         rw.appendChild(da);
                                         }
-
-
-
 				else
                                         {
                                         var cellIn=document.createElement('input');
@@ -115,22 +238,8 @@ function experimentTable(exptArr)
 		laneCell1.id="laneCell_"+lastSample;
                 var rw=document.createElement("tr");
                 var da=document.createElement("td");
-                var selectNumSamps=document.createElement('select');
-
-                //addSampButton.type='select';
-		for (var samNo=1;samNo<17;samNo++)
-			{	
-			var option=document.createElement("option");
-			numbOpt=samNo.toString();
-			option.text=numbOpt;	
-			option.value=numbOpt;
-			selectNumSamps.add(option,null);
-			}
-		selectNumSamps.id="numSamps_"+lastSample;
-		//alert(selectNumSamps.id);
-		da.appendChild(selectNumSamps);
-		var addSampButton=document.createElement('input');
-		addSampButton.type='button';
+                var addSampButton=document.createElement('input');
+                addSampButton.type='button';
                 addSampButton.value='Add sample';
                 addSampButton.name="sampleButton_"+lastSample;
 		//addSampButton.name="sampleButton";
@@ -154,7 +263,7 @@ function experimentTable(exptArr)
                 var laneDataTab=document.createElement("table");
 
                 laneDataTab.border=0;
-		var laneID=0;
+
 		for (var laData=0;laData<exptArr[ex][1][pr][1][la][0].length;laData++)
 			{
                         var rw=document.createElement("tr");
@@ -166,7 +275,6 @@ function experimentTable(exptArr)
                         var da=document.createElement("td");
                         if (exptArr[ex][1][pr][1][la][0][laData][0]=="laneID")
                         	{
-				laneID=exptArr[ex][1][pr][1][la][0][laData][1];
                                 var cellIDtext=document.createTextNode(exptArr[ex][1][pr][1][la][0][laData][1]);
                                 da.appendChild(cellIDtext);
                                 rw.appendChild(da);
@@ -198,8 +306,8 @@ function experimentTable(exptArr)
                         remLaneButton.value='Remove lane';
                         remLaneButton.name="remLaneButton_"+lastLane;
                         remLaneButton.id=lastLane;
-                        //remLaneButton.addEventListener('click',function() {remLane(this.id,laneID);}, false);
-			remLaneButton.addEventListener('click',function() {remLane(this.id,laneID);}, false);
+                        remLaneButton.addEventListener('click',function() {remLane(this.id);}, false);
+
                         da1.appendChild(remLaneButton);
                         rw1.appendChild(da1);
 			laneDataTab.appendChild(rw1);
@@ -223,7 +331,7 @@ function experimentTable(exptArr)
 		//get the form
 		var frm=document.getElementById("newSeqRun");
 		//change the form's action
-		frm.action="/cgi-bin/coreInSys/updateAddLane";
+		frm.action="/cgi-bin/coreInSys/addLane";
 
 		//save the project number that we want to append the lane to
 		var projAddTo=document.createElement("input");
@@ -237,31 +345,28 @@ function experimentTable(exptArr)
 
 		}
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//function remLane(laneNo,laneID)
 	function remLane(laneNo)
                 {
-		//alert(laneNo);
-		//alert(laneID);
                 var frm=document.getElementById("newSeqRun");
-                frm.action="/cgi-bin/coreInSys/updateRemLane";
+                frm.action="/cgi-bin/coreInSys/remLane";
                 var laneToRem=document.createElement("input");
                 laneToRem.type='hidden';
                 laneToRem.name="laneToRem";
                 laneToRem.value=laneNo;
                 frm.appendChild(laneToRem);
-                //frm.submit();
-		//var rmlLen=remLanes.length;
-		//remLanes[rmlLen+1]=laneID;
-		frm.submit();
+                frm.submit();
                 }
 	
+
+
+
 
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	function addSeqProj()
 		{
 		var frm=document.getElementById("newSeqRun");
-		frm.action="/cgi-bin/coreInSys/updateAddSeqPro";		
+		frm.action="/cgi-bin/coreInSys/addSeqPro";		
 
 		frm.submit();
 
@@ -271,7 +376,7 @@ function experimentTable(exptArr)
         function remSeqProj(projNo)
                 {
                 var frm=document.getElementById("newSeqRun");
-                frm.action="/cgi-bin/coreInSys/updateRemSeqProj";
+                frm.action="/cgi-bin/coreInSys/remSeqProj";
                 var projToRem=document.createElement("input");
                 projToRem.type='hidden';
                 projToRem.name="seqProjToRem";
@@ -369,34 +474,6 @@ function experimentTable(exptArr)
                                 da.appendChild(cellIn);
                                 rw.appendChild(da);
                                 }
-			else if (exptArr[ex][1][pr][0][prData][0]=="exptType")
-                       		{
-                                var cellIn=document.createElement('select');
-                                cellIn.name=exptArr[ex][1][pr][0][prData][0]+"_"+ex.toString()+"_"+pr.toString();
-                                cellIn.type='select-one';
-                                //cellIn.value=exptArr[ex][1][pr][0][prData][1];
-                                var option1=document.createElement("option");
-                                option1.text="exome";
-                                cellIn.add(option1);
-                                var option2=document.createElement("option");
-                                option2.text="WGS";
-                                cellIn.add(option2);
-                                var option3=document.createElement("option");
-                                option3.text="RNAseq";
-                                cellIn.add(option3);
-                                var option4=document.createElement("option");
-                                option4.text="ChIPseq";
-                                cellIn.add(option4);
-                                var option5=document.createElement("option");
-                                option5.text="other";
-                                cellIn.add(option5);
-				cellIn.value=exptArr[ex][1][pr][0][prData][1];
-                                da.appendChild(cellIn);
-                                rw.appendChild(da);
-
-                                }
-
-
 			else
                         	{
                                 var cellIn=document.createElement('input');
@@ -500,43 +577,6 @@ function experimentTable(exptArr)
 	// 	Come back later and add the ability to show and hide the data that is displayed
 
 	var inForm=document.forms['newSeqRun'];
-/*
-for (var prData=0;prData<exptArr[ex][1][pr][0].length;prData++)
-                        {
-                        var rw=document.createElement("tr");
-                        var da=document.createElement("td");
-                        var cellText=document.createTextNode(exptArr[ex][1][pr][0][prData][0]);
-                        da.appendChild(cellText);
-                        rw.appendChild(da);
-                        var da=document.createElement("td");
-                        if (exptArr[ex][1][pr][0][prData][0]=="seqProjectID")
-                                {
-                                var cellIDtext=document.createTextNode(exptArr[ex][1][pr][0][prData][1]);
-                                da.appendChild(cellIDtext);
-                                rw.appendChild(da);
-                                expDataTab.appendChild(rw);
-                                var cellIn=document.createElement('input');
-                                cellIn.type='hidden';
-                                cellIn.name=exptArr[ex][1][pr][0][prData][0]+"_"+ex.toString()+"_"+pr.toString();
-                                cellIn.value=exptArr[ex][1][pr][0][prData][1];
-                                da.appendChild(cellIn);
-                                rw.appendChild(da);
-                                }
-                        else
-                                {
-                                var cellIn=document.createElement('input');
-                                cellIn.type='text';
-                                cellIn.name=exptArr[ex][1][pr][0][prData][0]+"_"+ex.toString()+"_"+pr.toString();
-                                cellIn.value=exptArr[ex][1][pr][0][prData][1];
-                                da.appendChild(cellIn);
-                                rw.appendChild(da);
-                                }
-                        projDataTab.appendChild(rw);
-                        }
-*/
-	
-
-
 
 	var contentCell=document.getElementById("content");
 	//var numbLanes=8;
@@ -551,6 +591,8 @@ for (var prData=0;prData<exptArr[ex][1][pr][0].length;prData++)
 		var expDataTab=document.createElement("table");
 		for (var exData=0;exData<exptArr[ex][0].length;exData++)
 			{
+
+
 			var rw=document.createElement("tr");
 			var da=document.createElement("td");
 			var cellText=document.createTextNode(exptArr[ex][0][exData][0]);
@@ -558,33 +600,14 @@ for (var prData=0;prData<exptArr[ex][1][pr][0].length;prData++)
 			da.appendChild(cellText);
 			rw.appendChild(da);
 			var da=document.createElement("td");
-			//alert (exptArr[ex][0][exData][0]);
-			if (exptArr[ex][0][exData][0]=="seqRunID")
-
-				{
-				var cellIDtext=document.createTextNode(exptArr[ex][0][exData][1]);
-                                da.appendChild(cellIDtext);
-                                rw.appendChild(da);
-                                expDataTab.appendChild(rw);
-                                var cellIn=document.createElement('input');
-                                cellIn.type='hidden';
-                                cellIn.name=exptArr[ex][0][exData][0]+"_"+ex.toString();
-                                cellIn.value=exptArr[ex][0][exData][1];
-                                da.appendChild(cellIn);
-                                rw.appendChild(da);
-                                }
-                        else
-                                {
-				var cellIn=document.createElement('input');
-				cellIn.type='text';
-				cellIn.name=exptArr[ex][0][exData][0]+"_"+ex.toString();
-				cellIn.value=exptArr[ex][0][exData][1];
-				//inForm.appendChild(cellIn);
-                        	da.appendChild(cellIn);
-                        	rw.appendChild(da);
-				}
+			var cellIn=document.createElement('input');
+			cellIn.type='text';
+			cellIn.name=exptArr[ex][0][exData][0]+"_"+ex.toString();
+			cellIn.value=exptArr[ex][0][exData][1];
+			inForm.appendChild(cellIn);
+                        da.appendChild(cellIn);
+                        rw.appendChild(da);
 			expDataTab.appendChild(rw);
-				
 			}
 
 		expCell0.appendChild(expDataTab);
@@ -602,7 +625,5 @@ for (var prData=0;prData<exptArr[ex][1][pr][0].length;prData++)
 
 		
 		}	
-
-
 	
 	}

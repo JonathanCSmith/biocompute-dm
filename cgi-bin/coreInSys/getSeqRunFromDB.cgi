@@ -38,7 +38,6 @@ iD = link["projID"].value
 
 i=getRunByID(iD)
 
-
 #for fo in bottomLines:
 #        print fo[:-1]
 #sys.exit()
@@ -48,10 +47,17 @@ i=getRunByID(iD)
 print "<p>",len(i.seqProjs),"</p>"
 for sqPro in range(0,len(i.seqProjs)):
 	print "<p>",i.seqProjs[sqPro].seqProjectName,"</p>"
-	print "<p>",i.seqProjs[sqPro].seqProjectID,"</p>"
+	print "<p>i.seqProjs[sqPro].seqProjectID",i.seqProjs[sqPro].seqProjectID,"</p>"
 """
 expArr=[]
 expArr.append(i)
+
+#for fo in bottomLines:
+#	print fo[:-1]
+#sys.exit()
+
+
+
 
 
 #print "<p>len(i.seqProjs)",len(i.seqProjs),"</p>"
@@ -61,7 +67,10 @@ expArr.append(i)
 
 if len(i.seqProjs)==1 and i.seqProjs[0].seqProjectID==0:
 
+
+
 	d=runOnly2array(expArr)
+
 
 
 	print '<a href="/cgi-bin/coreInSys/linkSeqProj2Run?runID='+iD+'">Link Seq Project</a>'
@@ -75,6 +84,7 @@ if len(i.seqProjs)==1 and i.seqProjs[0].seqProjectID==0:
 
 
 else:
+
 
 	d=runObj2array(expArr)
 

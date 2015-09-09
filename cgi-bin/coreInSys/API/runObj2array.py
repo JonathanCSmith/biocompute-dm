@@ -1,7 +1,7 @@
 #file exptObj2array.py
 
 import seqRun
-
+import sys
 
 # Convert run objects to an array and send a javascript var as a return.
 def runObj2array (expts):
@@ -23,8 +23,11 @@ def runObj2array (expts):
 			jsArray=jsArray+"[["
 			jsArray=jsArray+"['seqProjectID','"+str(expts[l].seqProjs[m].seqProjectID)+"'],"
 			jsArray=jsArray+"['seqProjectName','"+str(expts[l].seqProjs[m].seqProjectName)+"'],"
-			jsArray=jsArray+"['customerID','"+str(expts[l].seqProjs[m].customerID)+"']"
+			jsArray=jsArray+"['customerID','"+str(expts[l].seqProjs[m].customerID)+"'],"
+			jsArray=jsArray+"['exptType','"+str(expts[l].seqProjs[m].exptType)+"']"
 			jsArray=jsArray+"],["
+			#print "<p>",jsArray,"</p>"
+                	#sys.exit()
 
 
 			for n in range(0,len(expts[l].seqProjs[m].lanes)):

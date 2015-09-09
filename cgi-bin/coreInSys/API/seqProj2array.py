@@ -12,7 +12,8 @@ def seqProj2array(expts):
 		jsArray=jsArray+"['seqProjectName','"+str(expts[m].seqProjectName)+"'],"
 		jsArray=jsArray+"['masterProjectID','"+str(expts[m].masterProjectID)+"'],"
 		jsArray=jsArray+"['seqRunID','"+str(expts[m].seqRunID)+"'],"
-		jsArray=jsArray+"['customerID','"+str(expts[m].customerID)+"']"
+		jsArray=jsArray+"['customerID','"+str(expts[m].customerID)+"'],"
+		jsArray=jsArray+"['exptType','"+str(expts[m].exptType)+"']"
 		jsArray=jsArray+"],["
 
 

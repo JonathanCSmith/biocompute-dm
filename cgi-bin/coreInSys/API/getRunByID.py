@@ -10,7 +10,7 @@ def getRunByID(exptID):
 	#return(i)
 
 	i.getSeqNameByID(exptID)
-	#print "<p>",i.seqRunName,"</p>"
+	#print "<p>i.seqRunName",i.seqRunName,"</p>"
         #return(i)
 
 	
@@ -21,7 +21,9 @@ def getRunByID(exptID):
 
 	#Get the IDs of all the projects that belong to this run
 	seqProjectIDs=i.getSeqProjects()
+
 	i.addSeqProject()
+	#print "<p>seqProjectIDs",seqProjectIDs,"</p>"
 	#Work down to the Projects layer
 	for pr in range(0,len(seqProjectIDs)):
 		#add a project instance
@@ -29,12 +31,13 @@ def getRunByID(exptID):
 			if i.seqProjs[-1].seqProjectID!=0:
 				i.addSeqProject()
 		i.seqProjs[-1].getSeqProjByID(seqProjectIDs[pr][0])
+		#print "<p>i.seqProjs[-1].getSeqProjByID(seqProjectIDs[pr][0])",i.seqProjs[-1].getSeqProjByID(seqProjectIDs[pr][0]),"</p>"
 
 		#Get the IDs of all of the lanes in this project
 		laneDataIDs=i.seqProjs[-1].getLaneDataIDs()
 		i.seqProjs[-1].addLaneData()
 
-
+		
 		#Work down to the lane layer
 		for la in range(0,len(laneDataIDs)):
 			#add a lane instance

@@ -14,6 +14,7 @@ class seqProject:
 		self.seqProjectID=0
 		self.seqProjectName="SeqProjName"
 		self.customerID=0
+		self.exptType="other"
 		self.state="RED"
 
 
@@ -55,17 +56,24 @@ class seqProject:
 	def getSeqProjByID(self,projID):
 		import runQuery
 
-		DBquery="select seqProjectName, masterProjectID, customerID, seqRunID from seqProject where seqProjectID="+str(projID)
+		DBquery="select seqProjectName, masterProjectID, customerID, seqRunID, exptType from seqProject where seqProjectID="+str(projID)
+
 		
 		res=runQuery.runQuery(DBquery)
+
 		#if len(res[0])>2:
 		self.seqProjectID=int(projID)
                 self.seqProjectName=res[0][0]
 		self.masterProjectID=res[0][1]
                 self.customerID=res[0][2]
 		self.seqRunID=res[0][3]
+		if not res[0][4]:
+			self.exptType="NULL"  
+		else:
+			self.exptType=res[0][4]
 
 		self.getStateDB()
+
 
 	def getLaneDataIDs(self):
 		import runQuery
@@ -100,6 +108,8 @@ class seqProject:
 		DBquery="delete from demultiplex where seqProjectID="+str(self.seqProjectID)
 		res=runQuery.runQuery(DBquery)
 
+		DBquery="delete from fastQC where seqProjectID="+str(self.seqProjectID)
+                res=runQuery.runQuery(DBquery)
 
 
         #insertSeqProj method
@@ -114,8 +124,8 @@ class seqProject:
 
 		import runQuery
 
-		insQuery="INSERT INTO seqProject (seqProjectName,masterProjectID, seqRunID,customerID) "
-                vals=" VALUES('"+self.seqProjectName+"','"+str(self.masterProjectID)+"','"+str(self.seqRunID)+"',"+str(self.customerID)+")"
+		insQuery="INSERT INTO seqProject (seqProjectName,masterProjectID, seqRunID,customerID,exptType) "
+                vals=" VALUES('"+self.seqProjectName+"','"+str(self.masterProjectID)+"','"+str(self.seqRunID)+"','"+str(self.customerID)+"','"+self.exptType+"')"
 
                 DBins=insQuery+vals
 
@@ -132,7 +142,7 @@ class seqProject:
 	#Update the database with the current object
 	def updateDB(self):
 		import runQuery
-		updateQuery="UPDATE seqProject SET seqRunID='"+str(self.seqRunID)+"', seqProjectName='"+self.seqProjectName+"', masterProjectID="+str(self.masterProjectID)+", customerID="+str(self.customerID)+" where seqProjectID="+str(self.seqProjectID)
+		updateQuery="UPDATE seqProject SET seqRunID='"+str(self.seqRunID)+"', seqProjectName='"+self.seqProjectName+"', masterProjectID="+str(self.masterProjectID)+", customerID="+str(self.customerID)+", exptType='"+self.exptType+"' where seqProjectID="+str(self.seqProjectID)
 		#print "<p>",updateQuery,"</p>"
 		update=runQuery.runQuery(updateQuery)
 
@@ -156,6 +166,9 @@ class seqProject:
 
 		if seqProjRecord.has_key('customerID'):
 			self.customerID=seqProjRecord['customerID']
+
+		if seqProjRecord.has_key('exptType'):
+                        self.exptType=seqProjRecord['exptType']
 
 		if seqProjRecord.has_key('seqRunID'):
                         self.seqRunID=seqProjRecord['seqRunID']

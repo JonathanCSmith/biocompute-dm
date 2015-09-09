@@ -26,7 +26,7 @@ from API.getState import getState
 from API.getRunByID import getRunByID
 from PL_CONTROL.demux import demux
 from PL_CONTROL.fastQC import fastQC
-
+from PL_CONTROL.postAlignQC import postAlignQC
 
 #print "<p>Loaded modules</p>"
 
@@ -91,7 +91,6 @@ print "</p>"
 #Get the IDs of all of the lanes in this project
 laneDataIDs=i.getLaneDataIDs()
 i.addLaneData()
-
 
 #Work down to the lane layer
 for la in range(0,len(laneDataIDs)):
@@ -216,28 +215,41 @@ else:
 
 	try:
         	dm=demux(i,j)
+		dm.setDemuxType()
 	except Exception:
 		print "<p>Error - Unable to create deumux object instance.</p>"
+
+	#for fo in bottomLines:
+        #	print fo[:-1]
+	#sys.exit()
+
+	
 
 	try:
         	dm.getDemuxStatus()
 	except Exception:
 		print "<p>Error - Unable to get demultiplexing status.</p>"
 
+#for fo in bottomLines:
+#        print fo[:-1]
+#sys.exit()
+
+
 print '<p><a href="/cgi-bin/coreInSys/demuxProject.cgi?projID='+str(projectID)+'">Demultiplex this project.</a></p>'
 
+#for fo in bottomLines:
+#        print fo[:-1]
+
+#sys.exit()
 
 #put fastQC stuff here
 ### ONLY LET IT RUN FASTQC IF THE SAMPLE FILE ACTUALLY EXISTS ###
-
-
 
 
 DBquery='select * from fastQC where seqProjectID='+str(projectID)
 #print "<p>",DBquery,"</p>"
 fastQCed=runQuery(DBquery)
 print "<hr>"
-
 
 if len(fastQCed)==0:
         print "<p>FastQC has not been run on these samples using BioCIS</p>"
@@ -262,6 +274,7 @@ else:
                 print "<p>Error - Unable to create fastQC object instance.</p>"
 
         try:
+		fq.setDemuxType()
                 fq.establishPaths()
                 fq.getFastQCStatus()
         except Exception:
@@ -275,14 +288,30 @@ else:
 	print '</div>'
 
 
-
-
-
 print '<p><a href="/cgi-bin/coreInSys/fastQC.cgi?projID='+str(projectID)+'" onclick="return confirm('
 print "'Are you sure you want to run fastQC on all samples?'"
 print ')">Run FastQC on the samples in sequencing project.</a></p>'
 
-print "<br><br>"
+
+DBquery='select * from  postAlignQC where seqProjectID='+str(projectID)
+#print "<p>",DBquery,"</p>"
+pAQC=runQuery(DBquery)
+print "<hr>"
+
+if len(pAQC)==0:
+	print '<p><a href="/cgi-bin/coreInSys/postAlignQC.cgi?projID='+str(projectID)+'" onclick="return confirm('
+	print "'Are you sure you want to set up post alignment QC?'"
+	print ')">Setup post alignmentQC paths.</a></p>'
+else:
+	try:
+		pq=postAlignQC(i,j)
+	except Exception:
+                print "<p>Error - Unable to create postAlignQC object instance.</p>"
+	print "<table><tr><th>Post Alignment QC directory:</th><td>"+pq.postAlignQCdir+"</td></tr></table>"
+	#pq.makeLinksToFiles()
+
+
+print "<br>"
 print "<br><hr>"
 print "<h3>sftp Access:</h3>"
 

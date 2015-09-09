@@ -53,6 +53,9 @@ else:
 
 	from PL_CONTROL.fastQC import fastQC
 	fq=fastQC(i,j)
+
+	fq.setDemuxType()
+
 	#print "<p>fq.QCreportsDir",fq.QCreportsDir,"</p>"
 	#print "<p>fq.fastQCdir",fq.fastQCdir,"</p>"
 	#fq.makeDir(fq.QCreportsDir)

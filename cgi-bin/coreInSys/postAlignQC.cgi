@@ -51,25 +51,18 @@ else:
 	#print "<p>",j.indexTagCycles,"</p>"
 	#print "<p>",j.readCycles,"</p>"
 
-	from PL_CONTROL.demux import demux
-	dm=demux(i,j)
-	dm.setDemuxType()
-	print "<p>demuxType:",dm.demuxType,"</p>"
-
+	from PL_CONTROL.postAlignQC import postAlignQC
+	pq=postAlignQC(i,j)
+	#print "<p>fq.QCreportsDir",fq.QCreportsDir,"</p>"
+	#print "<p>fq.fastQCdir",fq.fastQCdir,"</p>"
+	#fq.makeDir(fq.QCreportsDir)
+        #fq.makeDir(fq.fastQCdir)      
+	pq.establishPaths()
+	pq.setupAllSamples()
 	
-	dm.setTiles()
-	dm.setUseBasesMask()
-	if dm.demuxType=="casava":
-		dm.makeComFile(projectName,projectID)
-	if dm.demuxType=="bcl2fastq2":
-		dm.makeComFileBcl2fastq2(projectName,projectID)
-
-
-
-	#print "<p>About to queue job</p>"
-	#dm.queueDemuxJob()
-	#dm.makeSampleSheet()
-	
+print '<script language="javascript" type="text/javascript">'
+print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'";'
+print '</script>'
 
 
 for fo in bottomLines:

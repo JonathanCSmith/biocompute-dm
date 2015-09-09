@@ -109,6 +109,7 @@ class sftpTransfer:
 		#print "<p>"+DBquery+"</p>"
 		
 		res=runQuery(DBquery)
+		#print "<p>",res,"</p>"
 		try:
 			self.transLocation=res[0][0]
 			self.sftpAccountID=res[0][1]
@@ -118,10 +119,12 @@ class sftpTransfer:
 	
 	
 		DBquery="select accountLocation from sftpAccount where sftpAccountID="+str(self.sftpAccountID)
+		#print "<p>"+DBquery+"</p>"
 		res=runQuery(DBquery)
 		try:
 			self.accountLocation=res[0][0]
 		except Exception:
+			#print "<p>",res,"</p>"
 			print "<p>Unable to find location of origin.</p>"
 			sys.exit()
 		sourcePATH=self.transLocation
@@ -333,8 +336,7 @@ class sftpTransfer:
                         print "<p>",command,"</p>"
 
 
-
-
+		#sys.exit()
 
 
 	def getTransStat(self):

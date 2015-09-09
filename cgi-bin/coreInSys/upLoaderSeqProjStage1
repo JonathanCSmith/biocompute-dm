@@ -106,7 +106,7 @@ for t in range(1,len(lines)):
 
 #headerList=["Ignore","Well","Customer Sample ID","Index sequence","Sequencing Project Title","Index kit I.D.","Index ID","Pool I.D.","Hi-Seq/Flow Cell Project number","Library Prep Operator","Library Prep Start Date","Library Prep End Date","Samples sent for Sequencing","Sequencing Start Date","Sequencing End Date","Sequencing Operator","Lane","Flow Cell I.D.","# of Index Tag Cycles","Sequencing Concentration"]
 
-headerList=["Ignore","Customer Sample ID","Index sequence","Sequencing Project Title","Index kit I.D.","Index ID","Lane","Sequencing Concentration","Read1 Cluster Density","PhiXspiked","spike","spikeRatio","adaptorSequence"]
+headerList=["Ignore","Customer Sample ID","Index sequence","Index 2 sequence","Sequencing Project Title","Index kit I.D.","Index ID","Lane","Sequencing Concentration","Read1 Cluster Density","PhiXspiked","spike","spikeRatio","adaptorSequence"]
 
 
 def optionsList(columnNumber,header,csvForm,headerList):

@@ -32,7 +32,7 @@ for t in lines:
 
 #Initialize dictionaries for the insertion methods
 seqRunRecord= {'seqRunID':'NULL', 'flowcellID':'NULL', 'startDate':'NULL', 'completionDate':'NULL', 'genomicsLead':'NULL', 'dataLocation':'NULL', 'indexTagCycles':'NULL', 'readCycles':'NULL'}
-seqProjRecord= {'seqProjectName':'NULL', 'seqRunID':'NULL', 'customerID':'NULL'}
+seqProjRecord= {'seqProjectName':'NULL', 'seqRunID':'NULL', 'customerID':'NULL', 'exptType':'NULL'}
 laneRecord= {'seqProjectID':'NULL', 'laneNumber':'NULL', 'sequencingConc':'NULL', 'read1ClusterDensity':'NULL', 'PhiXspiked':'NULL' ,'spike':'NULL', 'spikeRatio':'NULL'}
 sampleRecord= {'sampleName':'NULL', 'tagID':'NULL', 'laneID':'NULL', 'tagSequence':'NULL', 'analysisID':'NULL', 'adaptorSequence':'NULL'}		
 
@@ -95,7 +95,8 @@ def expt2Arr (expts):
 			jsArray=jsArray+"["
 			jsArray=jsArray+"['seqProjectID','"+str(expts[l].seqProjs[m].seqProjectID)+"'],"
 			jsArray=jsArray+"['seqProjectName','"+str(expts[l].seqProjs[m].seqProjectName)+"'],"
-			jsArray=jsArray+"['customerID','"+str(expts[l].seqProjs[m].customerID)+"']"
+			jsArray=jsArray+"['customerID','"+str(expts[l].seqProjs[m].customerID)+"'],"
+			jsArray=jsArray+"['exptType','"+str(expts[l].seqProjs[m].exptType)+"']"
 			jsArray=jsArray+"],["
 
 

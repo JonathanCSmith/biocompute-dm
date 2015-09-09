@@ -49,6 +49,7 @@ if 1:
 
 	from PL_CONTROL.demux import demux
 	dm=demux(i,j)
+	dm.setDemuxType()
 
 	if link.has_key('--use-bases-mask'):
 		dm.params['--use-bases-mask']=link['--use-bases-mask'].value
@@ -99,6 +100,57 @@ if 1:
                 dm.options['--ignore-missing-control']=link['--ignore-missing-control'].value
 
 
+	if link.has_key('--runfolder-dir'):
+		dm.Bcl2FQparams['--runfolder-dir']=link['--runfolder-dir'].value
+	
+        if link.has_key('--use-bases-mask'):
+		dm.Bcl2FQparams['--use-bases-mask']=link['--use-bases-mask'].value
+
+        if link.has_key('--output-dir'):
+		dm.Bcl2FQparams['--output-dir']=link['--output-dir'].value
+		
+        if link.has_key('--loading-threads'):
+		dm.Bcl2FQparams['--loading-threads']=link['--loading-threads'].value
+
+        if link.has_key('--writing-threads'):
+		dm.Bcl2FQparams['--writing-threads']=link['--writing-threads'].value
+
+        if link.has_key('--demultiplexing-threads'):
+		dm.Bcl2FQparams['--demultiplexing-threads']=link['--demultiplexing-threads'].value
+
+        if link.has_key('--processing-threads'):
+               	dm.Bcl2FQparams['--processing-threads']=link['--processing-threads'].value
+
+	if link.has_key('--tiles'):
+		dm.Bcl2FQparams['--tiles']=link['--tiles'].value
+
+        if link.has_key('--sample-sheet'):
+		dm.Bcl2FQparams['--sample-sheet']=link['--sample-sheet'].value
+        
+        if link.has_key('--reports-dir'):
+                dm.Bcl2FQparams['--reports-dir']=link['--reports-dir'].value
+
+        if link.has_key('--stats-dir'):
+                dm.Bcl2FQparams['--stats-dir']=link['--stats-dir'].value
+
+        if link.has_key('--interop-dir'):
+                dm.Bcl2FQparams['--interop-dir']=link['--interop-dir'].value
+
+        if link.has_key('--create-fastq-for-index-reads'):
+		dm.Bcl2FQoptions['--create-fastq-for-index-reads']=link['--create-fastq-for-index-reads'].value
+
+        if link.has_key('--ignore-missing-bcl'):
+		dm.Bcl2FQoptions['--ignore-missing-bcl']=link['--ignore-missing-bcl'].value
+
+        if link.has_key('--ignore-missing-positions'):
+		dm.Bcl2FQoptions['--ignore-missing-positions']=link['--ignore-missing-positions'].value
+
+        if link.has_key('--ignore-missing-filter'):
+		dm.Bcl2FQoptions['--ignore-missing-filter']=link['--ignore-missing-filter'].value
+
+
+
+
 
 	#print "<p>Make sampleSheet</p>"
 	try:
@@ -132,7 +184,6 @@ if 1:
 	#send it back to the projects page
 
 	print '<script language="javascript" type="text/javascript">'
-	#print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'&backurl="+window.location.href;'
 	print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'";'
 	print '</script>'
 
