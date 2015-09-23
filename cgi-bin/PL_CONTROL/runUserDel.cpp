@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 {
 	sftp_user=argv[1];
 
-	std::string const command=std::string("/home/biocis/www/cgi-bin/coreInSys/PL_CONTROL/userDel.sh ")+sftp_user;
+	std::string const command=std::string("/home/biocis/www/cgi-bin/PL_CONTROL/userDel.sh ")+sftp_user;
 	setuid(0);
 	system(command.c_str());
 

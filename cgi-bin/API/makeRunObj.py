@@ -19,7 +19,7 @@ def makeRunObj():
     # Read the data
 
 
-    IF = open("/var/www/cgi-bin/coreInSys/API/testData.csv", "r")
+    IF = open("../cgi-bin/API/testData.csv", "r")
     lines = IF.readlines()
     IF.close()
 

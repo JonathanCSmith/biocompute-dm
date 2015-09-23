@@ -22,15 +22,15 @@ tel = ""
 if form.has_key("tel"):
     tel = form["tel"].value
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -70,7 +70,7 @@ print
 "<p>", tel, "</p>"
 
 # print '<script language="javascript" type="text/javascript">'
-# print 'window.location.href="/cgi-bin/coreInSys/showCustomers?backurl="+window.location.href;'
+# print 'window.location.href="/cgi-bin/showCustomers?backurl="+window.location.href;'
 
 # print '</script>'
 

@@ -6,15 +6,15 @@ import cgi
 link = cgi.FieldStorage()
 import os, sys
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -65,7 +65,7 @@ else:
         # print DBquery
         mPres = runQuery(DBquery)
         print
-        '<a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName=' + str(mPres[0][0]) + '&projID=' + str(
+        '<a href="/cgi-bin/getProjectFromDB?projName=' + str(mPres[0][0]) + '&projID=' + str(
             res[mp][0]) + '">' + str(mPres[0][0]) + '</a><br>'
     print
     "</p>"
@@ -73,8 +73,8 @@ else:
 status = getState("sequencing", projectID)
 
 print
-"<p>Project status: <a href='/cgi-bin/coreInSys/status?type=sequencing&itemID=" + str(
-    projectID) + "'><img src='/CoreInSys/images/status_" + status + ".gif' alt='status_" + status + "' ></a></p>"
+"<p>Project status: <a href='/cgi-bin/status?type=sequencing&itemID=" + str(
+    projectID) + "'><img src='/images/status_" + status + ".gif' alt='status_" + status + "' ></a></p>"
 
 # for fo in bottomLines:
 #        print fo[:-1]
@@ -103,7 +103,7 @@ seqRunStuff = runQuery(DBquery)
 print
 "<p>This sequencing project belongs to sequencing run:"
 print
-'<a href="/cgi-bin/coreInSys/getSeqRunFromDB.cgi?projID=' + str(seqRunStuff[0][0]) + '">' + seqRunStuff[0][1] + '</a>'
+'<a href="/cgi-bin/getSeqRunFromDB?projID=' + str(seqRunStuff[0][0]) + '">' + seqRunStuff[0][1] + '</a>'
 print
 "</p>"
 
@@ -187,7 +187,7 @@ print
 print
 """<a href="javascript:swapDisplayed('runDetailsHidden','runDetailsShown')">hide details</a> """
 print
-"<script src='/CoreInSys/js/seqProjectTable.js'></script>"
+"<script src='/js/seqProjectTable.js'></script>"
 print
 "<script>"
 print
@@ -265,7 +265,7 @@ else:
     # print "<p>",j.seqRunID,"</p>"
     # print "<p>",j.dataLocation,"</p>"
 
-    # os.environ['PATH']='/var/www/cgi-bin/coreInSys/PL_CONTROL'
+    # os.environ['PATH']='/var/www/biocis/cgi-bin/PL_CONTROL'
     from PL_CONTROL.demux import demux
 
     try:
@@ -281,7 +281,7 @@ else:
         "<p>Error - Unable to get demultiplexing status.</p>"
 
 print
-'<p><a href="/cgi-bin/coreInSys/demuxProject.cgi?projID=' + str(projectID) + '">Demultiplex this project.</a></p>'
+'<p><a href="/cgi-bin/demuxProject?projID=' + str(projectID) + '">Demultiplex this project.</a></p>'
 
 for fo in bottomLines:
     print

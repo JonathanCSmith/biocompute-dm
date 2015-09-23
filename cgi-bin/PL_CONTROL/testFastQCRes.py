@@ -3,7 +3,7 @@
 import fastQCres
 
 fqcr = fastQCres.fastQCres()
-fqcr.fileLocation = "/home/biocis/demux/75_Sezary_P321/QCreports/FastQC/6820b_L001/6820b_ATCACG_L001_R1_001_fastqc"
+fqcr.fileLocation = "/var/www/biocis/link/demux/75_Sezary_P321/QCreports/FastQC/6820b_L001/6820b_ATCACG_L001_R1_001_fastqc"
 print
 fqcr.fileLocation
 

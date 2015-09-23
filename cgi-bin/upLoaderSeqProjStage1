@@ -11,15 +11,15 @@ from API.getTagSequence import getTagSequence
 
 csvFile = cgi.FieldStorage()
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -137,7 +137,7 @@ print
 print
 "<h3>Please select table headings and press confirm.</h3>"
 print
-'<form id="headerConfirm" name="headerConfirm" method="post" action="/cgi-bin/coreInSys/upLoaderSeqProjStage2">'
+'<form id="headerConfirm" name="headerConfirm" method="post" action="/cgi-bin/upLoaderSeqProjStage2">'
 print
 '<input id="Insert" type="submit" value="Confirm">'
 print

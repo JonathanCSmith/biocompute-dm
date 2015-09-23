@@ -5,15 +5,15 @@ import cgi
 
 link = cgi.FieldStorage()
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -37,10 +37,10 @@ print
 "<h2>Project status</h2>"
 status = getState(itemType, itemID)
 print
-"<p> <img src='/CoreInSys/images/status_" + status + ".gif' alt='status_" + status + "' > - " + status + "</p>"
+"<p> <img src='/images/status_" + status + ".gif' alt='status_" + status + "' > - " + status + "</p>"
 
 print
-'<form name="stateForm" action="/cgi-bin/coreInSys/changeStatus" method="post">'
+'<form name="stateForm" action="/cgi-bin/changeStatus" method="post">'
 
 print
 "<input type='hidden' name='projectID' value='" + itemID + "'>"
@@ -51,16 +51,16 @@ print
 "<p>Change status<br>"
 if status != "RED":
     print
-    "<input type='radio' name='state' value='RED'><img src='/CoreInSys/images/status_RED.gif'><br>"
+    "<input type='radio' name='state' value='RED'><img src='/images/status_RED.gif'><br>"
 if status != "AMBER":
     print
-    "<input type='radio' name='state' value='AMBER'><img src='/CoreInSys/images/status_AMBER.gif'><br>"
+    "<input type='radio' name='state' value='AMBER'><img src='/images/status_AMBER.gif'><br>"
 if status != "BLUE":
     print
-    "<input type='radio' name='state' value='BLUE'><img src='/CoreInSys/images/status_BLUE.gif'><br>"
+    "<input type='radio' name='state' value='BLUE'><img src='/images/status_BLUE.gif'><br>"
 if status != "GREEN":
     print
-    "<input type='radio' name='state' value='GREEN'><img src='/CoreInSys/images/status_GREEN.gif'><br>"
+    "<input type='radio' name='state' value='GREEN'><img src='/images/status_GREEN.gif'><br>"
 print
 '<input type="submit" value="change status" >'
 
@@ -75,13 +75,13 @@ print
 print
 "<ul>"
 print
-"<li><img src='/CoreInSys/images/status_RED.gif'> - User intevention required.</li>"
+"<li><img src='/images/status_RED.gif'> - User intevention required.</li>"
 print
-"<li><img src='/CoreInSys/images/status_BLUE.gif'> - Project running.</li>"
+"<li><img src='/images/status_BLUE.gif'> - Project running.</li>"
 print
-"<li><img src='/CoreInSys/images/status_GREEN.gif'> - Project complete.</li>"
+"<li><img src='/images/status_GREEN.gif'> - Project complete.</li>"
 print
-"<li><img src='/CoreInSys/images/status_AMBER.gif'> - User inspection required.</li>"
+"<li><img src='/images/status_AMBER.gif'> - User inspection required.</li>"
 print
 "</ul>"
 

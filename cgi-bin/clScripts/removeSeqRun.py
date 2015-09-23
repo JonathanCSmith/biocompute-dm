@@ -10,7 +10,7 @@ except Exception:
     "You must supply a sequence run ID"
     sys.exit()
 
-os.environ['PATH'] = '/var/www/cgi-bin/coreInSys/API'
+os.environ['PATH'] = '/var/www/biocis/cgi-bin/API'
 
 from getRunByID import getRunByID
 from runQuery import runQuery

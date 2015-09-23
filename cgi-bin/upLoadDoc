@@ -5,15 +5,15 @@ import cgi
 
 link = cgi.FieldStorage()
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -33,7 +33,7 @@ for he in topLines:
 print
 "<p>Upload master project document:</p>"
 print
-'<form name="input" enctype="multipart/form-data" action="/cgi-bin/coreInSys/upLoaderDocStage1?masterProjID=' + masterProjID + '" method="post">'
+'<form name="input" enctype="multipart/form-data" action="/cgi-bin/upLoaderDocStage1?masterProjID=' + masterProjID + '" method="post">'
 print
 '<p>Document Description<br>'
 print

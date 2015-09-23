@@ -3,15 +3,15 @@
 
 import cgi
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -26,14 +26,14 @@ for he in topLines:
 print
 "<p>Upload csv file:</p>"
 print
-'<form name="input" enctype="multipart/form-data" action="/cgi-bin/coreInSys/upLoaderStage1" method="post">'
+'<form name="input" enctype="multipart/form-data" action="/cgi-bin/upLoaderStage1" method="post">'
 print
 '<p><input type="file" name="seqDataFile" size="40"><br> <input type="submit" Value="Upload" ></p>'
 print
 '</form>'
 """
 print "<p>or</p>"
-print '<form name="pasteinput" action="/cgi-bin/coreInSys/upLoaderStage1" method="post">'
+print '<form name="pasteinput" action="/cgi-bin/upLoaderStage1" method="post">'
 print "<p>Paste csv file here:</p>"
 print '<textarea name="csv" width="400" height="50" > </textarea>'
 print '<p><input type="submit" Value="Upload" ></p>'
@@ -111,7 +111,7 @@ print
 print
 "<p>The column order isn't important, however the column headings are case sensitive and must appear exactly as in the example.</p>"
 print
-"<p>An example csv file can be found <a href='/CoreInSys/seqExample.csv'>here.</a></p><br>"
+"<p>An example csv file can be found <a href='/seqExample.csv'>here.</a></p><br>"
 
 for fo in bottomLines:
     print

@@ -21,7 +21,7 @@ class masterProject:
         self.childTypes = []
         # should contain an array with [docID(zero if not obtained from DB),docDescription,docLocation]
         self.documents = []
-        self.projectsRootDir = "/home/biocis/Projects"
+        self.projectsRootDir = "/var/www/biocis/link/Projects"
         self.projectDir = ""
 
         # self.seqProjs=[]

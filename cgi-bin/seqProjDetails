@@ -6,15 +6,15 @@ import cgi
 link = cgi.FieldStorage()
 import os, sys
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -62,7 +62,7 @@ else:
         # print DBquery
         mPres = runQuery(DBquery)
         print
-        '<a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName=' + str(mPres[0][0]) + '&projID=' + str(
+        '<a href="/cgi-bin/getProjectFromDB?projName=' + str(mPres[0][0]) + '&projID=' + str(
             res[mp][0]) + '">' + str(mPres[0][0]) + '</a><br>'
     print
     "</p>"
@@ -70,8 +70,8 @@ else:
 status = getState("sequencing", projectID)
 
 print
-"<p>Project status: <a href='/cgi-bin/coreInSys/status?type=sequencing&itemID=" + str(
-    projectID) + "'><img src='/CoreInSys/images/status_" + status + ".gif' alt='status_" + status + "' ></a></p>"
+"<p>Project status: <a href='/cgi-bin/status?type=sequencing&itemID=" + str(
+    projectID) + "'><img src='/images/status_" + status + ".gif' alt='status_" + status + "' ></a></p>"
 
 # for fo in bottomLines:
 #        print fo[:-1]
@@ -95,7 +95,7 @@ seqRunStuff = runQuery(DBquery)
 print
 "<p>This sequencing project belongs to sequencing run:"
 print
-'<a href="/cgi-bin/coreInSys/getSeqRunFromDB.cgi?projID=' + str(seqRunStuff[0][0]) + '">' + seqRunStuff[0][1] + '</a>'
+'<a href="/cgi-bin/getSeqRunFromDB?projID=' + str(seqRunStuff[0][0]) + '">' + seqRunStuff[0][1] + '</a>'
 print
 "</p>"
 
@@ -168,7 +168,7 @@ print
 print
 """<a href="javascript:swapDisplayed('runDetailsHidden','runDetailsShown')">hide details</a> """
 print
-"<script src='/CoreInSys/js/seqProjectTable.js'></script>"
+"<script src='/js/seqProjectTable.js'></script>"
 print
 "<script>"
 print
@@ -246,7 +246,7 @@ else:
     # print "<p>",j.seqRunID,"</p>"
     # print "<p>",j.dataLocation,"</p>"
 
-    # os.environ['PATH']='/var/www/cgi-bin/coreInSys/PL_CONTROL'
+    # os.environ['PATH']='/var/www/biocis/cgi-bin/PL_CONTROL'
     # from PL_CONTROL.demux import demux
 
     try:
@@ -274,7 +274,7 @@ else:
 
 
 print
-'<p><a href="/cgi-bin/coreInSys/demuxProject.cgi?projID=' + str(projectID) + '">Demultiplex this project.</a></p>'
+'<p><a href="/cgi-bin/demuxProject?projID=' + str(projectID) + '">Demultiplex this project.</a></p>'
 
 # for fo in bottomLines:
 #        print fo[:-1]
@@ -309,7 +309,7 @@ else:
 
 
 
-    # os.environ['PATH']='/var/www/cgi-bin/coreInSys/PL_CONTROL'
+    # os.environ['PATH']='/var/www/cgi-bin/PL_CONTROL'
     # from PL_CONTROL.fastQC import fastQC
 
     try:
@@ -337,7 +337,7 @@ else:
     '</div>'
 
 print
-'<p><a href="/cgi-bin/coreInSys/fastQC.cgi?projID=' + str(projectID) + '" onclick="return confirm('
+'<p><a href="/cgi-bin/fastQC?projID=' + str(projectID) + '" onclick="return confirm('
 print
 "'Are you sure you want to run fastQC on all samples?'"
 print
@@ -351,7 +351,7 @@ print
 
 if len(pAQC) == 0:
     print
-    '<p><a href="/cgi-bin/coreInSys/postAlignQC.cgi?projID=' + str(projectID) + '" onclick="return confirm('
+    '<p><a href="/cgi-bin/postAlignQC?projID=' + str(projectID) + '" onclick="return confirm('
     print
     "'Are you sure you want to set up post alignment QC?'"
     print
@@ -384,11 +384,11 @@ ST.loadSftpByUsername()
 
 if ST.sftpAccountID == 0:
     print
-    '<p><a href="/cgi-bin/coreInSys/sftpSetup?seqProjectID=' + str(ST.seqProjectID) + '">Create an sftp account.</p>'
+    '<p><a href="/cgi-bin/sftpSetup?seqProjectID=' + str(ST.seqProjectID) + '">Create an sftp account.</p>'
 else:
     if ST.accountStatus == "deleted":
         print
-        """<p>This account has been deleted. <a href="/cgi-bin/coreInSys/sftpRestore?seqProjectID=""" + str(
+        """<p>This account has been deleted. <a href="/cgi-bin/sftpRestore?seqProjectID=""" + str(
             ST.seqProjectID) + """&username=""" + ST.username + """" onclick="return confirm('Are you sure you want to restore this account?')"> Click here </a>to restore it.</p>"""
         print
         "<br><br>"
@@ -413,7 +413,7 @@ else:
                 print
                 '<p>'
                 print
-                '<form method="post" action="/cgi-bin/coreInSys/resetPswd">'
+                '<form method="post" action="/cgi-bin/resetPswd">'
                 print
                 '<input type="hidden" name="username" value="' + ST.username + '">'
                 print
@@ -427,7 +427,7 @@ else:
 
         if ST.dataStatus != "sftp":
             print
-            '<form method="post" action="/cgi-bin/coreInSys/migrateData">'
+            '<form method="post" action="/cgi-bin/migrateData">'
             print
             '<input type="hidden" name="username" value="' + ST.username + '">'
             print
@@ -438,7 +438,7 @@ else:
             '</form>'
 
             print
-            '<form method="post" action="/cgi-bin/coreInSys/sftpAccountDel">'
+            '<form method="post" action="/cgi-bin/sftpAccountDel">'
             print
             '<input type="hidden" name="username" value="' + ST.username + '">'
             print
@@ -451,7 +451,7 @@ else:
 
         else:
             print
-            '<form method="post" action="/cgi-bin/coreInSys/restoreToOrigin">'
+            '<form method="post" action="/cgi-bin/restoreToOrigin">'
             print
             '<input type="hidden" name="username" value="' + ST.username + '">'
             print

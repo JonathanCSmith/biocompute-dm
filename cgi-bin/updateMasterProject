@@ -5,15 +5,15 @@ import cgi
 
 form = cgi.FieldStorage()
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -57,14 +57,14 @@ print
 '<tr><th>Project Name</th><th>Project Lead</th><th>Customer ID</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
 
 print
-'<tr><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName=' + i.projectName + '&projID=' + i.masterProjectID + '"> ' + i.projectName + '</a></td><td>' + i.projectLead + '</td><td>Customer</td><td>' + str(
+'<tr><td><a href="/cgi-bin/getProjectFromDB?projName=' + i.projectName + '&projID=' + i.masterProjectID + '"> ' + i.projectName + '</a></td><td>' + i.projectLead + '</td><td>Customer</td><td>' + str(
     i.openDate) + '</td><td>' + str(i.lastUpdate) + '</td><td>' + i.status + '</td></tr>'
 print
 '<tr><td colspan=7><p><br>' + i.description + '</p></td></tr>'
 print
-'<tr><td colspan=7><a href="/cgi-bin/coreInSys/editMasterProject?projID=' + i.masterProjectID + '">Edit Master Project Details</a></td></tr>'
+'<tr><td colspan=7><a href="/cgi-bin/editMasterProject?projID=' + i.masterProjectID + '">Edit Master Project Details</a></td></tr>'
 print
-'<tr><td colspan=7><a href="/cgi-bin/coreInSys/createMasterProjectLink?projID=' + i.masterProjectID + '">Create Master Project Link</a></td></tr>'
+'<tr><td colspan=7><a href="/cgi-bin/createMasterProjectLink?projID=' + i.masterProjectID + '">Create Master Project Link</a></td></tr>'
 
 print
 '<tr>'
@@ -74,7 +74,7 @@ print
 print
 '<script language="javascript" type="text/javascript">'
 print
-'window.location.href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projID=' + projectID + '";'
+'window.location.href="/cgi-bin/getProjectFromDB?projID=' + projectID + '";'
 print
 '</script>'
 

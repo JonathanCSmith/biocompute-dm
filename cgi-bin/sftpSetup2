@@ -4,15 +4,15 @@ import cgi
 
 link = cgi.FieldStorage()
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -53,7 +53,7 @@ else:
     print
     '<h3>Account created</h3>'
 print
-'<form method="post" action="/cgi-bin/coreInSys/migrateData">'
+'<form method="post" action="/cgi-bin/migrateData">'
 
 print
 '<input type="hidden" name="username" value="' + ST.username + '">'
@@ -79,7 +79,7 @@ print
 '</form>'
 
 print
-'<p><a href="/cgi-bin/coreInSys/seqProjDetails?projID=' + str(
+'<p><a href="/cgi-bin/seqProjDetails?projID=' + str(
     ST.seqProjectID) + '">Return to sequence project details page.</a></p>'
 
 for fo in bottomLines:

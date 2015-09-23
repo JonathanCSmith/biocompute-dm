@@ -10,7 +10,7 @@ class postAlignQC:
         self.j = j  # This is the run
 
         # establish the paths that we'll be using
-        self.projectsRoot = "/home/biocis/demux"
+        self.projectsRoot = "/var/www/biocis/link/demux"
         self.projectDir = str(i.seqProjectID) + "_" + re.sub('\s+', '_', i.seqProjectName)
         self.sampleDirs = os.path.join
         self.QCreportsDir = os.path.join(self.projectsRoot, self.projectDir, "QCreports")
@@ -115,7 +115,7 @@ class postAlignQC:
         for t in range(0, len(self.PAQfiles)):
             loc = self.postAlignQCdir.split("/")
             # /home/biocis/demux/236_P519_MS/QCreports/postAlignQC
-            loca = os.path.join("/CoreInSys/demux/", loc[4], loc[5], loc[6], self.PAQfiles[t])
+            loca = os.path.join("/link/demux/", loc[4], loc[5], loc[6], self.PAQfiles[t])
             if self.PAQfiles[t][-3:] == "bam":
                 print
                 '<p><a href="sftp://biocis@sheba.genetics.kcl.ac.uk' + self.postAlignQCdir + '/' + self.PAQfiles[

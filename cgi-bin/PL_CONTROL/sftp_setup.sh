@@ -18,7 +18,7 @@ usermod --home $home_dir/data $sftp_user
 
 
 
-/home/biocis/www/cgi-bin/coreInSys/PL_CONTROL/mkchroot.sh $home_dir
+/home/biocis/www/cgi-bin/PL_CONTROL/mkchroot.sh $home_dir
 
 getent passwd $sftp_user > $home_dir/etc/passwd
 

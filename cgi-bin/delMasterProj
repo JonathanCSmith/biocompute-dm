@@ -4,15 +4,15 @@ import cgi
 
 link = cgi.FieldStorage()
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -37,7 +37,7 @@ res = runQuery(DBquery)
 print
 '<script language="javascript" type="text/javascript">'
 print
-'window.location.href="/cgi-bin/coreInSys/projects?backurl="+window.location.href;'
+'window.location.href="/cgi-bin/projects?backurl="+window.location.href;'
 print
 '</script>'
 

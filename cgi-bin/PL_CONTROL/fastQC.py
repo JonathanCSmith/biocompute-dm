@@ -10,7 +10,7 @@ class fastQC:
         self.j = j  # This is the run
 
         # establish the paths that we'll be using
-        self.projectsRoot = "/home/biocis/demux"
+        self.projectsRoot = "/var/www/biocis/link/demux"
         self.projectDir = str(i.seqProjectID) + "_" + re.sub('\s+', '_', i.seqProjectName)
         self.sampleDirs = os.path.join
         self.QCreportsDir = os.path.join(self.projectsRoot, self.projectDir, "QCreports")
@@ -112,7 +112,7 @@ class fastQC:
             location = res[arr][2]
             sourceLocation = res[arr][3]
             loc = location.split("/")
-            loca = os.path.join("/CoreInSys/demux/", loc[4], loc[5], loc[6], loc[7])
+            loca = os.path.join("/link/demux/", loc[4], loc[5], loc[6], loc[7])
 
             read1StatsLocation = os.path.join(loca, self.samples[sa].sampleName + "_" + self.samples[
                 sa].tagSequence + "_L" + laneNumber + "_R1_001_fastqc", "fastqc_report.html")

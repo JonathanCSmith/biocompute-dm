@@ -1,21 +1,21 @@
 #!/usr/bin/python
 
-
 import cgi
+
 form=cgi.FieldStorage()
 from API.masterProject import masterProject
 
 
-CH=open("./cgi_header","r")
+CH=open("../template/cgi_header","r")
 cgiHeader=CH.readlines()
 CH.close()
 
 
-HF=open("./template_top","r")
+HF=open("../template/template_top.html","r")
 topLines=HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
+FF=open("../template/template_bottom.html","r")
 bottomLines=FF.readlines()
 FF.close()
 
@@ -24,16 +24,16 @@ from API.getAllProjects import getAllProjects
 
 
 for ch in cgiHeader:
-print ch[:-1]
+    print ch[:-1]
 
 for he in topLines:
-print he[:-1]
+    print he[:-1]
 
 
 if form.has_key("PROJ_NAME"):
-projectName=form["PROJ_NAME"].value
+    projectName=form["PROJ_NAME"].value
 if form.has_key("PROJ_LEAD"):
-projectLead=form["PROJ_LEAD"].value
+    projectLead=form["PROJ_LEAD"].value
 
 i=masterProject()
 i.projectName=projectName
@@ -74,9 +74,9 @@ print '
     print '
     <tr>
         <td>
-            <a href="/cgi-bin/getProjectFromDB.cgi?projName='+projects[pro][4]+'&projType='+projects[pro][2]+'&projID='+str(projects[pro][1])+'">
+            <a href="/cgi-bin/getProjectFromDB?projName='+projects[pro][4]+'&projType='+projects[pro][2]+'&projID='+str(projects[pro][1])+'">
                 '+projects[pro][4]+'</a></td>
-        <td><a href="/cgi-bin/getSeqRunFromDB.cgi?projID='+projects[pro][6]+'"> '+projects[pro][6]+' </a></td>
+        <td><a href="/cgi-bin/getSeqRunFromDB?projID='+projects[pro][6]+'"> '+projects[pro][6]+' </a></td>
         <td>'+projects[pro][2]+'</td>
         <td>'+str(projects[pro][7])+'</td>
         <td>'+projects[pro][3]+'</td>
@@ -91,7 +91,7 @@ print '
     print '
     <script language="javascript" type="text/javascript">'
     print
-    'window.location.href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projID=' + i.masterProjectID + '";'
+    'window.location.href="/cgi-bin/getProjectFromDB.cgi?projID=' + i.masterProjectID + '";'
     print
     '</script>
     '

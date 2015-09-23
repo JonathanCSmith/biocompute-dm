@@ -7,15 +7,15 @@ from API.seqRun import seqRun
 
 form = cgi.FieldStorage()
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -165,9 +165,9 @@ d = runObj2array(projArr)
 
 # print "<p>",d,"</p>"
 print
-'<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/coreInSys/updateSeqRun">'
+'<form id="newSeqRun" name="newSeqRun" method="post" action="/cgi-bin/updateSeqRun">'
 print
-"<script src='/CoreInSys/js/runUpdateFormTable.js'></script>"
+"<script src='/js/runUpdateFormTable.js'></script>"
 print
 "<script>"
 print

@@ -1,29 +1,28 @@
 #!/usr/bin/python
 
-
 import os
 
-files = os.listdir(".")
+files = os.listdir("../template")
 
 pages = []
-TF = open("template_top.html", "r")
+TF = open("../template/template_top.html", "r")
 template_top = TF.readlines()
 TF.close()
 
-BF = open("template_bottom.html", "r")
+BF = open("../template/template_bottom.html", "r")
 template_bottom = BF.readlines()
 BF.close()
 
 for m in range(0, len(files)):
-    if files[m][-5:] == "_html":
+    if files[m][-5:] == ".html" and files[m] != "template_top.html" and files[m] != "template_bottom.html":
         pages.append(files[m])
 
 for wr in pages:
-    CT = open(wr, "r")
+    CT = open("../template/" + wr, "r")
     content = CT.readlines()
     CT.close()
 
-    pageName = "../html/CoreInSys/" + wr[:-5] + ".html"
+    pageName = "../html/" + wr
     print
     pageName
     page = []

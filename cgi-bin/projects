@@ -3,15 +3,15 @@
 
 
 
-CH = open("./cgi_header", "r")
+CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
 
-HF = open("./template_top.html", "r")
+HF = open("../template/template_top.html", "r")
 topLines = HF.readlines()
 HF.close()
 
-FF = open("./template_bottom.html", "r")
+FF = open("../template/template_bottom.html", "r")
 bottomLines = FF.readlines()
 FF.close()
 
@@ -39,13 +39,13 @@ for pro in range(0, len(projects)):
     # print "<p>",projects[pro],"</p>"
     if len(projects[pro]) > 7:
         print
-        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName=' + \
+        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + \
         projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
         projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
             projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'
     else:
         print
-        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName=' + \
+        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + \
         projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
         projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
             projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'

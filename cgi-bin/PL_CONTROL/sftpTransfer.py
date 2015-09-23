@@ -4,8 +4,8 @@ class sftpTransfer:
     def __init__(self):
         import os
 
-        self.exec_root = "/home/biocis/www/cgi-bin/coreInSys/PL_CONTROL"
-        self.APIpath = "/var/www/cgi-bin/coreInSys/API"
+        self.exec_root = "/home/biocis/www/cgi-bin/PL_CONTROL"
+        self.APIpath = "/var/www/biocis/cgi-bin/coreInSys/API"
         self.sftp_root = "/gpfs/home/transfer"
 
         self.seqRunName = ""
@@ -61,7 +61,7 @@ class sftpTransfer:
 
         import os
         # sys.exit()
-        # os.environ['PATH']=os.environ['PATH']+':/var/www/cgi-bin/coreInSys/API'
+        # os.environ['PATH']=os.environ['PATH']+':/var/www/cgi-bin/API'
         sys.path.append(self.APIpath)
         from seqProject import seqProject
 

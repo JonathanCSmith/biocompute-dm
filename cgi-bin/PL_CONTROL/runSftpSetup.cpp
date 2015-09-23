@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	sftp_pass=argv[2];
 	home_dir=argv[3];
 
-	std::string const command = std::string( "/home/biocis/www/cgi-bin/coreInSys/PL_CONTROL/sftp_setup.sh " ) + argv[1] +" "+argv[2]+" "+argv[3];
+	std::string const command = std::string( "/home/biocis/www/cgi-bin/PL_CONTROL/sftp_setup.sh " ) + argv[1] +" "+argv[2]+" "+argv[3];
 	setuid( 0 );
 	system( command.c_str() );
 

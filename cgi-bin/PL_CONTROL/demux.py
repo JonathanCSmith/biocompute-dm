@@ -18,7 +18,7 @@ class demux:
         self.seqProjectID = i.seqProjectID
         self.JID = "0"
         self.status = "setup"
-        self.projectsRoot = "/home/biocis/demux"
+        self.projectsRoot = "/var/www/biocis/link/demux"
         # print "<p>"+i.seqProjectName+"___</p>"
         self.projectDir = str(i.seqProjectID) + "_" + re.sub('\s+', '_', i.seqProjectName)
         # print "<p>"+self.projectDir+"</p>"
@@ -225,9 +225,9 @@ class demux:
         # print "<p>self.projectDir"+self.projectDir+"</p>"
         # casavaComFile=os.path.join(self.projectDir,"casava_Bcl2FastQ.sh")
         if self.demuxType == "casava":
-            command = 'ssh biocis@athena "source /etc/profile; cd /home/biocis/demux/' + self.projectDir + '; qsub -q shortterm.q,longterm.q casava_Bcl2FastQ.sh"'
+            command = 'ssh biocis@athena "source /etc/profile; cd /var/www/biocis/link/demux/' + self.projectDir + '; qsub -q shortterm.q,longterm.q casava_Bcl2FastQ.sh"'
         if self.demuxType == "bcl2fastq2":
-            command = 'ssh biocis@athena "source /etc/profile; cd /home/biocis/demux/' + self.projectDir + '; qsub -q shortterm.q,longterm.q bcl2fastq2.sh"'
+            command = 'ssh biocis@athena "source /etc/profile; cd /var/www/biocis/link/demux/' + self.projectDir + '; qsub -q shortterm.q,longterm.q bcl2fastq2.sh"'
 
         print
         "<p>" + command + "</p>"
@@ -239,7 +239,7 @@ class demux:
         "<p>", line[0], "</p>"
 
         # sys.exit()
-        JIDfile = '/home/biocis/demux/' + self.projectDir + '/JID'
+        JIDfile = '/var/www/biocis/link/demux/' + self.projectDir + '/JID'
         jid = "0"
         if len(line[0]) > 0:
             bits = line[0].split()
@@ -264,7 +264,7 @@ class demux:
         import os
         import subprocess as sub
         # print "/home/biocis/demux/"+self.projectDir
-        stuff = os.listdir("/home/biocis/demux/" + self.projectDir)
+        stuff = os.listdir("/var/www/biocis/link/demux/" + self.projectDir)
 
         # print "<p>",stuff,"</p>"
         DBquery = "select demuxID, status, location, sourceLocation, JID from demultiplex where seqProjectID='" + str(
@@ -319,11 +319,11 @@ class demux:
                 projDir = pa[-1]
                 if self.demuxType == "casava":
                     print
-                    "<a href='/CoreInSys/demux/" + projDir + "/processed/Basecall_Stats_" + self.j.flowcellID + "/Demultiplex_Stats.htm'>" + status + "</a>"
+                    "<a href='/link/demux/" + projDir + "/processed/Basecall_Stats_" + self.j.flowcellID + "/Demultiplex_Stats.htm'>" + status + "</a>"
 
                 if self.demuxType == "bcl2fastq2":
                     print
-                    "<a href='/CoreInSys/demux/" + projDir + "/processed/Reports/html/index.html'>" + status + "</a>"
+                    "<a href='/link/demux/" + projDir + "/processed/Reports/html/index.html'>" + status + "</a>"
 
 
 

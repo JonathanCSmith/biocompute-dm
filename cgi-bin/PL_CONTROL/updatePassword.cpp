@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 {
 	sftp_user=argv[1];
 	sftp_pass=argv[2];
-	std::string const command=std::string("/home/biocis/www/cgi-bin/coreInSys/PL_CONTROL/updatePass.sh ")+sftp_user+" "+sftp_pass;
+	std::string const command=std::string("/home/biocis/www/cgi-bin/PL_CONTROL/updatePass.sh ")+sftp_user+" "+sftp_pass;
 	setuid(0);
 	system(command.c_str());
 
