@@ -1,84 +1,80 @@
 #!/usr/bin/python
 
 import cgi
+
 from API.runQuery import runQuery
 
 form = cgi.FieldStorage()
 
-
-groupName=""
+groupName = ""
 if form.has_key("groupName"):
-        groupName=form["groupName"].value
+    groupName = form["groupName"].value
 
-
-contactName=""
+contactName = ""
 if form.has_key("contactName"):
-	contactName=form["contactName"].value
+    contactName = form["contactName"].value
 
-email=""
+email = ""
 if form.has_key("email"):
-        email=form["email"].value
+    email = form["email"].value
 
-tel=""
+tel = ""
 if form.has_key("tel"):
-        tel=form["tel"].value
+    tel = form["tel"].value
 
-
-
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
-
-
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
-print "<p>",groupName,contactName,"</p>"
+print
+"<p>", groupName, contactName, "</p>"
 
+if groupName != "":
+    DBquery = "insert into customer (name) VALUES('" + str(groupName) + "')"
+    res = runQuery(DBquery)
 
+    if contactName != "":
+        DBquery = "select customerID from customer order by customerID desc limit 1"
+        res = runQuery(DBquery)
+        customerID = res[0]
 
-if groupName!="":
-	DBquery="insert into customer (name) VALUES('"+str(groupName)+"')"
-	res=runQuery(DBquery)
+        DBquery = "insert into customerContact (customerID,name,email,tel) values(" + str(customerID[0]) + ",'" + str(
+            contactName) + "','" + str(email) + "','" + str(tel) + "')"
+        # print "<p>",DBquery,"</p>"
 
-	if contactName!="":
-		DBquery="select customerID from customer order by customerID desc limit 1"
-		res=runQuery(DBquery)
-		customerID=res[0]
+        try:
+            res = runQuery(DBquery)
+        except Exception:
+            print
+            "<p>Failed to insert.", DBquery, "</p>"
 
-		DBquery="insert into customerContact (customerID,name,email,tel) values("+str(customerID[0])+",'"+str(contactName)+"','"+str(email)+"','"+str(tel)+"')"
-		#print "<p>",DBquery,"</p>"
+print
+"<p>", email, "</p>"
+print
+"<p>", tel, "</p>"
 
-		try:
-			res=runQuery(DBquery)
-		except Exception:
-			print "<p>Failed to insert.",DBquery,"</p>"
-	
+# print '<script language="javascript" type="text/javascript">'
+# print 'window.location.href="/cgi-bin/coreInSys/showCustomers?backurl="+window.location.href;'
 
-print "<p>",email,"</p>"
-print "<p>",tel,"</p>"
-
-#print '<script language="javascript" type="text/javascript">'
-#print 'window.location.href="/cgi-bin/coreInSys/showCustomers?backurl="+window.location.href;'
-
-#print '</script>'
+# print '</script>'
 
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
+    print
+    fo[:-1]

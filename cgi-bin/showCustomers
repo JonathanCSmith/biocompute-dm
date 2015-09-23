@@ -3,115 +3,152 @@
 
 from API.getAllCustomers import getAllCustomers
 
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
-
-
-
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
-custList=getAllCustomers()
-print "<p>",custList,"</p>"
-#add way of adding customers here
-print '<script>'
-print 'function swapDisplayed(idA,idB){'
-print '		var docA = document.getElementById(idA);'
-print '		if (docA.style.display == "none")'
-print '			docA.style.display = "inline";'
-print '		var docB = document.getElementById(idB);'
-print '                if (docB.style.display == "inline")'
-print '                        docB.style.display = "none";'
-print '	}'
-print '</script>'
+custList = getAllCustomers()
+print
+"<p>", custList, "</p>"
+# add way of adding customers here
+print
+'<script>'
+print
+'function swapDisplayed(idA,idB){'
+print
+'		var docA = document.getElementById(idA);'
+print
+'		if (docA.style.display == "none")'
+print
+'			docA.style.display = "inline";'
+print
+'		var docB = document.getElementById(idB);'
+print
+'                if (docB.style.display == "inline")'
+print
+'                        docB.style.display = "none";'
+print
+'	}'
+print
+'</script>'
 
+print
+'<div id="addCustomerShown" style="display:none">'
+print
+"""<a href="javascript:swapDisplayed('addCustomerHidden','addCustomerShown')">Hide add customer form</a> """
 
-print '<div id="addCustomerShown" style="display:none">'
-print """<a href="javascript:swapDisplayed('addCustomerHidden','addCustomerShown')">Hide add customer form</a> """ 
+print
+'<form method="post" action="/cgi-bin/coreInSys/addCustomer">'
+print
+'<table border="0">'
 
-print '<form method="post" action="/cgi-bin/coreInSys/addCustomer">'
-print '<table border="0">'
+print
+'<tr><td>Customer Group Name:</td><td>'
+print
+'<input type="text" name="groupName" size="20">'
+print
+'</td></tr>'
 
-print '<tr><td>Customer Group Name:</td><td>'
-print '<input type="text" name="groupName" size="20">'
-print '</td></tr>'
+print
+'<tr><td>'
 
-print '<tr><td>'
+print
+'<div id="customerContactHidden" style="display:inline">'
+print
+'<table border="0"><tr><td>'
+print
+"""<a href="javascript:swapDisplayed('customerContactShown','customerContactHidden')">Add a contact.</a> """
+print
+'</td></tr></table>'
+print
+'</div>'
 
-print '<div id="customerContactHidden" style="display:inline">'
-print '<table border="0"><tr><td>'
-print """<a href="javascript:swapDisplayed('customerContactShown','customerContactHidden')">Add a contact.</a> """
-print '</td></tr></table>'
-print '</div>'
+print
+'<div id="customerContactShown" style="display:none">'
+print
+'<table border=0>'
+print
+'<tr><td>Contact Name</td><td>'
+print
+'<input type="text" name="contactName" size="20">'
+print
+'</td></tr><tr>'
+print
+'<td>Email:</td><td>'
+print
+'<input type="text" name="email" size="20">'
+print
+'</td></tr><tr><td>Telephone:</td><td>'
+print
+'<input type="text" name="tel" size="20">'
+print
+'</td></tr>'
+print
+'</table>'
+print
+'</div>'
 
+print
+'</td></tr>'
 
+print
+'</table>'
+print
+'<input type="submit" value="Insert">'
+print
+'</form>'
+print
+'</div>'
 
-print '<div id="customerContactShown" style="display:none">'
-print '<table border=0>'
-print '<tr><td>Contact Name</td><td>'
-print '<input type="text" name="contactName" size="20">'
-print '</td></tr><tr>'
-print '<td>Email:</td><td>'
-print '<input type="text" name="email" size="20">'
-print '</td></tr><tr><td>Telephone:</td><td>'
-print '<input type="text" name="tel" size="20">'
-print '</td></tr>'
-print '</table>'
-print '</div>'
+print
+'<div id="addCustomerHidden" style="display:inline">'
+print
+"""<a href="javascript:swapDisplayed('addCustomerShown','addCustomerHidden')">Add customer</a> """
+print
+'</div>'
 
-print '</td></tr>'
+print
+'<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+print
+"<tr><th>Customer ID</th><th>Customer name</th><th>Customer contact ID</th><th>Customer contact name</th><th>email</th><th>Phone</th></tr>"
+for cl in range(0, len(custList)):
 
+    print
+    "<p>", custList, "</p>"
 
-print '</table>'
-print '<input type="submit" value="Insert">'
-print '</form>'
-print '</div>'
+    print
+    "<tr>"
+    for cll in range(0, 2):
+        print
+        "<td>" + str(custList[cl][cll]) + "</td>"
+    for clll in range(0, len(custList[cl][2][0])):
+        print
+        "<td>" + str(custList[cl][2][0][clll]) + "</td>"
 
-print '<div id="addCustomerHidden" style="display:inline">'
-print """<a href="javascript:swapDisplayed('addCustomerShown','addCustomerHidden')">Add customer</a> """
-print '</div>'
+        # Add an edit button
+        # Add a delete button
+    print
+    "</tr>"
 
-
-
-
-
-print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-print "<tr><th>Customer ID</th><th>Customer name</th><th>Customer contact ID</th><th>Customer contact name</th><th>email</th><th>Phone</th></tr>"
-for cl in range(0,len(custList)):
-
-	print "<p>",custList,"</p>"
-	
-	
-	print "<tr>"
-	for cll in range(0,2):
-		print "<td>"+str(custList[cl][cll])+"</td>"
-	for clll in range(0,len(custList[cl][2][0])):
-		print "<td>"+str(custList[cl][2][0][clll])+"</td>"
-
-	#Add an edit button 
-	#Add a delete button
-	print "</tr>"
-	
-print "</table>"
-
+print
+"</table>"
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
+    print
+    fo[:-1]

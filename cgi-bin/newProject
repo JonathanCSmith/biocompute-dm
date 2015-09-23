@@ -24,17 +24,16 @@ from API.getAllProjects import getAllProjects
 
 
 for ch in cgiHeader:
-        print ch[:-1]
+print ch[:-1]
 
 for he in topLines:
-	print he[:-1]
-
+print he[:-1]
 
 
 if form.has_key("PROJ_NAME"):
-	projectName=form["PROJ_NAME"].value
+projectName=form["PROJ_NAME"].value
 if form.has_key("PROJ_LEAD"):
-        projectLead=form["PROJ_LEAD"].value
+projectLead=form["PROJ_LEAD"].value
 
 i=masterProject()
 i.projectName=projectName
@@ -57,26 +56,49 @@ i.getLastMasterProjectID()
 #Get a list of all of the projects in the database:
 #print "<p>",projects,"</p>"
 
-print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-print '<tr><th>Project Name</th><th>Run Name</th><th>Project Type</th><th>Customer ID</th><th>Project Status</th></tr>'
+print '
+<table border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+    print '
+    <tr>
+        <th>Project Name</th>
+        <th>Run Name</th>
+        <th>Project Type</th>
+        <th>Customer ID</th>
+        <th>Project Status</th>
+    </tr>
+    '
 
-"""
+    """
 
-for pro in range(0,len(projects)):
-	print '<tr><td><a href="/cgi-bin/getProjectFromDB.cgi?projName='+projects[pro][4]+'&projType='+projects[pro][2]+'&projID='+str(projects[pro][1])+'"> '+projects[pro][4]+'</a></td><td><a href="/cgi-bin/getSeqRunFromDB.cgi?projID='+projects[pro][6]+'"> '+projects[pro][6]+' </a></td><td>'+projects[pro][2]+'</td><td>'+str(projects[pro][7])+'</td><td>'+projects[pro][3]+'</td></tr>'
+    for pro in range(0,len(projects)):
+    print '
+    <tr>
+        <td>
+            <a href="/cgi-bin/getProjectFromDB.cgi?projName='+projects[pro][4]+'&projType='+projects[pro][2]+'&projID='+str(projects[pro][1])+'">
+                '+projects[pro][4]+'</a></td>
+        <td><a href="/cgi-bin/getSeqRunFromDB.cgi?projID='+projects[pro][6]+'"> '+projects[pro][6]+' </a></td>
+        <td>'+projects[pro][2]+'</td>
+        <td>'+str(projects[pro][7])+'</td>
+        <td>'+projects[pro][3]+'</td>
+    </tr>
+    '
 
 
-"""
+    """
 
-#send it back to the project page
+    #send it back to the project page
 
-print '<script language="javascript" type="text/javascript">'
-print 'window.location.href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projID='+i.masterProjectID+'";'
-print '</script>'
+    print '
+    <script language="javascript" type="text/javascript">'
+    print
+    'window.location.href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projID=' + i.masterProjectID + '";'
+    print
+    '</script>
+    '
 
 
-for fo in bottomLines:
-	print fo[:-1]
+    for fo in bottomLines:
+    print fo[:-1]
 
 
 

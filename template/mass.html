@@ -1,0 +1,149 @@
+                <script>
+                    function swapDisplayed(idA,idB){
+                        var docA = document.getElementById(idA);
+                        if (docA.style.display == "none")
+                            docA.style.display = "inline";
+
+                        var docB = document.getElementById(idB);
+                            if (docB.style.display == "inline")
+                                    docB.style.display = "none";
+                    }
+                </script>
+
+
+
+                <script>
+                    function processInput(idA,idB) {
+                        //swapDisplayed(idA,idB);
+                        var rawIn = document.getElementById("rawIn").value;
+                        var inptTab= document.getElementById("inpTable");
+
+                        //split text into rows
+                        var rows=rawIn.split("\n");
+                        var indivValues=[];
+
+                        for(var g=0;g<rows.length;g++) {
+                            bits=rows[g].split(",");
+                            indivValues[g]=bits;
+                        }
+                        //matrix can be accessed [row][column]
+                        //Check the expected number of fields exist in each row
+
+                        //Add the fields to the submission content form
+                        var subContElements= new Array("KCL_ID","ALT_ID","FORENAME","SURNAME","PR_NAME","CONTACT","GENDER","NOTES","SEQ_ANAL_ID","SEQ_STAT","RUN_ID","LANES","INDEX");
+                        var subContlengths= new Array(10,10,20,20,20,20,20,20,20,10,30,8,10);
+
+                        var subForm = document.getElementById("subContent");
+
+                        //var rowNumber=0;
+
+                        //for (var formField=0;formField<subContElements.length;formField++)
+                        //	{
+                        //	var elID=subContElements[formField]+rowNumber.toString();
+                        //	var El=document.getElementsByName(elID);
+                        //	El[0].value=indivValues[rowNumber][formField];
+                        //	var mm=El[0].value;
+                        //	}
+
+
+                        for (var adR=0;adR<indivValues.length;adR++) {
+                            //alert(indivValues.length);
+                            if (indivValues[adR].length>1) {
+                                var row = document.createElement("tr");
+                                for (var addFF=0;addFF<subContElements.length;addFF++) {
+                                    var addCell= document.createElement("td");
+                                    var el = document.createElement('input');
+                                    el.type = 'text';
+                                    el.name = subContElements[addFF]+adR.toString();
+                                    el.size=subContlengths[addFF];
+                                    el.value=indivValues[adR][addFF];
+                                    addCell.appendChild(el);
+                                    row.appendChild(addCell);
+                                }
+
+                                inptTab.appendChild(row);
+                            }
+                        }
+                        swapDisplayed(idA,idB);
+                    }
+                </script>
+
+                <div id="rawInput" style='display:inline'>
+                    <form id="rawInForm" name="inptForm" method="post" action="javascript:processInput('inBoxes','rawInput')">
+                        <table border=1 height=500>
+                            <tr style='font-size:70%'>
+                                <td>KCL_ID</td>
+                                <td>Alt_ID</td>
+                                <td>ForeName</td>
+                                <td>Surname</td>
+                                <td>ProjectName</td>
+                                <td>Contact</td>
+                                <td>Gender</td>
+                                <td>Notes</td>
+                                <td>Sequence_Analysis_ID</td>
+                                <td>Seq_Status</td>
+                                <td>Run_ID</td>
+                                <td>Lanes</td>
+                                <td>BCIndex</td>
+                            </tr>
+                            <tr>
+                                <td colspan=13>
+                                    Enter comma separated values:
+                                    <br />
+                                    <textarea id="rawIn" rows="20" cols="120"></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan=13>
+                                    <input id="Splodge" type="submit" value="Splodge!">
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+
+                <div id="inBoxes" style='display:none' >
+                    <form id="subContent" name="inptForm" method="post" action="/cgi-bin/exomeSampleDB/massSubmit">
+                        <style type="text/css">
+                            input { font-size:70%}
+                        </style>
+
+
+
+
+                        <table ID="inpTable" border=0 valign=top  style='font-size:100%'>
+                            <tr>
+                                <th>KCL_ID</th>
+                                <th>Alt_ID</th>
+                                <th>ForeName</th>
+                                <th>Surname</th>
+                                <th>ProjectName</th>
+                                <th>Contact</th>
+                                <th>Gender</th>
+                                <th>Notes</th>
+                                <th>Sequence_Analysis_ID</th>
+                                <th>Seq_Status</th>
+                                <th>Run_ID</th>
+                                <th>Lanes</th>
+                                <th>BCIndex</th>
+                            </tr>
+                            <!--tr>
+                                <td ><input type="text" name="KCL_ID0" size="10" value="test val"></td>
+                                <td><input type="text" name="ALT_ID0" size="10"></td>
+                            <td><input type="text" name="FORENAME0" size="20"></td>
+                                <td><input type="text" name="SURNAME0" size="20"></td>
+                            <td><input type="text" name="PR_NAME0" size="20"></td>
+                                <td><input type="text" name="CONTACT0" size="20"></td>
+                            <td><input type="text" name="GENDER0" size="20"></td>
+                                <td><input type="text" name="NOTES0" size="20"></td>
+                            <td><input type="text" name="SEQ_ANAL_ID0" size="20"></td>
+                                <td><input type="text" name="SEQ_STAT0" size="10"></td>
+                                <td><input type="text" name="RUN_ID0" size="30"></td>
+                            <td><input type="text" name="LANES0" size="8"></td>
+                                <td><input type="text" name="INDEX0" size="10"></td>
+                            </tr-->
+                        </table>
+                        <input id="Splodge" type="submit" value="Splodge!">
+                    </form>
+                    <!--button onclick="swapDisplayed('rawInput','inBoxes')">Return</button-->
+                </div>

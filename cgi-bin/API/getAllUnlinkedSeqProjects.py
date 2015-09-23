@@ -1,18 +1,12 @@
-#file getAllUnlinkedSeqProjects.py 
+# file getAllUnlinkedSeqProjects.py
 
 
 
 def getAllUnlinkedSeqProjects():
-	import runQuery
+    import runQuery
 
+    DBquery = "select seqProjectID, seqProjectName, seqRunID, customerID ,exptType from seqProject where masterProjectID=0 order by seqProjectID"
+    # print "<p>",DBquery,"</p>"
+    localRes = runQuery.runQuery(DBquery)
 
-	DBquery="select seqProjectID, seqProjectName, seqRunID, customerID ,exptType from seqProject where masterProjectID=0 order by seqProjectID"
-			#print "<p>",DBquery,"</p>"
-	localRes=runQuery.runQuery(DBquery)
-
-	return(localRes)
-
-
-
-
-
+    return (localRes)

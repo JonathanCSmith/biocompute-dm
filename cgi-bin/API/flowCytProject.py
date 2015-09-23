@@ -1,22 +1,20 @@
-#file flowCytProject.py
+# file flowCytProject.py
 
 
 class flowCytProject:
-	def __init__(self,parent):
-		self.parent=parent
-		try:
-			self.flowCytExptID=self.parent.flowCytExptID
-                except AttributeError:
-			self.flowCytExptID="NULL"
-	
-		self.masterProjectID=0
-		self.flowCytProjectID=0
-		self.flowCytProjectName=""
-		self.customerID=0
+    def __init__(self, parent):
+        self.parent = parent
+        try:
+            self.flowCytExptID = self.parent.flowCytExptID
+        except AttributeError:
+            self.flowCytExptID = "NULL"
 
+        self.masterProjectID = 0
+        self.flowCytProjectID = 0
+        self.flowCytProjectName = ""
+        self.customerID = 0
 
-		self.lanes=[]
-
+        self.lanes = []
 
 
 """
@@ -108,12 +106,3 @@ class flowCytProject:
 			self.customerID=seqProjRecord['customerID']
 
 """
-
-	
-
-
-
-
-
-
-

@@ -2,65 +2,75 @@
 
 
 import cgi
+
 link = cgi.FieldStorage()
 
-
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
 from API.masterProject import masterProject
 
-
-
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
 if link.has_key('projName'):
-	projectName = link["projName"].value
+    projectName = link["projName"].value
 
 if link.has_key('projID'):
-	projectID=link["projID"].value
+    projectID = link["projID"].value
 
-i=masterProject()
+i = masterProject()
 i.getMasterProjectByID(projectID)
-#print i.seqProjs[0].seqRunID
+# print i.seqProjs[0].seqRunID
 
-print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-print '<form id="upDateMastProj" name="upDateMastProj" method="post" action="/cgi-bin/coreInSys/updateMasterProject">'
+print
+'<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+print
+'<form id="upDateMastProj" name="upDateMastProj" method="post" action="/cgi-bin/coreInSys/updateMasterProject">'
 
-print '<tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer ID</th><th>Project opened(YYYY-MM-DD)</th><th>Project last updated(YYYY-MM-DD)</th><th>Project Status</th></tr>'
+print
+'<tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer ID</th><th>Project opened(YYYY-MM-DD)</th><th>Project last updated(YYYY-MM-DD)</th><th>Project Status</th></tr>'
 
+print
+'<tr><td><input type="hidden" name="masterProjectID" value="' + i.masterProjectID + '"></td>'
+print
+'<td><input type="text" name="projectName" size="40" value="' + i.projectName + '"></td>'
+print
+'<td><input type="text" name="projectLead" size="40" value="' + i.projectLead + '"></td>'
+print
+'<td><input type="text" name="customer" size="20" value="Customer"</td>'
+print
+'<td><input type="text" name="openDate" size="20" value="' + str(i.openDate) + '"></td>'
+print
+'<td><input type="text" name="lastUpdate" size="20" value="' + str(i.lastUpdate) + '"></td>'
+print
+'<td><input type="text" name="status" size="20" value="' + i.status + '"></td></tr>'
+print
+'<tr><th colspan=7>Description</th></tr>'
+print
+'<tr><td colspan=7><textarea name="description" width="60"  height="5" > ' + i.description + '</textarea></td></tr>'
+print
+'<tr><td><input type="submit" Value="Upload" ></td></tr>'
 
-print '<tr><td><input type="hidden" name="masterProjectID" value="'+i.masterProjectID+'"></td>'
-print '<td><input type="text" name="projectName" size="40" value="'+i.projectName+'"></td>'
-print '<td><input type="text" name="projectLead" size="40" value="'+i.projectLead+'"></td>'
-print '<td><input type="text" name="customer" size="20" value="Customer"</td>'
-print '<td><input type="text" name="openDate" size="20" value="'+str(i.openDate)+'"></td>'
-print '<td><input type="text" name="lastUpdate" size="20" value="'+str(i.lastUpdate)+'"></td>'
-print '<td><input type="text" name="status" size="20" value="'+i.status+'"></td></tr>'
-print '<tr><th colspan=7>Description</th></tr>'
-print '<tr><td colspan=7><textarea name="description" width="60"  height="5" > '+i.description+'</textarea></td></tr>'
-print '<tr><td><input type="submit" Value="Upload" ></td></tr>'
+print
+"</form>"
 
-
-print "</form>"
-
-print "</table>"
+print
+"</table>"
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
+    print
+    fo[:-1]

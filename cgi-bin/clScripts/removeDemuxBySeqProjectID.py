@@ -1,23 +1,22 @@
 #!/usr/bin/python
 
-import os,sys
+import os
+import sys
 
 try:
-	seqProjectID=sys.argv[1]
+    seqProjectID = sys.argv[1]
 except Exception:
-	print "You must supply a seq project ID"
-	sys.exit()
+    print
+    "You must supply a seq project ID"
+    sys.exit()
 
-os.environ['PATH']='/var/www/cgi-bin/coreInSys/API'
+os.environ['PATH'] = '/var/www/cgi-bin/coreInSys/API'
 
 from runQuery import runQuery
 
-
-DBquery="delete from demultiplex where seqProjectID="+seqProjectID
+DBquery = "delete from demultiplex where seqProjectID=" + seqProjectID
 try:
-	res=runQuery(DBquery)
+    res = runQuery(DBquery)
 except Exception:
-	print "unable to remove seq project with ID "+seqProjectID
-
-
-
+    print
+    "unable to remove seq project with ID " + seqProjectID

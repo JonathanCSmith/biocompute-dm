@@ -1,32 +1,30 @@
 #!/usr/bin/python
 
-import cgi
-
-
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
 for he in topLines:
-        print he[:-1]
+    print
+    he[:-1]
 
 
 
-#Give it a search precedence.
+# Give it a search precedence.
 
-RunSearchList=[]
+RunSearchList = []
 
 if form.has_key("SEQ_EXPT_ID"):
-        searchList.append(["seqRunID",form["SEQ_EXPT_ID"].value])
+    searchList.append(["seqRunID", form["SEQ_EXPT_ID"].value])
 if form.has_key("FLOWCELL_ID"):
-        searchList.append(["flowcellID",form["FLOWCELL_ID"].value])
+    searchList.append(["flowcellID", form["FLOWCELL_ID"].value])
 
-#if len(RunSearchList)>0:
-		
+# if len(RunSearchList)>0:
+
 
 
 
@@ -36,12 +34,5 @@ if form.has_key("FLOWCELL_ID"):
 
 
 for fo in bottomLines:
-        print fo[:-1]
-
-
-
-
-
-
-
-
+    print
+    fo[:-1]

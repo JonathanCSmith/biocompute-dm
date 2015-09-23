@@ -2,10 +2,9 @@
 
 import classA
 
-G=classA.classA()
-varG="1000"
+G = classA.classA()
+varG = "1000"
 G.setUpClassB(varG)
 
-print G.B.classA
-
-
+print
+G.B.classA

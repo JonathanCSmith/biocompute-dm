@@ -1,154 +1,148 @@
-
 <HTML>
 <HEAD>
 
 
-
-<!--META HTTP-EQUIV="REFRESH" CONTENT="5"-->
-	<TITLE>Bioinformatics Core Information System</TITLE>
-	<link rel=stylesheet type="text/css"
-	      href=/CoreInSys/css/CoreInSys.css
-	      title="Core Information System">
-<!--meta http-equiv="expires" content="-1"-->
-<meta http-equiv="refresh" content="1800">
+    <!--META HTTP-EQUIV="REFRESH" CONTENT="5"-->
+    <TITLE>Bioinformatics Core Information System</TITLE>
+    <link rel=stylesheet type="text/css"
+          href=/CoreInSys/css/CoreInSys.css
+          title="Core Information System">
+    <!--meta http-equiv="expires" content="-1"-->
+    <meta http-equiv="refresh" content="1800">
 </HEAD>
 <BODY LANG="en-GB" DIR="LTR">
 
 <script>
-function checkAdmin(divIDA,divIDB)
-{
-var cookies=document.cookie;
-var lgn= cookies.indexOf("Exologin");
-if (lgn !=-1)
-	{
-	var docA = document.getElementById(divIDB);
-        if (docA.style.display == "none")
+    function checkAdmin(divIDA, divIDB) {
+        var cookies = document.cookie;
+        var lgn = cookies.indexOf("Exologin");
+        if (lgn != -1) {
+            var docA = document.getElementById(divIDB);
+            if (docA.style.display == "none")
                 docA.style.display = "inline";
 
-        var docB = document.getElementById(divIDA);
-        if (docB.style.display == "inline")
+            var docB = document.getElementById(divIDA);
+            if (docB.style.display == "inline")
                 docB.style.display = "none";
-	}
-else
-	{
-        var docA = document.getElementById(divIDA);
-        if (docA.style.display == "none")
+        }
+        else {
+            var docA = document.getElementById(divIDA);
+            if (docA.style.display == "none")
                 docA.style.display = "inline";
 
-        var docB = document.getElementById(divIDB);
-        if (docB.style.display == "inline")
+            var docB = document.getElementById(divIDB);
+            if (docB.style.display == "inline")
                 docB.style.display = "none";
         }
 
-}
+    }
 </script>
 
 
+<table border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>
+    <tr>
+        <th class="back" colspan="2" valign="top" align="right">
+            <div id="login" style='display:none'>
+                <p>
+                    <a href="/CoreInSys/login.html">admin login</a>
+                </p>
+            </div>
+
+            <div id="logout" style='display:none'>
+                <p>
+                    <a href="/cgi-bin/coreInSys/logout">logout</a>
+                </p>
+            </div>
+
+        </th>
+    </tr>
+    <tr>
+        <th class="back" width="3" align="left">
+
+            <table border="0" align="left" valign="bottom" cellpadding="0" cellspacing="0" style="table-layout: fixed">
+
+                <tr>
+                    <th class="buttons" width=85 style="background: url(../images/75pxbutton.gif)">
+                        <a href="/CoreInSys/index.html" style="text-decoration:none; color:black">
+                            Home
+                        </a>
+                    </th>
+                    <th class="buttons" width="1"></th>
+
+                    <th class="buttons" width=85 style="background: url(../images/75pxbutton.gif)">
+                        <a href="/cgi-bin/projects" style="text-decoration:none; color:black">
+                            Projects
+                        </a>
+                    </th>
+                    <th class="buttons" width="1"></th>
+
+                    <th class="buttons" width=85 style="background: url(../images/75pxbutton.gif)">
+                        <a href="/cgi-bin/seqRun" style="text-decoration:none; color:black">
+                            Sequencing Runs
+                        </a>
+                    </th>
+                    <th class="buttons" width="1"></th>
 
 
+                    <!--
+                            <th class="buttons" width=85  style="background: url(images/75pxbutton.gif)">
+                            <a href="/cgi-bin/coreInSys/showCustomers" style="text-decoration:none; color:black">
+                            Customers
+                            </a>
+                            </th>
+                    -->
+                    <th class="buttons" width="1"></th>
+
+                    <th class="buttons" width=100 height=30 style="background: url(../images/100pxbutton.gif)">
+                        <a href="/CoreInSys/input.html" style="text-decoration:none; color:black">
+                            Input
+                        </a>
+                    </th>
 
 
-<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>
-<tr> 
-<th class="back" colspan="2" valign="top" align="right">
-<div id="login" style='display:none'>
-<p>
-<a href="/CoreInSys/login.html">admin login</a>
-</p>
-</div>
-
-<div id="logout" style='display:none'>
-<p>
-<a href="/cgi-bin/coreInSys/logout">logout</a>
-</p>
-</div>
-
-</th>
-</tr>
-<tr>
-<th class="back" width="3" align="left">
-
-	<table border="0" align="left" valign="bottom" cellpadding="0" cellspacing="0" style="table-layout: fixed" >
-
-	<tr>
-                <th class="buttons" width=85  style="background: url(../images/75pxbutton.gif)">
-                <a href="/CoreInSys/index.html" style="text-decoration:none; color:black">
-                Home
-                </a>
-                </th>
-		<th class="buttons" width="1"></th>
-
-		<th class="buttons" width=85  style="background: url(../images/75pxbutton.gif)">
-                <a href="/cgi-bin/projects" style="text-decoration:none; color:black">
-                Projects
-                </a>
-                </th>
-                <th class="buttons" width="1"></th>
-
-		<th class="buttons" width=85  style="background: url(../images/75pxbutton.gif)">
-                <a href="/cgi-bin/seqRun" style="text-decoration:none; color:black">
-                Sequencing Runs
-                </a>
-                </th>
-                <th class="buttons" width="1"></th>
+                </tr>
+            </table>
+        </th>
+    </tr>
 
 
-		<!--
-                <th class="buttons" width=85  style="background: url(images/75pxbutton.gif)">
-                <a href="/cgi-bin/coreInSys/showCustomers" style="text-decoration:none; color:black">
-                Customers
-                </a>
-                </th>
-		-->
-                <th class="buttons" width="1"></th>
+    <tr>
+        <td class="horizLine" colspan="2" border=0 height=3>
 
-                <th class="buttons" width=100 height=30 style="background: url(../images/100pxbutton.gif)">
-                <a href="/CoreInSys/input.html" style="text-decoration:none; color:black">
-                Input
-                </a>
-                </th>
+        </td>
+    </tr>
+    <tr>
+        <td><br></td>
+    </tr>
 
+    <tr>
+        <td id="content">
 
+            <h2>BioCIS Data Entry</h2>
 
-	</tr>
-	</table>		
-</th>
-</tr>
+            <p>
+                <a href="/CoreInSys/newProject.html">Add a new project.</a>
+            </p>
 
+            <p>
+                <a href="/cgi-bin/enterSeqData">Enter sequencing run data</a>
+            </p>
 
-<tr>
-<td class="horizLine" colspan="2" border=0 height=3>
-
-</td>
-</tr>
-<tr><td><br></td></tr>
-
-<tr><td id="content">
-
-<h2>BioCIS Data Entry</h2>
-<p>
-<a href="/CoreInSys/newProject.html">Add a new project.</a>
-</p>
-<p>
-<a href="/cgi-bin/enterSeqData">Enter sequencing run data</a>
-</p>
-<p>
-<a href="/cgi-bin/upLoadSeqProjData">Upload sequencing project data</a>
-</p>
-<!--
-<br><hr><p>
-<a href="/cgi-bin/coreInSys/upLoadSeqData">Upload sequencing run data</a>
-</p>
--->
+            <p>
+                <a href="/cgi-bin/upLoadSeqProjData">Upload sequencing project data</a>
+            </p>
+            <!--
+            <br><hr><p>
+            <a href="/cgi-bin/coreInSys/upLoadSeqData">Upload sequencing run data</a>
+            </p>
+            -->
 
 
-
-
-
-</td></tr>
+        </td>
+    </tr>
 </table>
 <script>
-checkAdmin("login","logout");
+    checkAdmin("login", "logout");
 </script>
 
 </BODY>

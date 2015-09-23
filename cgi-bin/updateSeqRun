@@ -3,216 +3,208 @@
 import cgi
 import os
 
-
 from API.seqRun import seqRun
 
+form = cgi.FieldStorage()
 
-form=cgi.FieldStorage()
-
-
-
-
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
 
-#from API.getAllProjects import getAllProjects
+# from API.getAllProjects import getAllProjects
 
 
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
-#for param in os.environ.keys():
+# for param in os.environ.keys():
 #	print "<b>%20s</b>: %s<\br>" % (param, os.environ[param])
 
 
 
-#make the data tree
-#First array at each level contains the data for that level , the next array contains all of the lower levels
+# make the data tree
+# First array at each level contains the data for that level , the next array contains all of the lower levels
 #
-projectTree=[[[],[]]]
-#projectTree=[[[]]]
-#first make a bare tree and then populate it
+projectTree = [[[], []]]
+# projectTree=[[[]]]
+# first make a bare tree and then populate it
 
-#find the extent of the tree
-skeleton=[]
+# find the extent of the tree
+skeleton = []
 for projData in form.keys():
-	#print "<br>",projData
-	#print form[projData].value
-	treeIndex=[]
-	pd=projData.split("_")
-	tmpIndex=[]
-	for t in range(1,len(pd)):
-		tmpIndex.append(int(pd[t]))
-	skeleton.append(tmpIndex)
-	
+    # print "<br>",projData
+    # print form[projData].value
+    treeIndex = []
+    pd = projData.split("_")
+    tmpIndex = []
+    for t in range(1, len(pd)):
+        tmpIndex.append(int(pd[t]))
+    skeleton.append(tmpIndex)
+
 skeleton.sort()
-#make the skeleton tree	
-for m in range(0,len(skeleton)):
-	#print "<p>skeleton data",skeleton[m],"</p>"
-	for indeA in range(0,len(skeleton[m])):
-		#	
-		if indeA==0:
-			if skeleton[m][indeA]>len(projectTree)-1:
-				projectTree.append([[],[]])
-		if indeA==1:
-			if skeleton[m][indeA]>len(projectTree[skeleton[m][indeA-1]][1])-1:
-				projectTree[skeleton[m][indeA-1]][1].append([[],[]])
-		if indeA==2:
-			if skeleton[m][indeA]>len(projectTree[skeleton[m][indeA-2]][1][skeleton[m][indeA-1]][1])-1:
-                                projectTree[skeleton[m][indeA-2]][1][skeleton[m][indeA-1]][1].append([[],[]])
-		if indeA==3:
-			if skeleton[m][indeA]>len(projectTree[skeleton[m][indeA-3]][1][skeleton[m][indeA-2]][1][skeleton[m][indeA-1]][1])-1:
-                                projectTree[skeleton[m][indeA-3]][1][skeleton[m][indeA-2]][1][skeleton[m][indeA-1]][1].append([[]])
-			
+# make the skeleton tree
+for m in range(0, len(skeleton)):
+    # print "<p>skeleton data",skeleton[m],"</p>"
+    for indeA in range(0, len(skeleton[m])):
+        #
+        if indeA == 0:
+            if skeleton[m][indeA] > len(projectTree) - 1:
+                projectTree.append([[], []])
+        if indeA == 1:
+            if skeleton[m][indeA] > len(projectTree[skeleton[m][indeA - 1]][1]) - 1:
+                projectTree[skeleton[m][indeA - 1]][1].append([[], []])
+        if indeA == 2:
+            if skeleton[m][indeA] > len(projectTree[skeleton[m][indeA - 2]][1][skeleton[m][indeA - 1]][1]) - 1:
+                projectTree[skeleton[m][indeA - 2]][1][skeleton[m][indeA - 1]][1].append([[], []])
+        if indeA == 3:
+            if skeleton[m][indeA] > len(
+                    projectTree[skeleton[m][indeA - 3]][1][skeleton[m][indeA - 2]][1][skeleton[m][indeA - 1]][1]) - 1:
+                projectTree[skeleton[m][indeA - 3]][1][skeleton[m][indeA - 2]][1][skeleton[m][indeA - 1]][1].append(
+                    [[]])
 
 
-#print arguments[projData].value
-#print "<p>",projectTree,"</p>"
+
+# print arguments[projData].value
+# print "<p>",projectTree,"</p>"
 
 
-#new put the data in the tree
+# new put the data in the tree
 for projData in form.keys():
-        treeIndex=[]
-        pd=projData.split("_")
-        treeIndex=[]
-        for t in range(1,len(pd)):
-                treeIndex.append(int(pd[t]))
-			
-	if len(treeIndex)==1:
-		projectTree[treeIndex[0]][0].append([pd[0],form[projData].value])
-	if len(treeIndex)==2:
-		projectTree[treeIndex[0]][1][treeIndex[1]][0].append([pd[0],form[projData].value])
-	if len(treeIndex)==3:
-                projectTree[treeIndex[0]][1][treeIndex[1]][1][treeIndex[2]][0].append([pd[0],form[projData].value])
-	if len(treeIndex)==4:
-                projectTree[treeIndex[0]][1][treeIndex[1]][1][treeIndex[2]][1][treeIndex[3]][0].append([pd[0],form[projData].value])
+    treeIndex = []
+    pd = projData.split("_")
+    treeIndex = []
+    for t in range(1, len(pd)):
+        treeIndex.append(int(pd[t]))
+
+    if len(treeIndex) == 1:
+        projectTree[treeIndex[0]][0].append([pd[0], form[projData].value])
+    if len(treeIndex) == 2:
+        projectTree[treeIndex[0]][1][treeIndex[1]][0].append([pd[0], form[projData].value])
+    if len(treeIndex) == 3:
+        projectTree[treeIndex[0]][1][treeIndex[1]][1][treeIndex[2]][0].append([pd[0], form[projData].value])
+    if len(treeIndex) == 4:
+        projectTree[treeIndex[0]][1][treeIndex[1]][1][treeIndex[2]][1][treeIndex[3]][0].append(
+            [pd[0], form[projData].value])
 
 
 
-#print "<p>projectTree",projectTree,"</p>"
+# print "<p>projectTree",projectTree,"</p>"
 
-#Now we have it in some sort of order, we can put it into the data objects
-
-
+# Now we have it in some sort of order, we can put it into the data objects
 
 
 
-i=seqRun()
 
-#i.addSeqProject()
-#i.seqProjs[0].addLaneData()
-#i.seqProjs[0].lanes[0].addSamples()
+
+i = seqRun()
+
+# i.addSeqProject()
+# i.seqProjs[0].addLaneData()
+# i.seqProjs[0].lanes[0].addSamples()
 
 # try printing them out as we go along in the first instance
 
-for m in range(0,len(projectTree)):
-#	print "<p>",projectTree[m][0],"</p>"
-	prDat={}
-	for md in range(0,len(projectTree[m][0])):
-		prDat[projectTree[m][0][md][0]]=projectTree[m][0][md][1]
-	#print "<p>",prDat,"</p>"
-	#print "<p>",i.seqRunID,"</p>"
-	i.setSeqRunByDict(prDat)
-	#print "<p>",i.seqRunID,"</p>"
-	for n in range(0,len(projectTree[m][1])):
-		i.addSeqProject()
-		spDat={}
-		for sp in range(0,len(projectTree[m][1][n][0])):
-			spDat[projectTree[m][1][n][0][sp][0]]=projectTree[m][1][n][0][sp][1]
-		i.seqProjs[-1].setSeqProjByDict(spDat)
-		#i.seqProjs[-1].seqRunID=i.seqRunID
-		#i.localProjectID=i.seqProjs[-1].seqProjectID
-		#i.seqProjs[-1].masterProjectID=i.masterProjectID
-		for o in range(0,len(projectTree[m][1][n][1])):
-			i.seqProjs[-1].addLaneData()
-			lnDat={}			
-			for ln in range(0,len(projectTree[m][1][n][1][o][0])):
-				lnDat[projectTree[m][1][n][1][o][0][ln][0]]=projectTree[m][1][n][1][o][0][ln][1]
-			#print "<p>",lnDat,"</p>"
-			i.seqProjs[-1].lanes[-1].setLaneByDict(lnDat)
-			#i.seqProjs[-1].lanes[-1].seqProjectID=i.seqProjs[-1].seqProjectID
-			for p in range(0,len(projectTree[m][1][n][1][o][1])):
-				i.seqProjs[-1].lanes[-1].addSamples()
-				smDat={}
-				for sm in range(0,len(projectTree[m][1][n][1][o][1][p][0])):
-					smDat[projectTree[m][1][n][1][o][1][p][0][sm][0]]=projectTree[m][1][n][1][o][1][p][0][sm][1]
-				#print "<p>",smDat,"</p>"
-				i.seqProjs[-1].lanes[-1].samples[-1].setSampleByDict(smDat)
-				#i.seqProjs[-1].lanes[-1].samples[-1].laneID=i.seqProjs[-1].lanes[-1].laneID
-
+for m in range(0, len(projectTree)):
+    #	print "<p>",projectTree[m][0],"</p>"
+    prDat = {}
+    for md in range(0, len(projectTree[m][0])):
+        prDat[projectTree[m][0][md][0]] = projectTree[m][0][md][1]
+    # print "<p>",prDat,"</p>"
+    # print "<p>",i.seqRunID,"</p>"
+    i.setSeqRunByDict(prDat)
+    # print "<p>",i.seqRunID,"</p>"
+    for n in range(0, len(projectTree[m][1])):
+        i.addSeqProject()
+        spDat = {}
+        for sp in range(0, len(projectTree[m][1][n][0])):
+            spDat[projectTree[m][1][n][0][sp][0]] = projectTree[m][1][n][0][sp][1]
+        i.seqProjs[-1].setSeqProjByDict(spDat)
+        # i.seqProjs[-1].seqRunID=i.seqRunID
+        # i.localProjectID=i.seqProjs[-1].seqProjectID
+        # i.seqProjs[-1].masterProjectID=i.masterProjectID
+        for o in range(0, len(projectTree[m][1][n][1])):
+            i.seqProjs[-1].addLaneData()
+            lnDat = {}
+            for ln in range(0, len(projectTree[m][1][n][1][o][0])):
+                lnDat[projectTree[m][1][n][1][o][0][ln][0]] = projectTree[m][1][n][1][o][0][ln][1]
+                # print "<p>",lnDat,"</p>"
+            i.seqProjs[-1].lanes[-1].setLaneByDict(lnDat)
+            # i.seqProjs[-1].lanes[-1].seqProjectID=i.seqProjs[-1].seqProjectID
+            for p in range(0, len(projectTree[m][1][n][1][o][1])):
+                i.seqProjs[-1].lanes[-1].addSamples()
+                smDat = {}
+                for sm in range(0, len(projectTree[m][1][n][1][o][1][p][0])):
+                    smDat[projectTree[m][1][n][1][o][1][p][0][sm][0]] = projectTree[m][1][n][1][o][1][p][0][sm][1]
+                    # print "<p>",smDat,"</p>"
+                i.seqProjs[-1].lanes[-1].samples[-1].setSampleByDict(smDat)
+                # i.seqProjs[-1].lanes[-1].samples[-1].laneID=i.seqProjs[-1].lanes[-1].laneID
 
 i.updateDB()
 
 
-#Update and add new entries to the database
+# Update and add new entries to the database
 
-for m in range(0,len(i.seqProjs)):
-	if int(i.seqProjs[m].seqProjectID)==0:	#This deals with new seqProjects
-		i.seqProjs[m].insertSeqProj()
-		i.seqProjs[m].getLastSeqProjectID()
-		for p in range(0,len(i.seqProjs[m].lanes)):
-			i.seqProjs[m].lanes[p].insertLane()
-			for q in range(0,len(i.seqProjs[m].lanes[p].samples)):
-				i.seqProjs[m].lanes[p].samples[q].insertSample()	
+for m in range(0, len(i.seqProjs)):
+    if int(i.seqProjs[m].seqProjectID) == 0:  # This deals with new seqProjects
+        i.seqProjs[m].insertSeqProj()
+        i.seqProjs[m].getLastSeqProjectID()
+        for p in range(0, len(i.seqProjs[m].lanes)):
+            i.seqProjs[m].lanes[p].insertLane()
+            for q in range(0, len(i.seqProjs[m].lanes[p].samples)):
+                i.seqProjs[m].lanes[p].samples[q].insertSample()
 
-	else:
-		i.seqProjs[m].updateDB()
+    else:
+        i.seqProjs[m].updateDB()
 
-		for n in range(0,len(i.seqProjs[m].lanes)):
-			if i.seqProjs[m].lanes[n].laneID=="NULL":	
-				i.seqProjs[m].lanes[n].insertLane()
-                        	for q in range(0,len(i.seqProjs[m].lanes[n].samples)):
-                                	i.seqProjs[m].lanes[n].samples[q].insertSample()
-
-
-			else:
-				i.seqProjs[m].lanes[n].updateDB()
-				for o in range(0,len(i.seqProjs[m].lanes[n].samples)):
-					if int(i.seqProjs[m].lanes[n].samples[o].sampleID)==0:
-						i.seqProjs[m].lanes[n].samples[o].insertSample()
-					else:
-						i.seqProjs[m].lanes[n].samples[o].updateDB()
+        for n in range(0, len(i.seqProjs[m].lanes)):
+            if i.seqProjs[m].lanes[n].laneID == "NULL":
+                i.seqProjs[m].lanes[n].insertLane()
+                for q in range(0, len(i.seqProjs[m].lanes[n].samples)):
+                    i.seqProjs[m].lanes[n].samples[q].insertSample()
 
 
+            else:
+                i.seqProjs[m].lanes[n].updateDB()
+                for o in range(0, len(i.seqProjs[m].lanes[n].samples)):
+                    if int(i.seqProjs[m].lanes[n].samples[o].sampleID) == 0:
+                        i.seqProjs[m].lanes[n].samples[o].insertSample()
+                    else:
+                        i.seqProjs[m].lanes[n].samples[o].updateDB()
 
-
-
-
-projArr=[]
+projArr = []
 projArr.append(i)
-#print projArr
-from API.editRunObj2array import runObj2array 
-d=runObj2array(projArr)
+# print projArr
+from API.editRunObj2array import runObj2array
 
-#print "<p>",d,"</p>"
+d = runObj2array(projArr)
 
-print "<script src='/CoreInSys/js/projectTable.js'></script>"
-print "<script>"
-print d
-print "experimentTable(experArr);"
-print "</script>"
+# print "<p>",d,"</p>"
 
-
-
-
+print
+"<script src='/CoreInSys/js/projectTable.js'></script>"
+print
+"<script>"
+print
+d
+print
+"experimentTable(experArr);"
+print
+"</script>"
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
+    print
+    fo[:-1]

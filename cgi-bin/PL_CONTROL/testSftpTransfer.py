@@ -3,21 +3,20 @@
 
 from sftpTransfer import sftpTransfer
 
-ST=sftpTransfer()
+ST = sftpTransfer()
 
-#ST.username='brc00089'
-#ST.loadSftpByUsername()
-ST.seqProjectID=56
-#ST.username='plavender'
+# ST.username='brc00089'
+# ST.loadSftpByUsername()
+ST.seqProjectID = 56
+# ST.username='plavender'
 ST.genPassword()
 ST.genUsername()
-
 
 ST.addSftpAccount()
 
 
 
-#ST.delSftpAccount()
+# ST.delSftpAccount()
 
 """
 
@@ -48,6 +47,3 @@ ST.addSftpAccount()
 
 #ST.delSftpAccount()
 """
-
-
-

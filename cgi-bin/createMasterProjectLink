@@ -2,57 +2,58 @@
 
 
 import cgi
+
 link = cgi.FieldStorage()
 
-
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
 from API.masterProject import masterProject
 from API.runQuery import runQuery
 
-
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
 if link.has_key('projName'):
-	projectName = link["projName"].value
+    projectName = link["projName"].value
 
 if link.has_key('projID'):
-	projectID=link["projID"].value
+    projectID = link["projID"].value
 
-i=masterProject()
+i = masterProject()
 i.getMasterProjectByID(projectID)
 i.appendChildren()
 
-#get all Sequencing projects
+# get all Sequencing projects
 
-DBquery="select seqProject.seqProjectID, seqProject.seqProjectName, seqProject.seqRunID, seqRun.seqRunName, seqRun.startDate from seqProject, seqRun where seqProject.seqRunID=seqRun.seqRunID"	# order by seqProject.seqProjectID"
+DBquery = "select seqProject.seqProjectID, seqProject.seqProjectName, seqProject.seqRunID, seqRun.seqRunName, seqRun.startDate from seqProject, seqRun where seqProject.seqRunID=seqRun.seqRunID"  # order by seqProject.seqProjectID"
 
-#print "<p>",DBquery,"</p>"
+# print "<p>",DBquery,"</p>"
 
-sPs=runQuery(DBquery)
-
-
-#print "<p>",sPs,"</p>"
-seqProjects={} 
-for t in range(0,len(sPs)):
-	#print str(sPs[t][0])
-	seqProjects[sPs[t][0]]=[sPs[t][1],str(sPs[t][2]),sPs[t][3],sPs[t][4]]
+sPs = runQuery(DBquery)
 
 
-#get all flow cytometry projects
+# print "<p>",sPs,"</p>"
+seqProjects = {}
+for t in range(0, len(sPs)):
+    # print str(sPs[t][0])
+    seqProjects[sPs[t][0]] = [sPs[t][1], str(sPs[t][2]), sPs[t][3], sPs[t][4]]
+
+
+# get all flow cytometry projects
 """
 DBquery="select flowCytProjectName, flowCytqProjectID from flowCytProject" # order by flowCytProjectID"
 fcPs=runQuery(DBquery)
@@ -62,81 +63,68 @@ for t in range(0,len(sPs)):
         flowCytProjects[fcPs[t][1]]=fcPs[t][0]
 """
 
+analyses = {}
 
 
 
-analyses={}
+# Get list of things already linked to this master project
+seqProjIDs = []
+flowCytProjIDs = []
+analysisIDs = []
+for ch in range(0, len(i.childTypes)):
 
+    if i.childTypes[ch] == "sequencing":
+        if seqProjects.has_key(i.children[ch].seqProjectID):
+            del seqProjects[i.children[ch].seqProjectID]
 
+    if i.childTypes[ch] == "flow cytometry":
+        if flowCytProjects.has_key(i.children[ch].flowCytProjectID):
+            del flowCytProjects[i.children[ch].flowCytProjectID]
 
-#Get list of things already linked to this master project
-seqProjIDs=[]
-flowCytProjIDs=[]
-analysisIDs=[]
-for ch in range(0,len(i.childTypes)):
+    if i.childTypes[ch] == "analysis":
+        if analyses.has_key(i.children[ch].analysisID):
+            del analyses[i.children[ch].analysisID]
 
-	if i.childTypes[ch]=="sequencing":
-		if seqProjects.has_key(i.children[ch].seqProjectID):
-			del seqProjects[i.children[ch].seqProjectID]
-
-	if i.childTypes[ch]=="flow cytometry":
-		if flowCytProjects.has_key(i.children[ch].flowCytProjectID):			
-			del flowCytProjects[i.children[ch].flowCytProjectID]
-
-	if i.childTypes[ch]=="analysis":
-		if analyses.has_key(i.children[ch].analysisID):
-                	del analyses[i.children[ch].analysisID]
-	
-seqKeys=seqProjects.keys()
+seqKeys = seqProjects.keys()
 seqKeys.sort()
 seqKeys.reverse()
 
+print
+'<form id="linkst" name="entitiesToLink" method="post" action="/cgi-bin/coreInSys/makeLinks">'
+print
+'<input id="Linkbutton" type="submit" value="make links">'
+print
+"<table border=2>"
 
+for spk in range(0, len(seqKeys)):
+    try:
+        print
+        "<tr>"
+        print
+        "<td>" + seqProjects[seqKeys[spk]][0] + "</td>"
+        print
+        "<td>" + seqProjects[seqKeys[spk]][1] + "</td>"
+        print
+        "<td>" + seqProjects[seqKeys[spk]][2] + "</td>"
+        print
+        "<td>" + str(seqProjects[seqKeys[spk]][3]) + "</td>"
+        print
+        '<td><input type="checkbox" name="seq_' + str(seqKeys[spk]) + '_' + projectID + '" value="' + \
+        seqProjects[seqKeys[spk]][0] + '"></td>'
+        # print '<td><input type="checkbox" name="linkedEntities" value="seq"></td>'
+        print
+        "</tr>"
+    except:
+        print
+        "<tr><td>Illegal values in output.</td></tr>"
 
-print '<form id="linkst" name="entitiesToLink" method="post" action="/cgi-bin/coreInSys/makeLinks">'
-print '<input id="Linkbutton" type="submit" value="make links">'
-print "<table border=2>"
-
-
-for spk in range(0,len(seqKeys)):
-	try:	
-		print "<tr>"
-		print "<td>"+seqProjects[seqKeys[spk]][0]+"</td>"
-		print "<td>"+seqProjects[seqKeys[spk]][1]+"</td>"
-		print "<td>"+seqProjects[seqKeys[spk]][2]+"</td>"
-		print "<td>"+str(seqProjects[seqKeys[spk]][3])+"</td>"	
-		print '<td><input type="checkbox" name="seq_'+str(seqKeys[spk])+'_'+projectID+'" value="'+seqProjects[seqKeys[spk]][0]+'"></td>'
-		#print '<td><input type="checkbox" name="linkedEntities" value="seq"></td>'
-		print "</tr>"
-	except:
-		print "<tr><td>Illegal values in output.</td></tr>"
-
-
-print "</table>"
-print '<input id="Linkbutton" type="submit" value="make links">'
-print "</form>"
+print
+"</table>"
+print
+'<input id="Linkbutton" type="submit" value="make links">'
+print
+"</form>"
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print
+    fo[:-1]

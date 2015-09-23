@@ -3,59 +3,56 @@
 
 
 
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
-
 
 from API.getAllProjects import getAllProjects
 
-
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
+projects = getAllProjects()
 
+# print "<p>",projects,"</p>"
 
-projects=getAllProjects()
+# Get a list of all of the projects in the database:
+print
+'<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+print
+'<tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
 
-#print "<p>",projects,"</p>"
+for pro in range(0, len(projects)):
+    # print "<p>",projects[pro],"</p>"
+    if len(projects[pro]) > 7:
+        print
+        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName=' + \
+        projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
+        projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
+            projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'
+    else:
+        print
+        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName=' + \
+        projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
+        projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
+            projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'
 
-#Get a list of all of the projects in the database:
-print '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-print '<tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
-
-
-
-for pro in range(0,len(projects)):
-	#print "<p>",projects[pro],"</p>"
-	if len(projects[pro])>7:
-		print '<tr><td>'+str(projects[pro][0])+'</td><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName='+projects[pro][1]+'&projID='+str(projects[pro][0])+'"> '+projects[pro][1]+'</a></td><td>'+projects[pro][2]+'</td><td>Customer</td><td>'+str(projects[pro][5])+'</td><td>'+str(projects[pro][6])+'</td><td>'+projects[pro][3]+'</td></tr>'
-	else:
-		print '<tr><td>'+str(projects[pro][0])+'</td><td><a href="/cgi-bin/coreInSys/getProjectFromDB.cgi?projName='+projects[pro][1]+'&projID='+str(projects[pro][0])+'"> '+projects[pro][1]+'</a></td><td>'+projects[pro][2]+'</td><td>Customer</td><td>'+str(projects[pro][5])+'</td><td>'+str(projects[pro][6])+'</td><td>'+projects[pro][3]+'</td></tr>'
-
-
-
-
-
-
-print "</table>"
-
+print
+"</table>"
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
+    print
+    fo[:-1]

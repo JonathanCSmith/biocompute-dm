@@ -2,197 +2,205 @@
 
 import sys
 import cgi
+
 link = cgi.FieldStorage()
 
-
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
 from API.getSeqProjByID import getSeqProjByID
 from API.getRunByID import getRunByID
 
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
-#projectType=link["projType"].value
-print "<h2>Do not use your browser's refresh button on this page</h2>"
+# projectType=link["projType"].value
+print
+"<h2>Do not use your browser's refresh button on this page</h2>"
 
 projectName = link["projName"].value
 
-projectID=link["projID"].value
+projectID = link["projID"].value
 
 
-#i=getProjByID(projectID,"sequencing")
-i=getSeqProjByID(0,projectID)
-#print i.seqProjs[0].seqRunID
+# i=getProjByID(projectID,"sequencing")
+i = getSeqProjByID(0, projectID)
+# print i.seqProjs[0].seqRunID
 if 1:
-	#get experimental details
+    # get experimental details
 
-	j=getRunByID(i.seqRunID)
+    j = getRunByID(i.seqRunID)
 
-	#print "<p>",j.flowcellID,"</p>"
-	#print "<p>",j.dataLocation,"</p>"
-	#print "<p>",j.indexTagCycles,"</p>"
-	#print "<p>",j.readCycles,"</p>"
+    # print "<p>",j.flowcellID,"</p>"
+    # print "<p>",j.dataLocation,"</p>"
+    # print "<p>",j.indexTagCycles,"</p>"
+    # print "<p>",j.readCycles,"</p>"
 
-	from PL_CONTROL.demux import demux
-	dm=demux(i,j)
-	dm.setDemuxType()
+    from PL_CONTROL.demux import demux
 
-	if link.has_key('--use-bases-mask'):
-		dm.params['--use-bases-mask']=link['--use-bases-mask'].value
+    dm = demux(i, j)
+    dm.setDemuxType()
 
-	if link.has_key('--input-dir'):
-                dm.params['--input-dir']=link['--input-dir'].value
+    if link.has_key('--use-bases-mask'):
+        dm.params['--use-bases-mask'] = link['--use-bases-mask'].value
 
-	if link.has_key('--intensities-dir'):
-                dm.params['--intensities-dir']=link['--intensities-dir'].value
+    if link.has_key('--input-dir'):
+        dm.params['--input-dir'] = link['--input-dir'].value
 
-	if link.has_key('--positions-dir'):
-                dm.params['--positions-dir']=link['--positions-dir'].value
+    if link.has_key('--intensities-dir'):
+        dm.params['--intensities-dir'] = link['--intensities-dir'].value
 
-	if link.has_key('--output-dir'):
-                dm.params['--output-dir']=link['--output-dir'].value
+    if link.has_key('--positions-dir'):
+        dm.params['--positions-dir'] = link['--positions-dir'].value
 
-	if link.has_key('--fastq-cluster-count'):
-                dm.params['--fastq-cluster-count']=link['--fastq-cluster-count'].value
+    if link.has_key('--output-dir'):
+        dm.params['--output-dir'] = link['--output-dir'].value
 
-	if link.has_key('--flowcell-id'):
-                dm.params['--flowcell-id']=link['--flowcell-id'].value
+    if link.has_key('--fastq-cluster-count'):
+        dm.params['--fastq-cluster-count'] = link['--fastq-cluster-count'].value
 
-	if link.has_key('--tiles'):
-                dm.params['--tiles']=link['--tiles'].value
+    if link.has_key('--flowcell-id'):
+        dm.params['--flowcell-id'] = link['--flowcell-id'].value
 
-	if link.has_key('--sample-sheet'):
-                dm.params['--sample-sheet']=link['--sample-sheet'].value
+    if link.has_key('--tiles'):
+        dm.params['--tiles'] = link['--tiles'].value
 
-	if link.has_key('--mismatches'):
-                dm.params['--mismatches']=link['--mismatches'].value
+    if link.has_key('--sample-sheet'):
+        dm.params['--sample-sheet'] = link['--sample-sheet'].value
 
-	#print "<p>Link mismatches",link['--mismatches'].value,"</p>"
+    if link.has_key('--mismatches'):
+        dm.params['--mismatches'] = link['--mismatches'].value
 
-	#options
-	if link.has_key('--no-eamss'):
-                dm.options['--no-eamss']=link['--no-eamss'].value
+        # print "<p>Link mismatches",link['--mismatches'].value,"</p>"
 
-	if link.has_key('--force'):
-                dm.options['--force']=link['--force'].value
+        # options
+    if link.has_key('--no-eamss'):
+        dm.options['--no-eamss'] = link['--no-eamss'].value
 
-	if link.has_key('--ignore-missing-stats'):
-                dm.options['--ignore-missing-stats']=link['--ignore-missing-stats'].value
+    if link.has_key('--force'):
+        dm.options['--force'] = link['--force'].value
 
-	if link.has_key('--ignore-missing-bcl'):
-                dm.options['--ignore-missing-bcl']=link['--ignore-missing-bcl'].value
+    if link.has_key('--ignore-missing-stats'):
+        dm.options['--ignore-missing-stats'] = link['--ignore-missing-stats'].value
 
-	if link.has_key('--ignore-missing-control'):
-                dm.options['--ignore-missing-control']=link['--ignore-missing-control'].value
+    if link.has_key('--ignore-missing-bcl'):
+        dm.options['--ignore-missing-bcl'] = link['--ignore-missing-bcl'].value
 
+    if link.has_key('--ignore-missing-control'):
+        dm.options['--ignore-missing-control'] = link['--ignore-missing-control'].value
 
-	if link.has_key('--runfolder-dir'):
-		dm.Bcl2FQparams['--runfolder-dir']=link['--runfolder-dir'].value
-	
-        if link.has_key('--use-bases-mask'):
-		dm.Bcl2FQparams['--use-bases-mask']=link['--use-bases-mask'].value
+    if link.has_key('--runfolder-dir'):
+        dm.Bcl2FQparams['--runfolder-dir'] = link['--runfolder-dir'].value
 
-        if link.has_key('--output-dir'):
-		dm.Bcl2FQparams['--output-dir']=link['--output-dir'].value
-		
-        if link.has_key('--loading-threads'):
-		dm.Bcl2FQparams['--loading-threads']=link['--loading-threads'].value
+    if link.has_key('--use-bases-mask'):
+        dm.Bcl2FQparams['--use-bases-mask'] = link['--use-bases-mask'].value
 
-        if link.has_key('--writing-threads'):
-		dm.Bcl2FQparams['--writing-threads']=link['--writing-threads'].value
+    if link.has_key('--output-dir'):
+        dm.Bcl2FQparams['--output-dir'] = link['--output-dir'].value
 
-        if link.has_key('--demultiplexing-threads'):
-		dm.Bcl2FQparams['--demultiplexing-threads']=link['--demultiplexing-threads'].value
+    if link.has_key('--loading-threads'):
+        dm.Bcl2FQparams['--loading-threads'] = link['--loading-threads'].value
 
-        if link.has_key('--processing-threads'):
-               	dm.Bcl2FQparams['--processing-threads']=link['--processing-threads'].value
+    if link.has_key('--writing-threads'):
+        dm.Bcl2FQparams['--writing-threads'] = link['--writing-threads'].value
 
-	if link.has_key('--tiles'):
-		dm.Bcl2FQparams['--tiles']=link['--tiles'].value
+    if link.has_key('--demultiplexing-threads'):
+        dm.Bcl2FQparams['--demultiplexing-threads'] = link['--demultiplexing-threads'].value
 
-        if link.has_key('--sample-sheet'):
-		dm.Bcl2FQparams['--sample-sheet']=link['--sample-sheet'].value
-        
-        if link.has_key('--reports-dir'):
-                dm.Bcl2FQparams['--reports-dir']=link['--reports-dir'].value
+    if link.has_key('--processing-threads'):
+        dm.Bcl2FQparams['--processing-threads'] = link['--processing-threads'].value
 
-        if link.has_key('--stats-dir'):
-                dm.Bcl2FQparams['--stats-dir']=link['--stats-dir'].value
+    if link.has_key('--tiles'):
+        dm.Bcl2FQparams['--tiles'] = link['--tiles'].value
 
-        if link.has_key('--interop-dir'):
-                dm.Bcl2FQparams['--interop-dir']=link['--interop-dir'].value
+    if link.has_key('--sample-sheet'):
+        dm.Bcl2FQparams['--sample-sheet'] = link['--sample-sheet'].value
 
-        if link.has_key('--create-fastq-for-index-reads'):
-		dm.Bcl2FQoptions['--create-fastq-for-index-reads']=link['--create-fastq-for-index-reads'].value
+    if link.has_key('--reports-dir'):
+        dm.Bcl2FQparams['--reports-dir'] = link['--reports-dir'].value
 
-        if link.has_key('--ignore-missing-bcl'):
-		dm.Bcl2FQoptions['--ignore-missing-bcl']=link['--ignore-missing-bcl'].value
+    if link.has_key('--stats-dir'):
+        dm.Bcl2FQparams['--stats-dir'] = link['--stats-dir'].value
 
-        if link.has_key('--ignore-missing-positions'):
-		dm.Bcl2FQoptions['--ignore-missing-positions']=link['--ignore-missing-positions'].value
+    if link.has_key('--interop-dir'):
+        dm.Bcl2FQparams['--interop-dir'] = link['--interop-dir'].value
 
-        if link.has_key('--ignore-missing-filter'):
-		dm.Bcl2FQoptions['--ignore-missing-filter']=link['--ignore-missing-filter'].value
+    if link.has_key('--create-fastq-for-index-reads'):
+        dm.Bcl2FQoptions['--create-fastq-for-index-reads'] = link['--create-fastq-for-index-reads'].value
 
+    if link.has_key('--ignore-missing-bcl'):
+        dm.Bcl2FQoptions['--ignore-missing-bcl'] = link['--ignore-missing-bcl'].value
 
+    if link.has_key('--ignore-missing-positions'):
+        dm.Bcl2FQoptions['--ignore-missing-positions'] = link['--ignore-missing-positions'].value
+
+    if link.has_key('--ignore-missing-filter'):
+        dm.Bcl2FQoptions['--ignore-missing-filter'] = link['--ignore-missing-filter'].value
 
 
 
-	#print "<p>Make sampleSheet</p>"
-	try:
-		dm.writeCommandFile()
-	except Exception:
-		print "<p>Failure point 1</p>"
-		sys.exit()
-	try:
-		dm.makeSampleSheet()
-	except Exception:
-		print "<p>Failure point 2</p>"
-                sys.exit()
-	try:
-	
-		#print "<p>Demux bit.</p>"	
-		dm.queueDemuxJob()
-	except Exception:
-		print "<p>Failure point 3</p>"
-                sys.exit()
-	try:		
-		#print "<p>Job queued?</p>"
-		dm.insertDB()
-	except Exception:
-		print "<p>Failure point 4</p>"
-                sys.exit()
-	try:
-		dm.getDemuxStatus()
-	except Exception:
-		print "<p>Failed to get status</p>"
-	
-	#send it back to the projects page
 
-	print '<script language="javascript" type="text/javascript">'
-	print 'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID='+projectID+'";'
-	print '</script>'
 
-	"""
-	"""
+        # print "<p>Make sampleSheet</p>"
+    try:
+        dm.writeCommandFile()
+    except Exception:
+        print
+        "<p>Failure point 1</p>"
+        sys.exit()
+    try:
+        dm.makeSampleSheet()
+    except Exception:
+        print
+        "<p>Failure point 2</p>"
+        sys.exit()
+    try:
+
+        # print "<p>Demux bit.</p>"
+        dm.queueDemuxJob()
+    except Exception:
+        print
+        "<p>Failure point 3</p>"
+        sys.exit()
+    try:
+        # print "<p>Job queued?</p>"
+        dm.insertDB()
+    except Exception:
+        print
+        "<p>Failure point 4</p>"
+        sys.exit()
+    try:
+        dm.getDemuxStatus()
+    except Exception:
+        print
+        "<p>Failed to get status</p>"
+
+        # send it back to the projects page
+
+    print
+    '<script language="javascript" type="text/javascript">'
+    print
+    'window.location.href="/cgi-bin/coreInSys/seqProjDetails?projID=' + projectID + '";'
+    print
+    '</script>'
+
+    """
+    """
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
+    print
+    fo[:-1]

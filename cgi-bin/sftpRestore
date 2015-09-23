@@ -1,42 +1,37 @@
 #!/usr/bin/python
 
 import cgi
+
 link = cgi.FieldStorage()
 
-
-
-CH=open("./cgi_header","r")
-cgiHeader=CH.readlines()
+CH = open("./cgi_header", "r")
+cgiHeader = CH.readlines()
 CH.close()
 
-
-HF=open("./template_top","r")
-topLines=HF.readlines()
+HF = open("./template_top.html", "r")
+topLines = HF.readlines()
 HF.close()
 
-FF=open("./template_bottom","r")
-bottomLines=FF.readlines()
+FF = open("./template_bottom.html", "r")
+bottomLines = FF.readlines()
 FF.close()
 
-
-
 for ch in cgiHeader:
-        print ch[:-1]
+    print
+    ch[:-1]
 
 for he in topLines:
-	print he[:-1]
+    print
+    he[:-1]
 
 from PL_CONTROL.sftpTransfer import sftpTransfer
 
-ST=sftpTransfer()
+ST = sftpTransfer()
 if link.has_key('seqProjectID'):
-	ST.seqProjectID=int(link['seqProjectID'].value)
+    ST.seqProjectID = int(link['seqProjectID'].value)
 
 if link.has_key('username'):
-	ST.username=link['username'].value
-
-
-
+    ST.username = link['username'].value
 
 ST.loadSftpByUsername()
 ST.setTransLocation()
@@ -46,35 +41,42 @@ ST.restoreSftpAccount()
 
 ST.addSftpAccount()
 
-
-if ST.accountStatus=="existing":
-	print '<p>Account with username '+ST.username+' already exists.</p>'
+if ST.accountStatus == "existing":
+    print
+    '<p>Account with username ' + ST.username + ' already exists.</p>'
 else:
-	print '<h3>Account restored</h3>'
-print '<form method="post" action="/cgi-bin/coreInSys/migrateData">'
+    print
+    '<h3>Account restored</h3>'
+print
+'<form method="post" action="/cgi-bin/coreInSys/migrateData">'
 
-print '<input type="hidden" name="username" value="'+ST.username+'">'
-print '<input  type="hidden" name="seqProjectID" value="'+str(ST.seqProjectID)+'">'
+print
+'<input type="hidden" name="username" value="' + ST.username + '">'
+print
+'<input  type="hidden" name="seqProjectID" value="' + str(ST.seqProjectID) + '">'
 
-print '<table border=1 >'
-print '<tr><td>Username</td><td>'+ST.username+'</td></tr>'
-print '<tr><td>Password</td><td><b>'+ST.password+'</b></td></tr>'
-print '<tr><td>location on sftp server</td><td>'+ST.transLocation+'</td></tr>'
-print '<tr><td>Contact email</td><td>'+ST.userContact+'</td></tr>'
+print
+'<table border=1 >'
+print
+'<tr><td>Username</td><td>' + ST.username + '</td></tr>'
+print
+'<tr><td>Password</td><td><b>' + ST.password + '</b></td></tr>'
+print
+'<tr><td>location on sftp server</td><td>' + ST.transLocation + '</td></tr>'
+print
+'<tr><td>Contact email</td><td>' + ST.userContact + '</td></tr>'
 
-print "</table>"
-print '<input type="submit" value="Migrate data to sftp area.">'
-print '</form>'
+print
+"</table>"
+print
+'<input type="submit" value="Migrate data to sftp area.">'
+print
+'</form>'
 
-print '<p><a href="/cgi-bin/coreInSys/seqProjDetails?projID='+str(ST.seqProjectID)+'">Return to sequence project details page.</a></p>'
-
-
-
-
+print
+'<p><a href="/cgi-bin/coreInSys/seqProjDetails?projID=' + str(
+    ST.seqProjectID) + '">Return to sequence project details page.</a></p>'
 
 for fo in bottomLines:
-	print fo[:-1]
-
-
-
-
+    print
+    fo[:-1]
