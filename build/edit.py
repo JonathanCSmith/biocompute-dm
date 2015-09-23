@@ -13,6 +13,9 @@ BF = open("../template/template_bottom.html", "r")
 template_bottom = BF.readlines()
 BF.close()
 
+if not os.path.exists("../html"):
+    os.makedirs("../html")
+
 for m in range(0, len(files)):
     if files[m][-5:] == ".html" and files[m] != "template_top.html" and files[m] != "template_bottom.html":
         pages.append(files[m])
