@@ -16,14 +16,12 @@ body {
 
 .header {
     /*background: url(https://s3.amazonaws.com/codecademy-content/projects/innovation-cloud/bg.jpg) no-repeat center center;*/
-    background-size: cover;
-    height: 800px;
     text-align: center;
 }
 
 .header h1 {
     line-height: 100px;
-    font-size: 80px;
+    font-size: 40px;
     margin-top: 0;
     margin-bottom: 80px;
     text-transform: uppercase;
@@ -31,7 +29,7 @@ body {
 
 @media (min-width:850px) {
     .header h1 {
-        font-size: 120px;
+        font-size: 60px;
     }
 }
 
