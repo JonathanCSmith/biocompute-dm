@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
-
-
-
+# TODO put this into a function
+# Extract the template content
 CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
