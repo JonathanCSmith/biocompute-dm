@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
-
-
-
+# TODO put this into a function
+# Extract the template content
 CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
@@ -17,42 +16,43 @@ FF.close()
 
 from API.getAllProjects import getAllProjects
 
+# Print the cgi flag
 for ch in cgiHeader:
-    print
-    ch[:-1]
+    print \
+        ch[:-1]
 
+# Print the header
 for he in topLines:
-    print
-    he[:-1]
+    print \
+        he[:-1]
 
+# Return the projects
 projects = getAllProjects()
 
-# print "<p>",projects,"</p>"
-
 # Get a list of all of the projects in the database:
-print
-'<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-print
-'<tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
+print \
+    '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+print \
+    '<tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
 
 for pro in range(0, len(projects)):
     # print "<p>",projects[pro],"</p>"
     if len(projects[pro]) > 7:
-        print
-        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + \
-        projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
-        projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
-            projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'
+        print \
+            '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + \
+            projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
+            projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
+                projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'
     else:
-        print
-        '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + \
-        projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
-        projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
-            projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'
+        print \
+            '<tr><td>' + str(projects[pro][0]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + \
+            projects[pro][1] + '&projID=' + str(projects[pro][0]) + '"> ' + projects[pro][1] + '</a></td><td>' + \
+            projects[pro][2] + '</td><td>Customer</td><td>' + str(projects[pro][5]) + '</td><td>' + str(
+                projects[pro][6]) + '</td><td>' + projects[pro][3] + '</td></tr>'
 
-print
-"</table>"
+print \
+    "</table>"
 
 for fo in bottomLines:
-    print
-    fo[:-1]
+    print \
+        fo[:-1]
