@@ -24,7 +24,7 @@ def getConfigurationProperties():
     import os
 
     # Obtain the configuration file
-    file = open(os.path.expanduser("~") + os.sep + "biocis" + os.sep + "ConfigurationFile.txt")
+    file = open(os.sep + "home" + os.sep + "biocis" + os.sep + "ConfigurationFile.txt", "r")
     content = file.read()
     properties = content.split("\n")
 

@@ -3,5 +3,12 @@
 *~
 cgi-bin/mypol.pp
 cgi-bin/mypol.te
+
+# ide files
 /.idea
+
+# build files
 /html
+
+# Dia files
+*.autosave
