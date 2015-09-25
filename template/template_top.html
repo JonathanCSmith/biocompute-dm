@@ -8,34 +8,11 @@
           title="Core Information System">
     <!--meta http-equiv="expires" content="-1"-->
     <meta http-equiv="refresh" content="1800">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 
 <body LANG="en-GB" DIR="LTR">
-    <script>
-        function checkAdmin(divIDA, divIDB) {
-            var cookies = document.cookie;
-            var lgn = cookies.indexOf("Exologin");
-            if (lgn != -1) {
-                var docA = document.getElementById(divIDB);
-                if (docA.style.display == "none")
-                    docA.style.display = "inline";
-
-                var docB = document.getElementById(divIDA);
-                if (docB.style.display == "inline")
-                    docB.style.display = "none";
-            }
-            else {
-                var docA = document.getElementById(divIDA);
-                if (docA.style.display == "none")
-                    docA.style.display = "inline";
-
-                var docB = document.getElementById(divIDB);
-                if (docB.style.display == "inline")
-                    docB.style.display = "none";
-            }
-        }
-    </script>
-
     <table border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>
         <tr>
             <th class="back" colspan="2" valign="top" align="right">
