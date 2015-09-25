@@ -1,19 +1,15 @@
 # file getAllSeqRuns.py
 
-
-
+# Function to retrieve all of the sequencing runs
 def getAllSeqRuns():
     import runQuery
 
-    DBquery = 'select seqRunID, startDate, completionDate, seqRunName from seqRun  order by seqRunID desc'
-
-    # print "<p>",DBquery,"</p>"
-
+    # Perform a db lookup of the available sequencing runs
+    DBquery = 'select seqRunID, startDate, completionDate, seqRunName from seqRun order by seqRunID desc'
     res = runQuery.runQuery(DBquery)
     resList = []
 
-    # print "<p>",res,"</p>"
-
+    # Loop through sequencing runs
     for g in range(0, len(res)):
         tmpResList = []
 
@@ -22,17 +18,13 @@ def getAllSeqRuns():
         # DBquery="select seqProjectName, masterProjectID from seqProject where seqRunID="+str(res[g][0])
         # If it isn't linked to a master project we still need to find any seqProjects here.
 
-
-
         # DBquery="select seqProject.seqProjectName, masterProject.projectName, typeLinker.parentID from  seqProject, masterProject, typeLinker where seqProject.seqRunID="+str(res[g][0])+"  and  seqProject.seqProjectID=typeLinker.childID and typeLinker.parentID=masterProject.masterProjectID"
         # print "<p>",DBquery,"</p>"
-
 
         DBquery = "select seqProjectName,seqProjectID from  seqProject where seqRunID=" + str(res[g][0])
         # print "<p>",DBquery,"</p>"
         prRes = runQuery.runQuery(DBquery)
         # print "<p>prRes",prRes,"</p>"
-
 
         if len(prRes) > 0:
             for h in range(0, len(prRes)):
@@ -65,7 +57,6 @@ def getAllSeqRuns():
                     for m in range(0, 2):
                         prTmpResList.append("NULL")
                     tmpResList.append(prTmpResList)
-
 
         # resList.append(tmpResList)
         else:  # If we don't get any results for the run, add the results from the seqRun query and send back "NULL" for the rest

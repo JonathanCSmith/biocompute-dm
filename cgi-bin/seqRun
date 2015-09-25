@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-
-
+# TODO pull this out
+# Template loading
 CH = open("../template/cgi_header", "r")
 cgiHeader = CH.readlines()
 CH.close()
@@ -17,37 +17,35 @@ FF.close()
 from API.getAllSeqRuns import getAllSeqRuns
 
 for ch in cgiHeader:
-    print
-    ch[:-1]
+    print \
+        ch[:-1]
 
 for he in topLines:
-    print
-    he[:-1]
+    print \
+        he[:-1]
 
+# Return the sequencing runs
 experiments = getAllSeqRuns()
 
-
-# print "<p>",experiments,"</p>"
-
 # Get a list of all of the projects in the database:
-print
-'<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
-print
-'<tr><th>Run Name</th><th>Start Date</th><th>End Date</th><th>Sequencing Project Name</th><th>Master Project Name</th></tr>'
+print \
+    '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+print \
+    '<tr><th>Run Name</th><th>Start Date</th><th>End Date</th><th>Sequencing Project Name</th><th>Master Project Name</th></tr>'
 
 for exp in range(0, len(experiments)):
     for pro in range(0, len(experiments[exp])):
-        print
-        '<tr><td><a href="/cgi-bin/getSeqRunFromDB?projID=' + str(experiments[exp][pro][0]) + '"> ' + str(
-            experiments[exp][pro][3]) + ' </a></td><td>' + str(experiments[exp][pro][1]) + '</td><td>' + str(
-            experiments[exp][pro][2]) + '</td><td>' + str(
-            experiments[exp][pro][4]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + str(
-            experiments[exp][pro][6]) + '&projID=' + str(experiments[exp][pro][5]) + '">' + str(
-            experiments[exp][pro][6]) + '</a></td></tr>'
+        print \
+            '<tr><td><a href="/cgi-bin/getSeqRunFromDB?projID=' + str(experiments[exp][pro][0]) + '"> ' + str(
+                experiments[exp][pro][3]) + ' </a></td><td>' + str(experiments[exp][pro][1]) + '</td><td>' + str(
+                experiments[exp][pro][2]) + '</td><td>' + str(
+                experiments[exp][pro][4]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + str(
+                experiments[exp][pro][6]) + '&projID=' + str(experiments[exp][pro][5]) + '">' + str(
+                experiments[exp][pro][6]) + '</a></td></tr>'
 
-print
-'</table>'
+print \
+    '</table>'
 
 for fo in bottomLines:
-    print
-    fo[:-1]
+    print \
+        fo[:-1]
