@@ -1,4 +1,6 @@
 # file runQuery.py
+import cgitb
+cgitb.enable()
 
 # Generic function for running a query
 def runQuery(DBquery):

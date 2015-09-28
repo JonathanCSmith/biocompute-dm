@@ -1,11 +1,10 @@
 # file masterProject.py
 # The master project object
 
-import seqProject
 import getSeqProjByID
+import cgitb
 
-import flowCytProject
-# import getFlowCytProjByID
+cgitb.enable()
 
 class masterProject:
     def __init__(self):
@@ -191,12 +190,12 @@ class masterProject:
     def insertMasterProject(self):
         import runQuery
 
-        insQuery = "INSERT INTO masterProject (projectName,projectLead,status,description, openDate,lastUpdate) "
+        insQuery = "INSERT INTO masterProject (projectName,projectLead,status,description,openDate,lastUpdate)"
         vals = " VALUES ('" + self.projectName + "','" + self.projectLead + "','" + str(self.status) + "','" + str(
             self.description) + "','" + self.openDate + "','" + self.lastUpdate + "')"
 
         DBins = insQuery + vals
-        # print "<p>",DBins,"</p>"
+        print "<p>",DBins,"</p>"
         inser = runQuery.runQuery(DBins)
 
         self.getLastMasterProjectID()

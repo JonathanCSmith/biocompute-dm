@@ -1,30 +1,10 @@
 #!/usr/bin/python
 
-# TODO put this into a function
-# Extract the template content
-CH = open("../template/cgi_header", "r")
-cgiHeader = CH.readlines()
-CH.close()
-
-HF = open("../template/template_top.html", "r")
-topLines = HF.readlines()
-HF.close()
-
-FF = open("../template/template_bottom.html", "r")
-bottomLines = FF.readlines()
-FF.close()
-
+import API.templateBuilder as writer
 from API.getAllProjects import getAllProjects
 
-# Print the cgi flag
-for ch in cgiHeader:
-    print \
-        ch[:-1]
-
-# Print the header
-for he in topLines:
-    print \
-        he[:-1]
+writer.writeOutCGI()
+writer.writeOutHeader()
 
 # Return the projects
 projects = getAllProjects()
@@ -53,6 +33,4 @@ for pro in range(0, len(projects)):
 print \
     "</table>"
 
-for fo in bottomLines:
-    print \
-        fo[:-1]
+writer.writeOutFooter()
