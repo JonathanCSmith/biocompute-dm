@@ -6,3 +6,7 @@ def stripIllegalSQLCharacters(string):
     finalOutput = output
 
     return finalOutput
+
+def stripExcess(string):
+    output = " ".join(string.split())
+    return output

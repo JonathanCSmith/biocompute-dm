@@ -9,7 +9,7 @@ cgi-bin/mypol.te
 
 # build files
 /html
+/testing.html
 
 # Dia files
-/testing.html
 *.autosave

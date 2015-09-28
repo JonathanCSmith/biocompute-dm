@@ -7,6 +7,7 @@ cgitb.enable()
 def run_query(query):
     import MySQLdb as msd
     import configurationhandler as config
+    from sqlFormatter import stripExcess
 
     # Obtain the connection properties
     user = config.getMySQLUsername()
@@ -18,7 +19,8 @@ def run_query(query):
     cur = con.cursor()
 
     # Execute the query
-    cur.execute(query)
+    clean_query = stripExcess(query)
+    cur.execute(clean_query)
 
     # Commit the query and return the result
     con.commit()

@@ -1,6 +1,9 @@
 #!/usr/bin/python
+__author__ = 'jon, alan'
+
 import cgitb
 import API.templateBuilder as writer
+
 from API.getAllProjects import getAllProjects
 from API.projects import get_all
 
@@ -17,18 +20,18 @@ projects2 = get_all()
 
 # Get a list of all of the projects in the database:
 print \
-    '<table  id="projectstable" border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+    '               <table  id="projectstable" border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
 print \
-    '<tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
-
-print \
-    "<script src='/js/buildProjectsTable.js'></script>"
+    '                   <tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
 
 print \
-    "<script>buildProjectsTable('" + projects2 + "');</script>"
+    '                   <script src="/js/buildProjectsTable.js"></script>'
 
 print \
-    "</table>"
+    '                   <script>buildProjectsTable("' + projects2 + '");</script>'
 
+print \
+    '               </table>'
 
+# Write out the footer
 writer.writeOutFooter()

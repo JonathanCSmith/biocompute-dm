@@ -1,4 +1,5 @@
 #!/usr/bin/python
+__author__ = "alan, jon"
 
 import API.templateBuilder as writer
 from API.getAllSeqRuns import getAllSeqRuns
@@ -7,7 +8,9 @@ writer.writeOutCGI()
 writer.writeOutHeader()
 
 # Return the sequencing runs
-experiments = getAllSeqRuns()
+#experiments = getAllSeqRuns()
+from API.sequencing import get_all
+experiments = get_all()
 
 # Get a list of all of the projects in the database:
 print \
@@ -15,15 +18,18 @@ print \
 print \
     '<tr><th>Run Name</th><th>Start Date</th><th>End Date</th><th>Sequencing Project Name</th><th>Master Project Name</th></tr>'
 
-for exp in range(0, len(experiments)):
-    for pro in range(0, len(experiments[exp])):
-        print \
-            '<tr><td><a href="/cgi-bin/getSeqRunFromDB?projID=' + str(experiments[exp][pro][0]) + '"> ' + str(
-                experiments[exp][pro][3]) + ' </a></td><td>' + str(experiments[exp][pro][1]) + '</td><td>' + str(
-                experiments[exp][pro][2]) + '</td><td>' + str(
-                experiments[exp][pro][4]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + str(
-                experiments[exp][pro][6]) + '&projID=' + str(experiments[exp][pro][5]) + '">' + str(
-                experiments[exp][pro][6]) + '</a></td></tr>'
+print \
+    experiments
+
+# for exp in range(0, len(experiments)):
+#     for pro in range(0, len(experiments[exp])):
+#         print \
+#             '<tr><td><a href="/cgi-bin/getSeqRunFromDB?projID=' + str(experiments[exp][pro][0]) + '"> ' + str(
+#                 experiments[exp][pro][3]) + ' </a></td><td>' + str(experiments[exp][pro][1]) + '</td><td>' + str(
+#                 experiments[exp][pro][2]) + '</td><td>' + str(
+#                 experiments[exp][pro][4]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + str(
+#                 experiments[exp][pro][6]) + '&projID=' + str(experiments[exp][pro][5]) + '">' + str(
+#                 experiments[exp][pro][6]) + '</a></td></tr>'
 
 print \
     '</table>'
