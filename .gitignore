@@ -11,4 +11,5 @@ cgi-bin/mypol.te
 /html
 
 # Dia files
+/testing.html
 *.autosave

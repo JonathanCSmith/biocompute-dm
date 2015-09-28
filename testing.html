@@ -1,0 +1,127 @@
+Content-type: text/html
+
+<html>
+
+<head>
+    <!--META HTTP-EQUIV="REFRESH" CONTENT="5"-->
+    <TITLE>Bioinformatics Core Information System</TITLE>
+    <link rel=stylesheet type="text/css"
+          href="/css/style.css"
+          title="Core Information System">
+    <!--meta http-equiv="expires" content="-1"-->
+    <meta http-equiv="refresh" content="1800">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+</head>
+
+<body LANG="en-GB" DIR="LTR">
+<div class="header">
+    <div class="container">
+        <h1>Translational Bioinformatics Core Information System</h1>
+        <p>Analyse all your data!</p>
+    </div>
+    <div class="nav">
+        <div class="container">
+            <ul>
+                <li><a href="/html/index.html">Home</a></li>
+                <li><a href="/cgi-bin/projects">Projects</a></li>
+                <li><a href="/cgi-bin/seqRun">Sequencing Runs</a></li>
+                <li><a href="/html/input.html">Input</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<table border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>
+    <!--
+    <tr>
+        <th class="back" colspan="2" valign="top" align="right">
+            <div id="login" style='display:none'>
+                <p>
+                    <a href="/html/login.html">admin login</a>
+                </p>
+            </div>
+
+            <div id="logout" style='display:none'>
+                <p>
+                    <a href="/cgi-bin/logout">logout</a>
+                </p>
+            </div>
+
+        </th>
+    </tr>
+    <tr>
+        <th class="back" width="3" align="left">
+
+            <table border="0" align="left" valign="bottom" cellpadding="0" cellspacing="0" style="table-layout: fixed">
+
+                <tr>
+                    <th class="buttons" width=85 style="background: url(images/75pxbutton.gif)">
+                        <a href="/html/index.html" style="text-decoration:none; color:black">
+                            Home
+                        </a>
+                    </th>
+                    <th class="buttons" width="1"></th>
+
+                    <th class="buttons" width=85 style="background: url(images/75pxbutton.gif)">
+                        <a href="/cgi-bin/projects" style="text-decoration:none; color:black">
+                            Projects
+                        </a>
+                    </th>
+                    <th class="buttons" width="1"></th>
+
+                    <th class="buttons" width=85 style="background: url(images/75pxbutton.gif)">
+                        <a href="/cgi-bin/seqRun" style="text-decoration:none; color:black">
+                            Sequencing Runs
+                        </a>
+                    </th>
+                    <th class="buttons" width="1"></th>
+
+                    -->
+    <!--
+            <th class="buttons" width=85  style="background: url(images/75pxbutton.gif)">
+            <a href="/cgi-bin/coreInSys/showCustomers" style="text-decoration:none; color:black">
+            Customers
+            </a>
+            </th>
+    -->
+    <!--
+    <th class="buttons" width="1"></th>
+
+    <th class="buttons" width=100 height=30 style="background: url(images/100pxbutton.gif)">
+        <a href="/html/input.html" style="text-decoration:none; color:black">
+            Input
+        </a>
+    </th>
+
+
+</tr>
+</table>
+</th>
+</tr>
+-->
+
+    <tr>
+        <td class="horizLine" colspan="2" border=0 height=3>
+
+        </td>
+    </tr>
+    <tr>
+        <td><br></td>
+    </tr>
+
+    <tr>
+        <td id="content">
+            <table  id="projectstable" border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>
+                <tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>
+                <script src='./js/buildProjectsTable.js'></script>
+                <script>buildProjectsTable('[[195, "Jon Project", "Jon", "analysis", "", "2015-09-25", "2015-09-25"], [194, "Jon Project", "Jon", "analysis", "", "2015-09-25", "2015-09-25"], [193, "Jon Project", "Jon", "analysis", "", "2015-09-25", "2015-09-25"]]');</script>
+            </table>
+        </td>
+    </tr>
+</table>
+<script src="/js/commonScripts.js"></script>
+</body>
+
+</html>
+</html>

@@ -1,9 +1,10 @@
-# file runQuery.py
+#!/usr/bin/python
+__author__ = 'jon, alan'
+
 import cgitb
 cgitb.enable()
 
-# Generic function for running a query
-def runQuery(DBquery):
+def run_query(query):
     import MySQLdb as msd
     import configurationhandler as config
 
@@ -17,7 +18,7 @@ def runQuery(DBquery):
     cur = con.cursor()
 
     # Execute the query
-    cur.execute(DBquery)
+    cur.execute(query)
 
     # Commit the query and return the result
     con.commit()
@@ -26,4 +27,4 @@ def runQuery(DBquery):
     # Close the query
     cur.close()
 
-    return (res)
+    return res
