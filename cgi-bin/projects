@@ -28,7 +28,7 @@ print \
     '                   <script src="/js/buildProjectsTable.js"></script>'
 
 print \
-    '                   <script>buildProjectsTable("' + projects2 + '");</script>'
+    "                   <script>buildProjectsTable('" + projects2 + "');</script>"
 
 print \
     '               </table>'
