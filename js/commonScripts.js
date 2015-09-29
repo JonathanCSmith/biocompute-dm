@@ -31,7 +31,10 @@ function addFormHandler(url, formIdentifier) {
             url: url,
             contentType: "application/json",
             dataType: "json",
-            data: JSON.stringify(formToJSON(formIdentifier))
+            data: JSON.stringify(formToJSON(formIdentifier)),
+            success: function(response) {
+                $(document).html(response);
+            }
         });
     });
 }
