@@ -36,8 +36,8 @@ function addFormHandler(url, formIdentifier) {
             contentType: "application/json",
             dataType: "json",
             data: JSON.stringify(formToJSON(formIdentifier)),
-            success: buildRedirect(data, status, jqXHR),
-            error: buildRedirect(data, status, jqXHR)
+            success: buildRedirect(),
+            error: buildRedirect()
         });
     });
 }
