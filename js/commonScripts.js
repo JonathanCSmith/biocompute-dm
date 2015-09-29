@@ -25,8 +25,8 @@ function formToJSON(formIdentifier) {
 }
 
 function buildRedirect(response) {
-    console.log(response);
     alert("made it");
+    console.log(response);
 }
 
 function addFormHandler(url, formIdentifier) {
