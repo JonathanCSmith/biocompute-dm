@@ -4,7 +4,6 @@ __author__ = 'jon, alan'
 import cgitb
 import API.templateBuilder as writer
 
-from API.getAllProjects import getAllProjects
 from API.projects import get_all
 
 # Enable error tracing
@@ -15,7 +14,6 @@ writer.writeOutCGI()
 writer.writeOutHeader()
 
 # Return the projects
-projects = getAllProjects()
 projects2 = get_all()
 
 # Get a list of all of the projects in the database:

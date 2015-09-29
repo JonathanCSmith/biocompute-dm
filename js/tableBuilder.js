@@ -15,18 +15,18 @@ function buildProjectsTable(projects) {
             var newNode;
             switch (j) {
                 case 0:
-                    newNode = document.createTextNode(json[i][0]);
+                    newNode = document.createTextNode(json[i].masterProjectID);
                     break;
 
                 case 1:
                     newNode = document.createElement("a");
-                    newNode.setAttribute("href", "/cgi-bin/getProjectFromDB?projName=" + json[i][1] + "&projID=" + json[i][0]);
-                    var childText = document.createTextNode(json[i][1]);
+                    newNode.setAttribute("href", "/cgi-bin/getProjectFromDB?projName=" + json[i].projectName + "&projID=" + json[i].masterProjectID);
+                    var childText = document.createTextNode(json[i].projectName);
                     newNode.appendChild(childText);
                     break;
 
                 case 2:
-                    newNode = document.createTextNode(json[i][2]);
+                    newNode = document.createTextNode(json[i].projectLead);
                     break;
 
                 case 3:
@@ -34,15 +34,15 @@ function buildProjectsTable(projects) {
                     break;
 
                 case 4:
-                    newNode = document.createTextNode(json[i][5]);
+                    newNode = document.createTextNode(json[i].openDate);
                     break;
 
                 case 5:
-                    newNode = document.createTextNode(json[i][6]);
+                    newNode = document.createTextNode(json[i].lastUpdate);
                     break;
 
                 case 6:
-                    newNode = document.createTextNode(json[i][3]);
+                    newNode = document.createTextNode(json[i].status);
                     break;
             }
 

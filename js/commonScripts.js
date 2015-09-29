@@ -24,6 +24,12 @@ function formToJSON(formIdentifier) {
     return json;
 }
 
+function buildRedirect(data, status, jqXHR) {
+    console.log(data);
+    console.log(status);
+    console.log(jqXHR);
+}
+
 function addFormHandler(url, formIdentifier) {
     $("#submit").click(function() {
         $.ajax({
@@ -32,9 +38,7 @@ function addFormHandler(url, formIdentifier) {
             contentType: "application/json",
             dataType: "json",
             data: JSON.stringify(formToJSON(formIdentifier)),
-            success: function() {
-                window.location = url;
-            }
+            success: buildRedirect(data, status, jqXHR)
         });
     });
 }
