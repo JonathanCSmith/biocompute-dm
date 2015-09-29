@@ -1,4 +1,6 @@
 #!/usr/bin/python
+__author__ = 'alan, jon'
+
 import cgi
 import cgitb
 import API.templateBuilder as writer
@@ -12,8 +14,9 @@ writer.writeOutHeader()
 
 form = cgi.FieldStorage()
 if form.has_key("PROJ_NAME") and form.has_key("PROJ_LEAD"):
-    pn = form["PROJ_NAME"].value
-    pl = form["PROJ_LEAD"].value
+    print form
+    pn = form.getvalue("PROJ_NAME")
+    pl = form.getvalue("PROJ_LEAD")
     from API.sqlFormatter import stripIllegalSQLCharacters as formatter
     projectName = formatter(pn)
     projectLead = formatter(pl)

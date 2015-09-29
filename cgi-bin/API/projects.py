@@ -10,6 +10,7 @@ def get_all():
     from databasemanager import run_query
     from jsonutils import DateTimeEncoder
 
+    # Query to retrieve all projects
     query = """
         SELECT masterProjectID,
           projectName,
@@ -22,7 +23,7 @@ def get_all():
           ORDER BY masterProjectID DESC
     """
 
+    # Get results
     results = run_query(query)
-    results_json = json.dumps(dict(results), cls=DateTimeEncoder)
-
+    results_json = json.dumps(results, cls=DateTimeEncoder)
     return results_json

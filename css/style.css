@@ -87,5 +87,11 @@ a {
     transition: background .5s;
 }
 
+table #content {
+    width:70%;
+    margin-left:15%;
+    margin-right:15%;
+}
+
 
 

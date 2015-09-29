@@ -3,7 +3,7 @@
                 <table border=0 >
                     <tr>
                         <td>
-                            <form id="inForm" name="inptForm" method="post" action="/cgi-bin/newProject">
+                            <form id="inForm" name="inptForm">
                                 <input id="numExtra" type="hidden" name="EXTRA_EXPT" value="0">
                                 <table id="inptTab" border=2 >
                                     <tr>
@@ -15,7 +15,7 @@
                                         <td>
                                             Project name:
                                             <br />
-                                            <input type="text" name="PROJ_NAME" size="50">
+                                            <input class="target" type="text" name="PROJ_NAME" size="50">
                                         </td>
                                         <td colspan=2></td>
                                     </tr>
@@ -23,17 +23,18 @@
                                         <td>
                                             Project lead:
                                             <br />
-                                            <input type="text" name="PROJ_LEAD" size="50">
+                                            <input class="target" type="text" name="PROJ_LEAD" size="50">
                                         </td>
                                         <td colspan=2> </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <input id="Submit" type="submit" value="Submit!">
+                                            <input id="submit" type="submit" name="submit" value="Submit!">
                                         </td>
                                     </tr>
                                 </table>
                             </form>
+                            <script>addFormHandler('/cgi-bin/newProject', 'target')</script>
                         </td>
                     </tr>
                 </table>

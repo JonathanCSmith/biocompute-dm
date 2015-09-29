@@ -2,13 +2,11 @@
 __author__ = "alan, jon"
 
 import API.templateBuilder as writer
-from API.getAllSeqRuns import getAllSeqRuns
 
 writer.writeOutCGI()
 writer.writeOutHeader()
 
 # Return the sequencing runs
-#experiments = getAllSeqRuns()
 from API.sequencing_summary import get_all
 experiments = get_all()
 
