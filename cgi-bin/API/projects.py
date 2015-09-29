@@ -23,6 +23,6 @@ def get_all():
     """
 
     results = run_query(query)
-    results_json = json.dumps(results, cls=DateTimeEncoder)
+    results_json = json.dumps(dict(results), cls=DateTimeEncoder)
 
     return results_json

@@ -9,29 +9,19 @@ writer.writeOutHeader()
 
 # Return the sequencing runs
 #experiments = getAllSeqRuns()
-from API.sequencing import get_all
+from API.sequencing_summary import get_all
 experiments = get_all()
 
 # Get a list of all of the projects in the database:
 print \
-    '<table  border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
+    '               <table id="sequencerunstable" border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>'
 print \
-    '<tr><th>Run Name</th><th>Start Date</th><th>End Date</th><th>Sequencing Project Name</th><th>Master Project Name</th></tr>'
-
+    '                   <tr><th>Run Name</th><th>Start Date</th><th>End Date</th><th>Sequencing Project Name</th><th>Master Project Name</th></tr>'
 print \
-    experiments
-
-# for exp in range(0, len(experiments)):
-#     for pro in range(0, len(experiments[exp])):
-#         print \
-#             '<tr><td><a href="/cgi-bin/getSeqRunFromDB?projID=' + str(experiments[exp][pro][0]) + '"> ' + str(
-#                 experiments[exp][pro][3]) + ' </a></td><td>' + str(experiments[exp][pro][1]) + '</td><td>' + str(
-#                 experiments[exp][pro][2]) + '</td><td>' + str(
-#                 experiments[exp][pro][4]) + '</td><td><a href="/cgi-bin/getProjectFromDB?projName=' + str(
-#                 experiments[exp][pro][6]) + '&projID=' + str(experiments[exp][pro][5]) + '">' + str(
-#                 experiments[exp][pro][6]) + '</a></td></tr>'
-
+    '                   <script src="/js/tableBuilder.js"></script>'
 print \
-    '</table>'
+    "                   <script>buildSequenceRunsTable('" + experiments + "');</script>"
+print \
+    '               </table>'
 
 writer.writeOutFooter()

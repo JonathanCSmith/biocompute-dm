@@ -25,7 +25,7 @@ print \
     '                   <tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>'
 
 print \
-    '                   <script src="/js/buildProjectsTable.js"></script>'
+    '                   <script src="/js/tableBuilder.js"></script>'
 
 print \
     "                   <script>buildProjectsTable('" + projects2 + "');</script>"

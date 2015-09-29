@@ -29,4 +29,11 @@ def run_query(query):
     # Close the query
     cur.close()
 
-    return res
+    # Build a JSON object
+    columns = [desc[0] for desc in cur.description]
+    results = []
+    for row in res:
+        row = dict(zip(columns, row))
+        results.append(row)
+
+    return results

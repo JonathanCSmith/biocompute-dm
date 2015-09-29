@@ -112,10 +112,10 @@ Content-type: text/html
 
     <tr>
         <td id="content">
-            <table  id="projectstable" border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>
-                <tr><th>Project ID</th><th>Project Name</th><th>Project Lead</th><th>Customer/Collaborator</th><th>Project opened</th><th>Project last updated</th><th>Project Status</th></tr>
-                <script src='./js/buildProjectsTable.js'></script>
-                <script>buildProjectsTable('[[195, "Jon Project", "Jon", "analysis", "", "2015-09-25", "2015-09-25"], [194, "Jon Project", "Jon", "analysis", "", "2015-09-25", "2015-09-25"], [193, "Jon Project", "Jon", "analysis", "", "2015-09-25", "2015-09-25"]]');</script>
+            <table id="sequencerunstable" border="1" align="center" valign="top" cellpadding="0" cellspacing="0" width=100%>
+                <tr><th>Run Name</th><th>Start Date</th><th>End Date</th><th>Sequencing Project Name</th><th>Master Project Name</th></tr>
+                <script src="./js/tableBuilder.js"></script>
+                <script>buildSequenceRunsTable('[{"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 147}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 146}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 145}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 144}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 143}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 142}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 141}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 140}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 139}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 138}, {"completionDate": null, "startDate": null, "seqRunName": "SeqRunName", "masterProjectID": null, "projectName": null, "seqProjectName": null, "seqRunID": 137}]');</script>
             </table>
         </td>
     </tr>
@@ -123,5 +123,4 @@ Content-type: text/html
 <script src="/js/commonScripts.js"></script>
 </body>
 
-</html>
 </html>
