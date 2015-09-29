@@ -24,7 +24,8 @@ function formToJSON(formIdentifier) {
     return json;
 }
 
-function buildRedirect(data, status, jqXHR) {
+function buildRedirect(response) {
+    console.log(response);
     alert("made it");
 }
 
@@ -36,7 +37,9 @@ function addFormHandler(url, formIdentifier) {
             contentType: "application/json",
             dataType: "html",
             data: JSON.stringify(formToJSON(formIdentifier)),
-            success: function(response) { alert(response) }
+            success: function(response) { buildRedirect(response) },
+            failure: function(response) { buildRedirect(response) },
+            complete: function(response) { buildRedirect(response) }
         });
     });
 }
