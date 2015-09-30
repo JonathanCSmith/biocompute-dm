@@ -1,6 +1,7 @@
 # biocis
-Repository for the BioCIS pipeline
+## Repository for the BioCIS pipeline
 
+### Installation
 Setup a machine with a Lamp(y) stack
 
 Clone branch containing the flask builds onto the machine to /var/www (or equivalent)
@@ -31,14 +32,27 @@ Then install flask packages using the following commands:
 - flask/bin/pip install coverage
 - flask/bin/pip install PyMySQL
 
+Finally follow database instructions for a "first time setup"
+
+### Database Commands
+
+#### New database schema
+
+- run db_create.py
+- run db_migrate.py
+
+#### First time setup
+
+- run db_create.py
+- run db_upgrade.py
+
+#### Schema update
+
+- run db_migrate.py
 
 
 
-
-
-
-
-To Setup (DEPRECATED):
+### To Setup (DEPRECATED):
 
   Setup a machine with a Lamp(y) stack
   
