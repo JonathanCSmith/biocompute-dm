@@ -4,11 +4,19 @@
 cgi-bin/mypol.pp
 cgi-bin/mypol.te
 
-# ide files
+# development files
 /.idea
-
-# build files
+/flask
 /html
+/config.py
+
+# testing files
+/testing_app
+/testing_database
+/testing_db_repository
+/testing_tmp
+/testing_config.py
+/testing_run.py
 
 # Dia files
 *.autosave

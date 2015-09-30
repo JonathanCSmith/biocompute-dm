@@ -1,7 +1,44 @@
 # biocis
 Repository for the BioCIS pipeline
 
-To Setup:
+Setup a machine with a Lamp(y) stack
+
+Clone branch containing the flask builds onto the machine to /var/www (or equivalent)
+
+Within the biocis folder create a virtual environment:
+
+- python3 -m venv flask
+
+OR (if this fails):
+
+- python3 -m venv --without-pip flask
+- source flask/bin/activate
+- curl https://bootstrap.pypa.io/get-pip.py | python
+- deactivate
+
+Then install flask packages using the following commands:
+
+- flask/bin/pip install flask
+- flask/bin/pip install flask-login
+- flask/bin/pip install flask-mail
+- flask/bin/pip install flask-sqlalchemy
+- flask/bin/pip install sqlalchemy-migrate
+- flask/bin/pip install flask-whooshalchemy
+- flask/bin/pip install flask-wtf
+- flask/bin/pip install flask-babel
+- flask/bin/pip install guess_language
+- flask/bin/pip install flipflop
+- flask/bin/pip install coverage
+- flask/bin/pip install PyMySQL
+
+
+
+
+
+
+
+
+To Setup (DEPRECATED):
 
   Setup a machine with a Lamp(y) stack
   
