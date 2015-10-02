@@ -1,5 +1,7 @@
 __author__ = 'jon'
 
+SECRET_KEY = ""
+
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 

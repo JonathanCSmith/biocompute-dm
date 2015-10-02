@@ -20,8 +20,16 @@ a {
 }
 
 .header {
-    /*background: url(https://s3.amazonaws.com/codecademy-content/projects/innovation-cloud/bg.jpg) no-repeat center center;*/
+    /** Header image properties set **/
+    background: url(http://10.200.100.69/images/RosalindBanner.jpg) no-repeat center center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+    /** Header text behaviour globals **/
     text-align: center;
+    color: #fff;
 }
 
 .header h1 {

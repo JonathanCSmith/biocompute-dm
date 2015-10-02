@@ -2,31 +2,38 @@ __author__ = 'jon'
 
 from app import db
 from sqlalchemy.dialects.mysql import INTEGER, ENUM, TINYINT, SMALLINT
+from flask.ext.login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
 # User table, currently unused
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.String(100))
-    lastname = db.Column(db.String(100))
+    username = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(54))
+    _password = db.Column(db.String(160))
+    role = db.Column(db.String(20), default="User")
 
     def __repr__(self):
-        return "<User %r %r>" % (self.firstname, self.lastname)
+        return "<User %r %r>" % (self.username, self.email)
 
-    def __init__(self, firstname, lastname, email, password):
-        self.firstname = firstname.title()
-        self.lastname = lastname.title()
+    def __init__(self, username, password, email):
+        self.username = username.title()
         self.email = email.lower()
         self.set_password(password)
+        self.role = False
 
     def set_password(self, password):
-        self.password = generate_password_hash(password)
+        self._password = generate_password_hash(password)
 
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
+    def check_password(self, pwd):
+        return check_password_hash(self._password, pwd)
+
+    def get_user_role(self):
+        return self.role
+
+    def set_user_role(self, role):
+        self.role = role
 
 
 class IDtagLibs(db.Model):
@@ -241,3 +248,5 @@ class fastQC(db.Model):
 
     def __repr__(self):
         return "<FastQC %r %r %r>" % (self.seqProjectID, self.sampleID, self.status)
+
+
