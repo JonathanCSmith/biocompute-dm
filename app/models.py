@@ -1,5 +1,7 @@
 __author__ = 'jon'
 
+import datetime
+
 from app import db
 from sqlalchemy.dialects.mysql import INTEGER, ENUM, TINYINT, SMALLINT
 from flask.ext.login import UserMixin
@@ -8,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 # User table, currently unused
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(100), unique=True)
     email = db.Column(db.String(120), unique=True)
     _password = db.Column(db.String(160))
@@ -92,7 +94,7 @@ class laneData(db.Model):
         return "<Lane data %r %r>" % (self.seqProjectID, self.laneID)
 
 
-class masterProject(db.Model):
+class MasterProject(db.Model):
     __tablename__ = "masterProject"
     masterProjectID = db.Column(INTEGER(10, unsigned=True), primary_key=True, autoincrement=True)
     status = db.Column(db.String(20))
@@ -101,6 +103,18 @@ class masterProject(db.Model):
     description = db.Column(db.TEXT)
     openDate = db.Column(db.Date)
     lastUpdate = db.Column(db.Date)
+
+    def __init__(self, projectName, projectLead):
+        self.projectName = projectName
+        self.projectLead = projectLead
+
+        today = datetime.date.today()
+        self.openDate = str(today.year) + "-" + str(today.month) + "-" + str(today.day)
+        self.lastUpdate = self.openDate
+
+    def set_last_update(self):
+        today = datetime.date.today()
+        self.lastUpdate = str(today.year) + "-" + str(today.month) + "-" + str(today.day)
 
     def __repr__(self):
         return "<Master project %r %r>" % (self.projectName, self.projectLead)
@@ -146,7 +160,7 @@ class sampleData(db.Model):
         return "<Sample Data %r>" % (self.sampleName)
 
 
-class seqProject(db.Model):
+class SequencingProject(db.Model):
     __tablename__ = "seqProject"
     seqProjectID = db.Column(INTEGER(10, unsigned=True), primary_key=True, autoincrement=True)
     seqProjectName = db.Column(db.String(40))
@@ -248,5 +262,3 @@ class fastQC(db.Model):
 
     def __repr__(self):
         return "<FastQC %r %r %r>" % (self.seqProjectID, self.sampleID, self.status)
-
-

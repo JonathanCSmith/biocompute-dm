@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel=stylesheet type="text/css" href="/static/css/projects.css">
+{% endblock %}
+
+{% block content %}
+    <table id="content">
+        <div class="embolden">
+            <tr>
+                <th>Project ID</th>
+                <th>Project Name</th>
+                <th>Project Lead</th>
+                <th>Customer</th>
+                <th>Start Date</th>
+                <th>Last Updated</th>
+                <th>Status</th>
+            </tr>
+        </div>
+
+        {% for project in projects.items %}
+        <tr>
+            <td>{{ project.masterProjectID }}</td>
+            <td><a href="{{ url_for('project', name=project.projectName, id=project.masterProjectID) }}">{{ project.projectName }}</a></td>
+            <td>{{ project.projectLead }}</td>
+            <td>Customer</td>
+            <td>{{ project.openDate }}</td>
+            <td>{{ project.lastUpdate }}</td>
+            <td>{{ project.status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <table id="pagenator">
+        <tr>
+            <td></td>
+            <td>&lt;&lt;</td>
+            <td>
+                {% if projects.has_prev %}
+                <a href="{{ url_for('index', page=posts.prev_num) }}">Previous</a>
+                {% else %}
+                Previous
+                {% endif %}
+            </td>
+            <td>|</td>
+            <td>
+                {% if projects.has_next %}
+                <a href="{{ url_for('index', page=posts.next_num) }}">Next</a>
+                {% else %}
+                Next
+                {% endif %}
+            </td>
+            <td>&gt;&gt;</td>
+            <td></td>
+        </tr>
+    </table>
+
+{% endblock %}

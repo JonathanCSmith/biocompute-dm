@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <link rel=stylesheet type="text/css" href="/static/css/style.css">
+    {% block css %}
+    {% endblock %}
 
     {% if title %}
     <title>{{ title }} - Welcome to the Bioinformatics Core Information System</title>
@@ -48,7 +50,9 @@
     {% endwith %}
     </div>
 
+    <div class="content">
     {% block content %}
     {% endblock %}
+    </div>
 </body>
 </html>

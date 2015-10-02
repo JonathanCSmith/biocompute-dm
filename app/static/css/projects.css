@@ -1,0 +1,5 @@
+table#pagenator {
+    background: transparent;
+
+    table-layout: fixed;
+}

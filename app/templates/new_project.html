@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% for message in form.project_name.errors %}
+<div class="flash">{{ message }}</div>
+{% endfor %}
+
+{% for message in form.project_lead.errors %}
+<div class="flash">{{ message }}</div>
+{% endfor %}
+
+<h2>New Project</h2>
+
+<form action="{{ url_for('new_project') }}" method=post>
+    {{ form.hidden_tag() }}
+
+    {{ form.project_name.label }}
+    {{ form.project_name }}
+
+    {{ form.project_lead.label }}
+    {{ form.project_lead }}
+
+    {{ form.submit }}
+</form>
+
+{% endblock %}
