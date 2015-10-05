@@ -1,3 +1,56 @@
 {% extends "base.html" %}
+{% block css %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+{% endblock %}
+
 {% block content %}
+    {% if user.is_authenticated %}
+    <div class="input-table clear">
+        <table>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="action">
+                        <h3>Project Information</h3>
+                        <a class="input" href="{{ url_for('new_project') }}">Add a new project.</a>
+                        <ul>
+                            <li>Tag projects with additional metadata</li>
+                            <li>Do other important and meaningful things</li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="action">
+                        <h3>Sequencing Run</h3>
+                        <a class="input" href="{{ url_for('input_sequencing_run') }}">Enter sequencing run data</a>
+                        <ul>
+                            <li>Input information about your sequencing run</li>
+                            <li>Do other important and meaningful things</li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="action">
+                        <h3>Sequencing Project</h3>
+                        <a class="input" href="{{ url_for('input_sequencing_project') }}">Upload sequencing project data</a>
+                        <ul>
+                            <li>Input information about your sequencing project</li>
+                            <li>Do other important and meaningful things</li>
+                        </ul>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <script src="/static/js/index.js"></script>
+    {% else %}
+    <div class="input-table clear">
+        <table>
+            <h3>Welcome to BioCIS - Please login to perform actions.</h3>
+        </table>
+    </div>
+    {% endif %}
 {% endblock %}

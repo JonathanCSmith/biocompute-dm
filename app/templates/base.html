@@ -25,7 +25,6 @@
                     <li><a href="{{ url_for('index') }}">Home</a></li>
                     <li><a href="{{ url_for('projects') }}">Projects</a></li>
                     <li><a href="{{ url_for('sequencing_runs') }} ">Sequencing Runs</a></li>
-                    <li><a href="{{ url_for('input') }}">Input</a></li>
                     <li>
                         {% if g.user.is_authenticated %}
                         <a href="{{ url_for('logout') }}">Logout</a>
@@ -39,16 +38,19 @@
     </div>
 
     <div class="messages">
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
+        {% for category, message in messages %}
+            <div class="{{ category }} message">
+                <h3>{{ category.upper() }}</h3>
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
         {% endif %}
     {% endwith %}
     </div>
+
+    <br>
 
     <div class="content">
     {% block content %}

@@ -11,6 +11,11 @@ def index():
     return render_template("index.html", title="Home", user=g.user)
 
 
+@app.route("/empty")
+def empty():
+    return render_template("empty.html")
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if g.user is not None and g.user.is_authenticated:
@@ -29,7 +34,7 @@ def register():
             user = User(str(form.username.data), str(form.password.data), str(form.email.data.lower()))
             db.session.add(user)
             db.session.commit()
-            flash("User successfully registered!")
+            flash("User successfully registered!", "success")
             # session["remember_me"] = form.remember_me.data
             # app.login_user(user, remember=form.remember_me.data)
             login_user(user)
@@ -55,7 +60,7 @@ def login():
             user = User.query.filter_by(username=str(form.username.data)).first()
             # session["remember_me"] = form.remember_me.data
             # app.login_user(user, remember=form.remember_me.data)
-            flash("Successfully logged in!")
+            flash("Successfully logged in!", "success")
             login_user(user)
             return redirect(url_for("index"))
 
@@ -73,7 +78,7 @@ def logout():
 def projects(page=1):
     from app.models import MasterProject
     projects = MasterProject.query.paginate(page=page, per_page=20)
-    flash("Projects page is still in development")
+    flash("Projects page is still in development", "warning")
     return render_template("projects.html", page=page, projects=projects)
 
 
@@ -81,33 +86,33 @@ def projects(page=1):
 @login_required()
 def project(name="", id=-1):
     if name == "" or id == -1:
-        flash("Incorrect arguments for query provided.")
+        flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
     from app.models import MasterProject
     project = MasterProject.query.filter_by(masterProjectID=id, projectName=name).first()
 
-    return redirect(url_for("index"))
+    return redirect(url_for("empty"))
 
 
 @app.route("/sequencing_runs")
 @login_required("ANY")
 def sequencing_runs():
-    flash("Sequencing runs page is still in development")
-    return redirect(url_for("index"))
+    flash("Sequencing runs page is still in development", "warning")
+    return redirect(url_for("empty"))
 
 
 @app.route("/input")
 @login_required("ANY")
 def input():
-    flash("Input page is still in development")
+    flash("Input page is still in development", "warning")
     return render_template("input.html")
 
 
 @app.route("/new_project", methods=["GET", "POST"])
 @login_required("ANY")
 def new_project():
-    flash("New project page is still in development")
+    flash("New project page is still in development", "warning")
     form = forms.NewProjectForm()
     if request.method == "GET":
         return render_template("new_project.html", form=form)
@@ -118,7 +123,7 @@ def new_project():
             p = MasterProject(str(form.project_name.data), str(form.project_lead.data))
             db.session.add(p)
             db.session.commit()
-            flash("Project successfully registered!")
+            flash("Project successfully registered!", "info")
             # session["remember_me"] = form.remember_me.data
             # app.login_user(user, remember=form.remember_me.data)
 
@@ -128,14 +133,14 @@ def new_project():
 @app.route("/input_sequencing_run")
 @login_required()
 def input_sequencing_run():
-    flash("New sequencing run page is still in development")
-    return redirect(url_for("index"))
+    flash("New sequencing run page is still in development", "warning")
+    return redirect(url_for("empty"))
 
 
 @app.route("/input_sequencing_project")
 @login_required()
 def input_sequencing_project():
-    flash("New sequencing project page is still in development")
-    return redirect(url_for("index"))
+    flash("New sequencing project page is still in development", "warning")
+    return redirect(url_for("empty"))
 
 # @login_required to secure

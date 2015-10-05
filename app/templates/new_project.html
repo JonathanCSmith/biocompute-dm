@@ -1,26 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="input-table clear">
+    <div class="action">
+        <h3>New Project</h3>
 
-{% for message in form.project_name.errors %}
-<div class="flash">{{ message }}</div>
-{% endfor %}
-
-{% for message in form.project_lead.errors %}
-<div class="flash">{{ message }}</div>
-{% endfor %}
-
-<h2>New Project</h2>
-
-<form action="{{ url_for('new_project') }}" method=post>
-    {{ form.hidden_tag() }}
-
-    {{ form.project_name.label }}
-    {{ form.project_name }}
-
-    {{ form.project_lead.label }}
-    {{ form.project_lead }}
-
-    {{ form.submit }}
-</form>
-
+        <form action="{{ url_for('new_project') }}" method=post>
+            <table class="small_content">
+                <tr>
+                    <td>
+                        {{ form.hidden_tag() }}
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.project_name.label }}</td>
+                                <td>{{ form.project_name }}</td>
+                            </tr>
+                            {% for message in form.project_name.errors %}
+                            <tr class="flash">{{ message }}</tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.project_lead.label }}</td>
+                                <td>{{ form.project_lead }}</td>
+                            </tr>
+                            {% for message in form.project_lead.errors %}
+                            <tr class="flash">{{ message }}</tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ form.submit }}
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
 {% endblock %}

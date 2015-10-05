@@ -1,31 +1,65 @@
 {% extends "base.html" %}
+
+{% block css %}
+<link rel=stylesheet type="text/css" href="/static/css/login.css">
+{% endblock %}
+
 {% block content %}
-    <h2>Sign up</h2>
+    <div class="input-table clear">
+        <div class="action">
+            <h3>Sign up</h3>
+            <form action="{{ url_for('register') }}" method=post>
+                <table class="small_content">
+                    <tr>
+                        <td>
+                            {{ form.hidden_tag() }}
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.username.label }}</td>
+                                    <td>{{ form.username }}</td>
+                                </tr>
+                                {% for message in form.username.errors %}
+                                <tr class="flash">{{ message }}</tr>
+                                {% endfor %}
+                            </table>
 
-    {% for message in form.username.errors %}
-        <div class="flash">{{ message }}</div>
-    {% endfor %}
 
-    {% for message in form.email.errors %}
-        <div class="flash">{{ message }}</div>
-    {% endfor %}
 
-    {% for message in form.password.errors %}
-        <div class="flash">{{ message }}</div>
-    {% endfor %}
-
-    <form action="{{ url_for('register') }}" method=post>
-        {{ form.hidden_tag() }}
-
-        {{ form.username.label }}
-        {{ form.username }}
-
-        {{ form.password.label }}
-        {{ form.password }}
-
-        {{ form.email.label }}
-        {{ form.email }}
-
-        {{ form.submit }}
-    </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.password.label }}</td>
+                                    <td>{{ form.password }}</td>
+                                </tr>
+                                {% for message in form.password.errors %}
+                                <tr class="flash">{{ message }}</tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                </tr>
+                    <tr>
+                        <td>
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.email.label }}</td>
+                                    <td>{{ form.email }}</td>
+                                </tr>
+                                {% for message in form.email.errors %}
+                                <tr class="flash">{{ message }}</tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{ form.submit }}
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
 {% endblock %}

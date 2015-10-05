@@ -5,17 +5,15 @@
 
 {% block content %}
     <table id="content">
-        <div class="embolden">
-            <tr>
-                <th>Project ID</th>
-                <th>Project Name</th>
-                <th>Project Lead</th>
-                <th>Customer</th>
-                <th>Start Date</th>
-                <th>Last Updated</th>
-                <th>Status</th>
-            </tr>
-        </div>
+        <tr>
+            <th>Project ID</th>
+            <th>Project Name</th>
+            <th>Project Lead</th>
+            <th>Customer</th>
+            <th>Start Date</th>
+            <th>Last Updated</th>
+            <th>Status</th>
+        </tr>
 
         {% for project in projects.items %}
         <tr>

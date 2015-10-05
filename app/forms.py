@@ -1,5 +1,6 @@
 __author__ = 'jon'
 
+from flask import flash
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email
@@ -14,6 +15,7 @@ class RegisterForm(Form):
 
     def validate(self):
         if not Form.validate(self):
+            flash("There was an error in your submission", "error")
             return False
 
         user = User.query.filter_by(email=str(self.email.data.lower())).first()
@@ -21,6 +23,7 @@ class RegisterForm(Form):
             user = User.query.filter_by(username=str(self.username.data.lower())).first()
 
         if user:
+            flash("There was an error in your submission", "error")
             self.email.errors.append("That email is already taken.")
             return False
 
@@ -35,6 +38,7 @@ class LoginForm(Form):
 
     def validate(self):
         if not Form.validate(self):
+            flash("There was an error in your submission", "error")
             return False
 
         user = User.query.filter_by(username=str(self.username.data)).first()
@@ -45,6 +49,7 @@ class LoginForm(Form):
                 return False
 
         else:
+            flash("There was an error in your submission", "error")
             self.password.errors.append("The username or password supplied was incorrect")
             return False
 
@@ -53,3 +58,10 @@ class NewProjectForm(Form):
     project_name = StringField("Project Name", validators=[DataRequired()])
     project_lead = StringField("Project Lead", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+    def validate(self):
+        if not Form.validate(self):
+            flash("There was an error in your submission", "error")
+            return False
+
+        return True
