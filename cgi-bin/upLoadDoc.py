@@ -33,7 +33,7 @@ for he in topLines:
 print
 "<p>Upload master project document:</p>"
 print
-'<form name="input" enctype="multipart/form-data" action="/cgi-bin/upLoaderDocStage1?masterProjID=' + masterProjID + '" method="post">'
+'<form name="input" enctype="multipart/form-data" action="/cgi-bin/upLoaderDocStage1.py?masterProjID=' + masterProjID + '" method="post">'
 print
 '<p>Document Description<br>'
 print

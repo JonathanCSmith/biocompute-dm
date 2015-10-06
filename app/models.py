@@ -1,41 +1,11 @@
 __author__ = 'jon'
 
-import datetime
+import os, datetime
 
 from app import db
 from sqlalchemy.dialects.mysql import INTEGER, ENUM, TINYINT, SMALLINT
 from flask.ext.login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-
-
-# User table, currently unused
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(100), unique=True)
-    email = db.Column(db.String(120), unique=True)
-    _password = db.Column(db.String(160))
-    role = db.Column(db.String(20), default="User")
-
-    def __repr__(self):
-        return "<User %r %r>" % (self.username, self.email)
-
-    def __init__(self, username, password, email):
-        self.username = username.title()
-        self.email = email.lower()
-        self.set_password(password)
-        self.role = False
-
-    def set_password(self, password):
-        self._password = generate_password_hash(password)
-
-    def check_password(self, pwd):
-        return check_password_hash(self._password, pwd)
-
-    def get_user_role(self):
-        return self.role
-
-    def set_user_role(self, role):
-        self.role = role
 
 
 class IDtagLibs(db.Model):
@@ -160,7 +130,7 @@ class sampleData(db.Model):
         return "<Sample Data %r>" % (self.sampleName)
 
 
-class SequencingProject(db.Model):
+class sequencingProject(db.Model):
     __tablename__ = "seqProject"
     seqProjectID = db.Column(INTEGER(10, unsigned=True), primary_key=True, autoincrement=True)
     seqProjectName = db.Column(db.String(40))
@@ -262,3 +232,129 @@ class fastQC(db.Model):
 
     def __repr__(self):
         return "<FastQC %r %r %r>" % (self.seqProjectID, self.sampleID, self.status)
+
+
+# User table, currently unused
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(100), unique=True)
+    email = db.Column(db.String(120), unique=True)
+    _password = db.Column(db.String(160))
+    role = db.Column(db.String(20), default="User")
+
+    def __repr__(self):
+        return "<User %r %r>" % (self.username, self.email)
+
+    def __init__(self, username, password, email):
+        self.username = username.title()
+        self.email = email.lower()
+        self.set_password(password)
+        self.role = False
+
+    def set_password(self, password):
+        self._password = generate_password_hash(password)
+
+    def check_password(self, pwd):
+        return check_password_hash(self._password, pwd)
+
+    def get_user_role(self):
+        return self.role
+
+    def set_user_role(self, role):
+        self.role = role
+
+
+class Investigation(db.Model):
+    __tablename__ = "investigation"
+    investigation_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    investigation_name = db.Column(db.String(40))
+    investigation_lead = db.Column(db.String(40))
+    investigation_directory = db.Column(db.String(500))
+    description = db.Column(db.TEXT)
+    open_date = db.Column(db.Date)
+    last_update = db.Column(db.Date)
+    status = db.Column(db.String(20))
+
+    project = db.RelationshipProperty("Project", backref="investigation")
+    document = db.RelationshipProperty("Document", backref="investigation")
+
+    def __init__(self, investigation_name, investigation_lead):
+        self.investigation_name = investigation_name
+        self.investigation_lead = investigation_lead
+
+        today = datetime.date.today()
+        self.open_date = str(today.year) + "-" + str(today.month) + "-" + str(today.day)
+        self.last_update = self.open_date
+
+    def set_last_update(self):
+        today = datetime.date.today()
+        self.last_update = str(today.year) + "-" + str(today.month) + "-" + str(today.day)
+
+    def validate_investigation_directory(self):
+        if self.investigation_directory is None:
+            self.investigation_directory = os.path.join("./link/investigations", str(self.investigation_id) + "_" + self.investigation_name)
+
+        try:
+            if not os.path.exists(self.investigation_directory):
+                os.mkdir(self.investigation_directory)
+                os.chmod(self.investigation_directory, 0o777)
+        except OSError as e:
+            print(e)
+            return None
+
+        docs = os.path.join(self.investigation_directory, "documents")
+        try:
+            if not os.path.exists(docs):
+                os.mkdir(docs)
+                os.chmod(docs, 0o777)
+        except OSError as e:
+            print(e)
+            return None
+
+        return docs
+
+    def __repr__(self):
+        return "<Investigation %r %r>" % (self.investigation_name, self.investigation_lead)
+
+
+class Document(db.Model):
+    __tablename__ = "document"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50))
+    description = db.Column(db.Text)
+    location = db.Column(db.String(500))
+    investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
+
+    def __init__(self, name, description, location):
+        self.name = name
+        self.description = description
+        self.location = location
+
+    def __repr__(self):
+        return "<Investigation document %r>" % (self.docDescription)
+
+
+class Project(db.Model):
+    __tablename__ = "project"
+    id = db.Column(db.Integer, primary_key=True)
+    investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
+    project_name = db.Column(db.String(40))
+    type = db.Column(db.String(50))
+    __mapper_args__ = {"polymorphic_on": type}
+
+
+class SequencingProject(Project):
+    __tablename__ = "sequencing_project"
+    id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
+    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Project.id)}
+    sequencing_run = db.Column(db.Integer, db.ForeignKey("seqRun.seqRunID"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.customerID"))
+    sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
+
+
+class FlowCytometryProject(Project):
+    __tablename__ = "flow_cytometry_project"
+    id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
+    __mapper_args__ = {"polymorphic_identity": "flow_cytometry", "inherit_condition": (id == Project.id)}
+
+

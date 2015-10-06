@@ -1,0 +1,79 @@
+<!-- TODO: Fix with correct info -->
+
+{% extends "base.html" %}
+{% block css %}
+<link rel=stylesheet type="text/css" href="/static/css/investigations.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <table>
+        <tr>
+            <td>
+                <div class="action">
+                    <h3>Investigation Properties</h3>
+                    <ul>
+                        <li>Investigation Name: {{ investigation.investigation_name }}</li>
+                        <li>Investigation Lead: {{ investigation.investigation_lead }}</li>
+                        <li>Customer: Customer</li>
+                        <li>Start Date: {{ investigation.open_date }}</li>
+                        <li>Last Updated: {{ investigation.last_update }}</li>
+                        <li>Status: {{ investigation.status }}</li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Investigation Projects</h3>
+                    <a class="input" href="{{ url_for('link_project', iid=investigation.investigation_id) }}">Link a project</a>
+                    <ul>
+                        <li>
+                            <table>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Project Type</th>
+                                    <th>Status</th>
+                                </tr>
+
+                                {% for project in projects %}
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Investigation Documents</h3>
+                    <a class="input" href="{{ url_for('add_document', iid=investigation.investigation_id) }}">Add a document</a>
+                    <ul>
+                        <li>
+                            <table>
+                                <tr>
+                                    <th>Document Name</th>
+                                    <th>Document Description</th>
+                                    <th>Remove?</th>
+                                </tr>
+                                {% for document in investigation.document %}
+                                <tr>
+                                    <td>{{ document.name }}</td>
+                                    <td>{{ document.description }}</td>
+                                    <td><a href="{{ url_for('remove_document', iid=investigation.investigation_id, did=investigation.investigation_id)}}">Remove</a></td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

@@ -2,6 +2,7 @@ __author__ = 'jon'
 
 from flask import flash
 from flask.ext.wtf import Form
+from flask.ext.wtf.file import FileField, FileRequired
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email
 from app.models import User
@@ -54,9 +55,9 @@ class LoginForm(Form):
             return False
 
 
-class NewProjectForm(Form):
-    project_name = StringField("Project Name", validators=[DataRequired()])
-    project_lead = StringField("Project Lead", validators=[DataRequired()])
+class NewInvestigationForm(Form):
+    investigation_name = StringField("Investigation Name", validators=[DataRequired()])
+    investigation_lead = StringField("Investigation Lead", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
     def validate(self):
@@ -65,3 +66,9 @@ class NewProjectForm(Form):
             return False
 
         return True
+
+
+class AddDocumentForm(Form):
+    description = StringField("Document Desription", validators=[DataRequired()])
+    file_upload = FileField("Upload File", validators=[FileRequired()])
+    submit = SubmitField("Upload")

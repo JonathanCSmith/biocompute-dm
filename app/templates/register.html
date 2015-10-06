@@ -19,7 +19,7 @@
                                     <td>{{ form.username }}</td>
                                 </tr>
                                 {% for message in form.username.errors %}
-                                <tr class="flash">{{ message }}</tr>
+                                <tr class="flash"><td>{{ message }}</td></tr>
                                 {% endfor %}
                             </table>
 
@@ -35,7 +35,7 @@
                                     <td>{{ form.password }}</td>
                                 </tr>
                                 {% for message in form.password.errors %}
-                                <tr class="flash">{{ message }}</tr>
+                                <tr class="flash"><td>{{ message }}</td></tr>
                                 {% endfor %}
                             </table>
                         </td>
@@ -48,7 +48,7 @@
                                     <td>{{ form.email }}</td>
                                 </tr>
                                 {% for message in form.email.errors %}
-                                <tr class="flash">{{ message }}</tr>
+                                <tr class="flash"><td>{{ message }}</td></tr>
                                 {% endfor %}
                             </table>
                         </td>

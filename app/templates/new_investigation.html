@@ -4,18 +4,18 @@
     <div class="action">
         <h3>New Project</h3>
 
-        <form action="{{ url_for('new_project') }}" method=post>
+        <form action="{{ url_for('new_investigation') }}" method=post>
             <table class="small_content">
                 <tr>
                     <td>
                         {{ form.hidden_tag() }}
                         <table class="internal">
                             <tr>
-                                <td>{{ form.project_name.label }}</td>
-                                <td>{{ form.project_name }}</td>
+                                <td>{{ form.investigation_name.label }}</td>
+                                <td>{{ form.investigation_name }}</td>
                             </tr>
-                            {% for message in form.project_name.errors %}
-                            <tr class="flash">{{ message }}</tr>
+                            {% for message in form.investigation_name.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
                             {% endfor %}
                         </table>
                     </td>
@@ -24,11 +24,11 @@
                     <td>
                         <table class="internal">
                             <tr>
-                                <td>{{ form.project_lead.label }}</td>
-                                <td>{{ form.project_lead }}</td>
+                                <td>{{ form.investigation_lead.label }}</td>
+                                <td>{{ form.investigation_lead }}</td>
                             </tr>
-                            {% for message in form.project_lead.errors %}
-                            <tr class="flash">{{ message }}</tr>
+                            {% for message in form.investigation_lead.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
                             {% endfor %}
                         </table>
                     </td>

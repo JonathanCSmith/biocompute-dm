@@ -72,7 +72,7 @@ print "<table border=1 width=100%>"
 print '<tr><td colspan="6">'
 
 print '<h2>Master Project Documents</h2>'
-print '<p><a href="/cgi-bin/upLoadDoc?masterProjID=' + projectID + '">Upload a document</a></p>'
+print '<p><a href="/cgi-bin/upLoadDoc.py?masterProjID=' + projectID + '">Upload a document</a></p>'
 print '</td></tr>'
 if len(i.documents) > 0:
     print '<tr><th>DocumentID</th><th>Document location</th><th>Description</th><th></th></tr>'

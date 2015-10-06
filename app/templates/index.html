@@ -8,40 +8,60 @@
     <div class="input-table clear">
         <table>
             <tr>
-                <td></td>
                 <td>
                     <div class="action">
-                        <h3>Project Information</h3>
-                        <a class="input" href="{{ url_for('new_project') }}">Add a new project.</a>
+                        <h3>Input Sequencing Data</h3>
+                        <a class="input" href="{{ url_for('input_sequencing_run') }}">Add a new sequencing run.</a>
                         <ul>
-                            <li>Tag projects with additional metadata</li>
-                            <li>Do other important and meaningful things</li>
+                            <li>Registers data for processing using our sequencing pipeline</li>
+                            <li></li>
                         </ul>
                     </div>
                 </td>
 
                 <td>
                     <div class="action">
-                        <h3>Sequencing Run</h3>
-                        <a class="input" href="{{ url_for('input_sequencing_run') }}">Enter sequencing run data</a>
+                        <h3>Input Flow Cytometry Data</h3>
+                        <a class="input" href="{{ url_for('input_flow_cytometry_run') }}">Add a new flow cytometry run.</a>
                         <ul>
-                            <li>Input information about your sequencing run</li>
-                            <li>Do other important and meaningful things</li>
+                            <li>Registers data for processing using our flow cytometry pipeline</li>
+                            <li></li>
                         </ul>
                     </div>
                 </td>
 
                 <td>
                     <div class="action">
-                        <h3>Sequencing Project</h3>
-                        <a class="input" href="{{ url_for('input_sequencing_project') }}">Upload sequencing project data</a>
+                        <h3>Add an Investigation</h3>
+                        <a class="input" href="{{ url_for('new_investigation') }}">Add a new investigation.</a>
                         <ul>
-                            <li>Input information about your sequencing project</li>
-                            <li>Do other important and meaningful things</li>
+                            <li>Create a parent investigation that can hold multiple project types</li>
+                            <li></li>
                         </ul>
                     </div>
                 </td>
-                <td></td>
+
+                <td>
+                    <div class="action">
+                        <h3>Add Sequencing Project</h3>
+                        <a class="input" href="{{ url_for('input_sequencing_project') }}">Add a new sequencing project.</a>
+                        <ul>
+                            <li>Create a sequencing project for assigning different lanes from a sequencing run to different investigations.</li>
+                            <li></li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="action">
+                        <h3>Add Flow Cytometry Project</h3>
+                        <a class="input" href="{{ url_for('input_flow_cytometry_project') }}">Add a new flow cytometry project.</a>
+                        <ul>
+                            <li>Create a sequencing project for grouping files from a flow cytometry run to different investigations.</li>
+                            <li></li>
+                        </ul>
+                    </div>
+                </td>
             </tr>
         </table>
     </div>
