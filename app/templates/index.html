@@ -10,28 +10,6 @@
             <tr>
                 <td>
                     <div class="action">
-                        <h3>Input Sequencing Data</h3>
-                        <a class="input" href="{{ url_for('input_sequencing_run') }}">Add a new sequencing run.</a>
-                        <ul>
-                            <li>Registers data for processing using our sequencing pipeline</li>
-                            <li></li>
-                        </ul>
-                    </div>
-                </td>
-
-                <td>
-                    <div class="action">
-                        <h3>Input Flow Cytometry Data</h3>
-                        <a class="input" href="{{ url_for('input_flow_cytometry_run') }}">Add a new flow cytometry run.</a>
-                        <ul>
-                            <li>Registers data for processing using our flow cytometry pipeline</li>
-                            <li></li>
-                        </ul>
-                    </div>
-                </td>
-
-                <td>
-                    <div class="action">
                         <h3>Add an Investigation</h3>
                         <a class="input" href="{{ url_for('new_investigation') }}">Add a new investigation.</a>
                         <ul>
@@ -54,10 +32,32 @@
 
                 <td>
                     <div class="action">
+                        <h3>Input Sequencing Data</h3>
+                        <a class="input" href="{{ url_for('input_sequencing_run') }}">Add a new sequencing run.</a>
+                        <ul>
+                            <li>Registers data for processing using our sequencing pipeline</li>
+                            <li></li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="action">
                         <h3>Add Flow Cytometry Project</h3>
                         <a class="input" href="{{ url_for('input_flow_cytometry_project') }}">Add a new flow cytometry project.</a>
                         <ul>
                             <li>Create a sequencing project for grouping files from a flow cytometry run to different investigations.</li>
+                            <li></li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="action">
+                        <h3>Input Flow Cytometry Data</h3>
+                        <a class="input" href="{{ url_for('input_flow_cytometry_run') }}">Add a new flow cytometry run.</a>
+                        <ul>
+                            <li>Registers data for processing using our flow cytometry pipeline</li>
                             <li></li>
                         </ul>
                     </div>

@@ -74,6 +74,33 @@ def logout():
     return redirect(url_for("index"))
 
 
+@app.route("/investigations", methods=["GET", "POST"])
+@app.route("/investigations/<int:page>", methods=["GET", "POST"])
+@login_required("ANY")
+def investigations(page=1):
+    from app.models import Investigation
+    i = Investigation.query.paginate(page=page, per_page=20)
+    return render_template("investigations.html", page=page, investigations=i)
+
+
+# TODO
+@app.route("/projects", methods=["GET", "POST"])
+@app.route("/projects/<int:page>", methods=["GET", "POST"])
+@login_required("ANY")
+def projects(page=1):
+    flash("Projects view is not yet implemented", "warning")
+    return render_template("empty.html")
+
+
+# TODO
+@app.route("/runs", methods=["GET", "POST"])
+@app.route("/runs/<int:page>", methods=["GET", "POST"])
+@login_required("ANY")
+def runs(page=1):
+    flash("Runs view is not yet implemented", "warning")
+    return render_template("empty.html")
+
+
 @app.route("/new_investigation", methods=["GET", "POST"])
 @login_required("ANY")
 def new_investigation():
@@ -91,25 +118,6 @@ def new_investigation():
             return redirect(url_for("investigations"))
 
         return render_template("new_investigation.html", form=form)
-
-
-@app.route("/investigations", methods=["GET", "POST"])
-@app.route("/investigations/<int:page>", methods=["GET", "POST"])
-@login_required("ANY")
-def investigations(page=1):
-    from app.models import Investigation
-    i = Investigation.query.paginate(page=page, per_page=20)
-    return render_template("investigations.html", page=page, investigations=i)
-
-
-# TODO
-@app.route("/projects", methods=["GET", "POST"])
-@app.route("/projects/<int:page>", methods=["GET", "POST"])
-@login_required("ANY")
-def projects(page=1):
-    from app.models import Investigation
-    flash("Projects view is not yet implemented", "warning")
-    return render_template("empty.html")
 
 
 @app.route("/investigation/<string:name>|<int:iid>", methods=["GET", "POST"])
@@ -194,11 +202,22 @@ def link_project(iid=-1):
 
 
 # TODO
-@app.route("/runs")
+@app.route("/input_sequencing_project")
 @login_required("ANY")
-def runs():
-    flash("Sequencing runs page is still in development", "warning")
+def input_sequencing_project():
+    flash("New sequencing project page is still in development", "warning")
     return redirect(url_for("empty"))
+    # form = forms.AddSequencingProjectForm()
+    # if request.method == "POST":
+        # if form.validate_on_submit():
+            # from werkzeug.utils import secure_filename
+            # filename = secure_filename(form.file_upload.data.filename)
+            # filepath = os.path.join(directory, filename)
+            # form.file_upload.data.save(filepath)
+
+            # from app.models import SequencingProject
+
+    # return render_template("add_document.html", form=form, iid=iid)
 
 
 # TODO
@@ -210,10 +229,10 @@ def input_sequencing_run():
 
 
 # TODO
-@app.route("/input_sequencing_project")
+@app.route("/input_flow_cytometry_project")
 @login_required("ANY")
-def input_sequencing_project():
-    flash("New sequencing project page is still in development", "warning")
+def input_flow_cytometry_project():
+    flash("New sequencing run page is still in development", "warning")
     return redirect(url_for("empty"))
 
 
@@ -221,14 +240,6 @@ def input_sequencing_project():
 @app.route("/input_flow_cytometry_run")
 @login_required("ANY")
 def input_flow_cytometry_run():
-    flash("New sequencing run page is still in development", "warning")
-    return redirect(url_for("empty"))
-
-
-# TODO
-@app.route("/input_flow_cytometry_project")
-@login_required("ANY")
-def input_flow_cytometry_project():
     flash("New sequencing run page is still in development", "warning")
     return redirect(url_for("empty"))
 
