@@ -39,10 +39,10 @@ div.header a {
 
 div.header h1 {
     line-height: 100px;
-    font-size: 40px;
+    font-size: 80px;
     margin-top: 0;
     margin-bottom: 80px;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
 }
 
 @media (min-width:850px) {
@@ -343,9 +343,16 @@ div.content {
 }
 
 table.small_content {
-    max-width: 200px;
+    max-width: 400px;
     margin-left: auto;
     margin-right: auto;
+}
+
+table.small_content input {
+    width: 100%;
+    box-sizing: border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing: border-box;
 }
 
 .internal {

@@ -12,10 +12,10 @@
                             <tr>
                                 <td>{{ form.description.label }}</td>
                                 <td>{{ form.description }}</td>
-                                {% for message in form.description.errors %}
-                                <tr class="flash"><td>{{ message }}</td></tr>
-                                {% endfor %}
                             </tr>
+                            {% for message in form.description.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
                         </table>
                     </td>
                 </tr>
@@ -25,10 +25,10 @@
                             <tr>
                                 <td>{{ form.file_upload.label }}</td>
                                 <td>{{ form.file_upload }}</td>
-                                {% for message in form.file_upload.errors %}
-                                <tr class="flash"><td>{{ message }}</td></tr>
-                                {% endfor %}
                             </tr>
+                            {% for message in form.file_upload.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
                         </table>
                     </td>
                 </tr>

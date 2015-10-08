@@ -3,7 +3,7 @@ __author__ = 'jon'
 from flask import flash
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import FileField, FileRequired
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, DateField, IntegerField, BooleanField
 from wtforms.validators import DataRequired, Email
 from app.models import User
 
@@ -72,3 +72,25 @@ class AddDocumentForm(Form):
     description = StringField("Document Desription", validators=[DataRequired()])
     file_upload = FileField("Upload File", validators=[FileRequired()])
     submit = SubmitField("Upload")
+
+
+class UploadSequencingProjectForm(Form):
+    run_name = StringField("Sequence Run Name", validators=[DataRequired()])
+    file_upload = FileField("Upload File", validators=[FileRequired()])
+    submit = SubmitField("Upload")
+
+
+class NewSequencingProjectForm(Form):
+    sequence_run_name = StringField("Sequence Run Name", validators=[DataRequired()])
+    flow_cell_id = StringField("Flow Cell ID", validators=[DataRequired()])
+    from datetime import datetime
+    start_date = DateField("Start Date", format="%Y-%m-%d", default=datetime.today, validators=[DataRequired()])
+    completion_date = DateField("Completion Date", format="%Y-%m-%d", default=datetime.today, validators=[DataRequired()])
+    genomics_lead = StringField("Genomics Lead", validators=[DataRequired()])
+    data_location = StringField("Data Location", validators=[DataRequired()])
+    index_tag_cycles = IntegerField("Number of Index Tag Cycles", validators=[DataRequired()])
+    read_cycles = IntegerField("Number of Read Cycles", validators=[DataRequired()])
+    paired_end = BooleanField("Paired End")
+    submit = SubmitField("Submit")
+
+

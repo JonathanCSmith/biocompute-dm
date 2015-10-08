@@ -338,9 +338,13 @@ class Project(db.Model):
     __tablename__ = "project"
     id = db.Column(db.Integer, primary_key=True)
     investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
+    run_id = db.Column(db.Integer, db.ForeignKey("run.id"))
     project_name = db.Column(db.String(40))
     type = db.Column(db.String(50))
     __mapper_args__ = {"polymorphic_on": type}
+
+    def __init__(self):
+        return
 
 
 class SequencingProject(Project):
@@ -351,10 +355,37 @@ class SequencingProject(Project):
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.customerID"))
     sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
 
+    def __init__(self):
+        super(Project, self).__init__()
+
 
 class FlowCytometryProject(Project):
     __tablename__ = "flow_cytometry_project"
     id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
     __mapper_args__ = {"polymorphic_identity": "flow_cytometry", "inherit_condition": (id == Project.id)}
 
+    def __init__(self):
+        super(Project, self).__init__()
 
+
+class Run(db.Model):
+    __tablename__ = "run"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(40))
+    start_date = db.Column(db.Date)
+    completion_date = db.Column(db.Date)
+    data_location = db.Column(db.String(500))
+    project = db.RelationshipProperty("Project", backref="run")
+    type = db.Column(db.String(50))
+    __mapper_args__ = {"polymorphic_on": type}
+
+
+class SequencingRun(Run):
+    __tablename__ = "sequencing_run"
+    id = db.Column(db.Integer, db.ForeignKey("run.id"), primary_key=True)
+    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Run.id)}
+    flow_cell_id = db.Column(db.String(40))
+    genomics_lead = db.Column(db.String(40))
+    index_tag_cycles = db.Column(db.Integer)
+    read_cycles = db.Column(db.Integer)
+    paired_end = db.Column(db.Enum("Yes", "No"))

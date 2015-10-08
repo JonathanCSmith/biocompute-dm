@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {% block css %}
-<link rel=stylesheet type="text/css" href="/static/css/investigations.css">
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 {% endblock %}
 
 {% block content %}
     <table id="content">
         <tr>
-            <th>Investigation ID</th>
             <th>Investigation Name</th>
             <th>Investigation Lead</th>
             <th>Customer</th>
@@ -17,7 +16,6 @@
 
         {% for investigation in investigations.items %}
         <tr>
-            <td>{{ investigation.investigation_id }}</td>
             <td><a href="{{ url_for('investigation', name=investigation.investigation_name, iid=investigation.investigation_id) }}">{{ investigation.investigation_name }}</a></td>
             <td>{{ investigation.investigation_lead }}</td>
             <td>Customer</td>

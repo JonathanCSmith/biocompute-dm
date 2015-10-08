@@ -1,10 +1,14 @@
-__author__ = 'jon'
-
 import os
+import flask.ext.excel as excel
+import pyexcel.ext.xls
+import pyexcel.ext.xlsx
+import pyexcel.ext.ods
 
 from app import app, db, forms, login_required
-from flask import render_template, request, flash, redirect, url_for, g, session
-from flask.ext.login import login_user, logout_user, current_user
+from flask import render_template, request, flash, redirect, url_for, g, jsonify
+from flask.ext.login import login_user, logout_user
+
+__author__ = 'jon'
 
 
 @app.route("/")
@@ -81,24 +85,6 @@ def investigations(page=1):
     from app.models import Investigation
     i = Investigation.query.paginate(page=page, per_page=20)
     return render_template("investigations.html", page=page, investigations=i)
-
-
-# TODO
-@app.route("/projects", methods=["GET", "POST"])
-@app.route("/projects/<int:page>", methods=["GET", "POST"])
-@login_required("ANY")
-def projects(page=1):
-    flash("Projects view is not yet implemented", "warning")
-    return render_template("empty.html")
-
-
-# TODO
-@app.route("/runs", methods=["GET", "POST"])
-@app.route("/runs/<int:page>", methods=["GET", "POST"])
-@login_required("ANY")
-def runs(page=1):
-    flash("Runs view is not yet implemented", "warning")
-    return render_template("empty.html")
 
 
 @app.route("/new_investigation", methods=["GET", "POST"])
@@ -190,7 +176,7 @@ def remove_document(iid=-1, did=-1):
     return redirect(url_for("investigation", name=i.investigation_name, iid=iid))
 
 
-# TODO
+# TODO START
 @app.route("/link_project/<int:iid>", methods=["GET", "POST"])
 @login_required("ANY")
 def link_project(iid=-1):
@@ -201,42 +187,110 @@ def link_project(iid=-1):
     return redirect(url_for("index"))
 
 
-# TODO
-@app.route("/input_sequencing_project")
+@app.route("/projects", methods=["GET", "POST"])
+@app.route("/projects/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
-def input_sequencing_project():
-    flash("New sequencing project page is still in development", "warning")
-    return redirect(url_for("empty"))
-    # form = forms.AddSequencingProjectForm()
-    # if request.method == "POST":
-        # if form.validate_on_submit():
-            # from werkzeug.utils import secure_filename
-            # filename = secure_filename(form.file_upload.data.filename)
-            # filepath = os.path.join(directory, filename)
-            # form.file_upload.data.save(filepath)
-
-            # from app.models import SequencingProject
-
-    # return render_template("add_document.html", form=form, iid=iid)
+def projects(page=1):
+    from app.models import Project
+    p = Project.query.paginate(page=page, per_page=20)
+    return render_template("projects.html", page=page, projects=p)
 
 
-# TODO
-@app.route("/input_sequencing_run")
+# TODO START
+@app.route("/runs", methods=["GET", "POST"])
+@app.route("/runs/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
-def input_sequencing_run():
-    flash("New sequencing run page is still in development", "warning")
-    return redirect(url_for("empty"))
+def runs(page=1):
+    from app.models import Run
+    r = Run.query.paginate(page=page, per_page=20)
+    return render_template("runs.html", page=page, runs=r)
 
 
-# TODO
-@app.route("/input_flow_cytometry_project")
+# TODO START
+@app.route("/run/<int:rid>|<string:type>")
+def run(rid=-1, type="none"):
+    from app.models import Run
+
+    if type == "none":
+        r = Run.query.filter_by(id=rid).first()
+        type = r.type
+
+    if type == "sequencing":
+        flash("Run view is not yet implemented", "warning")
+        # TODO: Display sequencing run information
+
+    elif type == "flow_cytometry":
+        flash("Run view is not yet implemented", "warning")
+        # TODO: Display flow cytometry run information
+
+    flash("There was an error whilst navigating", "error")
+    return render_template("index.html")
+
+
+# TODO FINISH
+@app.route("/input_sequencing_run", methods=["GET", "POST"])
+@app.route("/input_sequencing_run/<string:type>", methods=["GET", "POST"])
 @login_required("ANY")
-def input_flow_cytometry_project():
-    flash("New sequencing run page is still in development", "warning")
-    return redirect(url_for("empty"))
+def input_sequencing_run(type="none"):
+    form = forms.UploadSequencingProjectForm(prefix="form")
+    form2 = forms.NewSequencingProjectForm(prefix="form2")
+    if request.method == "GET":
+        return render_template("new_sequencing_project.html", form=form, form2=form2)
+
+    elif type == "download":
+        # TODO: Download the file
+        data = [
+            ["Sequencing Run Name", ""],
+            ["Flow Cell ID", ""],
+            ["Start Date (YYYY-MM-DD format)", ""],
+            ["Completion Date (YYYY-MM-DD format)", ""],
+            ["Genomics Lead", ""],
+            ["Data Location", ""],
+            ["Number of Index Tag Cycles", ""],
+            ["Number of Read Cycles", ""],
+            ["Paired End (y/n)", ""]
+        ]
+        return excel.make_response_from_array(data, "xls")
+
+    elif type == "upload":
+        if form.validate_on_submit():
+            if form.file_upload.has_file():
+                submission = jsonify(request.files['file_upload'])
+                submission
+
+                # TODO: Load file into memory
+                # TODO: Hand off file to db model for parsing
+                # TODO: Save and commit
+
+            flash("Document uploaded successfully", "success")
+            # TODO: Switch to run
+            return redirect(url_for("runs", page=1))
+
+    elif type == "manual":
+        if form2.validate_on_submit():
+            from app.models import SequencingRun
+            s = SequencingRun()
+            s.name = form2.sequence_run_name.data
+            s.start_date = form2.start_date.data
+            s.completion_date = form2.completion_date.data
+            s.data_location = form2.data_location.data
+            s.flow_cell_id = form2.flow_cell_id.data
+            s.genomics_lead = form2.genomics_lead.data
+            s.index_tag_cycles = form2.index_tag_cycles.data
+            s.read_cycles = form2.read_cycles.data
+            s.paired_end = form2.paired_end.data
+
+            db.session.add(s)
+            db.session.commit()
+
+            flash("Sequencing run submitted successfully", "success")
+            return redirect(url_for("run", rid=s.id, type=s.type))
+
+    flash("There was an error whilst navigating.", "error")
+    return render_template("new_sequencing_project.html", form=form, form2=form2)
 
 
-# TODO
+# TODO Start
 @app.route("/input_flow_cytometry_run")
 @login_required("ANY")
 def input_flow_cytometry_run():
