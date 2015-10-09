@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table">
+    <br>
+    <h3>Run details</h3>
+    <table class="content">
+        <tr>
+            <th>Sequence Run Name</th>
+            <th>Genomics Lead</th>
+            <th>Start Date</th>
+            <th>Completion Date</th>
+            <th>Data Location</th>
+            <th>Flow Cell ID</th>
+            <th>Index Tag 1 Cycles</th>
+            <th>Index Tag 2 Cycles</th>
+            <th>Read 1 Cycles</th>
+            <th>Read 2 Cycles</th>
+            <th>Paired End (Yes / No)</th>
+        </tr>
+
+        <tr>
+            <td>{{ run.name }}</td>
+            <td>{{ run.genomics_lead }}</td>
+            <td>{{ run.start_date }}</td>
+            <td>{{ run.completion_date }}</td>
+            <td>{{ run.data_location }}</td>
+            <td>{{ run.flow_cell_id }}</td>
+            <td>{{ run.index_tag_cycles }}</td>
+            <td>{{ run.index_tag_cycles_2 }}</td>
+            <td>{{ run.read_cycles }}</td>
+            <td>{{ run.read_cycles_2 }}</td>
+            <td>{{ run.paired_end }}</td>
+        </tr>
+    </table>
+
+    <br>
+    <br>
+
+    <h3>Project Details</h3>
+    <table class="content2">
+        <tr>
+            <th>Project Name</th>
+            <th>Demultiplexing</th>
+            <th>Fast QC</th>
+            <th>Post Alignment</th>
+            <th>SFTP</th>
+        </tr>
+
+        {% for project in run.project %}
+        <tr>
+            <td>{{ project.name }}</td>
+
+            {% if project.has_demultiplexed %}
+            <td><a href="{{ url_for('demultiplex', rid=run.id, pid=project.id) }}">{{ project.demultiplex_action.status }}</a></td>
+            {% else %}
+            <td><a href="{{ url_for('demultiplex', rid=run.id, pid=project.id) }}">Run Demultiplex</a></td>
+            {% endif %}
+
+            {% if project.has_fastqcd %}
+            <td><a href="{{ url_for('fast_qc', rid=run.id, pid=project.id) }}">{{ project.fast_qc_action.status }}</a></td>
+            {% else %}
+            <td><a href="{{ url_for('fast_qc', rid=run.id, pid=project.id) }}">Run FastQC</a></td>
+            {% endif %}
+
+            {% if project.has_post_aligned %}
+            <td><a href="{{ url_for('post_align', rid=run.id, pid=project.id) }}">{{ project.post_align_status.status }}</a></td>
+            {% else %}
+            <td><a href="{{ url_for('post_align', rid=run.id, pid=project.id) }}">Run Post Alignment</a></td>
+            {% endif %}
+
+            {% if project.has_sftp %}
+            <td><a href="{{ url_for('sftp', rid=run.id, pid=project.id) }}">{{ project.sftp.details }}</a></td>
+            {% else %}
+            <td><a href="{{ url_for('sftp', rid=run.id, pid=project.id) }}">Generate SFTP Link</a></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="{{ url_for('input_sequencing_project', rid=run.id) }}" class="input">Add Project Mappings File</a>
+</div>
+{% endblock %}

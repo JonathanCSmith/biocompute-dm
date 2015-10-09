@@ -16,14 +16,6 @@
                                     {{ form.hidden_tag() }}
                                     <table class="internal">
                                         <tr>
-                                            <td>{{ form.run_name.label }}</td>
-                                            <td>{{ form.run_name }}</td>
-                                        </tr>
-                                        {% for message in form.run_name.errors %}
-                                        <tr class="flash"><td>{{ message }}</td></tr>
-                                        {% endfor %}
-
-                                        <tr>
                                             <td>{{ form.file_upload.label }}</td>
                                             <td>{{ form.file_upload }}</td>
                                         </tr>
@@ -49,7 +41,6 @@
                         <table class="small_content">
                             <tr>
                                 <td>
-
                                     {{ form2.hidden_tag() }}
                                     <table class="internal">
                                         <tr>
@@ -109,10 +100,26 @@
                                         {% endfor %}
 
                                         <tr>
+                                            <td>{{ form2.index_tag_cycles_2.label }}</td>
+                                            <td>{{ form2.index_tag_cycles_2 }}</td>
+                                        </tr>
+                                        {% for message in form2.index_tag_cycles_2.errors %}
+                                        <tr class="flash"><td colspan="2">{{ message }}</td></tr>
+                                        {% endfor %}
+
+                                        <tr>
                                             <td>{{ form2.read_cycles.label }}</td>
                                             <td>{{ form2.read_cycles }}</td>
                                         </tr>
                                         {% for message in form2.read_cycles.errors %}
+                                        <tr class="flash"><td colspan="2">{{ message }}</td></tr>
+                                        {% endfor %}
+
+                                        <tr>
+                                            <td>{{ form2.read_cycles_2.label }}</td>
+                                            <td>{{ form2.read_cycles_2 }}</td>
+                                        </tr>
+                                        {% for message in form2.read_cycles_2.errors %}
                                         <tr class="flash"><td colspan="2">{{ message }}</td></tr>
                                         {% endfor %}
 

@@ -4,21 +4,27 @@
 {% endblock %}
 
 {% block content %}
-<table id="content">
+<table class="content">
     <tr>
         <th>Run Name</th>
         <th>Run Type</th>
+        <th>Start Date</th>
+        <th>Completion Date</th>
+        <th>Data Location</th>
     </tr>
 
     {% for run in runs.items %}
     <tr>
         <td><a href="{{ url_for('run', name=run.name, rid=run.id, type=run.type) }}">{{ run.name }}</a></td>
         <td>{{ run.type }}</td>
+        <td>{{ run.start_date }}</td>
+        <td>{{ run.completion_date }}</td>
+        <td>{{ run.data_location }}</td>
     </tr>
     {% endfor %}
 </table>
 
-<table id="pagenator">
+<table class="pagenator">
     <tr>
         <td></td>
         <td>&lt;&lt;</td>

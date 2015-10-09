@@ -387,5 +387,7 @@ class SequencingRun(Run):
     flow_cell_id = db.Column(db.String(40))
     genomics_lead = db.Column(db.String(40))
     index_tag_cycles = db.Column(db.Integer)
+    index_tag_cycles_2 = db.Column(db.Integer)
     read_cycles = db.Column(db.Integer)
+    read_cycles_2 = db.Column(db.Integer)
     paired_end = db.Column(db.Enum("Yes", "No"))

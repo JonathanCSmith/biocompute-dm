@@ -74,8 +74,7 @@ class AddDocumentForm(Form):
     submit = SubmitField("Upload")
 
 
-class UploadSequencingProjectForm(Form):
-    run_name = StringField("Sequence Run Name", validators=[DataRequired()])
+class UploadSequencingRunForm(Form):
     file_upload = FileField("Upload File", validators=[FileRequired()])
     submit = SubmitField("Upload")
 
@@ -88,9 +87,14 @@ class NewSequencingProjectForm(Form):
     completion_date = DateField("Completion Date", format="%Y-%m-%d", default=datetime.today, validators=[DataRequired()])
     genomics_lead = StringField("Genomics Lead", validators=[DataRequired()])
     data_location = StringField("Data Location", validators=[DataRequired()])
-    index_tag_cycles = IntegerField("Number of Index Tag Cycles", validators=[DataRequired()])
-    read_cycles = IntegerField("Number of Read Cycles", validators=[DataRequired()])
+    index_tag_cycles = IntegerField("Number of Cycles for Index Tag 1", validators=[DataRequired()])
+    index_tag_cycles_2 = IntegerField("Number of Cycles for Index Tag 2", validators=[DataRequired()])
+    read_cycles = IntegerField("Number of Cycles for Read 1", validators=[DataRequired()])
+    read_cycles_2 = IntegerField("Number of Cycles for Read 2", validators=[DataRequired()])
     paired_end = BooleanField("Paired End")
     submit = SubmitField("Submit")
 
 
+class UploadSequencingProjectForm(Form):
+    file_upload = FileField("Upload File", validators=[FileRequired()])
+    submit = SubmitField("Upload")

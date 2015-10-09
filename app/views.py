@@ -1,8 +1,8 @@
 import os
 import flask.ext.excel as excel
+import pyexcel
 import pyexcel.ext.xls
 import pyexcel.ext.xlsx
-import pyexcel.ext.ods
 
 from app import app, db, forms, login_required
 from flask import render_template, request, flash, redirect, url_for, g, jsonify
@@ -113,9 +113,8 @@ def investigation(name="", iid=-1):
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    from app.models import Investigation, Document
+    from app.models import Investigation
     i = Investigation.query.filter_by(investigation_id=iid, investigation_name=name).first()
-
     return render_template("investigation.html", investigation=i, projects=[])
 
 
@@ -196,7 +195,6 @@ def projects(page=1):
     return render_template("projects.html", page=page, projects=p)
 
 
-# TODO START
 @app.route("/runs", methods=["GET", "POST"])
 @app.route("/runs/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
@@ -206,7 +204,7 @@ def runs(page=1):
     return render_template("runs.html", page=page, runs=r)
 
 
-# TODO START
+# TODO FINISH
 @app.route("/run/<int:rid>|<string:type>")
 def run(rid=-1, type="none"):
     from app.models import Run
@@ -216,55 +214,107 @@ def run(rid=-1, type="none"):
         type = r.type
 
     if type == "sequencing":
-        flash("Run view is not yet implemented", "warning")
-        # TODO: Display sequencing run information
+        return redirect(url_for("sequencing_run", rid=rid))
 
     elif type == "flow_cytometry":
         flash("Run view is not yet implemented", "warning")
         # TODO: Display flow cytometry run information
 
     flash("There was an error whilst navigating", "error")
-    return render_template("index.html")
+    return render_template("empty.html")
 
 
-# TODO FINISH
+@app.route("/sequencing_run/<int:rid>")
+def sequencing_run(rid=-1):
+    if rid == -1:
+        flash("Incorrect arguments for query provided.", "error")
+        return redirect(url_for("index"))
+
+    from app.models import SequencingRun
+    s = SequencingRun.query.filter_by(id=rid).first()
+    if s is None:
+        flash("Incorrect arguments for query provided.", "error")
+        return redirect(url_for("index"))
+
+    return render_template("sequencing_run.html", run=s)
+
+
 @app.route("/input_sequencing_run", methods=["GET", "POST"])
 @app.route("/input_sequencing_run/<string:type>", methods=["GET", "POST"])
 @login_required("ANY")
 def input_sequencing_run(type="none"):
-    form = forms.UploadSequencingProjectForm(prefix="form")
+    form = forms.UploadSequencingRunForm(prefix="form")
     form2 = forms.NewSequencingProjectForm(prefix="form2")
     if request.method == "GET":
-        return render_template("new_sequencing_project.html", form=form, form2=form2)
-
-    elif type == "download":
-        # TODO: Download the file
-        data = [
-            ["Sequencing Run Name", ""],
-            ["Flow Cell ID", ""],
-            ["Start Date (YYYY-MM-DD format)", ""],
-            ["Completion Date (YYYY-MM-DD format)", ""],
-            ["Genomics Lead", ""],
-            ["Data Location", ""],
-            ["Number of Index Tag Cycles", ""],
-            ["Number of Read Cycles", ""],
-            ["Paired End (y/n)", ""]
-        ]
-        return excel.make_response_from_array(data, "xls")
+        if type == "download":
+            data = [
+                ["Sequencing Run Name", ""],
+                ["Flow Cell ID", ""],
+                ["Start Date (YYYY-MM-DD format)", ""],
+                ["Completion Date (YYYY-MM-DD format)", ""],
+                ["Genomics Lead", ""],
+                ["Data Location", ""],
+                ["Number of Cycles for Index Tag 1", ""],
+                ["Number of Cycles for Index Tag 2", ""],
+                ["Number of Cycles for Read 1", ""],
+                ["Number of Cycles for Read 2", ""],
+                ["Paired End (Yes/No)", ""]
+            ]
+            response = excel.make_response_from_array(data, "xls")
+            response.headers["Content-Disposition"] = "attachment; filename=template.xls"
+            return response
+        return render_template("input_sequencing_run.html", form=form, form2=form2)
 
     elif type == "upload":
         if form.validate_on_submit():
             if form.file_upload.has_file():
-                submission = jsonify(request.files['file_upload'])
-                submission
+                filename = request.files["form-file_upload"].filename
+                extension = filename.split(".")[1]
 
-                # TODO: Load file into memory
-                # TODO: Hand off file to db model for parsing
-                # TODO: Save and commit
+                sheet = pyexcel.load_from_memory(extension, request.files["form-file_upload"].read())
+                data = dict(pyexcel.to_array(sheet))
 
-            flash("Document uploaded successfully", "success")
-            # TODO: Switch to run
-            return redirect(url_for("runs", page=1))
+                empty = [
+                    ["Sequencing Run Name", ""],
+                    ["Flow Cell ID", ""],
+                    ["Start Date (YYYY-MM-DD format)", ""],
+                    ["Completion Date (YYYY-MM-DD format)", ""],
+                    ["Genomics Lead", ""],
+                    ["Data Location", ""],
+                    ["Number of Cycles for Index Tag 1", ""],
+                    ["Number of Cycles for Index Tag 2", ""],
+                    ["Number of Cycles for Read 1", ""],
+                    ["Number of Cycles for Read 2", ""],
+                    ["Paired End (Yes/No)", ""]
+                ]
+
+                for i in range(0, len(data)):
+                    if empty[i][0] in data:
+                        if data.get(empty[i][0]) == "":
+                            flash("File was missing data for: " + empty[i][0], "error")
+                            return render_template("input_sequencing_run.html", form=form, form2=form2)
+
+                from app.models import SequencingRun
+                s = SequencingRun()
+                s.name = data.get("Sequencing Run Name")
+                s.start_date = data.get("Start Date (YYYY-MM-DD format)")
+                s.completion_date = data.get("Completion Date (YYYY-MM-DD format)")
+                s.data_location = data.get("Data Location")
+                s.flow_cell_id = data.get("Flow Cell ID")
+                s.genomics_lead = data.get("Genomics Lead")
+                s.index_tag_cycles = data.get("Number of Cycles for Index Tag 1")
+                s.index_tag_cycles_2 = data.get("Number of Cycles for Index Tag 2")
+                s.read_cycles = data.get("Number of Cycles for Read 1")
+                s.read_cycles_2 = data.get("Number of Cycles for Read 2")
+                s.paired_end = data.get("Paired End (Yes/No)")
+
+                db.session.add(s)
+                db.session.commit()
+
+                flash("Document uploaded successfully", "success")
+                return redirect(url_for("run", rid=s.id, type=s.type))
+
+        flash("Missing file information", "error")
 
     elif type == "manual":
         if form2.validate_on_submit():
@@ -287,14 +337,73 @@ def input_sequencing_run(type="none"):
             return redirect(url_for("run", rid=s.id, type=s.type))
 
     flash("There was an error whilst navigating.", "error")
-    return render_template("new_sequencing_project.html", form=form, form2=form2)
+    return render_template("input_sequencing_run.html", form=form, form2=form2)
+
+
+@app.route("/input_sequencing_project", methods=["GET", "POST"])
+@login_required("ANY")
+def input_sequencing_project(type=""):
+    form = forms.UploadSequencingProjectForm()
+    if request.method == "GET":
+        if type == "download":
+            data = [
+                [
+                    "Customer Sample ID", "Lane Number", "Sequencing Concentration", "PhiXSpiked", "Spike",
+                    "Spike Ratio", "Index 1 Sequence", "Index 2 Sequence", "Index 1 ID", "Index 1 Kit ID",
+                    "Index 1 Adaptor Sequence", "Index 2 ID", "Index 2 Kit ID", "Index 2 Adaptor Sequence"
+                ]
+            ]
+            response = excel.make_response_from_array(data, "xls")
+            response.headers["Content-Disposition"] = "attachment; filename=template.xls"
+            return response
+        return render_template("input_sequencing_project.html", form=form)
+
+    elif type == "upload":
+        if form.validate_on_submit():
+            if form.file_upload.has_file():
+                filename = request.files["form-file_upload"].filename
+                extension = filename.split(".")[1]
+
+                sheet = pyexcel.load_from_memory(extension, request.files["form-file_upload"].read())
+                raw = pyexcel.to_array(sheet)
+                transposed = zip(*raw)
+                data = dict(transposed)
+
+                empty = [
+                    "Customer Sample ID", "Lane Number", "Sequencing Concentration", "PhiXSpiked", "Spike",
+                    "Spike Ratio", "Index 1 Sequence", "Index 2 Sequence", "Index 1 ID", "Index 1 Kit ID",
+                    "Index 1 Adaptor Sequence", "Index 2 ID", "Index 2 Kit ID", "Index 2 Adaptor Sequence"
+                ]
+
+                for i in range(0, len(data)):
+                    if empty[i] in data:
+                        if data.get(empty[i]) == "":
+                            flash("File was missing data for: " + empty[i][0], "error")
+                            return render_template("input_sequencing_project.html", form=form)
+
+                from app.models import SequencingProject
+                s = SequencingProject()
+                s.project_name = form.name.data
+
+                # TODO Fix this isnt finished
+
+                db.session.add(s)
+                db.session.commit()
+
+                flash("Document uploaded successfully", "success")
+                return redirect(url_for("sequencing_project", rid=s.id, type=s.type))
+
+        flash("Missing file information", "error")
+
+    flash("There was an error whilst navigating.", "error")
+    return render_template("input_sequencing_project.html", form=form)
 
 
 # TODO Start
 @app.route("/input_flow_cytometry_run")
 @login_required("ANY")
 def input_flow_cytometry_run():
-    flash("New sequencing run page is still in development", "warning")
+    flash("New flow cytometry run page is still in development", "warning")
     return redirect(url_for("empty"))
 
 # @login_required to secure

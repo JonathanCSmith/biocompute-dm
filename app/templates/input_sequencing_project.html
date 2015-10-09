@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="input-table clear">
+    <div class="action">
+        <h3>Upload Sequencing Project Information</h3>
+        <a href="{{ url_for('input_sequencing_project', type='download') }}" class="input">Download Sequencing Project Template</a>
+        <br>
+        <br>
+        <form action="{{ url_for('input_sequencing_project', type='upload') }}" method=post enctype="multipart/form-data">
+            <table class="small_content">
+                <tr>
+                    <td>
+                        {{ form.hidden_tag() }}
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.file_upload.label }}</td>
+                                <td>{{ form.file_upload }}</td>
+                            </tr>
+                            {% for message in form.file_upload.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ form.submit }}
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+{% endblock %}

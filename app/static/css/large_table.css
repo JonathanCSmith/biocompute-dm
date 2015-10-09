@@ -1,3 +1,7 @@
+div.content {
+    margin: auto 100px auto 100px;
+}
+
 div.content table {
     width:98%;
     margin-left:1%;
@@ -12,34 +16,61 @@ div.content table {
     text-align: center;
 }
 
-div.content table#content th td {
+div.content table.content th td {
     border: 1px solid transparent;
     transition: all 0.3s;
 }
 
-div.content table#content th {
+div.content table.content th {
     background: #DFDFDF;
     font-weight: bold;
     height: 50px;
 }
 
-div.content table#content tr {
+div.content table.content tr {
     height: 30px;
 }
 
-div.content table#content tr:hover td {
+div.content table.content tr:hover td {
     background: #FAFAFA;
 }
 
-div.content table#content tr:nth-child(even) td {
+div.content table.content tr:nth-child(even) td {
     background: #F1F1F1;
 }
 
-div.content table#content tr:nth-child(odd) td {
+div.content table.content tr:nth-child(odd) td {
     background: #FEFEFE;
 }
 
-table#pagenator {
+div.content table.content2 th td {
+    border: 1px solid transparent;
+    transition: all 0.3s;
+}
+
+div.content table.content2 th {
+    background: #DFDFDF;
+    font-weight: bold;
+    height: 50px;
+}
+
+div.content table.content2 tr {
+    height: 30px;
+}
+
+div.content table.content2 tr:hover td {
+    background: #FAFAFA;
+}
+
+div.content table.content2 tr:nth-child(even) td {
+    background: #F1F1F1;
+}
+
+div.content table.content2 tr:nth-child(odd) td {
+    background: #FEFEFE;
+}
+
+table.pagenator {
     background: transparent;
 
     table-layout: fixed;
