@@ -31,6 +31,7 @@ Then install flask packages using the following commands:
 - flask/bin/pip install flipflop
 - flask/bin/pip install coverage
 - flask/bin/pip install PyMySQL
+- flask/bin/pip install flask-excel
 
 Finally follow database instructions for a "first time setup"
 

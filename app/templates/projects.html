@@ -13,7 +13,7 @@
 
     {% for project in projects.items %}
     <tr>
-        <td><a href="{{ url_for('project', name=project.project_name, iid=project.id) }}">{{ project.project_name }}</a></td>
+        <td><a href="{{ url_for('project', pid=project.id, type=project.type) }}">{{ project.project_name }}</a></td>
         <td>{{ project.type }}</td>
         <td>{{ project.investigation }}</td>
     </tr>
