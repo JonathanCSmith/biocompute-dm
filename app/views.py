@@ -462,21 +462,6 @@ def input_sequencing_project(type="", rid=-1):
                         db.session.add(s)
                         db.session.commit()
 
-                    # Get the lane information - each project can be associated with multiple - note this association
-                    # is currently sequencing specific
-                    from app.models import Lane
-                    l = s.lane.filter_by(number=data.get("Lane Number")[i]).first()
-                    if l is None:
-                        l = Lane(data.get("Lane Number")[i])
-                        l.set_sequencing_concentration(data.get("Sequencing Concentration")[i])
-                        l.phi_x_spiked = data.get("PhiXSpiked")[i]
-                        l.spike = data.get("Spike")[i]
-                        l.spikeRation = data.get("Spike Ratio")[i]
-
-                        db.session.add(l)
-                        s.lane.append(l)
-                        db.session.commit()
-
                     # Get the sample information - each project can be associated with multiple
                     from app.models import SequencingSample, Tag
                     d = s.sample.filter_by(internal_sample_name=data.get("Internal Sample Name")[i]).first()
@@ -490,9 +475,29 @@ def input_sequencing_project(type="", rid=-1):
                         if data.get("Index 2 Tag ID")[i] is not None and data.get("Index 2 Tag ID") is not "":
                             d.index_tag.append(Tag(data.get("Index 2 Tag ID")[i], data.get("Index 2 Tag Kit ID")[i], data.get("Index 2 Tag Sequence")[i], False))
 
-                        db.session.add(d)
                         s.sample.append(d)
+                        db.session.add(d)
                         db.session.commit()
+
+                    # Get the lane information - each project can be associated with multiple - note this association
+                    # is currently sequencing specific. Lane numbers are unique within projects but can be used to tag
+                    # multiple samples
+                    from app.models import Lane
+                    l = s.lane.filter_by(number=data.get("Lane Number")[i]).first()
+                    if l is None:
+                        l = Lane(data.get("Lane Number")[i])
+                        l.set_sequencing_concentration(data.get("Sequencing Concentration")[i])
+                        l.phi_x_spiked = data.get("PhiXSpiked")[i]
+                        l.spike = data.get("Spike")[i]
+                        l.spikeRation = data.get("Spike Ratio")[i]
+
+                        db.session.add(l)
+                        s.lane.append(l)
+                        db.session.commit()
+
+                    d.lane.append(l)
+                    db.session.add(d)
+                    db.session.commit()
 
                     # Get the customer information and associate at the project and sample levels for better linkage
                     from app.models import Customer

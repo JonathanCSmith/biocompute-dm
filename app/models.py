@@ -7,6 +7,7 @@ from app import db
 from flask.ext.login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 # class customerContact(db.Model):
 #     __tablename__ = "customerContact"
 #     contactID = db.Column(INTEGER(10, unsigned=True), primary_key=True, autoincrement=True)
@@ -164,7 +165,8 @@ class Investigation(db.Model):
 
     def validate_investigation_directory(self):
         if self.investigation_directory is None:
-            self.investigation_directory = os.path.join("./link/investigations", str(self.investigation_id) + "_" + self.investigation_name)
+            self.investigation_directory = os.path.join("./link/investigations",
+                                                        str(self.investigation_id) + "_" + self.investigation_name)
 
         try:
             if not os.path.exists(self.investigation_directory):
@@ -236,7 +238,7 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
     run_id = db.Column(db.Integer, db.ForeignKey("run.id"))
-    project_name = db.Column(db.String(40))
+    name = db.Column(db.String(40))
     type = db.Column(db.String(50))
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
     sample = db.RelationshipProperty("SequencingSample", backref="project", lazy="dynamic")
@@ -262,18 +264,19 @@ class Lane(db.Model):
     __tablename__ = "lane"
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sequencing_sample.id"))
     number = db.Column(db.Integer)
     sequencing_concentration = db.Column(db.Float)
     phi_x_spiked = db.Column(db.Float)
     spike = db.Column(db.String(20))
-    spikeRatio = db.Column(db.Float)
+    spike_ratio = db.Column(db.Float)
 
     def __init__(self, number):
         self.number = number
 
     def set_sequencing_concentration(self, value):
         numeric = '0123456789-.'
-        for i,c in enumerate(value):
+        for i, c in enumerate(value):
             if c not in numeric:
                 break
 
@@ -304,6 +307,9 @@ class SequencingSample(Sample):
     __tablename__ = "sequencing_sample"
     id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
     __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Sample.id)}
+
+    lane = db.RelationshipProperty("Lane", backref="sample", uselist=False, lazy="dynamic")
+
     index_tag = db.RelationshipProperty("Tag", backref="sequencing_sample", lazy="dynamic")
     adaptor_sequence = db.Column(db.String(200))
 

@@ -11,14 +11,7 @@ cgi-bin/mypol.te
 /config.py
 /investigations
 /link
-
-# testing files
-/testing_app
-/testing_database
-/testing_db_repository
-/testing_tmp
-/testing_config.py
-/testing_run.py
+/db_repository
 
 # Dia files
 *.autosave
