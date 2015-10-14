@@ -62,7 +62,14 @@
         <div class="nav">
             <div class="container">
                 <ul>
-                    <li>Profile</li>
+                    <li>
+                        {% if g.user.is_authenticated %}
+                        <a href="{{ url_for('index') }}">Profile</a>
+                        {% else %}
+                        <a href="{{ url_for('register') }}">Register</a>
+                        {% endif %}
+                    </li>
+
                     <li>Settings</li>
                     <li>Terms & Conditions</li>
                 </ul>

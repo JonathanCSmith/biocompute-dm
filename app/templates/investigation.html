@@ -31,14 +31,12 @@
                                 <tr>
                                     <th>Project Name</th>
                                     <th>Project Type</th>
-                                    <th>Status</th>
                                 </tr>
 
-                                {% for project in projects %}
+                                {% for project in investigation.project%}
                                 <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                    <td><a href="{{ url_for('project', pid=project.id, type=project.type) }}">{{ project.name }}</a></td>
+                                    <td>{{ project.type }}</td>
                                 </tr>
                                 {% endfor %}
                             </table>

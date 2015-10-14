@@ -138,18 +138,20 @@ class User(UserMixin, db.Model):
 
 
 class Investigation(db.Model):
-    __tablename__ = "investigation"
-    investigation_id = db.Column(db.Integer, primary_key=True)
-    investigation_name = db.Column(db.String(40))
-    investigation_lead = db.Column(db.String(40))
+    investigation_id = db.Column(db.Integer, primary_key=True) # TODO: Fix
+
+    project = db.RelationshipProperty("Project", backref="investigation")
+    document = db.RelationshipProperty("Document", backref="investigation")
+
+    investigation_name = db.Column(db.String(40)) # TODO fix
+    investigation_lead = db.Column(db.String(40)) # TODO fix
     investigation_directory = db.Column(db.String(500))
     description = db.Column(db.TEXT)
     open_date = db.Column(db.Date)
     last_update = db.Column(db.Date)
     status = db.Column(db.String(20))
 
-    project = db.RelationshipProperty("Project", backref="investigation")
-    document = db.RelationshipProperty("Document", backref="investigation")
+    __tablename__ = "investigation"
 
     def __init__(self, investigation_name, investigation_lead):
         self.investigation_name = investigation_name
@@ -192,12 +194,13 @@ class Investigation(db.Model):
 
 
 class Document(db.Model):
-    __tablename__ = "document"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
     location = db.Column(db.String(500))
     investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
+
+    __tablename__ = "document"
 
     def __init__(self, name, description, location):
         self.name = name
@@ -209,21 +212,25 @@ class Document(db.Model):
 
 
 class Run(db.Model):
-    __tablename__ = "run"
     id = db.Column(db.Integer, primary_key=True)
+
+    project = db.RelationshipProperty("Project", backref="run", lazy="dynamic")
+    lane = db.RelationshipProperty("Lane", backref="run", lazy="dynamic")
+    sample = db.RelationshipProperty("Sample", backref="run", lazy="dynamic")
+
     name = db.Column(db.String(40))
     start_date = db.Column(db.Date)
     completion_date = db.Column(db.Date)
     data_location = db.Column(db.String(500))
-    project = db.RelationshipProperty("Project", backref="run", lazy="dynamic")
     type = db.Column(db.String(50))
+
+    __tablename__ = "run"
     __mapper_args__ = {"polymorphic_on": type}
 
 
 class SequencingRun(Run):
-    __tablename__ = "sequencing_run"
     id = db.Column(db.Integer, db.ForeignKey("run.id"), primary_key=True)
-    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Run.id)}
+
     flow_cell_id = db.Column(db.String(40))
     genomics_lead = db.Column(db.String(40))
     index_tag_cycles = db.Column(db.Integer)
@@ -232,16 +239,22 @@ class SequencingRun(Run):
     read_cycles_2 = db.Column(db.Integer)
     paired_end = db.Column(db.Enum("Yes", "No"))
 
+    __tablename__ = "sequencing_run"
+    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Run.id)}
+
 
 class Project(db.Model):
-    __tablename__ = "project"
     id = db.Column(db.Integer, primary_key=True)
+
+    sample = db.RelationshipProperty("SequencingSample", backref="project", lazy="dynamic")
     investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
     run_id = db.Column(db.Integer, db.ForeignKey("run.id"))
+
     name = db.Column(db.String(40))
     type = db.Column(db.String(50))
-    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
-    sample = db.RelationshipProperty("SequencingSample", backref="project", lazy="dynamic")
+
+    __tablename__ = "project"
     __mapper_args__ = {"polymorphic_on": type}
 
     def __init__(self):
@@ -249,27 +262,30 @@ class Project(db.Model):
 
 
 class SequencingProject(Project):
-    __tablename__ = "sequencing_project"
     id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
-    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Project.id)}
-    sequencing_run = db.Column(db.Integer, db.ForeignKey("sequencing_run.id"))
+
     sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
-    lane = db.RelationshipProperty("Lane", backref="project", lazy="dynamic")
+
+    __tablename__ = "sequencing_project"
+    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Project.id)}
 
     def __init__(self):
         super(Project, self).__init__()
 
 
 class Lane(db.Model):
-    __tablename__ = "lane"
     id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
+
+    project_id = db.Column(db.Integer, db.ForeignKey("run.id"))
     sample_id = db.Column(db.Integer, db.ForeignKey("sequencing_sample.id"))
+
     number = db.Column(db.Integer)
     sequencing_concentration = db.Column(db.Float)
     phi_x_spiked = db.Column(db.Float)
     spike = db.Column(db.String(20))
     spike_ratio = db.Column(db.Float)
+
+    __tablename__ = "lane"
 
     def __init__(self, number):
         self.number = number
@@ -293,35 +309,41 @@ class Lane(db.Model):
 
 
 class Sample(db.Model):
-    __tablename__ = "sample"
     id = db.Column(db.Integer, primary_key=True)
+
+    run_id = db.Column(db.Integer, db.ForeignKey("run.id"))
+    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
+
     internal_sample_name = db.Column(db.String(50))
     customer_sample_name = db.Column(db.String(50))
     type = db.Column(db.String(50))
-    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
-    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
+
+    __tablename__ = "sample"
     __mapper_args__ = {"polymorphic_on": type}
 
 
 class SequencingSample(Sample):
-    __tablename__ = "sequencing_sample"
     id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
-    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Sample.id)}
 
-    lane = db.RelationshipProperty("Lane", backref="sample", uselist=False, lazy="dynamic")
-
+    lane = db.RelationshipProperty("Lane", backref="sample", uselist=False, lazy=False)
     index_tag = db.RelationshipProperty("Tag", backref="sequencing_sample", lazy="dynamic")
+
     adaptor_sequence = db.Column(db.String(200))
+
+    __tablename__ = "sequencing_sample"
+    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Sample.id)}
 
 
 class Tag(db.Model):
-    __tablename__ = "tag"
     id = db.Column(db.Integer, primary_key=True)
     sample_id = db.Column(db.Integer, db.ForeignKey("sequencing_sample.id"))
     is_first_index = db.Column(db.Boolean)
     tag_id = db.Column(db.String(40))
     tag_library = db.Column(db.String(40))
     tag_sequence = db.Column(db.String(40))
+
+    __tablename__ = "tag"
 
     def __init__(self, id, kit, seq, is1):
         self.is_first_index = is1
@@ -331,19 +353,22 @@ class Tag(db.Model):
 
 
 class Customer(db.Model):
-    __tablename__ = "customer"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    name = db.Column(db.String(100), unique=True)
+
     project = db.RelationshipProperty("Project", backref="customer", lazy="dynamic")
     sample = db.RelationshipProperty("Sample", backref="customer", lazy="dynamic")
+
+    __tablename__ = "customer"
 
     def __init__(self, name):
         self.name = name
 
 
 class FlowCytometryProject(Project):
-    __tablename__ = "flow_cytometry_project"
     id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
+
+    __tablename__ = "flow_cytometry_project"
     __mapper_args__ = {"polymorphic_identity": "flow_cytometry", "inherit_condition": (id == Project.id)}
 
     def __init__(self):
