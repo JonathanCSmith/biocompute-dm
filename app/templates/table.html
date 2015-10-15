@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table">
+    <div class="action exempt">
+        {% block table %}
+        {% endblock %}
+        <br>
+        <table class="pagenator">
+            <tr>
+                <td></td>
+                <td>&lt;&lt;</td>
+                <td>
+                    {% if obs.has_prev %}
+                    <a href="{{ url_for('runs', page=posts.prev_num) }}">Previous</a>
+                    {% else %}
+                    Previous
+                    {% endif %}
+                </td>
+                <td>|</td>
+                <td>
+                    {% if obs.has_next %}
+                    <a href="{{ url_for('runs', page=posts.next_num) }}">Next</a>
+                    {% else %}
+                    Next
+                    {% endif %}
+                </td>
+                <td>&gt;&gt;</td>
+                <td></td>
+            </tr>
+        </table>
+        <br>
+    </div>
+</div>
+{% endblock %}

@@ -4,55 +4,83 @@
 {% endblock %}
 
 {% block content %}
-    {% if user.is_authenticated %}
-    <div class="input-table clear">
-        <table>
-            <tr>
-                <td>
-                    <div class="action">
-                        <h3>Add an Investigation</h3>
-                        <a class="input" href="{{ url_for('new_investigation') }}">Add a new investigation.</a>
-                        <ul>
-                            <li>Create a parent investigation that can hold multiple project types</li>
-                            <li></li>
-                        </ul>
-                    </div>
-                </td>
+<div class="input-table clear">
+    <table>
+        <tr>
+            <th>
+                <div class="action exempt">
+                    <h3>Welcome to BioCIS - A Genomics and Translational Bioinformatics Core Collaboration</h3>
+                    {% if user.is_authenticated %}
+                    <ul>
+                        <li>Find out about BioCIS below:</li>
+                    </ul>
+                    {% else %}
+                    <a class="input" href="{{ url_for('login') }}">Login</a>
+                    <ul>
+                        <li>Find out more information below or login for more actions</li>
+                    </ul>
+                    {% endif %}
+                </div>
+            </th>
+        </tr>
+        <tr>
+    </table>
 
-                <td>
-                    <div class="action">
-                        <h3>Add a Sequencing Run</h3>
-                        <a class="input" href="{{ url_for('input_sequencing_run') }}">Add a new sequencing run.</a>
-                        <ul>
-                            <li>Add your sequencing run to the system to begin the deconvolution process.</li>
-                            <li></li>
-                        </ul>
-                    </div>
-                </td>
+    <table>
+        <tr>
+            <td>
+                <div class="action">
+                    <h3>Processing Your Data</h3>
+                    <a class="input" href="{{ url_for('data_processing') }}">Find out more!</a>
+                    <ul>
+                        <li>Centralized Data Processing</li>
+                        <li>Highly Configurable and Customizable Pipelines</li>
+                        <li>Growing Process Pipelines</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
 
-                <td>
-                    <div class="action">
-                        <h3>Add a Flow Cytometry Run</h3>
-                        <a class="input" href="{{ url_for('input_flow_cytometry_run') }}">Add a new flow cytometry run.</a>
-                        <ul>
-                            <li>Add your flow cytometry run to the system to begin the deconvolution process.</li>
-                            <li></li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <script src="/static/js/index.js"></script>
-    {% else %}
-    <div class="input-table clear">
-        <table>
-            <tr>
-                <th>
-                    <h3>Welcome to BioCIS - Please login to perform actions.</h3>
-                </th>
-            </tr>
-        </table>
-    </div>
-    {% endif %}
+            <td>
+                <div class="action">
+                    <h3>Management of your Data</h3>
+                    <a class="input" href="{{ url_for('data_management') }}">Find out more!</a>
+                    <ul>
+                        <li>Powerful Information Grouping</li>
+                        <li>Customer Tagging and Access Permissions</li>
+                        <li>Built in Data Transfer Protocols</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Monitoring of your Data</h3>
+                    <a class="input" href="{{ url_for('data_monitoring') }}">Find out more!</a>
+                    <ul>
+                        <li>Data Status Updates</li>
+                        <li>Progress Tracking</li>
+                        <li>TODO Mailing Updates</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Assessment of your Data</h3>
+                    <a class="input" href="{{ url_for('data_analysis') }}">Find out more!</a>
+                    <ul>
+                        <li>Detailed Reporting</li>
+                        <li>Detailed Quality Control Information</li>
+                        <li>Data Sharing</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<script src="/static/js/index.js"></script>
 {% endblock %}

@@ -14,12 +14,40 @@ __author__ = 'jon'
 @app.route("/")
 @app.route("/index")
 def index():
+    if g.user is not None and g.user.is_authenticated:
+        return redirect(url_for("activity"))
+
     return render_template("index.html", title="Home", user=g.user)
+
+
+@app.route("/about")
+def about():
+    return render_template("index.html", title="About", user=g.user)
+
+
+@app.route("/data_processing")
+def data_processing():
+    return render_template("index.html", title="Data Processing", user=g.user)
+
+
+@app.route("/data_management")
+def data_management():
+    return render_template("index.html", title="Data Management", user=g.user)
+
+
+@app.route("/data_monitoring")
+def data_monitoring():
+    return render_template("index.html", title="Data Monitoring", user=g.user)
+
+
+@app.route("/data_analysis")
+def data_analysis():
+    return render_template("index.html", title="Data Assessment", user=g.user)
 
 
 @app.route("/empty")
 def empty():
-    return render_template("empty.html")
+    return render_template("empty.html", title="Down the rabbit hole!")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -29,11 +57,11 @@ def register():
 
     form = forms.RegisterForm()
     if request.method == "GET":
-        return render_template("register.html", form=form)
+        return render_template("register.html", title="Sign Up!", form=form)
 
     else:
         if not form.validate():
-            return render_template("register.html", form=form)
+            return render_template("register.html", title="Sign Up!", form=form)
 
         else:
             from app.models import User
@@ -55,11 +83,11 @@ def login():
 
     form = forms.LoginForm()
     if request.method == "GET":
-        return render_template("login.html", form=form)
+        return render_template("login.html", title="Login", form=form)
 
     else:
         if not form.validate_on_submit():
-            return render_template("login.html", form=form)
+            return render_template("login.html", title="Login", form=form)
 
         else:
             from app.models import User
@@ -78,13 +106,24 @@ def logout():
     return redirect(url_for("index"))
 
 
+@app.route("/terms_and_conditions")
+def terms_and_conditions():
+    return render_template("terms_and_conditions.html", title="Terms and Conditions")
+
+
+@app.route("/activity")
+@login_required("ANY")
+def activity():
+    return render_template("activity.html", title="Interaction Panel")
+
+
 @app.route("/investigations", methods=["GET", "POST"])
 @app.route("/investigations/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
 def investigations(page=1):
     from app.models import Investigation
     i = Investigation.query.paginate(page=page, per_page=20)
-    return render_template("investigations.html", page=page, investigations=i)
+    return render_template("investigations.html", title="My Investigations", page=page, obs=i)
 
 
 @app.route("/new_investigation", methods=["GET", "POST"])
@@ -92,7 +131,7 @@ def investigations(page=1):
 def new_investigation():
     form = forms.NewInvestigationForm()
     if request.method == "GET":
-        return render_template("new_investigation.html", form=form)
+        return render_template("new_investigation.html", title="New Investigation", form=form)
 
     else:
         if form.validate_on_submit():
@@ -103,7 +142,7 @@ def new_investigation():
             flash("Investigation successfully registered!", "info")
             return redirect(url_for("investigations"))
 
-        return render_template("new_investigation.html", form=form)
+        return render_template("new_investigation.html", title="New Investigation", form=form)
 
 
 @app.route("/investigation/<string:name>|<int:iid>", methods=["GET", "POST"])
@@ -115,7 +154,7 @@ def investigation(name="", iid=-1):
 
     from app.models import Investigation
     i = Investigation.query.filter_by(investigation_id=iid, investigation_name=name).first()
-    return render_template("investigation.html", investigation=i)
+    return render_template("investigation.html", title="My Investigations", investigation=i)
 
 
 @app.route("/add_document/<int:iid>", methods=["GET", "POST"])
@@ -152,7 +191,7 @@ def add_document(iid=-1):
             flash("Document uploaded successfully", "success")
             return redirect(url_for("investigation", name=i.investigation_name, iid=iid))
 
-    return render_template("add_document.html", form=form, iid=iid)
+    return render_template("add_document.html", title="Add Document", form=form, iid=iid)
 
 
 @app.route("/remove_document/<int:iid>|<int:did>")
@@ -186,11 +225,11 @@ def link_project(iid=-1, page=1, pid=-1):
         i = Investigation.query.filter_by(investigation_id=iid).first()
         p = Project.query.filter_by(id=pid).first()
         i.project.append(p)
-        return render_template("investigation.html", investigation=i)
+        return render_template("investigation.html", title="My Investigations", investigation=i)
 
     from app.models import Project
     p = Project.query.paginate(page=page, per_page=20)
-    return render_template("link_project.html", page=page, projects=p, iid=iid)
+    return render_template("link_project.html", title="Link Project", page=page, projects=p, iid=iid)
 
 
 @app.route("/runs", methods=["GET", "POST"])
@@ -199,7 +238,7 @@ def link_project(iid=-1, page=1, pid=-1):
 def runs(page=1):
     from app.models import Run
     r = Run.query.paginate(page=page, per_page=20)
-    return render_template("runs.html", page=page, runs=r)
+    return render_template("runs.html", title="My Runs", page=page, obs=r)
 
 
 # TODO FINISH
@@ -220,7 +259,7 @@ def run(rid=-1, type="none"):
         # TODO: Display flow cytometry run information
 
     flash("There was an error whilst navigating", "error")
-    return render_template("empty.html")
+    return render_template("empty.html", title="Down the rabbit hole!")
 
 
 @app.route("/sequencing_run/<int:rid>")
@@ -236,7 +275,7 @@ def sequencing_run(rid=-1):
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    return render_template("sequencing_run.html", run=s)
+    return render_template("sequencing_run.html", title="Sequencing Run", run=s)
 
 
 @app.route("/input_sequencing_run", methods=["GET", "POST"])
@@ -263,7 +302,7 @@ def input_sequencing_run(type="none"):
             response = excel.make_response_from_array(data, "xls")
             response.headers["Content-Disposition"] = "attachment; filename=template.xls"
             return response
-        return render_template("input_sequencing_run.html", form=form, form2=form2)
+        return render_template("input_sequencing_run.html", title="Input Sequencing Run", form=form, form2=form2)
 
     elif type == "upload":
         if form.validate_on_submit():
@@ -292,7 +331,8 @@ def input_sequencing_run(type="none"):
                     if empty[i][0] in data:
                         if data.get(empty[i][0]) == "":
                             flash("File was missing data for: " + empty[i][0], "error")
-                            return render_template("input_sequencing_run.html", form=form, form2=form2)
+                            return render_template("input_sequencing_run.html", title="Input Sequencing Run", form=form,
+                                                   form2=form2)
 
                 from app.models import SequencingRun
                 s = SequencingRun()
@@ -337,7 +377,7 @@ def input_sequencing_run(type="none"):
             return redirect(url_for("run", rid=s.id, type=s.type))
 
     flash("There was an error whilst navigating.", "error")
-    return render_template("input_sequencing_run.html", form=form, form2=form2)
+    return render_template("input_sequencing_run.html", title="Input Sequencing Run", form=form, form2=form2)
 
 
 @app.route("/projects", methods=["GET", "POST"])
@@ -346,7 +386,7 @@ def input_sequencing_run(type="none"):
 def projects(page=1):
     from app.models import Project
     p = Project.query.paginate(page=page, per_page=20)
-    return render_template("projects.html", page=page, projects=p)
+    return render_template("projects.html", title="My Projects", page=page, obs=p)
 
 
 # TODO FINISH
@@ -367,7 +407,7 @@ def project(pid=-1, type="none"):
         # TODO: Display flow cytometry run information
 
     flash("There was an error whilst navigating", "error")
-    return render_template("empty.html")
+    return render_template("empty.html", title="Down the rabbit hole!")
 
 
 @app.route("/sequencing_project/<int:pid>")
@@ -375,7 +415,7 @@ def project(pid=-1, type="none"):
 def sequencing_project(pid=-1):
     from app.models import SequencingProject
     p = SequencingProject.query.filter_by(id=pid).first()
-    return render_template("sequencing_project.html", project=p)
+    return render_template("sequencing_project.html", title="Sequencing Project", project=p)
 
 
 @app.route("/input_sequencing_project/<int:rid>|<string:type>", methods=["GET", "POST"])
@@ -399,7 +439,7 @@ def input_sequencing_project(type="", rid=-1):
             response = excel.make_response_from_array(data, "xls")
             response.headers["Content-Disposition"] = "attachment; filename=template.xls"
             return response
-        return render_template("input_sequencing_project.html", form=form, rid=rid)
+        return render_template("input_sequencing_project.html", title="Input Sequencing Project", form=form, rid=rid)
 
     elif type == "upload":
         if form.validate_on_submit():
@@ -439,20 +479,22 @@ def input_sequencing_project(type="", rid=-1):
                     if empty[i][1] == "y":
                         if data.get(empty[i][0]) is None:
                             flash("Could not identify the column: " + empty[i][0] + " in your submission", "error")
-                            return render_template("input_sequencing_project.html", form=form, rid=rid)
+                            return render_template("input_sequencing_project.html", title="Input Sequencing Project",
+                                                   form=form, rid=rid)
 
                         for j in range(0, len(data.get("Internal Sample Name"))):
                             if data.get(empty[i][0])[j] is None or data.get(empty[i][0])[j] == "":
                                 flash("File was missing data for: " + empty[i][0] + " on line: " + str(
                                     j) + " this information is considered essential.", "error")
-                                return render_template("input_sequencing_project.html", form=form, rid=rid)
+                                return render_template("input_sequencing_project.html",
+                                                       title="Input Sequencing Project", form=form, rid=rid)
 
                 # Get or create the run
                 from app.models import SequencingRun
                 r = SequencingRun.query.filter_by(id=rid).first()
                 if r is None:
                     flash("Could not identify the parent run", "error")
-                    return render_template("input_sequencing_project", form=form)
+                    return render_template("input_sequencing_project", title="Input Sequencing Project", form=form)
 
                 for i in range(0, len(data.get("Internal Sample Name"))):
 
@@ -483,7 +525,8 @@ def input_sequencing_project(type="", rid=-1):
                             " run. The internal sample name in question was: " +
                             str(data.get("Internal Sample Name")[i]) +
                             " please re-submit when corrections are made", "error")
-                        return render_template("input_sequencing_project.html", form=form, rid=rid)
+                        return render_template("input_sequencing_project.html", title="Input Sequencing Project",
+                                               form=form, rid=rid)
 
                     r.sample.append(s)
 
@@ -543,7 +586,7 @@ def input_sequencing_project(type="", rid=-1):
         flash("Missing file information", "error")
 
     flash("There was an error whilst navigating.", "error")
-    return render_template("input_sequencing_project.html", form=form, rid=rid)
+    return render_template("input_sequencing_project.html", title="Input Sequencing Project", form=form, rid=rid)
 
 
 # TODO Start
@@ -559,7 +602,7 @@ def input_flow_cytometry_run():
 @login_required("ANY")
 def demultiplex(rid=-1, pid=-1):
     flash("demultiplex information is not yet implemented", "warning")
-    return redirect(url_for("index"))
+    return redirect(url_for("sequencing_run", rid=rid))
 
 
 @app.route("/fast_qc/<int:rid>|<int:pid>", methods=["GET", "POST"])
@@ -567,7 +610,7 @@ def demultiplex(rid=-1, pid=-1):
 @login_required("ANY")
 def fast_qc(rid=-1, pid=-1):
     flash("fast qc information is not yet implemented", "warning")
-    return redirect(url_for("index"))
+    return redirect(url_for("sequencing_run", rid=rid))
 
 
 @app.route("/post_align/<int:rid>|<int:pid>", methods=["GET", "POST"])
@@ -575,7 +618,7 @@ def fast_qc(rid=-1, pid=-1):
 @login_required("ANY")
 def post_align(rid=-1, pid=-1):
     flash("post align is not yet implemented", "warning")
-    return redirect(url_for("index"))
+    return redirect(url_for("sequencing_run", rid=rid))
 
 
 @app.route("/sftp/<int:rid>|<int:pid>", methods=["GET", "POST"])
@@ -583,6 +626,6 @@ def post_align(rid=-1, pid=-1):
 @login_required("ANY")
 def sftp(rid=-1, pid=-1):
     flash("sftp not yet implemented", "warning")
-    return redirect(url_for("index"))
+    return redirect(url_for("sequencing_run", rid=rid))
 
 # @login_required to secure

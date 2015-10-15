@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block css %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <table>
+        <tr>
+            <td>
+                <div class="action">
+                    <h3>Add an Investigation</h3>
+                    <a class="input" href="{{ url_for('new_investigation') }}">Add a new investigation.</a>
+                    <ul>
+                        <li>Create a parent investigation that can hold multiple project types</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Add a Sequencing Run</h3>
+                    <a class="input" href="{{ url_for('input_sequencing_run') }}">Add a new sequencing run.</a>
+                    <ul>
+                        <li>Add your sequencing run to the system to begin the deconvolution process.</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Add a Flow Cytometry Run</h3>
+                    <a class="input" href="{{ url_for('input_flow_cytometry_run') }}">Add a new flow cytometry run.</a>
+                    <ul>
+                        <li>Add your flow cytometry run to the system to begin the deconvolution process.</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<script src="/static/js/index.js"></script>
+{% endblock %}

@@ -1,53 +1,26 @@
-{% extends "base.html" %}
-{% block css %}
-<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
-{% endblock %}
+{% extends "table.html" %}
+{% block table %}
+<h3>Investigations</h3>
+<table class="content">
+    <tr>
+        <th>Investigation Name</th>
+        <th>Investigation Lead</th>
+        <th>Customer</th>
+        <th>Start Date</th>
+        <th>Last Updated</th>
+        <th>Status</th>
+    </tr>
 
-{% block content %}
-    <table class="content">
-        <tr>
-            <th>Investigation Name</th>
-            <th>Investigation Lead</th>
-            <th>Customer</th>
-            <th>Start Date</th>
-            <th>Last Updated</th>
-            <th>Status</th>
-        </tr>
-
-        {% for investigation in investigations.items %}
-        <tr>
-            <td><a href="{{ url_for('investigation', name=investigation.investigation_name, iid=investigation.investigation_id) }}">{{ investigation.investigation_name }}</a></td>
-            <td>{{ investigation.investigation_lead }}</td>
-            <td>Customer</td>
-            <td>{{ investigation.open_date }}</td>
-            <td>{{ investigation.last_update }}</td>
-            <td>{{ investigation.status }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <table class="pagenator">
-        <tr>
-            <td></td>
-            <td>&lt;&lt;</td>
-            <td>
-                {% if investigations.has_prev %}
-                <a href="{{ url_for('investigations', page=posts.prev_num) }}">Previous</a>
-                {% else %}
-                Previous
-                {% endif %}
-            </td>
-            <td>|</td>
-            <td>
-                {% if investigations.has_next %}
-                <a href="{{ url_for('investigations', page=posts.next_num) }}">Next</a>
-                {% else %}
-                Next
-                {% endif %}
-            </td>
-            <td>&gt;&gt;</td>
-            <td></td>
-        </tr>
-    </table>
+    {% for investigation in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('investigation', name=investigation.investigation_name, iid=investigation.investigation_id) }}">{{ investigation.investigation_name }}</a></td>
+        <td>{{ investigation.investigation_lead }}</td>
+        <td>Customer</td>
+        <td>{{ investigation.open_date }}</td>
+        <td>{{ investigation.last_update }}</td>
+        <td>{{ investigation.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
 {% endblock %}

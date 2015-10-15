@@ -1,9 +1,6 @@
-{% extends "base.html" %}
-{% block css %}
-<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
-{% endblock %}
-
-{% block content %}
+{% extends "table.html" %}
+{% block table %}
+<h3>Runs</h3>
 <table class="content">
     <tr>
         <th>Run Name</th>
@@ -13,7 +10,7 @@
         <th>Data Location</th>
     </tr>
 
-    {% for run in runs.items %}
+    {% for run in obs.items %}
     <tr>
         <td><a href="{{ url_for('run', name=run.name, rid=run.id, type=run.type) }}">{{ run.name }}</a></td>
         <td>{{ run.type }}</td>
@@ -23,29 +20,4 @@
     </tr>
     {% endfor %}
 </table>
-
-<table class="pagenator">
-    <tr>
-        <td></td>
-        <td>&lt;&lt;</td>
-        <td>
-            {% if runs.has_prev %}
-            <a href="{{ url_for('runs', page=posts.prev_num) }}">Previous</a>
-            {% else %}
-            Previous
-            {% endif %}
-        </td>
-        <td>|</td>
-        <td>
-            {% if runs.has_next %}
-            <a href="{{ url_for('runs', page=posts.next_num) }}">Next</a>
-            {% else %}
-            Next
-            {% endif %}
-        </td>
-        <td>&gt;&gt;</td>
-        <td></td>
-    </tr>
-</table>
-
 {% endblock %}

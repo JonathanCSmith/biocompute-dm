@@ -5,7 +5,9 @@
 $(document).ready(function() {
     $(".action").hover(
         function(event) {
-            $(this).toggleClass("hovering");
+            if (!$(this).hasClass("exempt")) {
+                $(this).toggleClass("hovering");
+            }
         }
     );
 });
