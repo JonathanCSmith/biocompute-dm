@@ -176,7 +176,7 @@ body ul .no_bullets {
 }
 
 div.content {
-    margin-bottom: 80px;
+    padding-bottom: 80px;
     margin-left: 3%;
     margin-right: 3%;
 }
@@ -353,6 +353,14 @@ div.content {
 
 div.spacer {
     height: 1%;
+}
+
+div.content div.action table td {
+    vertical-align: middle;
+}
+
+div.content div.action.exempt table td {
+    vertical-align: middle;
 }
 
 table.small_content {

@@ -17,32 +17,32 @@ def index():
     if g.user is not None and g.user.is_authenticated:
         return redirect(url_for("activity"))
 
-    return render_template("index.html", title="Home", user=g.user)
+    return render_template("welcome.html", title="Home", user=g.user)
 
 
 @app.route("/about")
 def about():
-    return render_template("index.html", title="About", user=g.user)
+    return render_template("welcome.html", title="About", user=g.user)
 
 
 @app.route("/data_processing")
 def data_processing():
-    return render_template("index.html", title="Data Processing", user=g.user)
+    return render_template("data_processing.html", title="Data Processing", user=g.user)
 
 
 @app.route("/data_management")
 def data_management():
-    return render_template("index.html", title="Data Management", user=g.user)
+    return render_template("data_management.html", title="Data Management", user=g.user)
 
 
 @app.route("/data_monitoring")
 def data_monitoring():
-    return render_template("index.html", title="Data Monitoring", user=g.user)
+    return render_template("data_monitoring.html", title="Data Monitoring", user=g.user)
 
 
 @app.route("/data_analysis")
 def data_analysis():
-    return render_template("index.html", title="Data Assessment", user=g.user)
+    return render_template("data_analysis.html", title="Data Assessment", user=g.user)
 
 
 @app.route("/empty")

@@ -5,48 +5,52 @@
 
 {% block content %}
 <div class="input-table">
+    <div class="action exempt">
+        <h3>Project Details</h3>
+        <table class="content">
+            <tr>
+                <th>Sequence Project Name</th>
+                <th>Customer</th>
+            </tr>
+
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.customer.name }}</td>
+            </tr>
+        </table>
+        <br>
+    </div>
+
     <br>
-    <h3>Project Details</h3>
-    <table class="content">
-        <tr>
-            <th>Sequence Project Name</th>
-            <th>Customer</th>
-        </tr>
 
-        <tr>
-            <td>{{ project.name }}</td>
-            <td>{{ project.customer.name }}</td>
-        </tr>
-    </table>
+    <div class="action exempt">
+        <h3>Sample Details</h3>
+        <table class="content2">
+            <tr>
+                <th>Internal Sample Name</th>
+                <th>Customer Sample Name</th>
+                <th>Adaptor Sequence</th>
+                <th>Lane Number</th>
+                <th>Sequencing Concentration (pmol)</th>
+                <th>Phi X Spiked</th>
+                <th>Spike</th>
+                <th>Spike Ratio</th>
+            </tr>
 
-    <br>
-    <br>
-
-    <h3>Sample Details</h3>
-    <table class="content2">
-        <tr>
-            <th>Internal Sample Name</th>
-            <th>Customer Sample Name</th>
-            <th>Adaptor Sequence</th>
-            <th>Lane Number</th>
-            <th>Sequencing Concentration (pmol)</th>
-            <th>Phi X Spiked</th>
-            <th>Spike</th>
-            <th>Spike Ratio</th>
-        </tr>
-
-        {% for sample in project.sample %}
-        <tr>
-            <td>{{ sample.internal_sample_name }}</td>
-            <td>{{ sample.customer_sample_name }}</td>
-            <td>{{ sample.adaptor_sequence }}</td>
-            <td>{{ sample.lane.number }}</td>
-            <td>{{ sample.lane.sequencing_concentration }}</td>
-            <td>{{ sample.lane.phi_x_spiked }}</td>
-            <td>{{ sample.lane.spike }}</td>
-            <td>{{ sample.lane.spike_ratio }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+            {% for sample in project.sample %}
+            <tr>
+                <td>{{ sample.internal_sample_name }}</td>
+                <td>{{ sample.customer_sample_name }}</td>
+                <td>{{ sample.adaptor_sequence }}</td>
+                <td>{{ sample.lane.number }}</td>
+                <td>{{ sample.lane.sequencing_concentration }}</td>
+                <td>{{ sample.lane.phi_x_spiked }}</td>
+                <td>{{ sample.lane.spike }}</td>
+                <td>{{ sample.lane.spike_ratio }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+    </div>
 </div>
 {% endblock %}
