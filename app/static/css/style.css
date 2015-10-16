@@ -376,6 +376,10 @@ table.small_content input {
     -moz-box-sizing: border-box;
 }
 
+div.content img {
+    width: 100%;
+}
+
 .internal {
     table-layout: fixed;
 }

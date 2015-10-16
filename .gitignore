@@ -1,11 +1,12 @@
 *.pyc
 *.swp
 *~
-cgi-bin/mypol.pp
-cgi-bin/mypol.te
+to_remove/cgi-bin/mypol.pp
+to_remove/cgi-bin/mypol.te
 
 # development files
 /.idea
+/biocis.iml
 /flask
 /html
 /config.py

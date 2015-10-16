@@ -167,7 +167,9 @@ class Investigation(db.Model):
 
     def validate_investigation_directory(self):
         if self.investigation_directory is None:
-            self.investigation_directory = os.path.join("./link/investigations",
+            path = os.path.join(os.getcwd(), "link")
+            path = os.path.join(path, "investigations")
+            self.investigation_directory = os.path.join(path,
                                                         str(self.investigation_id) + "_" + self.investigation_name)
 
         try:
