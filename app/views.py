@@ -1,11 +1,11 @@
 import os
+
 import flask.ext.excel as excel
 import pyexcel
 import pyexcel.ext.xls
 import pyexcel.ext.xlsx
-
 from app import app, db, forms, login_required
-from flask import render_template, request, flash, redirect, url_for, g, jsonify
+from flask import render_template, request, flash, redirect, url_for, g
 from flask.ext.login import login_user, logout_user
 
 __author__ = 'jon'
@@ -601,8 +601,20 @@ def input_flow_cytometry_run():
 @app.route("/demultiplex", methods=["GET", "POST"])
 @login_required("ANY")
 def demultiplex(rid=-1, pid=-1):
-    flash("demultiplex information is not yet implemented", "warning")
-    return redirect(url_for("sequencing_run", rid=rid))
+    # Escape if our inputs are invalid
+    if rid == -1 or pid == -1:
+        flash("Invalid properties provided for demultiplexing!", "warning")
+        return redirect(url_for("index"))
+
+    # Get the project in question - this page is specific to sequencing so we can query it directly
+    from app.models import SequencingProject
+    p = SequencingProject.query.filter_by(id=pid).first()
+    if p is None:
+        flash("Invalid properties provided for demultiplexing!", "warning")
+        return redirect(url_for("index"))
+
+    # Render the demultiplex screen
+    return render_template("demultiplex", pid=pid)
 
 
 @app.route("/fast_qc/<int:rid>|<int:pid>", methods=["GET", "POST"])

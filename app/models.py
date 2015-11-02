@@ -80,19 +80,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 #         return "<Linker %r %r %r>" % (self.type, self.parentID, self.childID)
 
 
-# class demultiplex(db.Model):
-#     __tablename__ = "demultiplexer"
-#     demuxID = db.Column(INTEGER(10, unsigned=True), primary_key=True, autoincrement=True)
-#     # seqProjectID = db.Column(INTEGER(10, unsigned=True), db.ForeignKey("seqProject.seqProjectID"))
-#     status = db.Column(ENUM("setup", "running", "complete", "finished"))
-#     location = db.Column(db.String(500))
-#     sourceLocation = db.Column(db.String(500))
-#     JID = db.Column(INTEGER(10, unsigned=True))
-#
-#     def __repr__(self):
-#         return "<Demultiplexing %r %r %r>" % (self.demuxID, self.seqProjectID, self.status)
-
-
 # class fastQC(db.Model):
 #     __tablename__ = "fastQC"
 #     fastQCID = db.Column(INTEGER(10, unsigned=True), primary_key=True, autoincrement=True)
@@ -248,7 +235,7 @@ class SequencingRun(Run):
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    sample = db.RelationshipProperty("SequencingSample", backref="project", lazy="dynamic")
+    sample = db.RelationshipProperty("Sample", backref="project", lazy="dynamic")
     investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
     run_id = db.Column(db.Integer, db.ForeignKey("run.id"))
@@ -266,6 +253,8 @@ class Project(db.Model):
 class SequencingProject(Project):
     id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
 
+    demultiplex_id = db.RelationshipProperty("Demultiplex", backref="project", lazy="dynamic", uselist=False)
+
     sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
 
     __tablename__ = "sequencing_project"
@@ -273,6 +262,27 @@ class SequencingProject(Project):
 
     def __init__(self):
         super(Project, self).__init__()
+
+
+class Demultiplex(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    project_id = db.Column(db.Integer, db.ForeignKey("SequencingProject.id"))
+    argument = db.RelationshipProperty("DemultiplexArgument", backref="demultiplex", lazy="dynamic")
+
+    type = db.Column(db.Enum("BCL2", "Cassava"))
+    status = db.Column(db.Enum("Setting Up", "Running", "Run Complete", "Finished"))
+    location = db.Column(db.String(500))
+    job_id = db.Column(db.Integer)
+
+
+class DemultiplexArgument(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    parent_id = db.Column(db.Integer, db.ForeignKey(Demultiplex.id))
+
+    key = db.Column(db.String(60))
+    value = db.Column(db.String(60))
 
 
 class Lane(db.Model):

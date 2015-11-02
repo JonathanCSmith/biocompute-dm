@@ -4,61 +4,61 @@
 {% endblock %}
 
 {% block content %}
-    <div class="input-table clear">
-        <div class="action">
-            <h3>Sign up</h3>
-            <form action="{{ url_for('register') }}" method=post>
-                <table class="small_content">
-                    <tr>
-                        <td>
-                            {{ form.hidden_tag() }}
-                            <table class="internal">
-                                <tr>
-                                    <td>{{ form.username.label }}</td>
-                                    <td>{{ form.username }}</td>
-                                </tr>
-                                {% for message in form.username.errors %}
-                                <tr class="flash"><td>{{ message }}</td></tr>
-                                {% endfor %}
-                            </table>
+<div class="input-table clear">
+    <div class="action">
+        <h3>Sign up</h3>
+        <form action="{{ url_for('register') }}" method=post>
+            <table class="small_content">
+                <tr>
+                    <td>
+                        {{ form.hidden_tag() }}
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.username.label }}</td>
+                                <td>{{ form.username }}</td>
+                            </tr>
+                            {% for message in form.username.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
+                        </table>
 
 
 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table class="internal">
-                                <tr>
-                                    <td>{{ form.password.label }}</td>
-                                    <td>{{ form.password }}</td>
-                                </tr>
-                                {% for message in form.password.errors %}
-                                <tr class="flash"><td>{{ message }}</td></tr>
-                                {% endfor %}
-                            </table>
-                        </td>
+                    </td>
                 </tr>
-                    <tr>
-                        <td>
-                            <table class="internal">
-                                <tr>
-                                    <td>{{ form.email.label }}</td>
-                                    <td>{{ form.email }}</td>
-                                </tr>
-                                {% for message in form.email.errors %}
-                                <tr class="flash"><td>{{ message }}</td></tr>
-                                {% endfor %}
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {{ form.submit }}
-                        </td>
-                    </tr>
-                </table>
-            </form>
-        </div>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.password.label }}</td>
+                                <td>{{ form.password }}</td>
+                            </tr>
+                            {% for message in form.password.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+            </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.email.label }}</td>
+                                <td>{{ form.email }}</td>
+                            </tr>
+                            {% for message in form.email.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ form.submit }}
+                    </td>
+                </tr>
+            </table>
+        </form>
     </div>
+</div>
 {% endblock %}
