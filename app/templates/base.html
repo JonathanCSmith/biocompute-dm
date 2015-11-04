@@ -14,29 +14,32 @@
 
 </head>
 <body>
-    <div class="header">
-        <div class="container">
-            <h1>Bio<i>CIS</i></h1>
-            <p>Genomics & Bioinformatics Data Management System</p>
-        </div>
-        <div class="nav">
-            <div class="container">
-                <ul>
-                    <li><a href="{{ url_for('index') }}">Home</a></li>
-                    <li><a href="{{ url_for('investigations') }}">My Investigations</a></li>
-                    <li><a href="{{ url_for('projects') }}">My Projects</a></li>
-                    <li><a href="{{ url_for('runs') }} ">My Runs</a></li>
-                    <li>
-                        {% if g.user.is_authenticated %}
-                        <a href="{{ url_for('logout') }}">Logout</a>
-                        {% else %}
-                        <a href="{{ url_for('login') }}">Login</a>
-                        {% endif %}
-                    </li>
-                </ul>
+    <header>
+        <div class="header">
+            <div class="bigtop container">
+                <h1>Bio<i>CIS</i></h1>
+                <p>Genomics & Bioinformatics Data Management System</p>
+            </div>
+
+            <div class="nav">
+                <div class="container">
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('investigations') }}">My Investigations</a></li>
+                        <li><a href="{{ url_for('projects') }}">My Projects</a></li>
+                        <li><a href="{{ url_for('runs') }} ">My Runs</a></li>
+                        <li>
+                            {% if g.user.is_authenticated %}
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                            {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
+    </header>
 
     <div class="messages">
     {% with messages = get_flashed_messages(with_categories=True) %}

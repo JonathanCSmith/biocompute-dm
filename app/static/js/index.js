@@ -2,15 +2,51 @@
  * Created by jon on 02/10/15.
  */
 
-$(document).ready(function() {
-    $(".action").hover(
-        function(event) {
-            if (!$(this).hasClass("exempt")) {
-                $(this).toggleClass("hovering");
-            }
-        }
-    );
+function addScrollListeners() {
+    var didScroll;
+    var lastScrollTop = 0;
+    var deltaScroll = 5;
+    var bigtop = $(".bigtop");
+    var height = bigtop.outerHeight();
 
+    $(window).scroll(function(event) {
+        didScroll = true;
+    });
+
+    setInterval(function() {
+        if (didScroll) {
+            hasScrolled();
+            didScroll = false;
+        }
+    }, 250);
+
+    function hasScrolled() {
+        var tp = $(this).scrollTop();
+
+        if (Math.abs(lastScrollTop - tp) <= deltaScroll) {
+            return;
+        }
+
+        if (tp > lastScrollTop && tp > height && bigtop.is(":visible")) {
+            bigtop.hide();
+            window.scrollTo(0, 0);
+            lastScrollTop = 0;
+            return;
+        }
+
+        else if (tp - lastScrollTop < 0 && tp < 20) {
+            bigtop.show();
+        }
+
+        //else if (tp + $(window).height() < $(document).height()) {
+        //    $(".bigtop").show();
+        //}
+
+        lastScrollTop = tp;
+    }
+}
+
+function addStickyLocation() {
     // clean up arguments (allows prefix to be optional - a bit of overkill)
     var prefix = window.location.host.split('_').join('');
     var pre_name;
@@ -52,4 +88,20 @@ $(document).ready(function() {
         window.scrollTo(name[1], name[2]);
         window.name = name.slice(3).join('_');
     }
+}
+
+function addHovers() {
+    $(".action").hover(
+        function(event) {
+            if (!$(this).hasClass("exempt")) {
+                $(this).toggleClass("hovering");
+            }
+        }
+    );
+}
+
+$(document).ready(function() {
+    addScrollListeners();
+    addStickyLocation();
+    addHovers();
 });

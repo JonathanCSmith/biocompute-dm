@@ -253,7 +253,7 @@ class Project(db.Model):
 class SequencingProject(Project):
     id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
 
-    demultiplex_id = db.RelationshipProperty("Demultiplex", backref="project", lazy="dynamic", uselist=False)
+    demultiplex_id = db.RelationshipProperty("Demultiplex", backref="project", lazy=False, uselist=False)
 
     sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
 
@@ -267,7 +267,7 @@ class SequencingProject(Project):
 class Demultiplex(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    project_id = db.Column(db.Integer, db.ForeignKey("SequencingProject.id"))
+    project_id = db.Column(db.Integer, db.ForeignKey("sequencing_project.id"))
     argument = db.RelationshipProperty("DemultiplexArgument", backref="demultiplex", lazy="dynamic")
 
     type = db.Column(db.Enum("BCL2", "Cassava"))
