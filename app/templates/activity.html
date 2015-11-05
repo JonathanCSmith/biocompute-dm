@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block css %}
+{% block custom_css %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 {% endblock %}
 
@@ -42,5 +42,8 @@
         </tr>
     </table>
 </div>
+{% endblock %}
+
+{% block custom_scripts %}
 <script src="/static/js/index.js"></script>
 {% endblock %}

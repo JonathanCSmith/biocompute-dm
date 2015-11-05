@@ -1,7 +1,9 @@
-# biocis
+# BioCIS
 ## Repository for the BioCIS pipeline
 
-### Installation
+#### Note, this branch is still very WIP. Viability of the software on a commit by commit basis cannot be guaranteed!
+
+### Ubuntu Installation (mileage will vary for other OSs)
 Setup a machine with a Lamp(y) stack
 
 Clone branch containing the flask builds onto the machine to /var/www (or equivalent)
@@ -32,13 +34,24 @@ Then install flask packages using the following commands:
 - flask/bin/pip install coverage
 - flask/bin/pip install PyMySQL
 - flask/bin/pip install flask-excel
+- flask/bin/pip install flask-pyexcel-xls
+- flask/bin/pip install flask-pyexcel-xlsx
+- flask/bin/pip install flask-bootstrap
 
-Finally follow database instructions for a "first time setup"
+Modify your apache2 installation according to the best practices listed below
+
+Follow database instructions for a "first time setup"
+
+Tweak the workspace by creating a folder called link that contains symlinks to the following:
+- 'Investigations' <- Where you wish to house your investigation associated information
+
+Finally, create your own config.py by copying the template and inserting the relevant information.
+This information will need to contain the name of your database as well as user information with rights to access said database.
 
 ### Database Commands
-
 #### New database schema
 
+- Create a mysql db
 - run db_create.py
 - run db_migrate.py
 
@@ -50,6 +63,10 @@ Finally follow database instructions for a "first time setup"
 #### Schema update
 
 - run db_migrate.py
+
+### Apache2 Best Practices
+
+- TODO: Bug me if you need this asap
 
 
 

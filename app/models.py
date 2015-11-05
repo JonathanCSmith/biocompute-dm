@@ -303,19 +303,23 @@ class Lane(db.Model):
         self.number = number
 
     def set_sequencing_concentration(self, value):
-        numeric = '0123456789-.'
-        for i, c in enumerate(value):
-            if c not in numeric:
-                break
+        if isinstance(value, str):
+            numeric = '0123456789-.'
+            for i, c in enumerate(value):
+                if c not in numeric:
+                    break
 
-        number = float(value[:i])
-        unit = value[i:].lstrip().lower()
+            number = float(value[:i])
+            unit = value[i:].lstrip().lower()
 
-        if unit == "um" or unit == "umol":
-            number *= 1000000
+            if unit == "um" or unit == "umol":
+                number *= 1000000
 
-        elif unit == "nm" or unit == "nmol":
-            number *= 1000
+            elif unit == "nm" or unit == "nmol":
+                number *= 1000
+
+        else:
+            number = value
 
         self.sequencing_concentration = number
 

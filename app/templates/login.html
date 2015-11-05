@@ -1,51 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="input-table clear">
-        <div class="action">
-            <h3>Login</h3>
-            <form action="{{ url_for('login') }}" method=post>
-                <table class="small_content">
-                    <tr>
-                        <td>
-                            {{ form.hidden_tag() }}
-                            <table class="internal">
-                                <tr>
-                                    <td>{{ form.username.label }}</td>
-                                    <td>{{ form.username }}</td>
-                                </tr>
-                                {% for message in form.username.errors %}
-                                <tr class="flash"><td>{{ message }}</td></tr>
-                                {% endfor %}
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table class="internal">
-                                <tr>
-                                    <td>{{ form.password.label }}</td>
-                                    <td>{{ form.password }}</td>
-                                </tr>
-                                {% for message in form.password.errors %}
-                                <tr class="flash"><td>{{ message }}</td></tr>
-                                {% endfor %}
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {{ form.submit }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('register') }}">Register Now</a>
-                        </td>
-                    </tr>
-                </table>
-            </form>
-        </div>
+<div class="input-table clear">
+    <div class="action">
+        <h3>Login</h3>
+        <form action="{{ url_for('login') }}" method=post>
+            <table class="small_content">
+                <tr>
+                    <td>
+                        {{ form.hidden_tag() }}
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.username.label }}</td>
+                                <td>{{ form.username }}</td>
+                            </tr>
+                            {% for message in form.username.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.password.label }}</td>
+                                <td>{{ form.password }}</td>
+                            </tr>
+                            {% for message in form.password.errors %}
+                            <tr class="flash"><td>{{ message }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ form.submit }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="{{ url_for('register') }}">Register Now</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
     </div>
-
-
+</div>
 {% endblock %}

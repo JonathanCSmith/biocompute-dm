@@ -87,6 +87,7 @@ def login():
 
     else:
         if not form.validate_on_submit():
+            flash_errors(form)
             return render_template("login.html", title="Login", form=form)
 
         else:
@@ -429,7 +430,9 @@ def input_sequencing_project(type="", rid=-1):
             data = [
                 [
                     "Internal Sample Name", "Customer Sample Name", "Sequencing Project Group Name", "Sequencing Type",
-                    "Customer Name", "Lane Number", "Sequencing Concentration", "PhiXSpiked", "Spike", "Spike Ratio",
+                    "Customer Name", "Lane Number",
+                    "Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)",
+                    "PhiXSpiked", "Spike", "Spike Ratio",
                     "Index 1 Tag Sequence", "Index 2 Tag Sequence", "Index 1 Tag ID", "Index 2 Tag ID",
                     "Index 1 Tag Kit ID", "Index 2 Tag Kit ID", "Adaptor Sequence"
                 ]
@@ -461,7 +464,9 @@ def input_sequencing_project(type="", rid=-1):
                     ["Sequencing Type", "y"],
                     ["Customer Name", "y"],
                     ["Lane Number", "y"],
-                    ["Sequencing Concentration", "y"],
+                    [
+                        "Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)",
+                        "y"],
                     ["PhiXSpiked", "y"],
                     ["Spike", "y"],
                     ["Spike Ratio", "y"],
@@ -563,7 +568,7 @@ def input_sequencing_project(type="", rid=-1):
                     l = r.lane.filter_by(number=data.get("Lane Number")[i]).first()
                     if l is None:
                         l = Lane(data.get("Lane Number")[i])
-                        l.set_sequencing_concentration(data.get("Sequencing Concentration")[i])
+                        l.set_sequencing_concentration(data.get("Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)")[i])
                         l.phi_x_spiked = data.get("PhiXSpiked")[i]
                         l.spike = data.get("Spike")[i]
                         l.spikeRation = data.get("Spike Ratio")[i]
@@ -640,4 +645,15 @@ def sftp(rid=-1, pid=-1):
     flash("sftp not yet implemented", "warning")
     return redirect(url_for("sequencing_run", rid=rid))
 
+
 # @login_required to secure
+
+
+# Function to display errors
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ), "error")

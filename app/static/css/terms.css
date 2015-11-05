@@ -1,14 +1,18 @@
+main {
+    height: 100%;
+}
+
 div.content {
-    height: calc(96% - (320px + 80px));
-    min-height: 300px;
+    height: 100%;
+    /*min-height: 300px;*/
     margin-bottom: 0;
 }
 
-@media (min-width:850px) {
-    .div.content {
-        height: calc(90% - (320px + 80px));
-    }
-}
+/*@media (min-width:850px) {*/
+    /*.div.content {*/
+        /*height: calc(90% - (320px + 80px));*/
+    /*}*/
+/*}*/
 
 div.input-table {
     height: 100%;

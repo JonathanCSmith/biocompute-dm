@@ -23,6 +23,11 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 login_manager.login_message_category = "warning"
 
+# Flask bootstrap setup
+from flask_bootstrap import Bootstrap
+
+Bootstrap(app)
+
 
 @app.before_request
 def before_request():
@@ -56,7 +61,6 @@ def login_required(role="ANY"):
         return decorated_view
 
     return wrapper
-
 
 # Setup the actual website
 from app import views, models
