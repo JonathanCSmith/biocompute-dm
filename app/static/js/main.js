@@ -11,14 +11,14 @@ function addNavigationBarBehaviours() {
         }
     });
 
-    /* Add the neccessary padding between nav and content to not skip content */
+    /* Add the necessary padding between nav and content to not skip content */
     navigationBar.on("affix.bs.affix", function() {
-        $("main").css("paddingTop", "75px");
+        $("main").css("paddingTop", "50px");
     });
 
     /* Remove the padding when it becomes unnecessary */
     navigationBar.on("affix-top.bs.affix", function() {
-        $("main").css("padding-Top", "0");
+        $("main").css("paddingTop", "0");
     });
 }
 

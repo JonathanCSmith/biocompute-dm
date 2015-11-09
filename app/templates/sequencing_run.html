@@ -45,39 +45,47 @@
         <table class="content2">
             <tr>
                 <th>Project Name</th>
-                <th>Demultiplexing</th>
-                <th>Fast QC</th>
-                <th>Post Alignment</th>
-                <th>SFTP</th>
+                <th>Selected Pipeline</th>
+                <th>Current Stage</th>
+                <th>Current Status</th>
+                <th>Add Client</th>
             </tr>
 
             {% for project in run.project %}
             <tr>
                 <td><a href="{{ url_for('project', pid=project.id, type=project.type) }}">{{ project.name }}</a></td>
 
-                {% if project.has_demultiplexed %}
-                <td><a href="{{ url_for('demultiplex', rid=run.id, pid=project.id) }}">{{ project.demultiplex_action.status }}</a></td>
+                {% if project.pipeline %}
+                <td><a href="{{ url_for('pipeline', pipeline=project.pipeline) }}">{{ project.pipeline.name }}</a></td>
                 {% else %}
-                <td><a href="{{ url_for('demultiplex', rid=run.id, pid=project.id) }}">Run Demultiplex</a></td>
+                <td>We will select pipelines here</td>
                 {% endif %}
 
-                {% if project.has_fastqcd %}
-                <td><a href="{{ url_for('fast_qc', rid=run.id, pid=project.id) }}">{{ project.fast_qc_action.status }}</a></td>
-                {% else %}
-                <td><a href="{{ url_for('fast_qc', rid=run.id, pid=project.id) }}">Run FastQC</a></td>
+                {% if project.pipeline_status %}
+                {% if project.pipeline_status.current_stage %}
+                <td>{{ project.pipeline_status.current_stage.name }}</td>
+
+                {% if project.pipeline_status.current_stage.status == "input_required" %}
+                <td><img src="#"></td>
+                {% elif project.pipeline_status.current_stage.status == "running" %}
+                <td><img src="#"></td>
+                {% elif project.pipeline_status.current_stage.status == "finished" %}
+                <td><img src="#"></td>
+                {% elif project.pipeline_status.current_stage.status == "stopped" %}
+                <td><img src="#"></td>
                 {% endif %}
 
-                {% if project.has_post_aligned %}
-                <td><a href="{{ url_for('post_align', rid=run.id, pid=project.id) }}">{{ project.post_align_status.status }}</a></td>
                 {% else %}
-                <td><a href="{{ url_for('post_align', rid=run.id, pid=project.id) }}">Run Post Alignment</a></td>
+                <td><a href="{{ url_for('pipeline_start', project=project) }}">Start</a></td>
+                <td>No stage queued</td>
+                {% endif %}
+                {% else %}
+                <td>Drop down list of pipelines here.</td>
+                <td>No pipeline selected</td>
                 {% endif %}
 
-                {% if project.has_sftp %}
-                <td><a href="{{ url_for('sftp', rid=run.id, pid=project.id) }}">{{ project.sftp.details }}</a></td>
-                {% else %}
-                <td><a href="{{ url_for('sftp', rid=run.id, pid=project.id) }}">Generate SFTP Link</a></td>
-                {% endif %}
+                <td><a href="{{ url_for('link_project_to_client', pid=project.id) }}">Link To Client</a></td>
+
             </tr>
             {% endfor %}
         </table>

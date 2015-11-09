@@ -94,22 +94,50 @@ from werkzeug.security import generate_password_hash, check_password_hash
 #         return "<FastQC %r %r %r>" % (self.seqProjectID, self.sampleID, self.status)
 
 
-# User table, currently unused
-class User(UserMixin, db.Model):
+# Permissions wrapper & environment contextualiser
+class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True)
-    email = db.Column(db.String(120), unique=True)
-    _password = db.Column(db.String(160))
-    role = db.Column(db.String(20), default="User")
+
+    name = db.Column(db.String(50), unique=True, nullable=False)
+
+    member = db.RelationshipProperty("Person", backref="group", lazy="dynamic")
+    investigation = db.RelationshipProperty("Investigation", backref="group", lazy="dynamic")
+    document = db.RelationshipProperty("Document", backref="group", lazy="dynamic")
+    submission = db.RelationshipProperty("Submission", backref="group", lazy="dynamic")
+    project = db.RelationshipProperty("Project", backref="group", lazy="dynamic")
+    sample = db.RelationshipProperty("Sample", backref="group", lazy="dynamic")
 
     def __repr__(self):
-        return "<User %r %r>" % (self.username, self.email)
+        return "<Group %r>" % self.name
 
-    def __init__(self, username, password, email):
-        self.username = username.title()
-        self.email = email.lower()
-        self.set_password(password)
-        self.role = False
+    def add_administrator(self, person):
+        person.set_user_role("Group Admin")
+        self.member.append(person)
+
+    def remove_administrator(self, person):
+        person.set_user_role("Member")
+
+
+# Person table, abstract parent for individuals interacting with the software
+class Person(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    login_name = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    role = db.Column(db.String(20), default="Member")
+    type = db.Column(db.String(50), nullable=False)
+
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.member_id"))
+
+    investigation = db.RelationshipProperty("Investigation", backref="submitter", lazy="dynamic")
+    document = db.RelationshipProperty("Document", backref="submitter", lazy="dynamic")
+
+    _password = db.Column(db.String(160))
+
+    __mapper_args__ = {"polymorphic_on": type}
+
+    def __repr__(self):
+        return "<Member %r %r>" % (self.username, self.email)
 
     def set_password(self, password):
         self._password = generate_password_hash(password)
@@ -117,36 +145,63 @@ class User(UserMixin, db.Model):
     def check_password(self, pwd):
         return check_password_hash(self._password, pwd)
 
-    def get_user_role(self):
+    def get_role(self):
         return self.role
 
-    def set_user_role(self, role):
+    def set_role(self, role):
         self.role = role
 
 
+# User - someone who can submit jobs to the software
+class User(Person):
+    id = db.Column(db.Integer, db.ForeignKey("person.id"), primary_key=True)
+
+    submission = db.RelationshipProperty("Submission", backref="submitter", lazy="dynamic")
+    project = db.RelationshipProperty("Project", backref="submitter", lazy="dynamic")
+
+    __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Person.id)}
+
+    def __repr__(self):
+        return "<User %r %r>" % (self.username, self.email)
+
+
+# Customer table
+class Customer(Person):
+    id = db.Column(db.Integer, db.ForeignKey("person.id"), primary_key=True)
+
+    __mapper_args__ = {"polymorphic_identity": "Customer", "inherit_condition": (id == Person.id)}
+
+    def __repr__(self):
+        return "<Customer %r %r>" % (self.username, self.email)
+
+
 class Investigation(db.Model):
-    investigation_id = db.Column(db.Integer, primary_key=True) # TODO: Fix
+    id = db.Column(db.Integer, primary_key=True)
 
-    project = db.RelationshipProperty("Project", backref="investigation")
-    document = db.RelationshipProperty("Document", backref="investigation")
-
-    investigation_name = db.Column(db.String(40)) # TODO fix
-    investigation_lead = db.Column(db.String(40)) # TODO fix
-    investigation_directory = db.Column(db.String(500))
+    name = db.Column(db.String(40), nullable=False)
+    leader = db.Column(db.String(40), nullable=False)
+    directory = db.Column(db.String(500), nullable=False)
     description = db.Column(db.TEXT)
-    open_date = db.Column(db.Date)
-    last_update = db.Column(db.Date)
+    open_date = db.Column(db.Date, nullable=False)
+    last_update = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20))
 
-    __tablename__ = "investigation"
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
+
+    project = db.RelationshipProperty("Project", backref="investigation", lazy="dynamic")
+    document = db.RelationshipProperty("Document", backref="investigation", lazy="dynamic")
 
     def __init__(self, investigation_name, investigation_lead):
-        self.investigation_name = investigation_name
-        self.investigation_lead = investigation_lead
+        self.name = investigation_name
+        self.lead = investigation_lead
 
         today = datetime.date.today()
         self.open_date = str(today.year) + "-" + str(today.month) + "-" + str(today.day)
         self.last_update = self.open_date
+
+    def __repr__(self):
+        return "<Investigation %r %r>" % (self.investigation_name, self.investigation_lead)
 
     def set_last_update(self):
         today = datetime.date.today()
@@ -156,109 +211,212 @@ class Investigation(db.Model):
         if self.investigation_directory is None:
             path = os.path.join(os.getcwd(), "link")
             path = os.path.join(path, "investigations")
-            self.investigation_directory = os.path.join(path,
-                                                        str(self.investigation_id) + "_" + self.investigation_name)
+            self.directory = os.path.join(path, str(self.id) + "_" + self.name)
 
+        # Create our investigation directory if necessary
         try:
             if not os.path.exists(self.investigation_directory):
                 os.mkdir(self.investigation_directory)
                 os.chmod(self.investigation_directory, 0o777)
+
         except OSError as e:
             print(e)
             return None
 
-        docs = os.path.join(self.investigation_directory, "documents")
+        # Create our documents directory if necessary
+        docs = os.path.join(self.directory, "documents")
         try:
             if not os.path.exists(docs):
                 os.mkdir(docs)
                 os.chmod(docs, 0o777)
+
         except OSError as e:
             print(e)
             return None
 
         return docs
 
-    def __repr__(self):
-        return "<Investigation %r %r>" % (self.investigation_name, self.investigation_lead)
-
 
 class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
+
+    name = db.Column(db.String(50), nullable=False)
+    location = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text)
-    location = db.Column(db.String(500))
-    investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
 
-    __tablename__ = "document"
-
-    def __init__(self, name, description, location):
-        self.name = name
-        self.description = description
-        self.location = location
+    investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"), nullable=False)
+    submitter_id = db.Column(db.Integer, db.ForeignKey("Submitter.id"), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
 
     def __repr__(self):
         return "<Investigation document %r>" % (self.docDescription)
 
 
-class Run(db.Model):
+class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    project = db.RelationshipProperty("Project", backref="run", lazy="dynamic")
-    lane = db.RelationshipProperty("Lane", backref="run", lazy="dynamic")
-    sample = db.RelationshipProperty("Sample", backref="run", lazy="dynamic")
-
-    name = db.Column(db.String(40))
-    start_date = db.Column(db.Date)
-    completion_date = db.Column(db.Date)
-    data_location = db.Column(db.String(500))
+    name = db.Column(db.String(40), nullable=False)
+    leader = db.Column(db.String(40), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    completion_date = db.Column(db.Date, nullable=False)
+    data_location = db.Column(db.String(500), nullable=False)
     type = db.Column(db.String(50))
 
-    __tablename__ = "run"
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
+
+    project = db.RelationshipProperty("Project", backref="run", lazy="dynamic")
+    sample = db.RelationshipProperty("Sample", backref="run", lazy="dynamic")
+
     __mapper_args__ = {"polymorphic_on": type}
 
+    def __repr__(self):
+        return "<Data Submission: %s from %s to %s by %s>" % (self.name, self.start_date, self.completion_date, self.leader)
 
-class SequencingRun(Run):
-    id = db.Column(db.Integer, db.ForeignKey("run.id"), primary_key=True)
 
-    flow_cell_id = db.Column(db.String(40))
-    genomics_lead = db.Column(db.String(40))
-    index_tag_cycles = db.Column(db.Integer)
-    index_tag_cycles_2 = db.Column(db.Integer)
-    read_cycles = db.Column(db.Integer)
-    read_cycles_2 = db.Column(db.Integer)
-    paired_end = db.Column(db.Enum("Yes", "No"))
+class SequencingSubmission(Submission):
+    id = db.Column(db.Integer, db.ForeignKey("Run.id"), primary_key=True)
 
-    __tablename__ = "sequencing_run"
-    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Run.id)}
+    flow_cell_id = db.Column(db.String(40), nullable=False)
+    index_tag_cycles = db.Column(db.Integer, nullable=False)
+    index_tag_cycles_2 = db.Column(db.Integer, nullable=False)
+    read_cycles = db.Column(db.Integer, nullable=False)
+    read_cycles_2 = db.Column(db.Integer, nullable=False)
+    paired_end = db.Column(db.Enum("Yes", "No"), nullable=False)
+
+    __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == Submission.id)}
+
+    def __repr__(self):
+        return "<Sequencing Submission for flowcell %s: %s from %s to %s by %s>" % (self.flow_cell_id, self.name, self.start_date, self.completion_date, self.leader)
 
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
+    name = db.Column(db.String(40), nullable=False)
+    type = db.Column(db.String(50), nullable=False)
+
+    submission_id = db.Column(db.Integer, db.ForeignKey("Submission.id"), nullable=False)
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
+    investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"))
+
     sample = db.RelationshipProperty("Sample", backref="project", lazy="dynamic")
-    investigation_id = db.Column(db.Integer, db.ForeignKey("investigation.investigation_id"))
-    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
-    run_id = db.Column(db.Integer, db.ForeignKey("run.id"))
 
-    name = db.Column(db.String(40))
-    type = db.Column(db.String(50))
-
-    __tablename__ = "project"
     __mapper_args__ = {"polymorphic_on": type}
 
-    def __init__(self):
-        return
+    def __repr__(self):
+        return "<Project %s of type %s>" % (self.name, self.type)
 
 
 class SequencingProject(Project):
     id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
 
-    demultiplex_id = db.RelationshipProperty("Demultiplex", backref="project", lazy=False, uselist=False)
+    # TODO Pipelines!
 
-    sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
+    # demultiplex_id = db.RelationshipProperty("Demultiplex", backref="project", lazy=False, uselist=False)
+    #
+    # sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
 
-    __tablename__ = "sequencing_project"
-    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Project.id)}
+    lane = db.RelationshipProperty("Lane", backref="project", lazy="dynamic")
+
+    __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == Project.id)}
+
+    def __repr__(self):
+        return "<Sequencing Project: %s>" % self.name
+
+
+class Sample(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    internal_sample_name = db.Column(db.String(50), nullable=False)
+    customer_sample_name = db.Column(db.String(50), nullable=False)
+    type = db.Column(db.String(50), nullable=False)
+
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
+    run_id = db.Column(db.Integer, db.ForeignKey("Submission.id"), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey("Project.id"), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey("Tag.id"), nullable=False)
+
+    __mapper_args__ = {"polymorphic_on": type}
+
+    def __repr__(self):
+        return "<Sample: %s aka %>s" % (self.internal_sample_name, self.customer_sample_name)
+
+
+class SequencingSample(Sample):
+    id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
+
+    adaptor_sequence = db.Column(db.String(200), nullable=False)
+
+    lane = db.RelationshipProperty("Lane", backref="sample", uselist=False, lazy=False)
+    index_tag = db.RelationshipProperty("Tag", backref="sample", lazy="dynamic")
+
+    __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == Sample.id)}
+
+    def __repr__(self):
+        return "<Sequencing Sample %s aka %s>" % (self.internal_sample_name, self.customer_sample_name)
+
+
+class Lane(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    number = db.Column(db.Integer, nullable=False)
+    sequencing_concentration = db.Column(db.Float, nullable=False)
+    phi_x_spiked = db.Column(db.Float, nullable=False)
+    spike = db.Column(db.String(20), nullable=False)
+    spike_ratio = db.Column(db.Float, nullable=False)
+
+    project_id = db.Column(db.Integer, db.ForeignKey("SequencingProject.id"), nullable=False)
+    sample_id = db.Column(db.Integer, db.ForeignKey("SequencingSample.id"), nullable=False)
+
+    def __repr__(self):
+        return "<Lane %s with conc %s>" % (self.number, self.sequencing_concentration)
+
+    def set_sequencing_concentration(self, value):
+        if isinstance(value, str):
+            numeric = '0123456789-.'
+            for i, c in enumerate(value):
+                if c not in numeric:
+                    break
+
+            number = float(value[:i])
+            unit = value[i:].lstrip().lower()
+
+            if unit == "um" or unit == "umol":
+                number *= 1000000
+
+            elif unit == "nm" or unit == "nmol":
+                number *= 1000
+
+        else:
+            number = value
+
+        self.sequencing_concentration = number
+
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    is_first_index = db.Column(db.Boolean, nullable=False)
+    tag_id = db.Column(db.String(40), nullable=False)
+    tag_library = db.Column(db.String(40), nullable=False)
+    tag_sequence = db.Column(db.String(40), nullable=False)
+
+    sample_id = db.Column(db.Integer, db.ForeignKey("SequencingSample.id"), nullable=False)
+
+    def __repr__(self):
+        return "<Tag %s from %s with sequence %s>" % (self.tag_id, self.tag_library, self.tag_sequence)
+
+
+class FlowCytometryProject(Project):
+    id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
+
+    __tablename__ = "flow_cytometry_project"
+    __mapper_args__ = {"polymorphic_identity": "flow_cytometry", "inherit_condition": (id == Project.id)}
 
     def __init__(self):
         super(Project, self).__init__()
@@ -283,109 +441,3 @@ class DemultiplexArgument(db.Model):
 
     key = db.Column(db.String(60))
     value = db.Column(db.String(60))
-
-
-class Lane(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    project_id = db.Column(db.Integer, db.ForeignKey("run.id"))
-    sample_id = db.Column(db.Integer, db.ForeignKey("sequencing_sample.id"))
-
-    number = db.Column(db.Integer)
-    sequencing_concentration = db.Column(db.Float)
-    phi_x_spiked = db.Column(db.Float)
-    spike = db.Column(db.String(20))
-    spike_ratio = db.Column(db.Float)
-
-    __tablename__ = "lane"
-
-    def __init__(self, number):
-        self.number = number
-
-    def set_sequencing_concentration(self, value):
-        if isinstance(value, str):
-            numeric = '0123456789-.'
-            for i, c in enumerate(value):
-                if c not in numeric:
-                    break
-
-            number = float(value[:i])
-            unit = value[i:].lstrip().lower()
-
-            if unit == "um" or unit == "umol":
-                number *= 1000000
-
-            elif unit == "nm" or unit == "nmol":
-                number *= 1000
-
-        else:
-            number = value
-
-        self.sequencing_concentration = number
-
-
-class Sample(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    run_id = db.Column(db.Integer, db.ForeignKey("run.id"))
-    project_id = db.Column(db.Integer, db.ForeignKey("project.id"))
-    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
-
-    internal_sample_name = db.Column(db.String(50))
-    customer_sample_name = db.Column(db.String(50))
-    type = db.Column(db.String(50))
-
-    __tablename__ = "sample"
-    __mapper_args__ = {"polymorphic_on": type}
-
-
-class SequencingSample(Sample):
-    id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
-
-    lane = db.RelationshipProperty("Lane", backref="sample", uselist=False, lazy=False)
-    index_tag = db.RelationshipProperty("Tag", backref="sequencing_sample", lazy="dynamic")
-
-    adaptor_sequence = db.Column(db.String(200))
-
-    __tablename__ = "sequencing_sample"
-    __mapper_args__ = {"polymorphic_identity": "sequencing", "inherit_condition": (id == Sample.id)}
-
-
-class Tag(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sample_id = db.Column(db.Integer, db.ForeignKey("sequencing_sample.id"))
-    is_first_index = db.Column(db.Boolean)
-    tag_id = db.Column(db.String(40))
-    tag_library = db.Column(db.String(40))
-    tag_sequence = db.Column(db.String(40))
-
-    __tablename__ = "tag"
-
-    def __init__(self, id, kit, seq, is1):
-        self.is_first_index = is1
-        self.tag_id = id
-        self.tag_library = kit
-        self.tag_sequence = seq
-
-
-class Customer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-
-    project = db.RelationshipProperty("Project", backref="customer", lazy="dynamic")
-    sample = db.RelationshipProperty("Sample", backref="customer", lazy="dynamic")
-
-    __tablename__ = "customer"
-
-    def __init__(self, name):
-        self.name = name
-
-
-class FlowCytometryProject(Project):
-    id = db.Column(db.Integer, db.ForeignKey("project.id"), primary_key=True)
-
-    __tablename__ = "flow_cytometry_project"
-    __mapper_args__ = {"polymorphic_identity": "flow_cytometry", "inherit_condition": (id == Project.id)}
-
-    def __init__(self):
-        super(Project, self).__init__()

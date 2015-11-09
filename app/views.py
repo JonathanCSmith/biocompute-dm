@@ -137,8 +137,8 @@ def new_investigation():
     else:
         if form.validate_on_submit():
             from app.models import Investigation
-            p = Investigation(str(form.investigation_name.data), str(form.investigation_lead.data))
-            db.session.add(p)
+            i = Investigation(str(form.investigation_name.data), str(form.investigation_lead.data))
+            db.session.add(i)
             db.session.commit()
             flash("Investigation successfully registered!", "info")
             return redirect(url_for("investigations"))
@@ -237,8 +237,8 @@ def link_project(iid=-1, page=1, pid=-1):
 @app.route("/runs/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
 def runs(page=1):
-    from app.models import Run
-    r = Run.query.paginate(page=page, per_page=20)
+    from app.models import Submission
+    r = Submission.query.paginate(page=page, per_page=20)
     return render_template("runs.html", title="My Runs", page=page, obs=r)
 
 
@@ -246,10 +246,10 @@ def runs(page=1):
 @app.route("/run/<int:rid>|<string:type>")
 @login_required("ANY")
 def run(rid=-1, type="none"):
-    from app.models import Run
 
     if type == "none":
-        r = Run.query.filter_by(id=rid).first()
+        from app.models import Submission
+        r = Submission.query.filter_by(id=rid).first()
         type = r.type
 
     if type == "sequencing":
@@ -270,8 +270,8 @@ def sequencing_run(rid=-1):
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    from app.models import SequencingRun
-    s = SequencingRun.query.filter_by(id=rid).first()
+    from app.models import SequencingSubmission
+    s = SequencingSubmission.query.filter_by(id=rid).first()
     if s is None:
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
@@ -335,8 +335,8 @@ def input_sequencing_run(type="none"):
                             return render_template("input_sequencing_run.html", title="Input Sequencing Run", form=form,
                                                    form2=form2)
 
-                from app.models import SequencingRun
-                s = SequencingRun()
+                from app.models import SequencingSubmission
+                s = SequencingSubmission()
                 s.name = data.get("Sequencing Run Name")
                 s.start_date = data.get("Start Date (YYYY-MM-DD format)")
                 s.completion_date = data.get("Completion Date (YYYY-MM-DD format)")
@@ -359,8 +359,8 @@ def input_sequencing_run(type="none"):
 
     elif type == "manual":
         if form2.validate_on_submit():
-            from app.models import SequencingRun
-            s = SequencingRun()
+            from app.models import SequencingSubmission
+            s = SequencingSubmission()
             s.name = form2.sequence_run_name.data
             s.start_date = form2.start_date.data
             s.completion_date = form2.completion_date.data
@@ -394,10 +394,9 @@ def projects(page=1):
 @app.route("/project/<int:pid>|<string:type>")
 @login_required("ANY")
 def project(pid=-1, type="none"):
-    from app.models import Run
-
     if type == "none":
-        r = Run.query.filter_by(id=pid).first()
+        from app.models import Submission
+        r = Submission.query.filter_by(id=pid).first()
         type = r.type
 
     if type == "sequencing":
@@ -417,6 +416,13 @@ def sequencing_project(pid=-1):
     from app.models import SequencingProject
     p = SequencingProject.query.filter_by(id=pid).first()
     return render_template("sequencing_project.html", title="Sequencing Project", project=p)
+
+
+@app.route("/link_project_to_client/<int:pid>")
+@login_required("ANY")
+def link_project_to_client(pid=-1):
+    flash("Project to client linking not implemented yet.", "warning")
+    return redirect(url_for("sequencing_project", pid))
 
 
 @app.route("/input_sequencing_project/<int:rid>|<string:type>", methods=["GET", "POST"])
@@ -464,9 +470,7 @@ def input_sequencing_project(type="", rid=-1):
                     ["Sequencing Type", "y"],
                     ["Customer Name", "y"],
                     ["Lane Number", "y"],
-                    [
-                        "Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)",
-                        "y"],
+                    ["Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)", "y"],
                     ["PhiXSpiked", "y"],
                     ["Spike", "y"],
                     ["Spike Ratio", "y"],
@@ -495,8 +499,8 @@ def input_sequencing_project(type="", rid=-1):
                                                        title="Input Sequencing Project", form=form, rid=rid)
 
                 # Get or create the run
-                from app.models import SequencingRun
-                r = SequencingRun.query.filter_by(id=rid).first()
+                from app.models import SequencingSubmission
+                r = SequencingSubmission.query.filter_by(id=rid).first()
                 if r is None:
                     flash("Could not identify the parent run", "error")
                     return render_template("input_sequencing_project", title="Input Sequencing Project", form=form)
@@ -619,7 +623,7 @@ def demultiplex(rid=-1, pid=-1):
         return redirect(url_for("index"))
 
     # Render the demultiplex screen
-    return render_template("demultiplex", pid=pid)
+    return render_template("demultiplex.html", p=p)
 
 
 @app.route("/fast_qc/<int:rid>|<int:pid>", methods=["GET", "POST"])

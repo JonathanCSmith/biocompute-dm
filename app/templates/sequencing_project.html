@@ -21,7 +21,33 @@
         <br>
     </div>
 
-    <br>
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Pipeline Details</h3>
+        {% if project.pipeline %}
+        <table>
+            <th>
+                {% for stage in project.pipeline_status.stages %}
+                {% if stage.status == "input_required" %}
+                <td background="#">{{ stage.name }}</td>
+                {% elif stage.status == "running" %}
+                <td background="#">{{ stage.name }}</td>
+                {% elif stage.status == "finished" %}
+                <td background="#">{{ stage.name }}</td>
+                {% elif stage.status == "stopped" %}
+                <td background="#">{{ stage.name }}</td>
+                {% endif %}
+                {% endfor %}
+            </th>
+        </table>
+
+        {% else %}
+        <p>Please select a pipeline</p><p>Drop down list goes here</p>
+        {% endif %}
+    </div>
+
+    <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Sample Details</h3>
