@@ -6,9 +6,9 @@ from flask import Flask, g
 app = Flask(__name__)
 app.config.from_object("config")
 
-from config import SECRET_KEY
+import config
 
-app.secret_key = SECRET_KEY
+app.secret_key = config.SECRET_KEY
 
 # Database setup
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -41,22 +41,28 @@ def load_user(user_id):
 
 
 # Function to allow role management on pages
-def login_required(role="ANY"):
+def login_required(*role):
     def wrapper(fn):
         from functools import wraps
 
         @wraps(fn)
         def decorated_view(*args, **kwargs):
-            if current_user is None:
-                return login_manager.unauthorized()
+            if current_user is not None and current_user.is_authenticated:
+                if current_user.get_role() == "Site Admin":
+                    return fn(*args, **kwargs)
 
-            if not current_user.is_authenticated:
-                return login_manager.unauthorized()
+                elif role == "ANY":
+                    return fn(*args, **kwargs)
 
-            if (current_user.get_user_role() != role) and (role != "ANY"):
-                return login_manager.unauthorized()
+                else:
+                    for item in role:
+                        if item == "ANY":
+                            return fn(*args, **kwargs)
 
-            return fn(*args, **kwargs)
+                        if current_user.get_role() == item:
+                            return fn(*args, **kwargs)
+
+            return login_manager.unauthorized()
 
         return decorated_view
 

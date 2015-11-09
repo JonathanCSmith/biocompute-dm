@@ -1,0 +1,87 @@
+.administrate {
+    vertical-align: top;
+}
+
+.left {
+    min-width: 200px;
+    max-width: 500px;
+}
+
+.right {
+    width: 100%;
+}
+
+div.action.exempt h3 {
+    margin-bottom: 15px;
+}
+
+div.content table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    color: #333;
+
+    text-align: center;
+    border: 1px solid #F6F6F6;
+}
+
+div.content table.content th, div.content table.content td {
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    vertical-align: middle;
+}
+
+div.content table.content th {
+    background: #DFDFDF;
+    font-weight: bold;
+    height: 50px;
+}
+
+div.content table.content tr {
+    height: 30px;
+}
+
+div.content table.content tr:hover td {
+    background: #FAFAFA;
+}
+
+div.content table.content tr:nth-child(even) td {
+    background: #F1F1F1;
+}
+
+div.content table.content tr:nth-child(odd) td {
+    background: #FEFEFE;
+}
+
+div.content table.content2 th, div.content table.content2 td {
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    vertical-align: middle;
+}
+
+div.content table.content2 th {
+    background: #DFDFDF;
+    font-weight: bold;
+    height: 50px;
+}
+
+div.content table.content2 tr {
+    height: 30px;
+}
+
+div.content table.content2 tr:hover td {
+    background: #FAFAFA;
+}
+
+div.content table.content2 tr:nth-child(even) td {
+    background: #F1F1F1;
+}
+
+div.content table.content2 tr:nth-child(odd) td {
+    background: #FEFEFE;
+}
+
+div.content table.pagenator {
+    background: transparent;
+    border: none;
+    table-layout: fixed;
+}

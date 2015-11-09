@@ -13,9 +13,6 @@
                                 <td>{{ form.username.label }}</td>
                                 <td>{{ form.username }}</td>
                             </tr>
-                            {% for message in form.username.errors %}
-                            <tr class="flash"><td>{{ message }}</td></tr>
-                            {% endfor %}
                         </table>
                     </td>
                 </tr>
@@ -26,20 +23,12 @@
                                 <td>{{ form.password.label }}</td>
                                 <td>{{ form.password }}</td>
                             </tr>
-                            {% for message in form.password.errors %}
-                            <tr class="flash"><td>{{ message }}</td></tr>
-                            {% endfor %}
                         </table>
                     </td>
                 </tr>
                 <tr>
                     <td>
                         {{ form.submit }}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <a href="{{ url_for('register') }}">Register Now</a>
                     </td>
                 </tr>
             </table>

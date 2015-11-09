@@ -1,0 +1,15 @@
+{% extends "administrate_view_items.html" %}
+{% block administrate_view %}
+<h3>Groups</h3>
+<table class="content">
+    <tr>
+        <th>Group Name</th>
+    </tr>
+
+    {% for group in obs.items %}
+    <tr>
+        <td>{{ group.name }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

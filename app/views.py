@@ -6,7 +6,7 @@ import pyexcel.ext.xls
 import pyexcel.ext.xlsx
 from app import app, db, forms, login_required
 from flask import render_template, request, flash, redirect, url_for, g
-from flask.ext.login import login_user, logout_user
+from flask.ext.login import login_user, logout_user, current_user
 
 __author__ = 'jon'
 
@@ -50,32 +50,6 @@ def empty():
     return render_template("empty.html", title="Down the rabbit hole!")
 
 
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if g.user is not None and g.user.is_authenticated:
-        return redirect(url_for("index"))
-
-    form = forms.RegisterForm()
-    if request.method == "GET":
-        return render_template("register.html", title="Sign Up!", form=form)
-
-    else:
-        if not form.validate():
-            return render_template("register.html", title="Sign Up!", form=form)
-
-        else:
-            from app.models import User
-            user = User(str(form.username.data), str(form.password.data), str(form.email.data.lower()))
-            db.session.add(user)
-            db.session.commit()
-            flash("User successfully registered!", "success")
-            # session["remember_me"] = form.remember_me.data
-            # app.login_user(user, remember=form.remember_me.data)
-            login_user(user)
-
-        return redirect(url_for("index"))
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if g.user is not None and g.user.is_authenticated:
@@ -92,9 +66,7 @@ def login():
 
         else:
             from app.models import User
-            user = User.query.filter_by(username=str(form.username.data)).first()
-            # session["remember_me"] = form.remember_me.data
-            # app.login_user(user, remember=form.remember_me.data)
+            user = User.query.filter_by(login_name=str(form.username.data)).first()
             flash("Successfully logged in!", "success")
             login_user(user)
             return redirect(url_for("index"))
@@ -118,12 +90,145 @@ def activity():
     return render_template("activity.html", title="Interaction Panel")
 
 
+@app.route("/administrate")
+@login_required("Site Admin", "Group Admin")
+def administrate():
+    return render_template("administrate_welcome.html", title="Administrate Panel")
+
+
+@app.route("/show_groups")
+@app.route("/show_groups/<int:page>")
+@login_required("Site Admin")
+def show_groups(page=1):
+    from app.models import Group
+    g = Group.query.paginate(page=page)
+    return render_template("groups.html", title="Groups", page=page, obs=g)
+
+
+@app.route("/show_users")
+@app.route("/show_users/<int:page>")
+@login_required("Site Admin", "Group Admin")
+def show_users(page=1):
+    from app.models import User
+    if current_user.get_role() == "Site Admin":
+        u = User.query.paginate(page=page, per_page=20)
+
+    else:
+        g = current_user.group
+        u = User.query.filter_by(group_id=g.id).paginate(page=page, per_page=20)
+
+    return render_template("users.html", title="Users", page=page, obs=u)
+
+
+@app.route("/show_customers")
+@app.route("/show_customers/<int:page>")
+@login_required("Site Admin", "Group Admin")
+def show_customers(page=1):
+    from app.models import Customer
+    if current_user.get_role() == "Site Admin":
+        c = Customer.query.paginate(page=page, per_page=20)
+
+    else:
+        g = current_user.group
+        c = Customer.query.filter_by(group_id=g.id).paginate(page=page, per_page=20)
+
+    return render_template("users.html", title="Users", page=page, obs=c)
+
+
+@app.route("/add_group", methods=["GET", "POST"])
+@login_required("Site Admin")
+def add_group():
+    form = forms.CreateGroupForm()
+    if request.method == "GET":
+        return render_template("add_group.html", title="Group Creation", form=form)
+
+    else:
+        if not form.validate():
+            flash_errors(form)
+            return render_template("add_group.html", title="Group Creation", form=form)
+
+        else:
+            from app.models import Group, User
+
+            admin = User()
+            admin.login_name = str(form.admin_login.data)
+            admin.set_password(str(form.admin_password.data))
+            admin.email = str(form.admin_email.data)
+            admin.set_role("Group Admin")
+
+            group = Group()
+            group.name = str(form.group_name.data)
+            group.member.append(admin)
+
+            db.session.add(admin)
+            db.session.add(group)
+            db.session.commit()
+            return redirect(url_for("show_groups"))
+
+
+@app.route("/add_user", methods=["GET", "POST"])
+@login_required("Group Admin")
+def add_user():
+    form = forms.CreatePerson()
+    if request.method == "GET":
+        return render_template("add_person.html", title="Add User", type="User", form=form)
+
+    else:
+        if not form.validate():
+            flash_errors(form)
+            return render_template("add_person.html", title="Add User", type="User", form=form)
+
+        else:
+            from app.models import User
+            user = User()
+            user.login_name = str(form.login_name.data)
+            user.set_password(str(form.login_password.data))
+            user.email = str(form.login_email.data)
+
+            current_user.group.member.append(user)
+            db.session.add(user)
+            db.session.add(current_user.group)
+            db.session.commit()
+            return redirect(url_for("show_users"))
+
+
+@app.route("/add_customer", methods=["GET", "POST"])
+@login_required("Group Admin")
+def add_customer():
+    form = forms.CreatePerson()
+    if request.method == "GET":
+        return render_template("add_person.html", title="Add User", type="Customer", form=form)
+
+    else:
+        if not form.validate():
+            flash_errors(form)
+            return render_template("add_person.html", title="Add User", type="Customer", form=form)
+
+        else:
+            from app.models import Customer
+            user = Customer()
+            user.login_name = str(form.login_name.data)
+            user.set_password(str(form.login_password.data))
+            user.email = str(form.login_email.data)
+
+            current_user.group.member.append(user)
+            db.session.add(user)
+            db.session.add(current_user.group)
+            db.session.commit()
+            return redirect(url_for("show_customers"))
+
+
 @app.route("/investigations", methods=["GET", "POST"])
 @app.route("/investigations/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
 def investigations(page=1):
     from app.models import Investigation
-    i = Investigation.query.paginate(page=page, per_page=20)
+    if current_user.get_role() == "Site Admin":
+        i = Investigation.query.paginate(page=page, per_page=20)
+
+    else:
+        i = Investigation.query.filter_by(submitter_id=current_user.id).paginate(page=page, per_page=20)
+
     return render_template("investigations.html", title="My Investigations", page=page, obs=i)
 
 
@@ -138,7 +243,11 @@ def new_investigation():
         if form.validate_on_submit():
             from app.models import Investigation
             i = Investigation(str(form.investigation_name.data), str(form.investigation_lead.data))
+            current_user.investigation.append(i)
+            current_user.group.investigation.append(i)
+
             db.session.add(i)
+            db.session.add(current_user)
             db.session.commit()
             flash("Investigation successfully registered!", "info")
             return redirect(url_for("investigations"))
@@ -154,7 +263,7 @@ def investigation(name="", iid=-1):
         return redirect(url_for("index"))
 
     from app.models import Investigation
-    i = Investigation.query.filter_by(investigation_id=iid, investigation_name=name).first()
+    i = current_user.investigation.query().filter_by(investigation_id=iid, investigation_name=name).first()
     return render_template("investigation.html", title="My Investigations", investigation=i)
 
 
