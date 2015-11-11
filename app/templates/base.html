@@ -47,11 +47,16 @@
                     <div class="collapse navbar-collapse navbar-header-collapse">
                         <ul class="nav navbar-nav">
                             <li><a href="{{ url_for('index') }}">Home</a></li>
-                            <li><a href="{{ url_for('investigations') }}">My Investigations</a></li>
-                            <li><a href="{{ url_for('projects') }}">My Projects</a></li>
-                            <li><a href="{{ url_for('runs') }} ">My Runs</a></li>
 
                             {% if g.user.is_authenticated %}
+
+                            {% if g.user.type == "User" %}
+                            <li><a href="{{ url_for('submissions') }} ">My Submissions</a></li>
+                            <li><a href="{{ url_for('sample_groups') }}">My Sample Groups</a></li>
+                            {% endif %}
+
+                            <li><a href="{{ url_for('investigations') }}">My Investigations</a></li>
+
                             {% if g.user.get_role() == "Site Admin" %}
                             <li><a href="{{ url_for('administrate') }}">My Admin</a></li>
                             {% elif g.user.get_role() == "Group Admin" %}

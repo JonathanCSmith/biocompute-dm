@@ -5,11 +5,11 @@
         <tr>
             <td>
                 <div class="action">
-                    <h3>Upload Sequencing Run Information</h3>
-                    <a href="{{ url_for('input_sequencing_run', type='download') }}" class="input">Download Sequencing Run Template</a>
+                    <h3>Upload Sequencing Submission Information</h3>
+                    <a href="{{ url_for('input_sequencing_submission', type='download') }}" class="input">Download Sequencing Submission Template</a>
                     <br>
                     <br>
-                    <form action="{{ url_for('input_sequencing_run', type='upload') }}" method=post enctype="multipart/form-data">
+                    <form action="{{ url_for('input_sequencing_submission', type='upload') }}" method=post enctype="multipart/form-data">
                         <table class="small_content">
                             <tr>
                                 <td>
@@ -36,18 +36,18 @@
             </td>
             <td>
                 <div class="action">
-                    <h3>Manually Enter Sequencing Run Information</h3>
-                    <form action="{{ url_for('input_sequencing_run', type='manual') }}" method=post>
+                    <h3>Manually Enter Sequencing Submission Information</h3>
+                    <form action="{{ url_for('input_sequencing_submission', type='manual') }}" method=post>
                         <table class="small_content">
                             <tr>
                                 <td>
                                     {{ form2.hidden_tag() }}
                                     <table class="internal">
                                         <tr>
-                                            <td>{{ form2.sequence_run_name.label}}</td>
-                                            <td>{{ form2.sequence_run_name }}</td>
+                                            <td>{{ form2.sequence_submission_name.label}}</td>
+                                            <td>{{ form2.sequence_submission_name }}</td>
                                         </tr>
-                                        {% for message in form2.sequence_run_name.errors %}
+                                        {% for message in form2.sequence_submission_name.errors %}
                                         <tr class="flash"><td colspan="2">{{ message }}</td></tr>
                                         {% endfor %}
 

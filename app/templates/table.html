@@ -15,7 +15,7 @@
                 <td>&lt;&lt;</td>
                 <td>
                     {% if obs.has_prev %}
-                    <a href="{{ url_for('runs', page=posts.prev_num) }}">Previous</a>
+                    <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
                     {% else %}
                     Previous
                     {% endif %}
@@ -23,7 +23,7 @@
                 <td>|</td>
                 <td>
                     {% if obs.has_next %}
-                    <a href="{{ url_for('runs', page=posts.next_num) }}">Next</a>
+                    <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
                     {% else %}
                     Next
                     {% endif %}

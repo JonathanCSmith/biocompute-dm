@@ -1,0 +1,23 @@
+{% extends "table.html" %}
+{% block table %}
+<h3>Select Sample Group To Link (click on the group name)</h3>
+<ul>
+    <li><a class="input" href="{{ url_for('investigation', iid=iid) }}">Return</a></li>
+    <li></li>
+</ul>
+<table class="content">
+    <tr>
+        <th>Sample Group Name</th>
+        <th>Sample Group Type</th>
+        <th>Investigation</th>
+    </tr>
+
+    {% for group in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('link_sample_group', iid=iid, page=page, gid=group.id) }}">{{ group.name }}</a></td>
+        <td>{{ group.type }}</td>
+        <td>{{ group.investigation }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

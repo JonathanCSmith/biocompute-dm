@@ -11,61 +11,59 @@
                 <div class="action">
                     <h3>Investigation Properties</h3>
                     <ul>
-                        <li>Investigation Name: {{ investigation.investigation_name }}</li>
-                        <li>Investigation Lead: {{ investigation.investigation_lead }}</li>
-                        <li>Customer: Customer</li>
+                        <li>Investigation Name: {{ investigation.name }}</li>
+                        <li>Investigation Lead: {{ investigation.leader }}</li>
                         <li>Start Date: {{ investigation.open_date }}</li>
                         <li>Last Updated: {{ investigation.last_update }}</li>
-                        <li>Status: {{ investigation.status }}</li>
                     </ul>
                 </div>
             </td>
 
             <td>
                 <div class="action">
-                    <h3>Investigation Projects</h3>
-                    <a class="input" href="{{ url_for('link_project', iid=investigation.investigation_id) }}">Link a project</a>
+                    <h3>Investigation Sample Groupings</h3>
                     <ul>
-                        <li>
-                            <table>
-                                <tr>
-                                    <th>Project Name</th>
-                                    <th>Project Type</th>
-                                </tr>
-
-                                {% for project in investigation.project%}
-                                <tr>
-                                    <td><a href="{{ url_for('project', pid=project.id, type=project.type) }}">{{ project.name }}</a></td>
-                                    <td>{{ project.type }}</td>
-                                </tr>
-                                {% endfor %}
-                            </table>
-                        </li>
+                        <li><a class="input" href="{{ url_for('link_sample_group', iid=investigation.id) }}">Link a sample grouping</a></li>
+                        <li></li>
                     </ul>
+                    <table class="content">
+                        <tr>
+                            <th>Sample Grouping Name</th>
+                            <th>Sample Grouping Type</th>
+                        </tr>
+
+                        {% for group in investigation.sample_group %}
+                        <tr>
+                            <td><a href="{{ url_for('sample_group', gid=group.id, type=group.type) }}">{{ group.name }}</a></td>
+                            <td>{{ group.type }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <br>
                 </div>
             </td>
 
             <td>
                 <div class="action">
                     <h3>Investigation Documents</h3>
-                    <a class="input" href="{{ url_for('add_document', iid=investigation.investigation_id) }}">Add a document</a>
                     <ul>
-                        <li>
-                            <table>
-                                <tr>
-                                    <th>Document Name</th>
-                                    <th>Document Description</th>
-                                    <th>Remove?</th>
-                                </tr>
-                                {% for document in investigation.document %}
-                                <tr>
-                                    <td>{{ document.name }}</td>
-                                    <td>{{ document.description }}</td>
-                                    <td><a href="{{ url_for('remove_document', iid=investigation.investigation_id, did=investigation.investigation_id)}}">Remove</a></td>
-                                </tr>
-                                {% endfor %}
-                            </table>
-                        </li>
+                        <li><a class="input" href="{{ url_for('add_document', iid=investigation.id) }}">Add a document</a></li>
+                        <li></li>
+                        <table class="content">
+                            <tr>
+                                <th>Document Name</th>
+                                <th>Document Description</th>
+                                <th>Remove?</th>
+                            </tr>
+                            {% for document in investigation.document %}
+                            <tr>
+                                <td>{{ document.name }}</td>
+                                <td>{{ document.description }}</td>
+                                <td><a href="{{ url_for('remove_document', iid=investigation.id, did=document.id)}}">Remove</a></td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                        <br>
                     </ul>
                 </div>
             </td>

@@ -2,11 +2,11 @@
 {% block content %}
 <div class="input-table clear">
     <div class="action">
-        <h3>Upload Sequencing Project Information</h3>
-        <a href="{{ url_for('input_sequencing_project', rid=rid, type='download') }}" class="input">Download Sequencing Project Template</a>
+        <h3>Upload Sequencing Sample Mappings Information</h3>
+        <a href="{{ url_for('input_sequencing_sample_mappings', sid=sid, type='download') }}" class="input">Download Sequencing Sample Mappings Template</a>
         <br>
         <br>
-        <form action="{{ url_for('input_sequencing_project', rid=rid, type='upload') }}" method=post enctype="multipart/form-data">
+        <form action="{{ url_for('input_sequencing_sample_mappings', sid=sid, type='upload') }}" method=post enctype="multipart/form-data">
             <table class="small_content">
                 <tr>
                     <td>

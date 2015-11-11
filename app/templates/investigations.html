@@ -5,20 +5,16 @@
     <tr>
         <th>Investigation Name</th>
         <th>Investigation Lead</th>
-        <th>Customer</th>
         <th>Start Date</th>
         <th>Last Updated</th>
-        <th>Status</th>
     </tr>
 
     {% for investigation in obs.items %}
     <tr>
-        <td><a href="{{ url_for('investigation', name=investigation.name, iid=investigation.id) }}">{{ investigation.name }}</a></td>
+        <td><a href="{{ url_for('investigation', iid=investigation.id) }}">{{ investigation.name }}</a></td>
         <td>{{ investigation.leader }}</td>
-        <td>Customer</td>
         <td>{{ investigation.open_date }}</td>
         <td>{{ investigation.last_update }}</td>
-        <td>{{ investigation.status }}</td>
     </tr>
     {% endfor %}
 </table>

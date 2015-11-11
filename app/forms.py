@@ -102,13 +102,13 @@ class AddDocumentForm(Form):
     submit = SubmitField("Upload")
 
 
-class UploadSequencingRunForm(Form):
+class UploadSequencingSubmissionForm(Form):
     file_upload = FileField("Upload File", validators=[FileRequired()])
     submit = SubmitField("Upload")
 
 
-class NewSequencingProjectForm(Form):
-    sequence_run_name = StringField("Sequence Run Name", validators=[DataRequired()])
+class NewSequencingSubmissionForm(Form):
+    sequence_submission_name = StringField("Sequence Submission Name", validators=[DataRequired()])
     flow_cell_id = StringField("Flow Cell ID", validators=[DataRequired()])
     from datetime import datetime
     start_date = DateField("Start Date", format="%Y-%m-%d", default=datetime.today, validators=[DataRequired()])
@@ -124,6 +124,6 @@ class NewSequencingProjectForm(Form):
     submit = SubmitField("Submit")
 
 
-class UploadSequencingProjectForm(Form):
+class UploadSequencingSampleMappingsForm(Form):
     file_upload = FileField("Upload File", validators=[FileRequired()])
     submit = SubmitField("Upload")

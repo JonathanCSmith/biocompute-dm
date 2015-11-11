@@ -1,0 +1,19 @@
+{% extends "table.html" %}
+{% block table %}
+<h3>Sample Groupings</h3>
+<table class="content">
+    <tr>
+        <th>Sample Group Name</th>
+        <th>Sample Group Type</th>
+        <th>Investigation</th>
+    </tr>
+
+    {% for group in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('sample_group', gid=group.id, type=group.type) }}">{{ group.name }}</a></td>
+        <td>{{ group.type }}</td>
+        <td>{{ group.investigation }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

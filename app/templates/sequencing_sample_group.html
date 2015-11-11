@@ -6,16 +6,14 @@
 {% block content %}
 <div class="input-table">
     <div class="action exempt">
-        <h3>Project Details</h3>
+        <h3>Sample Group Details</h3>
         <table class="content">
             <tr>
-                <th>Sequence Project Name</th>
-                <th>Customer</th>
+                <th>Sequence Sample Group Name</th>
             </tr>
 
             <tr>
-                <td>{{ project.name }}</td>
-                <td>{{ project.customer.name }}</td>
+                <td>{{ group.name }}</td>
             </tr>
         </table>
         <br>
@@ -25,10 +23,10 @@
 
     <div class="action exempt">
         <h3>Pipeline Details</h3>
-        {% if project.pipeline %}
+        {% if group.pipeline %}
         <table>
             <th>
-                {% for stage in project.pipeline_status.stages %}
+                {% for stage in group.pipeline_status.stages %}
                 {% if stage.status == "input_required" %}
                 <td background="#">{{ stage.name }}</td>
                 {% elif stage.status == "running" %}
@@ -63,7 +61,7 @@
                 <th>Spike Ratio</th>
             </tr>
 
-            {% for sample in project.sample %}
+            {% for sample in group.sample %}
             <tr>
                 <td>{{ sample.internal_sample_name }}</td>
                 <td>{{ sample.customer_sample_name }}</td>

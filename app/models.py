@@ -104,7 +104,7 @@ class Group(db.Model):
     investigation = db.RelationshipProperty("Investigation", backref="group", lazy="dynamic")
     document = db.RelationshipProperty("Document", backref="group", lazy="dynamic")
     submission = db.RelationshipProperty("Submission", backref="group", lazy="dynamic")
-    project = db.RelationshipProperty("Project", backref="group", lazy="dynamic")
+    sample_group = db.RelationshipProperty("SampleGroup", backref="group", lazy="dynamic")
     sample = db.RelationshipProperty("Sample", backref="group", lazy="dynamic")
 
     __tablename__ = "Group"
@@ -129,7 +129,7 @@ class Person(UserMixin, db.Model):
 
     login_name = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    role = db.Column(db.Enum("Member", "Group Admin", "Site Admin"))
+    role = db.Column(db.Enum("Member", "Group Admin", "Site Admin"), default="Member")
     type = db.Column(db.String(50), nullable=False)
 
     group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
@@ -163,7 +163,8 @@ class User(Person):
     id = db.Column(db.Integer, db.ForeignKey("Person.id"), primary_key=True)
 
     submission = db.RelationshipProperty("Submission", backref="submitter", lazy="dynamic")
-    project = db.RelationshipProperty("Project", backref="submitter", lazy="dynamic")
+    sample_group = db.RelationshipProperty("SampleGroup", backref="submitter", lazy="dynamic")
+    sample = db.RelationshipProperty("Sample", backref="submitter", lazy="dynamic")
 
     __tablename__ = "User"
     __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Person.id)}
@@ -188,16 +189,15 @@ class Investigation(db.Model):
 
     name = db.Column(db.String(40), nullable=False)
     leader = db.Column(db.String(40), nullable=False)
-    directory = db.Column(db.String(500), nullable=False)
+    directory = db.Column(db.String(500))
     description = db.Column(db.TEXT)
     open_date = db.Column(db.Date, nullable=False)
     last_update = db.Column(db.Date, nullable=False)
-    status = db.Column(db.String(20))
 
     submitter_id = db.Column(db.Integer, db.ForeignKey("Person.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
 
-    project = db.RelationshipProperty("Project", backref="investigation", lazy="dynamic")
+    sample_group = db.RelationshipProperty("SampleGroup", backref="investigation", lazy="dynamic")
     document = db.RelationshipProperty("Document", backref="investigation", lazy="dynamic")
 
     __tablename__ = "Investigation"
@@ -209,7 +209,6 @@ class Investigation(db.Model):
         today = datetime.date.today()
         self.open_date = str(today.year) + "-" + str(today.month) + "-" + str(today.day)
         self.last_update = self.open_date
-        self.validate_investigation_directory()
 
     def __repr__(self):
         return "<Investigation %r %r>" % (self.investigation_name, self.investigation_lead)
@@ -255,9 +254,9 @@ class Document(db.Model):
     location = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text)
 
-    investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"), nullable=False)
-    submitter_id = db.Column(db.Integer, db.ForeignKey("Person.id"), nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
+    investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"))
+    submitter_id = db.Column(db.Integer, db.ForeignKey("Person.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
 
     __tablename__ = "Document"
 
@@ -275,11 +274,11 @@ class Submission(db.Model):
     data_location = db.Column(db.String(500), nullable=False)
     type = db.Column(db.String(50))
 
-    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
 
-    project = db.RelationshipProperty("Project", backref="run", lazy="dynamic")
-    sample = db.RelationshipProperty("Sample", backref="run", lazy="dynamic")
+    sample_group = db.RelationshipProperty("SampleGroup", backref="submission", lazy="dynamic")
+    sample = db.RelationshipProperty("Sample", backref="submission", lazy="dynamic")
 
 
     __tablename__ = "Submission"
@@ -299,6 +298,7 @@ class SequencingSubmission(Submission):
     read_cycles_2 = db.Column(db.Integer, nullable=False)
     paired_end = db.Column(db.Enum("Yes", "No"), nullable=False)
 
+    lane = db.RelationshipProperty("Lane", backref="submission", lazy="dynamic")
 
     __tablename__ = "SequencingSubmission"
     __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == Submission.id)}
@@ -307,30 +307,29 @@ class SequencingSubmission(Submission):
         return "<Sequencing Submission for flowcell %s: %s from %s to %s by %s>" % (self.flow_cell_id, self.name, self.start_date, self.completion_date, self.leader)
 
 
-class Project(db.Model):
+class SampleGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(40), nullable=False)
     type = db.Column(db.String(50), nullable=False)
 
-    submission_id = db.Column(db.Integer, db.ForeignKey("Submission.id"), nullable=False)
-    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"), nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey("Submission.id"))
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
     investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"))
 
-    sample = db.RelationshipProperty("Sample", backref="project", lazy="dynamic")
+    sample = db.RelationshipProperty("Sample", backref="sample_group", lazy="dynamic")
 
-
-    __tablename__ = "Project"
+    __tablename__ = "SampleGroup"
     __mapper_args__ = {"polymorphic_on": type}
 
     def __repr__(self):
-        return "<Project %s of type %s>" % (self.name, self.type)
+        return "<SampleGroup %s of type %s>" % (self.name, self.type)
 
 
-class SequencingProject(Project):
-    id = db.Column(db.Integer, db.ForeignKey("Project.id"), primary_key=True)
+class SequencingSampleGroup(SampleGroup):
+    id = db.Column(db.Integer, db.ForeignKey("SampleGroup.id"), primary_key=True)
 
     # TODO Pipelines!
 
@@ -338,13 +337,11 @@ class SequencingProject(Project):
     #
     # sequencing_type = db.Column(db.Enum("exome", "RNAseq", "ChIPseq", "WGS", "other"))
 
-    lane = db.RelationshipProperty("Lane", backref="project", lazy="dynamic")
-
-    __tablename__ = "SequencingProject"
-    __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == Project.id)}
+    __tablename__ = "SequencingSampleGroup"
+    __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == SampleGroup.id)}
 
     def __repr__(self):
-        return "<Sequencing Project: %s>" % self.name
+        return "<Sequencing SampleGroup: %s>" % self.name
 
 
 class Sample(db.Model):
@@ -352,14 +349,15 @@ class Sample(db.Model):
 
     internal_sample_name = db.Column(db.String(50), nullable=False)
     customer_sample_name = db.Column(db.String(50), nullable=False)
+    sample_type = db.Column(db.String(50))
     type = db.Column(db.String(50), nullable=False)
 
-    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
-    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
-    run_id = db.Column(db.Integer, db.ForeignKey("Submission.id"), nullable=False)
-    project_id = db.Column(db.Integer, db.ForeignKey("Project.id"), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"), nullable=False)
-    tag_id = db.Column(db.Integer, db.ForeignKey("Tag.id"), nullable=False)
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
+    submission_id = db.Column(db.Integer, db.ForeignKey("Submission.id"))
+    sample_group_id = db.Column(db.Integer, db.ForeignKey("SampleGroup.id"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"))
+    tag_id = db.Column(db.Integer, db.ForeignKey("Tag.id"))
 
     __tablename__ = "Sample"
     __mapper_args__ = {"polymorphic_on": type}
@@ -373,8 +371,8 @@ class SequencingSample(Sample):
 
     adaptor_sequence = db.Column(db.String(200), nullable=False)
 
-    lane = db.RelationshipProperty("Lane", backref="sample", uselist=False, lazy=False)
     index_tag = db.RelationshipProperty("Tag", backref="sample", lazy="dynamic")
+    lane_id = db.Column(db.Integer, db.ForeignKey("Lane.id"))
 
     __tablename__ = "SequencingSample"
     __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == Sample.id)}
@@ -392,8 +390,9 @@ class Lane(db.Model):
     spike = db.Column(db.String(20), nullable=False)
     spike_ratio = db.Column(db.Float, nullable=False)
 
-    project_id = db.Column(db.Integer, db.ForeignKey("SequencingProject.id"), nullable=False)
-    sample_id = db.Column(db.Integer, db.ForeignKey("SequencingSample.id"), nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey("SequencingSubmission.id"))
+
+    sample = db.RelationshipProperty("SequencingSample", backref="lane", lazy="dynamic")
 
     __tablename__ = "Lane"
 
@@ -430,7 +429,7 @@ class Tag(db.Model):
     tag_library = db.Column(db.String(40), nullable=False)
     tag_sequence = db.Column(db.String(40), nullable=False)
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("SequencingSample.id"), nullable=False)
+    sample_id = db.Column(db.Integer, db.ForeignKey("SequencingSample.id"))
 
     __tablename__ = "Tag"
 
@@ -438,15 +437,11 @@ class Tag(db.Model):
         return "<Tag %s from %s with sequence %s>" % (self.tag_id, self.tag_library, self.tag_sequence)
 
 
-class FlowCytometryProject(Project):
-    id = db.Column(db.Integer, db.ForeignKey("Project.id"), primary_key=True)
+class FlowCytometrySampleGroup(SampleGroup):
+    id = db.Column(db.Integer, db.ForeignKey("SampleGroup.id"), primary_key=True)
 
-    __tablename__ = "FlowCytometryProject"
-    __mapper_args__ = {"polymorphic_identity": "flow_cytometry", "inherit_condition": (id == Project.id)}
-
-    def __init__(self):
-        super(Project, self).__init__()
-
+    __tablename__ = "FlowCytometrySampleGroup"
+    __mapper_args__ = {"polymorphic_identity": "Flow Cytometry", "inherit_condition": (id == SampleGroup.id)}
 
 class Demultiplex(db.Model):
     id = db.Column(db.Integer, primary_key=True)

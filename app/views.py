@@ -1,10 +1,10 @@
 import os
-
 import flask.ext.excel as excel
 import pyexcel
 import pyexcel.ext.xls
 import pyexcel.ext.xlsx
-from app import app, db, forms, login_required
+
+from app import app, db, forms, login_required, utils, login_manager
 from flask import render_template, request, flash, redirect, url_for, g
 from flask.ext.login import login_user, logout_user, current_user
 
@@ -101,7 +101,7 @@ def administrate():
 @login_required("Site Admin")
 def show_groups(page=1):
     from app.models import Group
-    g = Group.query.paginate(page=page)
+    g = Group.query.paginate(page=page, per_page=20)
     return render_template("groups.html", title="Groups", page=page, obs=g)
 
 
@@ -227,7 +227,7 @@ def investigations(page=1):
         i = Investigation.query.paginate(page=page, per_page=20)
 
     else:
-        i = Investigation.query.filter_by(submitter_id=current_user.id).paginate(page=page, per_page=20)
+        i = utils.get_allowed_investigations_query().paginate(page=page, per_page=20)
 
     return render_template("investigations.html", title="My Investigations", page=page, obs=i)
 
@@ -241,29 +241,21 @@ def new_investigation():
 
     else:
         if form.validate_on_submit():
-            from app.models import Investigation
-            i = Investigation(str(form.investigation_name.data), str(form.investigation_lead.data))
-            current_user.investigation.append(i)
-            current_user.group.investigation.append(i)
-
-            db.session.add(i)
-            db.session.add(current_user)
-            db.session.commit()
+            utils.create_investigation(str(form.investigation_name.data), str(form.investigation_lead.data))
             flash("Investigation successfully registered!", "info")
             return redirect(url_for("investigations"))
 
         return render_template("new_investigation.html", title="New Investigation", form=form)
 
 
-@app.route("/investigation/<string:name>|<int:iid>", methods=["GET", "POST"])
+@app.route("/investigation/<int:iid>", methods=["GET", "POST"])
 @login_required("ANY")
-def investigation(name="", iid=-1):
-    if name == "" or iid == -1:
+def investigation(iid=-1):
+    if iid == -1:
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    from app.models import Investigation
-    i = current_user.investigation.query().filter_by(investigation_id=iid, investigation_name=name).first()
+    i = utils.get_allowed_investigation(iid)
     return render_template("investigation.html", title="My Investigations", investigation=i)
 
 
@@ -277,30 +269,39 @@ def add_document(iid=-1):
     form = forms.AddDocumentForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            from app.models import Investigation, Document
-            i = Investigation.query.filter_by(investigation_id=iid).first()
+            # Handle no investigation to link to
+            i = utils.get_allowed_investigation(iid)
             if not i:
                 flash("Attempted to add a document to an investigation without an investigation parent.", "error")
                 return redirect(url_for("investigations"))
 
+            # Handle a bad directory structure - should never happen
             directory = i.validate_investigation_directory()
             if directory is None:
                 flash("Could not create investigation directory.", "error")
                 return redirect(url_for("investigations"))
 
+            # Handle maliciously named files (i.e. ../..)
             from werkzeug.utils import secure_filename
             filename = secure_filename(form.file_upload.data.filename)
             filepath = os.path.join(directory, filename)
+
+            # Handle a document already existing
+            if os.path.exists(filepath):
+                flash("A document with this location (i.e. filename) already exists", "error")
+                return redirect(url_for("investigations"))
+
+            # Save the file to the given path
             form.file_upload.data.save(filepath)
 
-            doc = Document(str(form.file_upload.data.filename), str(form.description.data), str(filepath))
-            db.session.add(doc)
-            i.document.append(doc)
-            db.session.commit()
+            # Save the document to the db
+            utils.create_document(iid, str(form.file_upload.data.filename), str(form.description.data), str(filepath))
 
+            # Inform and redirect
             flash("Document uploaded successfully", "success")
-            return redirect(url_for("investigation", name=i.investigation_name, iid=iid))
+            return redirect(url_for("investigation", iid=iid))
 
+    # Fail scenario
     return render_template("add_document.html", title="Add Document", form=form, iid=iid)
 
 
@@ -311,108 +312,97 @@ def remove_document(iid=-1, did=-1):
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
 
-    from app.models import Document, Investigation
-    doc = Document.query.filter_by(id=did, investigation_id=iid).first()
-    path = doc.location
+    doc = utils.get_allowed_document(did)
+    if doc.investigation_id is not did:
+        flash("Incorrect arguments for query provided", "error")
+        return redirect(url_for("index"))
 
+    path = doc.location
     if os.path.exists(path):
         os.remove(path)
 
-    i = Investigation.query.filter_by(investigation_id=iid).first()
-    db.session.delete(doc)
-    db.session.commit()
-    return redirect(url_for("investigation", name=i.investigation_name, iid=iid))
+    utils.remove_document(did)
+    return redirect(url_for("investigation", iid=iid))
 
 
-@app.route("/link_project/<int:iid>|<int:page>|<int:pid>", methods=["GET", "POST"])
-@app.route("/link_project/<int:iid>|<int:page>", methods=["GET", "POST"])
-@app.route("/link_project/<int:iid>", methods=["GET", "POST"])
+@app.route("/link_sample_group/<int:iid>|<int:page>|<int:gid>", methods=["GET", "POST"])
+@app.route("/link_sample_group/<int:iid>|<int:page>", methods=["GET", "POST"])
+@app.route("/link_sample_group/<int:iid>", methods=["GET", "POST"])
 @login_required("ANY")
-def link_project(iid=-1, page=1, pid=-1):
-    if pid is not -1 and iid is not -1:
+def link_sample_group(iid=-1, page=1, gid=-1):
+    if gid is not -1 and iid is not -1:
         # Link the project and return
-        from app.models import Investigation, Project
-        i = Investigation.query.filter_by(investigation_id=iid).first()
-        p = Project.query.filter_by(id=pid).first()
-        i.project.append(p)
-        return render_template("investigation.html", title="My Investigations", investigation=i)
+        i = utils.get_allowed_investigation(iid)
+        if utils.link_sample_group_to_investigation(iid, gid):
+            return render_template("investigation.html", title="My Investigations", investigation=i)
 
-    from app.models import Project
-    p = Project.query.paginate(page=page, per_page=20)
-    return render_template("link_project.html", title="Link Project", page=page, projects=p, iid=iid)
+        else:
+            flash("Cannot find or you do not have access to the provided investigation and/or sample group", "error")
+            return render_template("investigation.html", title="My Investigations", investigation=i)
+
+    p = utils.get_allowed_sample_groups_query().paginate(page=page, per_page=20)
+    return render_template("link_sample_group.html", title="Link Sample Group", page=page, obs=p, iid=iid)
 
 
-@app.route("/runs", methods=["GET", "POST"])
-@app.route("/runs/<int:page>", methods=["GET", "POST"])
+@app.route("/submissions", methods=["GET", "POST"])
+@app.route("/submissions/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
-def runs(page=1):
-    from app.models import Submission
-    r = Submission.query.paginate(page=page, per_page=20)
-    return render_template("runs.html", title="My Runs", page=page, obs=r)
+def submissions(page=1):
+    s = utils.get_allowed_submissions_query().paginate(page=page, per_page=20)
+    return render_template("submissions.html", title="My Runs", page=page, obs=s)
 
 
 # TODO FINISH
-@app.route("/run/<int:rid>|<string:type>")
+@app.route("/submission/<int:sid>|<string:type>")
 @login_required("ANY")
-def run(rid=-1, type="none"):
-
+def submission(sid=-1, type="none"):
     if type == "none":
-        from app.models import Submission
-        r = Submission.query.filter_by(id=rid).first()
-        type = r.type
+        s = utils.get_allowed_submission(sid)
+        type = s.type
 
-    if type == "sequencing":
-        return redirect(url_for("sequencing_run", rid=rid))
+    if type == "Sequencing":
+        return redirect(url_for("sequencing_submission", sid=sid))
 
-    elif type == "flow_cytometry":
-        flash("Run view is not yet implemented", "warning")
+    elif type == "Flow Cytometry":
+        flash("Submission view is not yet implemented", "warning")
         # TODO: Display flow cytometry run information
 
     flash("There was an error whilst navigating", "error")
     return render_template("empty.html", title="Down the rabbit hole!")
 
 
-@app.route("/sequencing_run/<int:rid>")
+@app.route("/sequencing_submission/<sid>")
 @login_required("ANY")
-def sequencing_run(rid=-1):
-    if rid == -1:
+def sequencing_submission(sid=-1):
+    if sid == -1:
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    from app.models import SequencingSubmission
-    s = SequencingSubmission.query.filter_by(id=rid).first()
+    s = utils.get_allowed_submission(sid)
     if s is None:
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    return render_template("sequencing_run.html", title="Sequencing Run", run=s)
+    return render_template("sequencing_submission.html", title="Sequencing Submission", submission=s)
 
 
-@app.route("/input_sequencing_run", methods=["GET", "POST"])
-@app.route("/input_sequencing_run/<string:type>", methods=["GET", "POST"])
+@app.route("/input_sequencing_submission", methods=["GET", "POST"])
+@app.route("/input_sequencing_submission/<string:type>", methods=["GET", "POST"])
 @login_required("ANY")
-def input_sequencing_run(type="none"):
-    form = forms.UploadSequencingRunForm(prefix="form")
-    form2 = forms.NewSequencingProjectForm(prefix="form2")
+def input_sequencing_submission(type="none"):
+    if current_user.type == "Customer":
+        flash("Customers may not access this page", "error")
+        return login_manager.unauthorized()
+
+    form = forms.UploadSequencingSubmissionForm(prefix="form")
+    form2 = forms.NewSequencingSubmissionForm(prefix="form2")
+    from app.static.files import sequencing_submission_template
     if request.method == "GET":
         if type == "download":
-            data = [
-                ["Sequencing Run Name", ""],
-                ["Flow Cell ID", ""],
-                ["Start Date (YYYY-MM-DD format)", ""],
-                ["Completion Date (YYYY-MM-DD format)", ""],
-                ["Genomics Lead", ""],
-                ["Data Location", ""],
-                ["Number of Cycles for Index Tag 1", ""],
-                ["Number of Cycles for Index Tag 2", ""],
-                ["Number of Cycles for Read 1", ""],
-                ["Number of Cycles for Read 2", ""],
-                ["Paired End (Yes/No)", ""]
-            ]
-            response = excel.make_response_from_array(data, "xls")
-            response.headers["Content-Disposition"] = "attachment; filename=template.xls"
+            response = excel.make_response_from_book_dict(sequencing_submission_template.submission_data, "xls")
+            response.headers["Content-Disposition"] = "attachment; filename=template_for_sequencing_submission.xls"
             return response
-        return render_template("input_sequencing_run.html", title="Input Sequencing Run", form=form, form2=form2)
+        return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
 
     elif type == "upload":
         if form.validate_on_submit():
@@ -420,144 +410,120 @@ def input_sequencing_run(type="none"):
                 filename = request.files["form-file_upload"].filename
                 extension = filename.split(".")[1]
 
-                sheet = pyexcel.load_from_memory(extension, request.files["form-file_upload"].read())
-                data = dict(pyexcel.to_array(sheet))
+                try:
+                    sheet = pyexcel.load_from_memory(extension, request.files["form-file_upload"].read(), sheetname="Submission Data")
 
-                empty = [
-                    ["Sequencing Run Name", ""],
-                    ["Flow Cell ID", ""],
-                    ["Start Date (YYYY-MM-DD format)", ""],
-                    ["Completion Date (YYYY-MM-DD format)", ""],
-                    ["Genomics Lead", ""],
-                    ["Data Location", ""],
-                    ["Number of Cycles for Index Tag 1", ""],
-                    ["Number of Cycles for Index Tag 2", ""],
-                    ["Number of Cycles for Read 1", ""],
-                    ["Number of Cycles for Read 2", ""],
-                    ["Paired End (Yes/No)", ""]
-                ]
+                except ValueError:
+                    flash("Could not find the Submission Data sheet in the provided excel file", "error")
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
 
-                for i in range(0, len(data)):
-                    if empty[i][0] in data:
-                        if data.get(empty[i][0]) == "":
-                            flash("File was missing data for: " + empty[i][0], "error")
-                            return render_template("input_sequencing_run.html", title="Input Sequencing Run", form=form,
-                                                   form2=form2)
+                array = pyexcel.to_array(sheet)
+                for entry in array:
+                    del entry[1]
 
-                from app.models import SequencingSubmission
-                s = SequencingSubmission()
-                s.name = data.get("Sequencing Run Name")
-                s.start_date = data.get("Start Date (YYYY-MM-DD format)")
-                s.completion_date = data.get("Completion Date (YYYY-MM-DD format)")
-                s.data_location = data.get("Data Location")
-                s.flow_cell_id = data.get("Flow Cell ID")
-                s.genomics_lead = data.get("Genomics Lead")
-                s.index_tag_cycles = data.get("Number of Cycles for Index Tag 1")
-                s.index_tag_cycles_2 = data.get("Number of Cycles for Index Tag 2")
-                s.read_cycles = data.get("Number of Cycles for Read 1")
-                s.read_cycles_2 = data.get("Number of Cycles for Read 2")
-                s.paired_end = data.get("Paired End (Yes/No)")
+                if len(array[0]) is not 2:
+                    flash("Either no information was provided, or too much. We are only expecting one column of data beyond our conventional information (i.e. 3rd column is the last column!", "error")
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
 
-                db.session.add(s)
-                db.session.commit()
+                data = dict(array)
+
+                error = sequencing_submission_template.validate_data_sheet(data)
+                if error is not None:
+                    flash("File was missing data for: " + error, "error")
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form,
+                                           form2=form2)
+
+                s = sequencing_submission_template.build_submission_entry(data)
+                if s is None:
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form,
+                                           form2=form2)
 
                 flash("Document uploaded successfully", "success")
-                return redirect(url_for("run", rid=s.id, type=s.type))
+                return redirect(url_for("submission", sid=s.id, type=s.type))
 
-        flash("Missing file information", "error")
+            else:
+                flash("Missing file information", "error")
+
+        else:
+            flash("Missing file information", "error")
 
     elif type == "manual":
         if form2.validate_on_submit():
-            from app.models import SequencingSubmission
-            s = SequencingSubmission()
-            s.name = form2.sequence_run_name.data
-            s.start_date = form2.start_date.data
-            s.completion_date = form2.completion_date.data
-            s.data_location = form2.data_location.data
-            s.flow_cell_id = form2.flow_cell_id.data
-            s.genomics_lead = form2.genomics_lead.data
-            s.index_tag_cycles = form2.index_tag_cycles.data
-            s.read_cycles = form2.read_cycles.data
-            s.paired_end = form2.paired_end.data
+            s = utils.create_sequencing_submission(
+                form2.sequence_submission_name.data,
+                form2.start_date.data,
+                form2.completion_date.data,
+                form2.data_location.data,
+                form2.flow_cell_id.data,
+                form2.genomics_lead.data,
+                form2.index_tag_cycles.data,
+                form2.read_cycles.data,
+                form2.paired_end.data
+            )
 
-            db.session.add(s)
-            db.session.commit()
+            flash("Sequencing submission submitted successfully", "success")
+            return redirect(url_for("submission", sid=s.id, type=s.type))
 
-            flash("Sequencing run submitted successfully", "success")
-            return redirect(url_for("run", rid=s.id, type=s.type))
-
-    flash("There was an error whilst navigating.", "error")
-    return render_template("input_sequencing_run.html", title="Input Sequencing Run", form=form, form2=form2)
+    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
 
 
-@app.route("/projects", methods=["GET", "POST"])
-@app.route("/projects/<int:page>", methods=["GET", "POST"])
+@app.route("/sample_groups", methods=["GET", "POST"])
+@app.route("/sample_groups/<int:page>", methods=["GET", "POST"])
 @login_required("ANY")
-def projects(page=1):
-    from app.models import Project
-    p = Project.query.paginate(page=page, per_page=20)
-    return render_template("projects.html", title="My Projects", page=page, obs=p)
+def sample_groups(page=1):
+    g = utils.get_allowed_sample_groups_query().paginate(page=page, per_page=20)
+    return render_template("sample_groups.html", title="My Sample Groups", page=page, obs=g)
 
 
 # TODO FINISH
-@app.route("/project/<int:pid>|<string:type>")
+@app.route("/sample_group/<int:gid>|<string:type>")
 @login_required("ANY")
-def project(pid=-1, type="none"):
+def sample_group(gid=-1, type="none"):
     if type == "none":
-        from app.models import Submission
-        r = Submission.query.filter_by(id=pid).first()
-        type = r.type
+        p = utils.get_allowed_sample_group(gid)
+        type = p.type
 
-    if type == "sequencing":
-        return redirect(url_for("sequencing_project", pid=pid))
+    if type == "Sequencing":
+        return redirect(url_for("sequencing_sample_group", gid=gid))
 
-    elif type == "flow_cytometry":
-        flash("Run view is not yet implemented", "warning")
+    elif type == "Flow Cytometry":
+        flash("Submission view is not yet implemented", "warning")
         # TODO: Display flow cytometry run information
 
     flash("There was an error whilst navigating", "error")
     return render_template("empty.html", title="Down the rabbit hole!")
 
 
-@app.route("/sequencing_project/<int:pid>")
+@app.route("/sequencing_sample_group/<int:gid>")
 @login_required("ANY")
-def sequencing_project(pid=-1):
-    from app.models import SequencingProject
-    p = SequencingProject.query.filter_by(id=pid).first()
-    return render_template("sequencing_project.html", title="Sequencing Project", project=p)
+def sequencing_sample_group(gid=-1):
+    g = utils.get_allowed_sample_group(gid)
+    return render_template("sequencing_sample_group.html", title="Sequencing Sample Group", group=g)
 
 
-@app.route("/link_project_to_client/<int:pid>")
+@app.route("/link_sample_group_to_client/<int:gid>")
 @login_required("ANY")
-def link_project_to_client(pid=-1):
-    flash("Project to client linking not implemented yet.", "warning")
-    return redirect(url_for("sequencing_project", pid))
+def link_sample_group_to_client(gid=-1):
+    flash("Sample group to client linking not implemented yet.", "warning")
+    return redirect(url_for("sequencing_sample_group"), gid)
 
 
-@app.route("/input_sequencing_project/<int:rid>|<string:type>", methods=["GET", "POST"])
-@app.route("/input_sequencing_project", methods=["GET", "POST"])
+@app.route("/input_sequencing_sample_mappings/<int:sid>|<string:type>", methods=["GET", "POST"])
+@app.route("/input_sequencing_sample_mappings", methods=["GET", "POST"])
 @login_required("ANY")
-def input_sequencing_project(type="", rid=-1):
-    form = forms.UploadSequencingProjectForm()
+def input_sequencing_sample_mappings(type="", sid=-1):
+    if current_user.type == "Customer":
+        flash("Customers may not access this page", "error")
+        return login_manager.unauthorized()
+
+    form = forms.UploadSequencingSampleMappingsForm()
+    from app.static.files import sequencing_sample_mappings_template
     if request.method == "GET":
         if type == "download":
-            # We could hold this on disk but it does not seem worth the io
-            data = [
-                [
-                    "Internal Sample Name", "Customer Sample Name", "Sequencing Project Group Name", "Sequencing Type",
-                    "Customer Name", "Lane Number",
-                    "Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)",
-                    "PhiXSpiked", "Spike", "Spike Ratio",
-                    "Index 1 Tag Sequence", "Index 2 Tag Sequence", "Index 1 Tag ID", "Index 2 Tag ID",
-                    "Index 1 Tag Kit ID", "Index 2 Tag Kit ID", "Adaptor Sequence"
-                ]
-            ]
-
-            # dump the above array into an excel file for the user to download
-            response = excel.make_response_from_array(data, "xls")
-            response.headers["Content-Disposition"] = "attachment; filename=template.xls"
+            response = excel.make_response_from_book_dict(sequencing_sample_mappings_template.sample_mappings_data, "xls")
+            response.headers["Content-Disposition"] = "attachment; filename=template_for_sequencing_sample_mapping.xls"
             return response
-        return render_template("input_sequencing_project.html", title="Input Sequencing Project", form=form, rid=rid)
+        return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
     elif type == "upload":
         if form.validate_on_submit():
@@ -566,197 +532,82 @@ def input_sequencing_project(type="", rid=-1):
                 extension = filename.split(".")[1]
 
                 # Magic to get an csv/excel, transpose it and assign the first value as the dict key
-                sheet = pyexcel.load_from_memory(extension, request.files["file_upload"].read())
+                sheet = pyexcel.load_from_memory(extension, request.files["file_upload"].read(), "Sample Mappings Data")
                 raw = pyexcel.to_array(sheet)
                 transposed = list(zip(*raw))
-                data = dict([(k[0], k[1:]) for k in transposed])
+                data = dict([(k[0], k[2:]) for k in transposed])
 
-                # List of expected content - TODO: update with what information is absolutely necessary
-                empty = [
-                    ["Internal Sample Name", "y"],
-                    ["Customer Sample Name", "y"],
-                    ["Sequencing Project Group Name", "y"],
-                    ["Sequencing Type", "y"],
-                    ["Customer Name", "y"],
-                    ["Lane Number", "y"],
-                    ["Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)", "y"],
-                    ["PhiXSpiked", "y"],
-                    ["Spike", "y"],
-                    ["Spike Ratio", "y"],
-                    ["Index 1 Tag Sequence", "y"],
-                    ["Index 2 Tag Sequence", "n"],
-                    ["Index 1 Tag ID", "y"],
-                    ["Index 2 Tag ID", "n"],
-                    ["Index 1 Tag Kit ID", "y"],
-                    ["Index 2 Tag Kit ID", "n"],
-                    ["Adaptor Sequence", "y"]
-                ]
+                passed = sequencing_sample_mappings_template.validate_data_sheet(data)
+                if not passed:
+                    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
-                # Loop through the content, if an item is expected then throw an error when it is absent
-                for i in range(0, len(data)):
-                    if empty[i][1] == "y":
-                        if data.get(empty[i][0]) is None:
-                            flash("Could not identify the column: " + empty[i][0] + " in your submission", "error")
-                            return render_template("input_sequencing_project.html", title="Input Sequencing Project",
-                                                   form=form, rid=rid)
+                passed = sequencing_sample_mappings_template.build_sample_mappings(sid, data)
+                if passed:
+                    flash("Document uploaded successfully", "success")
+                    return redirect(url_for("sequencing_submission", sid=sid, type=""))
 
-                        for j in range(0, len(data.get("Internal Sample Name"))):
-                            if data.get(empty[i][0])[j] is None or data.get(empty[i][0])[j] == "":
-                                flash("File was missing data for: " + empty[i][0] + " on line: " + str(
-                                    j) + " this information is considered essential.", "error")
-                                return render_template("input_sequencing_project.html",
-                                                       title="Input Sequencing Project", form=form, rid=rid)
+                else:
+                    flash("There was an error building your samples", "error")
+                    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
-                # Get or create the run
-                from app.models import SequencingSubmission
-                r = SequencingSubmission.query.filter_by(id=rid).first()
-                if r is None:
-                    flash("Could not identify the parent run", "error")
-                    return render_template("input_sequencing_project", title="Input Sequencing Project", form=form)
+            else:
+                flash("Missing file information", "error")
 
-                for i in range(0, len(data.get("Internal Sample Name"))):
+        else:
+            flash("Missing file information", "error")
 
-                    # Create a sample which must be unique in the context of the run, this is done first so we can error
-                    # out and leave the db intact if something is wrong
-                    from app.models import SequencingSample, Tag
-                    s = r.sample.filter_by(internal_sample_name=data.get("Internal Sample Name")[i]).first()
-                    if s is None:
-                        s = SequencingSample()
-                        s.internal_sample_name = data.get("Internal Sample Name")[i]
-                        s.customer_sample_name = data.get("Customer Sample Name")[i]
-                        s.adaptor_sequence = data.get("Adaptor Sequence")[i]
-
-                        # Not all samples use both tags
-                        s.index_tag.append(Tag(data.get("Index 1 Tag ID")[i], data.get("Index 1 Tag Kit ID")[i],
-                                               data.get("Index 1 Tag Sequence")[i], True))
-                        if data.get("Index 2 Tag ID")[i] is not None and data.get("Index 2 Tag ID") is not "":
-                            s.index_tag.append(Tag(data.get("Index 2 Tag ID")[i], data.get("Index 2 Tag Kit ID")[i],
-                                                   data.get("Index 2 Tag Sequence")[i], False))
-
-                        db.session.add(s)
-                        db.session.commit()
-
-                    # if it is already present we error out of the submission
-                    else:
-                        flash(
-                            "Your submission contained a sample name that already exists within the context of this" +
-                            " run. The internal sample name in question was: " +
-                            str(data.get("Internal Sample Name")[i]) +
-                            " please re-submit when corrections are made", "error")
-                        return render_template("input_sequencing_project.html", title="Input Sequencing Project",
-                                               form=form, rid=rid)
-
-                    r.sample.append(s)
-
-                    # Create a customer if their name has not been used before, otherwise we will blindly update the
-                    # existing customer's information - not a lot we can do here
-                    from app.models import Customer
-                    c = Customer.query.filter_by(name=data.get("Customer Name")[i]).first()
-                    if c is None:
-                        c = Customer(data.get("Customer Name")[i])
-
-                        db.session.add(c)
-                        db.session.commit()
-
-                    c.sample.append(s)  # We can be certain of this because if it is not new we error out
-
-                    # Create a project grouping, the name of which must be unique within the context of the run
-                    # No handling for repeats as we update the existing record if the project group is already present
-                    from app.models import SequencingProject
-                    p = r.project.filter_by(name=data.get("Sequencing Project Group Name")[i]).first()
-                    if p is None:
-                        p = SequencingProject()
-                        p.name = data.get("Sequencing Project Group Name")[i]
-                        p.sequencing_type = data.get("Sequencing Type")[i]
-
-                        db.session.add(p)
-                        db.session.commit()
-
-                    r.project.append(p)
-                    c.project.append(p)
-                    p.sample.append(s)
-
-                    # Create or retrieve lane information which must be unique in the context of the run
-                    from app.models import Lane
-                    l = r.lane.filter_by(number=data.get("Lane Number")[i]).first()
-                    if l is None:
-                        l = Lane(data.get("Lane Number")[i])
-                        l.set_sequencing_concentration(data.get("Sequencing Concentration (Default units pm, please specify others, e.g. um, if this is not correct)")[i])
-                        l.phi_x_spiked = data.get("PhiXSpiked")[i]
-                        l.spike = data.get("Spike")[i]
-                        l.spikeRation = data.get("Spike Ratio")[i]
-
-                        db.session.add(l)
-                        db.session.commit()
-
-                    r.lane.append(l)
-                    s.lane = l  # This is safe because we know the sample is new
-
-                # Save the run (should append any nested creations etc) - this probably isn't necessary but I cannot be
-                # sure right now!
-                db.session.add(r)
-                db.session.commit()
-
-                flash("Document uploaded successfully", "success")
-                return redirect(url_for("sequencing_run", rid=r.id, type=""))
-
-        # Handle invalid form submissions
-        flash("Missing file information", "error")
-
-    flash("There was an error whilst navigating.", "error")
-    return render_template("input_sequencing_project.html", title="Input Sequencing Project", form=form, rid=rid)
+    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
 
 # TODO Start
-@app.route("/input_flow_cytometry_run")
+@app.route("/input_flow_cytometry_submission")
 @login_required("ANY")
-def input_flow_cytometry_run():
-    flash("New flow cytometry run page is still in development", "warning")
+def input_flow_cytometry_submission():
+    flash("New flow cytometry submission page is still in development", "warning")
     return redirect(url_for("empty"))
 
 
-@app.route("/demultiplex/<int:rid>|<int:pid>", methods=["GET", "POST"])
+@app.route("/demultiplex/<int:gid>", methods=["GET", "POST"])
 @app.route("/demultiplex", methods=["GET", "POST"])
 @login_required("ANY")
-def demultiplex(rid=-1, pid=-1):
+def demultiplex(gid=-1):
     # Escape if our inputs are invalid
-    if rid == -1 or pid == -1:
+    if gid == -1:
         flash("Invalid properties provided for demultiplexing!", "warning")
         return redirect(url_for("index"))
 
     # Get the project in question - this page is specific to sequencing so we can query it directly
-    from app.models import SequencingProject
-    p = SequencingProject.query.filter_by(id=pid).first()
-    if p is None:
+    g = utils.get_allowed_sample_group(gid)
+    if g is None:
         flash("Invalid properties provided for demultiplexing!", "warning")
         return redirect(url_for("index"))
 
     # Render the demultiplex screen
-    return render_template("demultiplex.html", p=p)
+    return render_template("demultiplex.html", group=g)
 
 
-@app.route("/fast_qc/<int:rid>|<int:pid>", methods=["GET", "POST"])
+@app.route("/fast_qc/<int:sid>|<int:gid>", methods=["GET", "POST"])
 @app.route("/fast_qc", methods=["GET", "POST"])
 @login_required("ANY")
-def fast_qc(rid=-1, pid=-1):
+def fast_qc(sid=-1, gid=-1):
     flash("fast qc information is not yet implemented", "warning")
-    return redirect(url_for("sequencing_run", rid=rid))
+    return redirect(url_for("sequencing_submission", sid=sid))
 
 
-@app.route("/post_align/<int:rid>|<int:pid>", methods=["GET", "POST"])
+@app.route("/post_align/<int:sid>|<int:gid>", methods=["GET", "POST"])
 @app.route("/post_align", methods=["GET", "POST"])
 @login_required("ANY")
-def post_align(rid=-1, pid=-1):
+def post_align(sid=-1, gid=-1):
     flash("post align is not yet implemented", "warning")
-    return redirect(url_for("sequencing_run", rid=rid))
+    return redirect(url_for("sequencing_submission", sid=sid))
 
 
-@app.route("/sftp/<int:rid>|<int:pid>", methods=["GET", "POST"])
+@app.route("/sftp/<int:sid>|<int:gid>", methods=["GET", "POST"])
 @app.route("/sftp", methods=["GET", "POST"])
 @login_required("ANY")
-def sftp(rid=-1, pid=-1):
+def sftp(sid=-1, gid=-1):
     flash("sftp not yet implemented", "warning")
-    return redirect(url_for("sequencing_run", rid=rid))
+    return redirect(url_for("sequencing_submission", sid=sid))
 
 
 # @login_required to secure
