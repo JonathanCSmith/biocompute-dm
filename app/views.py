@@ -61,7 +61,7 @@ def login():
 
     else:
         if not form.validate_on_submit():
-            flash_errors(form)
+            utils.flash_errors(form)
             return render_template("login.html", title="Login", form=form)
 
         else:
@@ -144,7 +144,7 @@ def add_group():
 
     else:
         if not form.validate():
-            flash_errors(form)
+            utils.flash_errors(form)
             return render_template("add_group.html", title="Group Creation", form=form)
 
         else:
@@ -175,7 +175,7 @@ def add_user():
 
     else:
         if not form.validate():
-            flash_errors(form)
+            utils.flash_errors(form)
             return render_template("add_person.html", title="Add User", type="User", form=form)
 
         else:
@@ -201,7 +201,7 @@ def add_customer():
 
     else:
         if not form.validate():
-            flash_errors(form)
+            utils.flash_errors(form)
             return render_template("add_person.html", title="Add User", type="Customer", form=form)
 
         else:
@@ -248,10 +248,10 @@ def new_investigation():
         return render_template("new_investigation.html", title="New Investigation", form=form)
 
 
-@app.route("/investigation/<int:iid>", methods=["GET", "POST"])
+@app.route("/investigation/<iid>", methods=["GET", "POST"])
 @login_required("ANY")
-def investigation(iid=-1):
-    if iid == -1:
+def investigation(iid=""):
+    if iid == "":
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
@@ -259,10 +259,10 @@ def investigation(iid=-1):
     return render_template("investigation.html", title="My Investigations", investigation=i)
 
 
-@app.route("/add_document/<int:iid>", methods=["GET", "POST"])
+@app.route("/add_document/<iid>", methods=["GET", "POST"])
 @login_required("ANY")
-def add_document(iid=-1):
-    if iid == -1:
+def add_document(iid=""):
+    if iid == "":
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
 
@@ -305,10 +305,10 @@ def add_document(iid=-1):
     return render_template("add_document.html", title="Add Document", form=form, iid=iid)
 
 
-@app.route("/remove_document/<int:iid>|<int:did>")
+@app.route("/remove_document/<iid>|<did>")
 @login_required("ANY")
-def remove_document(iid=-1, did=-1):
-    if iid == -1 or did == -1:
+def remove_document(iid="", did=""):
+    if iid == "" or did == "":
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
 
@@ -325,12 +325,12 @@ def remove_document(iid=-1, did=-1):
     return redirect(url_for("investigation", iid=iid))
 
 
-@app.route("/link_sample_group/<int:iid>|<int:page>|<int:gid>", methods=["GET", "POST"])
-@app.route("/link_sample_group/<int:iid>|<int:page>", methods=["GET", "POST"])
-@app.route("/link_sample_group/<int:iid>", methods=["GET", "POST"])
+@app.route("/link_sample_group/<iid>|<gid>|<int:page>", methods=["GET", "POST"])
+@app.route("/link_sample_group/<iid>|<int:page>", methods=["GET", "POST"])
+@app.route("/link_sample_group/<iid>", methods=["GET", "POST"])
 @login_required("ANY")
-def link_sample_group(iid=-1, page=1, gid=-1):
-    if gid is not -1 and iid is not -1:
+def link_sample_group(iid="", gid="", page=1):
+    if gid is not "" and iid is not "":
         # Link the project and return
         i = utils.get_allowed_investigation(iid)
         if utils.link_sample_group_to_investigation(iid, gid):
@@ -353,9 +353,9 @@ def submissions(page=1):
 
 
 # TODO FINISH
-@app.route("/submission/<int:sid>|<string:type>")
+@app.route("/submission/<sid>|<string:type>")
 @login_required("ANY")
-def submission(sid=-1, type="none"):
+def submission(sid="", type="none"):
     if type == "none":
         s = utils.get_allowed_submission(sid)
         type = s.type
@@ -373,8 +373,8 @@ def submission(sid=-1, type="none"):
 
 @app.route("/sequencing_submission/<sid>")
 @login_required("ANY")
-def sequencing_submission(sid=-1):
-    if sid == -1:
+def sequencing_submission(sid=""):
+    if sid == "":
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
@@ -476,9 +476,9 @@ def sample_groups(page=1):
 
 
 # TODO FINISH
-@app.route("/sample_group/<int:gid>|<string:type>")
+@app.route("/sample_group/<gid>|<string:type>")
 @login_required("ANY")
-def sample_group(gid=-1, type="none"):
+def sample_group(gid="", type="none"):
     if type == "none":
         p = utils.get_allowed_sample_group(gid)
         type = p.type
@@ -494,24 +494,24 @@ def sample_group(gid=-1, type="none"):
     return render_template("empty.html", title="Down the rabbit hole!")
 
 
-@app.route("/sequencing_sample_group/<int:gid>")
+@app.route("/sequencing_sample_group/<gid>")
 @login_required("ANY")
-def sequencing_sample_group(gid=-1):
+def sequencing_sample_group(gid=""):
     g = utils.get_allowed_sample_group(gid)
     return render_template("sequencing_sample_group.html", title="Sequencing Sample Group", group=g)
 
 
-@app.route("/link_sample_group_to_client/<int:gid>")
+@app.route("/link_sample_group_to_client/<gid>")
 @login_required("ANY")
-def link_sample_group_to_client(gid=-1):
+def link_sample_group_to_client(gid=""):
     flash("Sample group to client linking not implemented yet.", "warning")
     return redirect(url_for("sequencing_sample_group"), gid)
 
 
-@app.route("/input_sequencing_sample_mappings/<int:sid>|<string:type>", methods=["GET", "POST"])
+@app.route("/input_sequencing_sample_mappings/<sid>|<string:type>", methods=["GET", "POST"])
 @app.route("/input_sequencing_sample_mappings", methods=["GET", "POST"])
 @login_required("ANY")
-def input_sequencing_sample_mappings(type="", sid=-1):
+def input_sequencing_sample_mappings(type="", sid=""):
     if current_user.type == "Customer":
         flash("Customers may not access this page", "error")
         return login_manager.unauthorized()
@@ -565,59 +565,3 @@ def input_sequencing_sample_mappings(type="", sid=-1):
 def input_flow_cytometry_submission():
     flash("New flow cytometry submission page is still in development", "warning")
     return redirect(url_for("empty"))
-
-
-@app.route("/demultiplex/<int:gid>", methods=["GET", "POST"])
-@app.route("/demultiplex", methods=["GET", "POST"])
-@login_required("ANY")
-def demultiplex(gid=-1):
-    # Escape if our inputs are invalid
-    if gid == -1:
-        flash("Invalid properties provided for demultiplexing!", "warning")
-        return redirect(url_for("index"))
-
-    # Get the project in question - this page is specific to sequencing so we can query it directly
-    g = utils.get_allowed_sample_group(gid)
-    if g is None:
-        flash("Invalid properties provided for demultiplexing!", "warning")
-        return redirect(url_for("index"))
-
-    # Render the demultiplex screen
-    return render_template("demultiplex.html", group=g)
-
-
-@app.route("/fast_qc/<int:sid>|<int:gid>", methods=["GET", "POST"])
-@app.route("/fast_qc", methods=["GET", "POST"])
-@login_required("ANY")
-def fast_qc(sid=-1, gid=-1):
-    flash("fast qc information is not yet implemented", "warning")
-    return redirect(url_for("sequencing_submission", sid=sid))
-
-
-@app.route("/post_align/<int:sid>|<int:gid>", methods=["GET", "POST"])
-@app.route("/post_align", methods=["GET", "POST"])
-@login_required("ANY")
-def post_align(sid=-1, gid=-1):
-    flash("post align is not yet implemented", "warning")
-    return redirect(url_for("sequencing_submission", sid=sid))
-
-
-@app.route("/sftp/<int:sid>|<int:gid>", methods=["GET", "POST"])
-@app.route("/sftp", methods=["GET", "POST"])
-@login_required("ANY")
-def sftp(sid=-1, gid=-1):
-    flash("sftp not yet implemented", "warning")
-    return redirect(url_for("sequencing_submission", sid=sid))
-
-
-# @login_required to secure
-
-
-# Function to display errors
-def flash_errors(form):
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error
-            ), "error")

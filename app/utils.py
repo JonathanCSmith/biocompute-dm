@@ -278,3 +278,13 @@ def get_allowed_documents_query():
         return Document.query.filter_by(group_id=current_user.group_id)
 
     return None
+
+
+# Function to display errors
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ), "error")
