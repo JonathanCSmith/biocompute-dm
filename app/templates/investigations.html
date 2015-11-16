@@ -11,7 +11,7 @@
 
     {% for investigation in obs.items %}
     <tr>
-        <td><a href="{{ url_for('investigation', iid=investigation.id) }}">{{ investigation.name }}</a></td>
+        <td><a href="{{ url_for('investigation', iid=investigation.display_key) }}">{{ investigation.name }}</a></td>
         <td>{{ investigation.leader }}</td>
         <td>{{ investigation.open_date }}</td>
         <td>{{ investigation.last_update }}</td>

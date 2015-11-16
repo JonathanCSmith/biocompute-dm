@@ -82,19 +82,19 @@ def validate_data_sheet(data):
 
 def build_sample_mappings(sid, data):
     d = sample_mappings_data.get("Sample Mappings Data")[0]
-    s = utils.get_allowed_submission(sid)
+    s = utils.get_allowed_submission_by_display_key(sid)
     if s is None:
         flash("Cannot link this sample mappings set to a submission!", "error")
         return False
 
     for i in range(0, len(data.get(d[0]))):
-        if utils.get_allowed_sample_by_internal_name_from_submission(sid, data.get(d[1][i])):
+        if utils.get_allowed_sample_by_internal_name_from_submission_display_key(sid, data.get(d[1])[i]):
             flash(
-                "One of your samples in your mappings file has the same name as another in this submission. This name was: " + data.get(
-                    d[1]), "error")
+                "One of your samples in your mappings file has the same name as another in this submission. This name was: " +
+                    data.get(d[1])[i], "error")
             return False
 
-        t = utils.create_tag(data.get(d[9][i]), data.get(d[11])[i], data.get(d[13])[i], True)
+        t = utils.create_tag(data.get(d[9])[i], data.get(d[11])[i], data.get(d[13])[i], True)
         if t is None:
             return False
 
@@ -113,13 +113,13 @@ def build_sample_mappings(sid, data):
         if sample_group_name is None or sample_group_name == "":
             sample_group_name = "Default"
 
-        g = utils.get_allowed_sample_group_by_name_from_submission(sid, sample_group_name)
+        g = utils.get_allowed_sample_group_by_name_from_submission_display_key(sid, sample_group_name)
         if g is None:
             g = utils.create_sequencing_sample_group(sid, sample_group_name)
 
         g.sample.append(sample)
 
-        l = utils.get_allowed_lane_by_number_from_submission(sid, data.get(d[4])[i])
+        l = utils.get_allowed_lane_by_number_from_submission_display_key(sid, data.get(d[4])[i])
         if l is None:
             l = utils.create_lane(sid, data.get(d[4])[i], data.get(d[5])[i], data.get(d[6])[i], data.get(d[7])[i], data.get(d[8])[i])
 

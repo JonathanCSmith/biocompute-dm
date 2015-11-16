@@ -59,11 +59,12 @@ def create_sequencing_sample(internal_name, customer_name, adaptor_sequence, sam
     return s
 
 
-def get_allowed_sample_by_internal_name_from_submission(sid, name):
-    return get_allowed_sequencing_samples_from_submission_query(sid).filter_by(internal_sample_name=name).first()
+def get_allowed_sample_by_internal_name_from_submission_display_key(sample_display_key, name):
+    return get_allowed_sequencing_samples_from_submission_display_key_query(sample_display_key).filter_by(internal_sample_name=name).first()
 
 
-def get_allowed_sequencing_samples_from_submission_query(sid):
+def get_allowed_sequencing_samples_from_submission_display_key_query(display_key):
+    sid = Submission.query.filter_by(display_key=display_key).first().id
     return SequencingSample.query.filter_by(submission_id=sid)
 
 
@@ -71,7 +72,7 @@ def create_lane(sid, number, concentration, phi, spike, ratio):
     if current_user.type == "Customer":
         return None
 
-    l = get_allowed_lane_by_number_from_submission(sid, number)
+    l = get_allowed_lane_by_number_from_submission_display_key(sid, number)
     if l is not None:
         return l
 
@@ -82,7 +83,7 @@ def create_lane(sid, number, concentration, phi, spike, ratio):
     l.spike = spike
     l.spike_ratio = ratio
 
-    s = get_allowed_submission(sid)
+    s = get_allowed_submission_by_display_key(sid)
     s.lane.append(l)
 
     db.session.add(l)
@@ -91,7 +92,8 @@ def create_lane(sid, number, concentration, phi, spike, ratio):
     return l
 
 
-def get_allowed_lane_by_number_from_submission(sid, number):
+def get_allowed_lane_by_number_from_submission_display_key(display_key, number):
+    sid = Submission.query.filter_by(display_key=display_key).first().id
     return Lane.query.filter_by(submission_id=sid).filter_by(number=number).first()
 
 
@@ -99,8 +101,8 @@ def create_sequencing_sample_group(sid, name):
     if current_user.type == "Customer":
         return None
 
-    s = get_allowed_submission(sid)
-    g = get_allowed_sample_group_by_name_from_submission(sid, name)
+    s = get_allowed_submission_by_display_key(sid)
+    g = get_allowed_sample_group_by_name_from_submission_display_key(sid, name)
     if g is not None:
         return g
 
@@ -120,13 +122,14 @@ def create_sequencing_sample_group(sid, name):
     return g
 
 
-def get_allowed_sample_group_by_name_from_submission(sid, name):
+def get_allowed_sample_group_by_name_from_submission_display_key(display_key, name):
+    sid = Submission.query.filter_by(display_key=display_key).first().id
     return SampleGroup.query.filter_by(submission_id=sid, name=name).first()
 
 
-def get_allowed_sample_group(gid):
+def get_allowed_sample_group_by_display_key(display_key):
     if current_user.is_authenticated:
-        return SampleGroup.query.filter_by(group_id=current_user.group_id, id=gid).first()
+        return SampleGroup.query.filter_by(group_id=current_user.group_id, display_key=display_key).first()
 
 
 def get_allowed_sample_groups_query():
@@ -186,8 +189,8 @@ def create_sequencing_submission(name, flowid, start_date, end_date, lead, locat
     return s
 
 
-def get_allowed_submission(sid):
-    return get_allowed_submissions_query().filter_by(id=sid).first()
+def get_allowed_submission_by_display_key(display_key):
+    return get_allowed_submissions_query().filter_by(display_key=display_key).first()
 
 
 def get_allowed_submissions_query():
@@ -207,9 +210,9 @@ def create_investigation(name, lead):
     return i
 
 
-def link_sample_group_to_investigation(iid, gid):
-    i = get_allowed_investigation(iid)
-    p = get_allowed_sample_group(gid)
+def link_sample_group_to_investigation(investigation_display_key, group_display_key):
+    i = get_allowed_investigation_by_display_key(investigation_display_key)
+    p = get_allowed_sample_group_by_display_key(group_display_key)
 
     if i is None or p is None:
         return False
@@ -220,13 +223,22 @@ def link_sample_group_to_investigation(iid, gid):
     return True
 
 
-def get_allowed_investigation(iid):
-    return get_allowed_investigation_query(iid).first()
+def get_allowed_investigation_by_display_key(display_key):
+    return get_allowed_investigation_query_by_display_key(display_key).first()
 
 
-def get_allowed_investigation_query(iid):
+def get_allowed_investigation_by_id(id):
+    return get_allowed_investigation_query_by_id(id).first()
+
+
+def get_allowed_investigation_query_by_display_key(display_key):
     i = get_allowed_investigations_query()
-    return i.filter_by(id=iid)
+    return i.filter_by(display_key=display_key)
+
+
+def get_allowed_investigation_query_by_id(id):
+    i = get_allowed_investigations_query()
+    return i.filter_by(id=id)
 
 
 def get_allowed_investigations():
@@ -240,8 +252,8 @@ def get_allowed_investigations_query():
     return None
 
 
-def create_document(iid, filename, description, filepath):
-    i = get_allowed_investigation(iid)
+def create_document(investigation_display_key, filename, description, filepath):
+    i = get_allowed_investigation_by_display_key(investigation_display_key)
     if i is None:
         return
 
@@ -261,16 +273,16 @@ def create_document(iid, filename, description, filepath):
     return doc
 
 
-def remove_document(did):
-    doc = get_allowed_document(did)
-    i = get_allowed_investigation(doc.investigation_id)
+def remove_document(document_display_key):
+    doc = get_allowed_document_by_display_key(document_display_key)
+    i = get_allowed_investigation_by_display_key(doc.investigation_id)
     i.document.remove(doc)
     db.session.delete(doc)
     db.session.commit()
 
 
-def get_allowed_document(did):
-    return get_allowed_documents_query().filter_by(id=did).first()
+def get_allowed_document_by_display_key(document_display_key):
+    return get_allowed_documents_query().filter_by(display_key=document_display_key).first()
 
 
 def get_allowed_documents_query():

@@ -1,3 +1,5 @@
+import uuid
+
 __author__ = 'jon'
 
 import os
@@ -10,7 +12,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 # Permissions wrapper & environment contextualiser
 class Group(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     name = db.Column(db.String(50), unique=True, nullable=False)
 
@@ -39,14 +42,15 @@ class Group(db.Model):
 
 # Person table, abstract parent for individuals interacting with the software
 class Person(UserMixin, db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     login_name = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     role = db.Column(db.Enum("Member", "Group Admin", "Site Admin"), default="Member")
     type = db.Column(db.String(50), nullable=False)
 
-    group_id = db.Column(db.UUID, db.ForeignKey("Group.id"), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable=False)
 
     investigation = db.RelationshipProperty("Investigation", backref="submitter", lazy="dynamic")
     document = db.RelationshipProperty("Document", backref="submitter", lazy="dynamic")
@@ -74,7 +78,7 @@ class Person(UserMixin, db.Model):
 
 # User - someone who can submit jobs to the software
 class User(Person):
-    id = db.Column(db.UUID, db.ForeignKey("Person.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("Person.id"), primary_key=True)
 
     submission = db.RelationshipProperty("Submission", backref="submitter", lazy="dynamic")
     sample_group = db.RelationshipProperty("SampleGroup", backref="submitter", lazy="dynamic")
@@ -99,7 +103,8 @@ class Customer(Person):
 
 
 class Investigation(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     name = db.Column(db.String(40), nullable=False)
     leader = db.Column(db.String(40), nullable=False)
@@ -108,8 +113,8 @@ class Investigation(db.Model):
     open_date = db.Column(db.Date, nullable=False)
     last_update = db.Column(db.Date, nullable=False)
 
-    submitter_id = db.Column(db.UUID, db.ForeignKey("Person.id"))
-    group_id = db.Column(db.UUID, db.ForeignKey("Group.id"))
+    submitter_id = db.Column(db.Integer, db.ForeignKey("Person.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
 
     sample_group = db.RelationshipProperty("SampleGroup", backref="investigation", lazy="dynamic")
     document = db.RelationshipProperty("Document", backref="investigation", lazy="dynamic")
@@ -162,15 +167,16 @@ class Investigation(db.Model):
 
 
 class Document(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     name = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(500), nullable=False)
     description = db.Column(db.Text)
 
-    investigation_id = db.Column(db.UUID, db.ForeignKey("Investigation.id"))
-    submitter_id = db.Column(db.UUID, db.ForeignKey("Person.id"))
-    group_id = db.Column(db.UUID, db.ForeignKey("Group.id"))
+    investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"))
+    submitter_id = db.Column(db.Integer, db.ForeignKey("Person.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
 
     __tablename__ = "Document"
 
@@ -179,7 +185,8 @@ class Document(db.Model):
 
 
 class Submission(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     name = db.Column(db.String(40), nullable=False)
     leader = db.Column(db.String(40), nullable=False)
@@ -188,8 +195,8 @@ class Submission(db.Model):
     data_location = db.Column(db.String(500), nullable=False)
     type = db.Column(db.String(50))
 
-    submitter_id = db.Column(db.UUID, db.ForeignKey("User.id"))
-    group_id = db.Column(db.UUID, db.ForeignKey("Group.id"))
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
 
     sample_group = db.RelationshipProperty("SampleGroup", backref="submission", lazy="dynamic")
     sample = db.RelationshipProperty("Sample", backref="submission", lazy="dynamic")
@@ -203,7 +210,7 @@ class Submission(db.Model):
 
 
 class SequencingSubmission(Submission):
-    id = db.Column(db.UUID, db.ForeignKey("Submission.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("Submission.id"), primary_key=True)
 
     flow_cell_id = db.Column(db.String(40), nullable=False)
     index_tag_cycles = db.Column(db.Integer, nullable=False)
@@ -222,16 +229,17 @@ class SequencingSubmission(Submission):
 
 
 class SampleGroup(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     name = db.Column(db.String(40), nullable=False)
     type = db.Column(db.String(50), nullable=False)
 
-    submission_id = db.Column(db.UUID, db.ForeignKey("Submission.id"))
-    submitter_id = db.Column(db.UUID, db.ForeignKey("User.id"))
-    customer_id = db.Column(db.UUID, db.ForeignKey("Customer.id"))
-    group_id = db.Column(db.UUID, db.ForeignKey("Group.id"))
-    investigation_id = db.Column(db.UUID, db.ForeignKey("Investigation.id"))
+    submission_id = db.Column(db.Integer, db.ForeignKey("Submission.id"))
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
+    investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"))
 
     sample = db.RelationshipProperty("Sample", backref="sample_group", lazy="dynamic")
 
@@ -243,7 +251,7 @@ class SampleGroup(db.Model):
 
 
 class SequencingSampleGroup(SampleGroup):
-    id = db.Column(db.UUID, db.ForeignKey("SampleGroup.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("SampleGroup.id"), primary_key=True)
 
     # TODO Pipelines!
 
@@ -259,19 +267,20 @@ class SequencingSampleGroup(SampleGroup):
 
 
 class Sample(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     internal_sample_name = db.Column(db.String(50), nullable=False)
     customer_sample_name = db.Column(db.String(50), nullable=False)
     sample_type = db.Column(db.String(50))
     type = db.Column(db.String(50), nullable=False)
 
-    submitter_id = db.Column(db.UUID, db.ForeignKey("User.id"))
-    group_id = db.Column(db.UUID, db.ForeignKey("Group.id"))
-    submission_id = db.Column(db.UUID, db.ForeignKey("Submission.id"))
-    sample_group_id = db.Column(db.UUID, db.ForeignKey("SampleGroup.id"))
-    customer_id = db.Column(db.UUID, db.ForeignKey("Customer.id"))
-    tag_id = db.Column(db.UUID, db.ForeignKey("Tag.id"))
+    submitter_id = db.Column(db.Integer, db.ForeignKey("User.id"))
+    group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
+    submission_id = db.Column(db.Integer, db.ForeignKey("Submission.id"))
+    sample_group_id = db.Column(db.Integer, db.ForeignKey("SampleGroup.id"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"))
+    tag_id = db.Column(db.Integer, db.ForeignKey("Tag.id"))
 
     __tablename__ = "Sample"
     __mapper_args__ = {"polymorphic_on": type}
@@ -281,11 +290,11 @@ class Sample(db.Model):
 
 
 class SequencingSample(Sample):
-    id = db.Column(db.UUID, db.ForeignKey("Sample.id"), primary_key=True)
+    id = db.Column(db.Integer, db.ForeignKey("Sample.id"), primary_key=True)
 
     adaptor_sequence = db.Column(db.String(200), nullable=False)
 
-    lane_id = db.Column(db.UUID, db.ForeignKey("Lane.id"))
+    lane_id = db.Column(db.Integer, db.ForeignKey("Lane.id"))
 
     index_tag = db.RelationshipProperty("Tag", backref="sample", lazy="dynamic")
 
@@ -297,7 +306,8 @@ class SequencingSample(Sample):
 
 
 class Lane(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     number = db.Column(db.Integer, nullable=False)
     sequencing_concentration = db.Column(db.Float, nullable=False)
@@ -305,7 +315,7 @@ class Lane(db.Model):
     spike = db.Column(db.String(20), nullable=False)
     spike_ratio = db.Column(db.Float, nullable=False)
 
-    submission_id = db.Column(db.UUID, db.ForeignKey("SequencingSubmission.id"))
+    submission_id = db.Column(db.Integer, db.ForeignKey("SequencingSubmission.id"))
 
     sample = db.RelationshipProperty("SequencingSample", backref="lane", lazy="dynamic")
 
@@ -337,14 +347,15 @@ class Lane(db.Model):
 
 
 class Tag(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     is_first_index = db.Column(db.Boolean, nullable=False)
     tag_id = db.Column(db.String(40), nullable=False)
     tag_library = db.Column(db.String(40), nullable=False)
     tag_sequence = db.Column(db.String(40), nullable=False)
 
-    sample_id = db.Column(db.UUID, db.ForeignKey("SequencingSample.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("SequencingSample.id"))
 
     __tablename__ = "Tag"
 
@@ -353,7 +364,8 @@ class Tag(db.Model):
 
 
 class Pipeline(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     module = db.RelationshipProperty("PipelineModule", backref="pipeline", lazy="dynamic")
 
@@ -361,9 +373,10 @@ class Pipeline(db.Model):
 
 
 class PipelineModule(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline_id = db.Column(db.UUID, db.ForeignKey("Pipeline.id"))
+    pipeline_id = db.Column(db.Integer, db.ForeignKey("Pipeline.id"))
 
     module_option = db.RelationshipProperty("PipelineModuleOption", backref="module", lazy="dynamic")
 
@@ -371,17 +384,19 @@ class PipelineModule(db.Model):
 
 
 class PipelineModuleOption(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    module_id = db.Column(db.UUID, db.ForeignKey("PipelineModule.id"))
+    module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"))
 
     __tablename__ = "PipelineModuleOption"
 
 
 class PipelineStatus(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline = db.Column(db.UUID, db.ForeignKey("Pipeline.id"), nullable=False)
+    pipeline = db.Column(db.Integer, db.ForeignKey("Pipeline.id"), nullable=False)
 
     module_status = db.RelationshipProperty("PipelineModuleStatus", backref="pipeline_status", lazy="dynamic")
 
@@ -389,9 +404,10 @@ class PipelineStatus(db.Model):
 
 
 class PipelineModuleStatus(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline_status_id = db.Column(db.UUID, db.ForeignKey("PipelineStatus.id"))
+    pipeline_status_id = db.Column(db.Integer, db.ForeignKey("PipelineStatus.id"))
 
     module_option_value = db.RelationshipProperty("PipelineModuleOptionValue", backref="module", lazy="dynamic")
 
@@ -399,9 +415,10 @@ class PipelineModuleStatus(db.Model):
 
 
 class PipelineModuleOptionValue(db.Model):
-    id = db.Column(db.UUID, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline_module_option_id = db.Column(db.UUID, db.ForeignKey("PipelineModuleOption.id"))
-    pipeline_module_status_id = db.Column(db.UUID, db.ForeignKey("PipelineModuleStatus.id"))
+    pipeline_module_option_id = db.Column(db.Integer, db.ForeignKey("PipelineModuleOption.id"))
+    pipeline_module_status_id = db.Column(db.Integer, db.ForeignKey("PipelineModuleStatus.id"))
 
     __tablename__ = "PipelineModuleOptionValue"

@@ -53,7 +53,7 @@
 
             {% for grouping in submission.sample_group %}
             <tr>
-                <td><a href="{{ url_for('sample_group', gid=grouping.id, type=grouping.type) }}">{{ grouping.name }}</a></td>
+                <td><a href="{{ url_for('sample_group', gid=grouping.display_key, type=grouping.type) }}">{{ grouping.name }}</a></td>
 
                 {% if grouping.pipeline %}
                 <td><a href="{{ url_for('pipeline', pipeline=grouping.pipeline) }}">{{ grouping.pipeline.name }}</a></td>
@@ -84,14 +84,14 @@
                 <td>No pipeline selected</td>
                 {% endif %}
 
-                <td><a href="{{ url_for('link_sample_group_to_client', gid=grouping.id) }}">Link To Client</a></td>
+                <td><a href="{{ url_for('link_sample_group_to_client', gid=grouping.display_key) }}">Link To Client</a></td>
 
             </tr>
             {% endfor %}
         </table>
 
         <br>
-        <a href="{{ url_for('input_sequencing_sample_mappings', sid=submission.id, type='none') }}" class="input">Add Sample Mappings File</a>
+        <a href="{{ url_for('input_sequencing_sample_mappings', sid=submission.display_key, type='none') }}" class="input">Add Sample Mappings File</a>
         <br>
         <br>
     </div>

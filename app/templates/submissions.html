@@ -12,7 +12,7 @@
 
     {% for submission in obs.items %}
     <tr>
-        <td><a href="{{ url_for('submission', name=submission.name, sid=submission.id, type=submission.type) }}">{{ submission.name }}</a></td>
+        <td><a href="{{ url_for('submission', name=submission.name, sid=submission.display_key, type=submission.type) }}">{{ submission.name }}</a></td>
         <td>{{ submission.type }}</td>
         <td>{{ submission.start_date }}</td>
         <td>{{ submission.completion_date }}</td>

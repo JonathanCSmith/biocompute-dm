@@ -23,7 +23,7 @@
                 <div class="action">
                     <h3>Investigation Sample Groupings</h3>
                     <ul>
-                        <li><a class="input" href="{{ url_for('link_sample_group', iid=investigation.id) }}">Link a sample grouping</a></li>
+                        <li><a class="input" href="{{ url_for('link_sample_group', iid=investigation.display_key) }}">Link a sample grouping</a></li>
                         <li></li>
                     </ul>
                     <table class="content">
@@ -34,7 +34,7 @@
 
                         {% for group in investigation.sample_group %}
                         <tr>
-                            <td><a href="{{ url_for('sample_group', gid=group.id, type=group.type) }}">{{ group.name }}</a></td>
+                            <td><a href="{{ url_for('sample_group', gid=group.display_key, type=group.type) }}">{{ group.name }}</a></td>
                             <td>{{ group.type }}</td>
                         </tr>
                         {% endfor %}
@@ -47,7 +47,7 @@
                 <div class="action">
                     <h3>Investigation Documents</h3>
                     <ul>
-                        <li><a class="input" href="{{ url_for('add_document', iid=investigation.id) }}">Add a document</a></li>
+                        <li><a class="input" href="{{ url_for('add_document', iid=investigation.display_key) }}">Add a document</a></li>
                         <li></li>
                         <table class="content">
                             <tr>
@@ -59,7 +59,7 @@
                             <tr>
                                 <td>{{ document.name }}</td>
                                 <td>{{ document.description }}</td>
-                                <td><a href="{{ url_for('remove_document', iid=investigation.id, did=document.id)}}">Remove</a></td>
+                                <td><a href="{{ url_for('remove_document', iid=investigation.display_key, did=document.display_key)}}">Remove</a></td>
                             </tr>
                             {% endfor %}
                         </table>

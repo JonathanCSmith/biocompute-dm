@@ -10,7 +10,7 @@
 
     {% for group in obs.items %}
     <tr>
-        <td><a href="{{ url_for('sample_group', gid=group.id, type=group.type) }}">{{ group.name }}</a></td>
+        <td><a href="{{ url_for('sample_group', gid=group.display_key, type=group.type) }}">{{ group.name }}</a></td>
         <td>{{ group.type }}</td>
         <td>{{ group.investigation }}</td>
     </tr>

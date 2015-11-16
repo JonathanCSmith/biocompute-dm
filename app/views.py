@@ -255,7 +255,7 @@ def investigation(iid=""):
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    i = utils.get_allowed_investigation(iid)
+    i = utils.get_allowed_investigation_by_display_key(iid)
     return render_template("investigation.html", title="My Investigations", investigation=i)
 
 
@@ -270,7 +270,7 @@ def add_document(iid=""):
     if request.method == "POST":
         if form.validate_on_submit():
             # Handle no investigation to link to
-            i = utils.get_allowed_investigation(iid)
+            i = utils.get_allowed_investigation_by_display_key(iid)
             if not i:
                 flash("Attempted to add a document to an investigation without an investigation parent.", "error")
                 return redirect(url_for("investigations"))
@@ -312,7 +312,7 @@ def remove_document(iid="", did=""):
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
 
-    doc = utils.get_allowed_document(did)
+    doc = utils.get_allowed_document_by_display_key(did)
     if doc.investigation_id is not did:
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
@@ -332,7 +332,7 @@ def remove_document(iid="", did=""):
 def link_sample_group(iid="", gid="", page=1):
     if gid is not "" and iid is not "":
         # Link the project and return
-        i = utils.get_allowed_investigation(iid)
+        i = utils.get_allowed_investigation_by_display_key(iid)
         if utils.link_sample_group_to_investigation(iid, gid):
             return render_template("investigation.html", title="My Investigations", investigation=i)
 
@@ -357,7 +357,7 @@ def submissions(page=1):
 @login_required("ANY")
 def submission(sid="", type="none"):
     if type == "none":
-        s = utils.get_allowed_submission(sid)
+        s = utils.get_allowed_submission_by_display_key(sid)
         type = s.type
 
     if type == "Sequencing":
@@ -378,7 +378,7 @@ def sequencing_submission(sid=""):
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
 
-    s = utils.get_allowed_submission(sid)
+    s = utils.get_allowed_submission_by_display_key(sid)
     if s is None:
         flash("Incorrect arguments for query provided.", "error")
         return redirect(url_for("index"))
@@ -439,7 +439,7 @@ def input_sequencing_submission(type="none"):
                                            form2=form2)
 
                 flash("Document uploaded successfully", "success")
-                return redirect(url_for("submission", sid=s.id, type=s.type))
+                return redirect(url_for("submission", sid=s.display_key, type=s.type))
 
             else:
                 flash("Missing file information", "error")
@@ -462,7 +462,7 @@ def input_sequencing_submission(type="none"):
             )
 
             flash("Sequencing submission submitted successfully", "success")
-            return redirect(url_for("submission", sid=s.id, type=s.type))
+            return redirect(url_for("submission", sid=s.display_key, type=s.type))
 
     return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
 
@@ -480,7 +480,7 @@ def sample_groups(page=1):
 @login_required("ANY")
 def sample_group(gid="", type="none"):
     if type == "none":
-        p = utils.get_allowed_sample_group(gid)
+        p = utils.get_allowed_sample_group_by_display_key(gid)
         type = p.type
 
     if type == "Sequencing":
@@ -497,7 +497,7 @@ def sample_group(gid="", type="none"):
 @app.route("/sequencing_sample_group/<gid>")
 @login_required("ANY")
 def sequencing_sample_group(gid=""):
-    g = utils.get_allowed_sample_group(gid)
+    g = utils.get_allowed_sample_group_by_display_key(gid)
     return render_template("sequencing_sample_group.html", title="Sequencing Sample Group", group=g)
 
 
