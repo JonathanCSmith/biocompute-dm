@@ -4,7 +4,6 @@ __author__ = 'jon'
 
 import os
 import datetime
-
 from app import db
 from flask.ext.login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -201,12 +200,12 @@ class Submission(db.Model):
     sample_group = db.RelationshipProperty("SampleGroup", backref="submission", lazy="dynamic")
     sample = db.RelationshipProperty("Sample", backref="submission", lazy="dynamic")
 
-
     __tablename__ = "Submission"
     __mapper_args__ = {"polymorphic_on": type}
 
     def __repr__(self):
-        return "<Data Submission: %s from %s to %s by %s>" % (self.name, self.start_date, self.completion_date, self.leader)
+        return "<Data Submission: %s from %s to %s by %s>" % (
+        self.name, self.start_date, self.completion_date, self.leader)
 
 
 class SequencingSubmission(Submission):
@@ -225,7 +224,8 @@ class SequencingSubmission(Submission):
     __mapper_args__ = {"polymorphic_identity": "Sequencing", "inherit_condition": (id == Submission.id)}
 
     def __repr__(self):
-        return "<Sequencing Submission for flowcell %s: %s from %s to %s by %s>" % (self.flow_cell_id, self.name, self.start_date, self.completion_date, self.leader)
+        return "<Sequencing Submission for flowcell %s: %s from %s to %s by %s>" % (
+        self.flow_cell_id, self.name, self.start_date, self.completion_date, self.leader)
 
 
 class SampleGroup(db.Model):
@@ -240,8 +240,11 @@ class SampleGroup(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
     investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"))
+    current_pipeline_id = db.Column(db.Integer, db.ForeignKey("PipelineInstance.id"))
 
+    current_pipeline = db.RelationshipProperty("PipelineInstance", backref="sample_group", uselist=False)
     sample = db.RelationshipProperty("Sample", backref="sample_group", lazy="dynamic")
+    past_runs = db.RelationshipProperty("PipelineInstance", backref="old_sample_group")
 
     __tablename__ = "SampleGroup"
     __mapper_args__ = {"polymorphic_on": type}
@@ -286,7 +289,7 @@ class Sample(db.Model):
     __mapper_args__ = {"polymorphic_on": type}
 
     def __repr__(self):
-        return "<Sample: %s aka %>s" % (self.internal_sample_name, self.customer_sample_name)
+        return "<Sample: %s aka %s>" % (self.internal_sample_name, self.customer_sample_name)
 
 
 class SequencingSample(Sample):
@@ -367,58 +370,79 @@ class Pipeline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(50), nullable=False)
+    author = db.Column(db.String(50), nullable=False)
+    version = db.Column(db.String(50), nullable=False)
+
     module = db.RelationshipProperty("PipelineModule", backref="pipeline", lazy="dynamic")
+    instance = db.RelationshipProperty("PipelineInstance", backref="pipeline", lazy="dynamic")
 
     __tablename__ = "Pipeline"
+    __table_args__ = (db.UniqueConstraint("name", "description", "author", "version", name="_unique"),)
 
 
 class PipelineModule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline_id = db.Column(db.Integer, db.ForeignKey("Pipeline.id"))
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(50), nullable=False)
+    executor = db.Column(db.String(500), nullable=False)
+    execution_index = db.Column(db.Integer, nullable=False)
+
+    pipeline_id = db.Column(db.Integer, db.ForeignKey("Pipeline.id"), nullable=False)
 
     module_option = db.RelationshipProperty("PipelineModuleOption", backref="module", lazy="dynamic")
 
     __tablename__ = "PipelineModule"
+    __table_args__ = (db.UniqueConstraint("pipeline_id", "execution_index", name="_unique"),)
 
 
 class PipelineModuleOption(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"))
+    name = db.Column(db.String(50))
+
+    module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"), nullable=False)
 
     __tablename__ = "PipelineModuleOption"
 
 
-class PipelineStatus(db.Model):
+class PipelineInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline = db.Column(db.Integer, db.ForeignKey("Pipeline.id"), nullable=False)
+    pipeline_id = db.Column(db.Integer, db.ForeignKey("Pipeline.id"), nullable=False)
+    current_module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"), nullable=False)
 
-    module_status = db.RelationshipProperty("PipelineModuleStatus", backref="pipeline_status", lazy="dynamic")
+    module_instance = db.RelationshipProperty("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic")
 
-    __tablename__ = "PipelineStatus"
+    __tablename__ = "PipelineInstance"
 
 
-class PipelineModuleStatus(db.Model):
+class PipelineModuleInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline_status_id = db.Column(db.Integer, db.ForeignKey("PipelineStatus.id"))
+    current_status = db.Column(db.Enum("NOT_STARTED, RUNNING, WAITING, FINISHED, ERRORED"))
+
+    module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"), nullable=False)
+    pipeline_instance_id = db.Column(db.Integer, db.ForeignKey("PipelineInstance.id"), nullable=False)
 
     module_option_value = db.RelationshipProperty("PipelineModuleOptionValue", backref="module", lazy="dynamic")
 
-    __tablename__ = "PipelineModuleStatus"
+    __tablename__ = "PipelineModuleInstance"
 
 
 class PipelineModuleOptionValue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline_module_option_id = db.Column(db.Integer, db.ForeignKey("PipelineModuleOption.id"))
-    pipeline_module_status_id = db.Column(db.Integer, db.ForeignKey("PipelineModuleStatus.id"))
+    value = db.Column(db.String(50))
+
+    pipeline_module_option_id = db.Column(db.Integer, db.ForeignKey("PipelineModuleOption.id"), nullable=False)
+    pipeline_module_instance_id = db.Column(db.Integer, db.ForeignKey("PipelineModuleInstance.id"), nullable=False)
 
     __tablename__ = "PipelineModuleOptionValue"

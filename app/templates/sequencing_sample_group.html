@@ -10,10 +10,20 @@
         <table class="content">
             <tr>
                 <th>Sequence Sample Group Name</th>
+                <th>Pipeline Runs</th>
             </tr>
 
             <tr>
                 <td>{{ group.name }}</td>
+                <td><ul>
+                    {% if group.past_runs %}
+                    {% for pipeline in group.past_runs %}
+                    <li>{{ pipeline.pipeline.name }}</li>
+                    {% endfor %}
+                    {% else %}
+                    <li>None</li>
+                    {% endif %}
+                </ul></td>
             </tr>
         </table>
         <br>
@@ -22,27 +32,49 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Pipeline Details</h3>
-        {% if group.pipeline %}
+        <h3>Current Pipeline Details</h3>
+        {% if group.current_pipeline %}
         <table>
-            <th>
-                {% for stage in group.pipeline_status.stages %}
-                {% if stage.status == "input_required" %}
-                <td background="#">{{ stage.name }}</td>
-                {% elif stage.status == "running" %}
-                <td background="#">{{ stage.name }}</td>
-                {% elif stage.status == "finished" %}
-                <td background="#">{{ stage.name }}</td>
-                {% elif stage.status == "stopped" %}
-                <td background="#">{{ stage.name }}</td>
+            <tr>
+                {% for stage in group.current_pipeline.module_instance%}
+                {% if stage.current_status == "WAITING" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "RUNNING" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "FINISHED" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "ERRORED" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "NOT_STARTED" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
                 {% endif %}
                 {% endfor %}
-            </th>
+            </tr>
         </table>
 
         {% else %}
-        <p>Please select a pipeline</p><p>Drop down list goes here</p>
+        <h4>No current pipeline - please select a pipeline to begin a run</h4>
+        <select class="selection">
+            <option selected value="None">None</option>
+            {% for pipeline in pipelines %}
+            <option value="{{ pipeline.name }}">{{ pipeline.name }}</option>
+            {% endfor %}
+        </select>
         {% endif %}
+
+        <div class="spacer"></div>
+
+        {% for pipeline in pipelines %}
+        <div id="{{ pipeline.name }}" class="description" style="display: none">
+            <p>{{ pipeline.name }}</p>
+            <p>{{ pipeline.description }}</p>
+            <p>{{ pipeline.author }}</p>
+            <p>{{ pipeline.version}}</p>
+            <a href="{{ url_for('run_pipeline', sample_group=group.display_key, pipeline=pipeline.display_key) }}">Select</a>
+        </div>
+        {% endfor %}
+
+        <div class="spacer"></div>
     </div>
 
     <div class="spacer"></div>
@@ -77,4 +109,8 @@
         <br>
     </div>
 </div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/selectContent.js"></script>
 {% endblock %}

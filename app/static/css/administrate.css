@@ -85,3 +85,9 @@ div.content table.pagenator {
     border: none;
     table-layout: fixed;
 }
+
+.input-table .input {
+    width: auto;
+    display: block;
+}
+

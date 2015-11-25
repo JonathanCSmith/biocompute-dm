@@ -96,6 +96,13 @@ def administrate():
     return render_template("administrate_welcome.html", title="Administrate Panel")
 
 
+@app.route("/refresh_pipelines")
+@login_required("Site Admin")
+def refresh_pipelines():
+    utils.refresh_pipelines()
+    return redirect(url_for("administrate"))
+
+
 @app.route("/show_groups")
 @app.route("/show_groups/<int:page>")
 @login_required("Site Admin")
@@ -498,7 +505,12 @@ def sample_group(gid="", type="none"):
 @login_required("ANY")
 def sequencing_sample_group(gid=""):
     g = utils.get_allowed_sample_group_by_display_key(gid)
-    return render_template("sequencing_sample_group.html", title="Sequencing Sample Group", group=g)
+    p = utils.get_pipelines()
+    if g is None:
+        flash("Invalid sample group", "warning")
+        return redirect(url_for("index"))
+
+    return render_template("sequencing_sample_group.html", title="Sequencing Sample Group", group=g, pipelines=p)
 
 
 @app.route("/link_sample_group_to_client/<gid>")
@@ -557,6 +569,20 @@ def input_sequencing_sample_mappings(type="", sid=""):
             flash("Missing file information", "error")
 
     return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
+
+
+@app.route("/run_pipeline/<sample_group>|<pipeline>")
+@login_required("ANY")
+def run_pipeline(sample_group="", pipeline=""):
+    g = utils.get_allowed_sample_group_by_display_key(sample_group)
+    p = utils.get_pipeline_by_display_key(pipeline)
+    g.current_pipeline = p
+    db.session.add(g)
+    db.session.commit()
+
+    # TODO: Start the pipeline!
+
+    return redirect(url_for("sequencing_sample_group"), g.display_id)
 
 
 # TODO Start

@@ -1,3 +1,7 @@
+import json
+
+import jsonschema
+
 from app.models import *
 from flask import flash
 from flask.ext.login import current_user
@@ -60,7 +64,8 @@ def create_sequencing_sample(internal_name, customer_name, adaptor_sequence, sam
 
 
 def get_allowed_sample_by_internal_name_from_submission_display_key(sample_display_key, name):
-    return get_allowed_sequencing_samples_from_submission_display_key_query(sample_display_key).filter_by(internal_sample_name=name).first()
+    return get_allowed_sequencing_samples_from_submission_display_key_query(sample_display_key).filter_by(
+        internal_sample_name=name).first()
 
 
 def get_allowed_sequencing_samples_from_submission_display_key_query(display_key):
@@ -137,7 +142,8 @@ def get_allowed_sample_groups_query():
         return SampleGroup.query.filter_by(group_id=current_user.group_id)
 
 
-def create_sequencing_submission(name, flowid, start_date, end_date, lead, location, cyclest1, cyclest2, cyclesr1, cyclesr2, pe):
+def create_sequencing_submission(name, flowid, start_date, end_date, lead, location, cyclest1, cyclest2, cyclesr1,
+                                 cyclesr2, pe):
     if current_user.type == "Customer":
         return
 
@@ -292,6 +298,58 @@ def get_allowed_documents_query():
     return None
 
 
+def get_allowed_pipeline(name, description, author, version):
+    if current_user.is_authenticated and current_user.role == "Site Admin":
+        return Pipeline.query.filter_by(name=name, description=description, author=author, version=version).first()
+
+    return None
+
+
+def get_pipelines():
+    return Pipeline.query.all()
+
+
+def get_pipeline_by_display_key(display_key):
+    return Pipeline.query.filter_by(display_key=display_key).first()
+
+
+def create_pipeline(name, description, author, version):
+    pipeline = Pipeline()
+    pipeline.name = name
+    pipeline.description = description
+    pipeline.author = author
+    pipeline.version = version
+
+    db.session.add(pipeline)
+    db.session.commit()
+    return pipeline
+
+
+def create_module(name, description, executor, order_index, pipeline):
+    module = PipelineModule()
+    module.name = name
+    module.description = description
+    module.executor = executor
+    module.execution_index = order_index
+    pipeline.module.append(module)
+
+    db.session.add(module)
+    db.session.add(pipeline)
+    db.session.commit()
+    return module
+
+
+def create_option(key, module):
+    option = PipelineModuleOption()
+    option.name = key
+    module.module_option.append(option)
+
+    db.session.add(option)
+    db.session.add(module)
+    db.session.commit()
+    return option
+
+
 # Function to display errors
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -300,3 +358,36 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
             ), "error")
+
+
+def refresh_pipelines():
+    path = os.path.join(os.getcwd(), "link")
+    path = os.path.join(path, "pipelines")
+
+    if not os.path.exists(path):
+        flash("Could not locate pipelines directory. Please ensure there is a valid symlink for the folder in the links folder!", "error")
+        return False
+
+    directories = os.listdir(path)
+    found = False
+    for directory in directories:
+        directory_path = os.path.join(path, directory)
+        if not os.path.isdir(directory_path):
+            continue
+
+        file = os.path.join(directory_path, directory + ".json")
+        if not os.path.isfile(file):
+            continue
+
+        from app.static.files import pipeline_mappings_template as template_helper
+        if not template_helper.validate(file):
+            continue
+
+        found |= template_helper.build(file)
+
+    if found:
+        flash("Successfully loaded all pipelines from the pipeline directory.", "success")
+    else:
+        flash("No pipelines were loaded as none were found or they were already present.", "warning")
+
+    return True

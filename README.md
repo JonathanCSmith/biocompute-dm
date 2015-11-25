@@ -37,6 +37,7 @@ Then install flask packages using the following commands:
 - flask/bin/pip install flask-pyexcel-xls
 - flask/bin/pip install flask-pyexcel-xlsx
 - flask/bin/pip install flask-bootstrap
+- flask/bin/pip install jsonschema
 
 Modify your apache2 installation according to the best practices listed below
 
