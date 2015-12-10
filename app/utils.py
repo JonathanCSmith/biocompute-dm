@@ -339,7 +339,7 @@ def create_module(name, description, executor, order_index, pipeline):
     return module
 
 
-def create_option(key, module):
+def create_option(key, default, module):
     option = PipelineModuleOption()
     option.name = key
     module.module_option.append(option)
@@ -348,6 +348,17 @@ def create_option(key, module):
     db.session.add(module)
     db.session.commit()
     return option
+
+
+def create_pipeline_instance(p):
+    pipeline = PipelineInstance()
+    p.instance.append(pipeline)
+
+    db.session.add(pipeline)
+    db.session.add(p)
+    db.session.commit()
+
+    return pipeline
 
 
 # Function to display errors
@@ -361,9 +372,13 @@ def flash_errors(form):
 
 
 def refresh_pipelines():
-    path = os.path.join(os.getcwd(), "link")
-    path = os.path.join(path, "pipelines")
+    path = os.path.join(os.path.dirname(__file__), "..")
+    path = os.path.join(path, "link")
+    if not os.path.exists(path):
+        flash("Could not locate link directory. Please ensure this folder exists.", "error")
+        return False
 
+    path = os.path.join(path, "pipelines")
     if not os.path.exists(path):
         flash("Could not locate pipelines directory. Please ensure there is a valid symlink for the folder in the links folder!", "error")
         return False
@@ -379,7 +394,7 @@ def refresh_pipelines():
         if not os.path.isfile(file):
             continue
 
-        from app.static.files import pipeline_mappings_template as template_helper
+        from app.static.io import pipeline_mappings_template as template_helper
         if not template_helper.validate(file):
             continue
 

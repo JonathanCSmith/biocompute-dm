@@ -10,14 +10,14 @@
         <table class="content">
             <tr>
                 <th>Sequence Sample Group Name</th>
-                <th>Pipeline Runs</th>
+                <th>Previous Pipeline Runs</th>
             </tr>
 
             <tr>
                 <td>{{ group.name }}</td>
                 <td><ul>
-                    {% if group.past_runs %}
-                    {% for pipeline in group.past_runs %}
+                    {% if group.past_runs.all %}
+                    {% for pipeline in group.past_runs.all() %}
                     <li>{{ pipeline.pipeline.name }}</li>
                     {% endfor %}
                     {% else %}
@@ -34,7 +34,19 @@
     <div class="action exempt">
         <h3>Current Pipeline Details</h3>
         {% if group.current_pipeline %}
-        <table>
+        <table class="content2">
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Pipeline Description</th>
+                <th>Pipeline Author</th>
+                <th>Pipeline Version</th>
+            </tr>
+            <tr>
+                <td>{{ group.current_pipeline.pipeline.name }}</td>
+                <td>{{ group.current_pipeline.pipeline.description }}</td>
+                <td>{{ group.current_pipeline.pipeline.author }}</td>
+                <td>{{ group.current_pipeline.pipeline.version }}</td>
+            </tr>
             <tr>
                 {% for stage in group.current_pipeline.module_instance%}
                 {% if stage.current_status == "WAITING" %}
@@ -66,11 +78,22 @@
 
         {% for pipeline in pipelines %}
         <div id="{{ pipeline.name }}" class="description" style="display: none">
-            <p>{{ pipeline.name }}</p>
-            <p>{{ pipeline.description }}</p>
-            <p>{{ pipeline.author }}</p>
-            <p>{{ pipeline.version}}</p>
-            <a href="{{ url_for('run_pipeline', sample_group=group.display_key, pipeline=pipeline.display_key) }}">Select</a>
+            <table class="content2">
+                <tr>
+                    <th>Pipeline Name</th>
+                    <th>Pipeline Description</th>
+                    <th>Pipeline Author</th>
+                    <th>Pipeline Version</th>
+                </tr>
+                <tr>
+                    <td>{{ pipeline.name }}</td>
+                    <td>{{ pipeline.description }}</td>
+                    <td>{{ pipeline.author }}</td>
+                    <td>{{ pipeline.version }}</td>
+                </tr>
+            </table>
+            <div class="spacer"></div>
+            <a class="input" href="{{ url_for('run_pipeline', sample_group=group.display_key, pipeline=pipeline.display_key) }}">Select</a>
         </div>
         {% endfor %}
 
@@ -81,7 +104,7 @@
 
     <div class="action exempt">
         <h3>Sample Details</h3>
-        <table class="content2">
+        <table class="content4">
             <tr>
                 <th>Internal Sample Name</th>
                 <th>Customer Sample Name</th>

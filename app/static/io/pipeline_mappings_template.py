@@ -71,12 +71,28 @@ pipeline = \
                   "id": "1",
                   "type": "object",
                   "required": [
-                    "option_key"
+                    "option_key",
+                    "default",
+                    "type"
                   ],
                   "properties": {
                     "option_key": {
                       "id": "option_key",
                       "type": "string"
+                    }
+
+                    "default": {
+                      "id": "default",
+                      "type": "string"
+                    }
+
+                    "type": {
+                      "id": "type",
+                      "enum": [
+                        "boolean",
+                        "file",
+                        "string"
+                      ]
                     }
                   }
                 }
@@ -121,7 +137,7 @@ def build(file):
         mod = utils.create_module(module.get("name"), module.get("description"), module.get("executor"), module.get("index_in_execution_order"), pipeline_instance)
 
         for option in module.get("options"):
-            opt = utils.create_option(option.get("option_key"), mod)
+            opt = utils.create_option(option.get("option_key"), option.get("default"), mod)
 
     db.session.add(pipeline_instance)
     db.session.commit()

@@ -17,6 +17,14 @@ div.content table {
     border: 1px solid #F6F6F6;
 }
 
+div.content ul {
+    margin-top: 0;
+}
+
+div.content li {
+    border: none;
+}
+
 div.content table.content th, div.content table.content td {
     border: 1px solid transparent;
     transition: all 0.3s;
@@ -70,6 +78,118 @@ div.content table.content2 tr:nth-child(even) td {
 }
 
 div.content table.content2 tr:nth-child(odd) td {
+    background: #FEFEFE;
+}
+
+div.content table.content2 th, div.content table.content2 td {
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    vertical-align: middle;
+}
+
+div.content table.content2 th {
+    background: #DFDFDF;
+    font-weight: bold;
+    height: 50px;
+}
+
+div.content table.content2 tr {
+    height: 30px;
+}
+
+div.content table.content2 tr:hover td {
+    background: #FAFAFA;
+}
+
+div.content table.content2 tr:nth-child(even) td {
+    background: #F1F1F1;
+}
+
+div.content table.content2 tr:nth-child(odd) td {
+    background: #FEFEFE;
+}
+
+div.content table.content3 th, div.content table.content3 td {
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    vertical-align: middle;
+}
+
+div.content table.content3 th {
+    background: #DFDFDF;
+    font-weight: bold;
+    height: 50px;
+}
+
+div.content table.content3 tr {
+    height: 30px;
+}
+
+div.content table.content3 tr:hover td {
+    background: #FAFAFA;
+}
+
+div.content table.content3 tr:nth-child(even) td {
+    background: #F1F1F1;
+}
+
+div.content table.content3 tr:nth-child(odd) td {
+    background: #FEFEFE;
+}
+
+div.content table.content4 th, div.content table.content4 td {
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    vertical-align: middle;
+}
+
+div.content table.content4 th {
+    background: #DFDFDF;
+    font-weight: bold;
+    height: 50px;
+}
+
+div.content table.content4 tr {
+    height: 30px;
+}
+
+div.content table.content4 tr:hover td {
+    background: #FAFAFA;
+}
+
+div.content table.content4 tr:nth-child(even) td {
+    background: #F1F1F1;
+}
+
+div.content table.content4 tr:nth-child(odd) td {
+    background: #FEFEFE;
+}
+
+div.content table.content5 th, div.content table.content5 td {
+    border: 1px solid transparent;
+    transition: all 0.3s;
+    vertical-align: middle;
+}
+
+div.content table.content5 th {
+    background: #DFDFDF;
+    font-weight: bold;
+    height: 50px;
+}
+
+div.content table.content5 tr {
+    height: 30px;
+}
+
+div.content table.content5 tr:hover td {
+    background: #FAFAFA;
+}
+
+div.content table.content5 tr:nth-child(even) td {
+    background: #F1F1F1;
+}
+
+div.content table.content5 tr:nth-child(odd) td {
     background: #FEFEFE;
 }
 

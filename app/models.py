@@ -403,7 +403,8 @@ class PipelineModuleOption(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(50), nullable=False)
+    default = db.Column(db.String(50), nullable=False)
 
     module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"), nullable=False)
 
@@ -414,8 +415,8 @@ class PipelineInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    pipeline_id = db.Column(db.Integer, db.ForeignKey("Pipeline.id"), nullable=False)
-    current_module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"), nullable=False)
+    pipeline_id = db.Column(db.Integer, db.ForeignKey("Pipeline.id"))
+    current_module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"))
 
     module_instance = db.RelationshipProperty("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic")
 

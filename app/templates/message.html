@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table">
+    <div class="action exempt">
+        <h3>Your latest message!</h3>
+        <table class="content">
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+
+            {% for i, j in dictionary.items() %}
+            <tr>
+                <td>{{i}}</td>
+                <td>{{j}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+    </div>
+</div>
+{% endblock %}

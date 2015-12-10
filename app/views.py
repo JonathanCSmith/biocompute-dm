@@ -403,7 +403,7 @@ def input_sequencing_submission(type="none"):
 
     form = forms.UploadSequencingSubmissionForm(prefix="form")
     form2 = forms.NewSequencingSubmissionForm(prefix="form2")
-    from app.static.files import sequencing_submission_template
+    from app.static.io import sequencing_submission_template
     if request.method == "GET":
         if type == "download":
             response = excel.make_response_from_book_dict(sequencing_submission_template.submission_data, "xls")
@@ -529,7 +529,7 @@ def input_sequencing_sample_mappings(type="", sid=""):
         return login_manager.unauthorized()
 
     form = forms.UploadSequencingSampleMappingsForm()
-    from app.static.files import sequencing_sample_mappings_template
+    from app.static.io import sequencing_sample_mappings_template
     if request.method == "GET":
         if type == "download":
             response = excel.make_response_from_book_dict(sequencing_sample_mappings_template.sample_mappings_data, "xls")
@@ -544,7 +544,13 @@ def input_sequencing_sample_mappings(type="", sid=""):
                 extension = filename.split(".")[1]
 
                 # Magic to get an csv/excel, transpose it and assign the first value as the dict key
-                sheet = pyexcel.load_from_memory(extension, request.files["file_upload"].read(), "Sample Mappings Data")
+                try:
+                    sheet = pyexcel.load_from_memory(extension, request.files["file_upload"].read(), "Sample Mappings Data")
+
+                except ValueError:
+                    flash("Could not find the Sample Mappings Data sheet in the provided excel file", "error")
+                    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
+
                 raw = pyexcel.to_array(sheet)
                 transposed = list(zip(*raw))
                 data = dict([(k[0], k[2:]) for k in transposed])
@@ -559,7 +565,6 @@ def input_sequencing_sample_mappings(type="", sid=""):
                     return redirect(url_for("sequencing_submission", sid=sid, type=""))
 
                 else:
-                    flash("There was an error building your samples", "error")
                     return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
             else:
@@ -576,13 +581,22 @@ def input_sequencing_sample_mappings(type="", sid=""):
 def run_pipeline(sample_group="", pipeline=""):
     g = utils.get_allowed_sample_group_by_display_key(sample_group)
     p = utils.get_pipeline_by_display_key(pipeline)
-    g.current_pipeline = p
+
+    i = utils.create_pipeline_instance(p)
+    g.current_pipeline = i
+
     db.session.add(g)
     db.session.commit()
 
     # TODO: Start the pipeline!
 
-    return redirect(url_for("sequencing_sample_group"), g.display_id)
+    return redirect(url_for("sequencing_sample_group", gid=g.display_key))
+
+
+@app.route("/pipeline/<pid>")
+def pipeline(pid=""):
+    p = utils.get_pipeline_by_display_key(pid)
+    return redirect(url_for("empty"))
 
 
 # TODO Start
@@ -591,3 +605,16 @@ def run_pipeline(sample_group="", pipeline=""):
 def input_flow_cytometry_submission():
     flash("New flow cytometry submission page is still in development", "warning")
     return redirect(url_for("empty"))
+
+
+@app.route("/message", methods=["GET", "POST"])
+def message():
+    global tmp_message
+    if request.method == "GET":
+        m = tmp_message
+        return render_template("message.html", dictionary=m)
+
+    else:
+        tmp_message = request.form
+        return "<html></html>"
+

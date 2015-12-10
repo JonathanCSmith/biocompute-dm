@@ -87,6 +87,10 @@ def build_sample_mappings(sid, data):
         flash("Cannot link this sample mappings set to a submission!", "error")
         return False
 
+    if len(data.get(d[0])) == 0:
+        flash("No sample mappings were identified. Please check your mappings.", "error")
+        return False
+
     for i in range(0, len(data.get(d[0]))):
         if utils.get_allowed_sample_by_internal_name_from_submission_display_key(sid, data.get(d[1])[i]):
             flash(
@@ -96,11 +100,13 @@ def build_sample_mappings(sid, data):
 
         t = utils.create_tag(data.get(d[9])[i], data.get(d[11])[i], data.get(d[13])[i], True)
         if t is None:
+            flash("One of your samples had no index tag information, this is a not allowed.", "error")
             return False
 
         if data.get(d[10])[i] is not None and not data.get(d[10])[i] == "":
             t2 = utils.create_tag(data.get(d[10])[i], data.get(d[12])[i], data.get(d[14])[i], False)
             if t2 is None:
+                flash("A secondary index tag could not be created. It is not clear why.", "error")
                 return False
 
             sample = utils.create_sequencing_sample(data.get(d[1])[i], data.get(d[2])[i], data.get(d[15])[i], data.get(d[3])[i], t, t2)
