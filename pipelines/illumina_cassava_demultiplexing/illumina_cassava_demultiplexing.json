@@ -1,0 +1,16 @@
+{
+  "name": "illumina_cassava_demultiplexing",
+  "description": "Cassava based demultiplexing for illumina sequencing data",
+  "pipeline_type": "I",
+  "author": "Jonathan Smith, Alan Todd",
+  "version": "0.0.1",
+  "modules": [
+    {
+      "name": "cassava",
+      "description": "Run the cassava demultiplexer on source sequencing data",
+      "executor": "cassava_module.sh",
+      "index_in_execution_order": 0,
+      "options": []
+    }
+  ]
+}

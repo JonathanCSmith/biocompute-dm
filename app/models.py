@@ -371,7 +371,7 @@ class Pipeline(db.Model):
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
     author = db.Column(db.String(50), nullable=False)
     version = db.Column(db.String(50), nullable=False)
 
@@ -387,7 +387,7 @@ class PipelineModule(db.Model):
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
     name = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
     executor = db.Column(db.String(500), nullable=False)
     execution_index = db.Column(db.Integer, nullable=False)
 
@@ -403,8 +403,10 @@ class PipelineModuleOption(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    name = db.Column(db.String(50), nullable=False)
-    default = db.Column(db.String(50), nullable=False)
+    display_name = db.Column(db.String(50), nullable=False)
+    paramater_name = db.Column(db.String(50), nullable=False)
+    user_interaction_type = db.Column(db.Enum("string", "boolean", "library"), nullable=False)
+    default_value = db.Column(db.String(50), nullable=False)
 
     module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"), nullable=False)
 

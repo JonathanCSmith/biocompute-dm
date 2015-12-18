@@ -13,6 +13,8 @@ to_remove/cgi-bin/mypol.te
 /investigations
 /link
 /db_repository
+/samples
+/raw
 
 # Dia files
 *.autosave

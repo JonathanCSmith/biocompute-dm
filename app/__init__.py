@@ -68,5 +68,6 @@ def login_required(*role):
 
     return wrapper
 
+
 # Setup the actual website
 from app import views, models

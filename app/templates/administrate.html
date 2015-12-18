@@ -15,6 +15,7 @@
                         {% if g.user.get_role() == "Site Admin" %}
                         <li><a class="input" href="#">Show Pipelines</a></li>
                         <li><a class="input" href="{{ url_for('refresh_pipelines') }}">Refresh Pipelines</a></li>
+                        <li><a class="input" href="{{ url_for('test_pipeline') }}">Test Pipeline!</a></li>
                         <li><a class="input" href="{{ url_for('show_groups') }}">Show Groups</a></li>
                         <li><a class="input" href="{{ url_for('add_group') }}">Add Group</a></li>
                         {% endif %}

@@ -1,4 +1,7 @@
 import os
+import subprocess
+
+import config
 import flask.ext.excel as excel
 import pyexcel
 import pyexcel.ext.xls
@@ -596,6 +599,26 @@ def run_pipeline(sample_group="", pipeline=""):
 @app.route("/pipeline/<pid>")
 def pipeline(pid=""):
     p = utils.get_pipeline_by_display_key(pid)
+    return redirect(url_for("empty"))
+
+
+@app.route("/test_pipeline")
+@login_required("Site Admin")
+def test_pipeline():
+    # Step 1) Setup and Acquire Ticket
+
+    # Step 2) Setup working directory
+
+    # Step 3) Setup samples csv
+
+    # Step 4) Submit job
+    shell_path = os.path.join(os.path.dirname(__file__), "static")
+    shell_path = os.path.join(shell_path, "pipelines")
+    shell_path = os.path.join(shell_path, "submit_job.sh")
+    pipeline_path = os.path.join(config.REMOTE_PIPELINES_PATH, "test")
+    pipeline_path = os.path.join(pipeline_path, "test.sh")
+    process = subprocess.Popen([shell_path, "-t=A_Ticket", "-j=A_JOB", "-s=" + pipeline_path, "-w=rand", "-i=csv", "-v='a=1,b=eleven'"])
+
     return redirect(url_for("empty"))
 
 

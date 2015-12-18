@@ -13,6 +13,7 @@ pipeline = \
       "required": [
         "name",
         "description",
+        "pipeline_type",
         "author",
         "version",
         "modules"
@@ -25,6 +26,14 @@ pipeline = \
         "description": {
           "id": "description",
           "type": "string"
+        },
+        "pipeline_type": {
+          "id": "pipeline_type",
+          "enum": [
+            "I",
+            "II",
+            "III"
+          ]
         },
         "author": {
           "id": "author",
@@ -71,27 +80,30 @@ pipeline = \
                   "id": "1",
                   "type": "object",
                   "required": [
-                    "option_key",
-                    "default",
-                    "type"
+                    "display_name",
+                    "parameter_name",
+                    "default_value",
+                    "user_interaction_type"
                   ],
                   "properties": {
-                    "option_key": {
-                      "id": "option_key",
+                    "display_name": {
+                      "id": "display_name",
                       "type": "string"
-                    }
-
-                    "default": {
-                      "id": "default",
+                    },
+                    "parameter_name": {
+                      "id": "parameter_name",
                       "type": "string"
-                    }
-
-                    "type": {
-                      "id": "type",
+                    },
+                    "default_value": {
+                      "id": "default_value",
+                      "type": "string"
+                    },
+                    "user_interaction_type": {
+                      "id": "user_interaction_type",
                       "enum": [
+                        "string",
                         "boolean",
-                        "file",
-                        "string"
+                        "library"
                       ]
                     }
                   }
@@ -137,7 +149,7 @@ def build(file):
         mod = utils.create_module(module.get("name"), module.get("description"), module.get("executor"), module.get("index_in_execution_order"), pipeline_instance)
 
         for option in module.get("options"):
-            opt = utils.create_option(option.get("option_key"), option.get("default"), mod)
+            opt = utils.create_option(option.get("display_name"), option.get("parameter_name"), option.get("default_value"), option.get("user_interaction_type"), mod)
 
     db.session.add(pipeline_instance)
     db.session.commit()

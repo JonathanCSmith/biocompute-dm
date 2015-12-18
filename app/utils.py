@@ -1,7 +1,4 @@
-import json
-
-import jsonschema
-
+import config
 from app.models import *
 from flask import flash
 from flask.ext.login import current_user
@@ -329,7 +326,13 @@ def create_module(name, description, executor, order_index, pipeline):
     module = PipelineModule()
     module.name = name
     module.description = description
-    module.executor = executor
+
+    # Full path to executor - we have to use the config value here because it may be located at a different place
+    # on the remote
+    p = os.path.join(config.REMOTE_PIPELINES_PATH, pipeline.name)
+    p = os.path.join(p, executor)
+    module.executor = p
+
     module.execution_index = order_index
     pipeline.module.append(module)
 
@@ -339,9 +342,12 @@ def create_module(name, description, executor, order_index, pipeline):
     return module
 
 
-def create_option(key, default, module):
+def create_option(display_name, parameter_name, default_value, user_interaction_type, module):
     option = PipelineModuleOption()
-    option.name = key
+    option.display_name = display_name
+    option.paramater_name = parameter_name
+    option.user_interaction_type = user_interaction_type
+    option.default_value = default_value
     module.module_option.append(option)
 
     db.session.add(option)

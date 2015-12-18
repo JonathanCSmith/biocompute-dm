@@ -43,8 +43,11 @@ Modify your apache2 installation according to the best practices listed below
 
 Follow database instructions for a "first time setup"
 
-Tweak the workspace by creating a folder called link that contains symlinks to the following:
+Generate the workspace directories by creating a folder called link that contains symlinks to the following:
 - 'Investigations' <- Where you wish to house your investigation associated information
+- 'Pipelines' <- Where existing / new pipelines are placed for execution. Note pipeline patterns are documented below.
+- 'Samples' <- Where sample data will sit after it has been pre-processed by pipeline type is
+- 'Raw' <- Where the raw data will sit after submission to biocis (either through automated or manual means)
 
 Finally, create your own config.py by copying the template and inserting the relevant information.
 This information will need to contain the name of your database as well as user information with rights to access said database.
@@ -70,23 +73,7 @@ This information will need to contain the name of your database as well as user 
 - TODO: Bug me if you need this asap
 
 
+### Pipeline Patterns - Rolling your own
 
-### To Setup (DEPRECATED):
+- TODO
 
-  Setup a machine with a Lamp(y) stack
-  
-  Clone branch onto machine for deployment
-  
-  Move all files (except db schema) into apache2 website location
-  
-  Build using edit.py in the build folder
-  
-  Link apache2 website root directory to /biocis/
-  
-  Link apache2 directory root (for the website) to /biocis/html/index.html
-  
-  Deploy mysql schema into db
-  
-  Change configuration files to reflect db propertes
-  
-  Profit?
