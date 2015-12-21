@@ -367,6 +367,21 @@ def create_pipeline_instance(p):
     return pipeline
 
 
+def create_module_instance(m, pi):
+    module_instance = PipelineModuleInstance()
+    module_instance.current_status = "NOT_STARTED"
+    module_instance.module_id = m.id
+
+    pi.current_module_id = m.id
+    pi.module_instance = module_instance
+
+    db.session.add(module_instance)
+    db.session.add(pi)
+    db.session.commit()
+
+    return module_instance
+
+
 # Function to display errors
 def flash_errors(form):
     for field, errors in form.errors.items():

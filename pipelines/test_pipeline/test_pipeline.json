@@ -1,0 +1,16 @@
+{
+  "name": "test_pipeline",
+  "description": "Testing Pipeline",
+  "pipeline_type": "I",
+  "author": "Jonathan Smith",
+  "version": "0.0.1",
+  "modules": [
+    {
+      "name": "test",
+      "description": "tester for server side execution",
+      "executor": "test.sh",
+      "index_in_execution_order": 0,
+      "options": []
+    }
+  ]
+}

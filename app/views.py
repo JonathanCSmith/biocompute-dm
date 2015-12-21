@@ -604,20 +604,38 @@ def pipeline(pid=""):
 
 @app.route("/test_pipeline")
 @login_required("Site Admin")
-def test_pipeline():
-    # Step 1) Setup and Acquire Ticket
+def test_pipeline(pid=""):
+    # TODO REMOVE THIS:
+    from app.models import Pipeline
+    p = Pipeline.query.filter_by(name="test_pipeline").first()
+    pid = p.display_key
 
-    # Step 2) Setup working directory
+    # Get the relevant pipeline and build an instance
+    p = Pipeline.query.filter_by(display_key=pid).first()
+    pi = utils.create_pipeline_instance(p)
 
-    # Step 3) Setup samples csv
+    # Get the first module and build an instance
+    m = p.module.query.filter_by(execution_index=0).first()
+    mi = utils.create_module_instance(m, pi)
+
+    # TODO: Generate module options, based on behaviours and query the server about it
+
+    # Setup and Acquire Ticket
+    # from app.models import Ticket
+    # t = utils.create_ticket(mi)
+
+    # Setup working directory
+    # TODO: How does this behaviour change based on the plugin type
+
+    # Setup samples csv
+    # TODO: How does this behaviour change based on the csv
 
     # Step 4) Submit job
     shell_path = os.path.join(os.path.dirname(__file__), "static")
     shell_path = os.path.join(shell_path, "pipelines")
     shell_path = os.path.join(shell_path, "submit_job.sh")
-    pipeline_path = os.path.join(config.REMOTE_PIPELINES_PATH, "test")
-    pipeline_path = os.path.join(pipeline_path, "test.sh")
-    process = subprocess.Popen([shell_path, "-t=A_Ticket", "-j=A_JOB", "-s=" + pipeline_path, "-w=rand", "-i=csv", "-v='a=1,b=eleven'"])
+    pipeline_path = m.executor
+    process = subprocess.Popen([shell_path, "-t=A_Ticket", "-j=A_JOB", "-s=" + pipeline_path, "-w=rand", "-i=csv", "-v='a=1,b=eleven'"]).stdout
 
     return redirect(url_for("empty"))
 
