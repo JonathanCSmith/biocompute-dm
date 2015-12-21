@@ -373,7 +373,8 @@ def create_module_instance(m, pi):
     module_instance.module_id = m.id
 
     pi.current_module_id = m.id
-    pi.module_instance = module_instance
+    pi.module_instance.append(module_instance)
+    pi.current_execution_index = m.execution_index
 
     db.session.add(module_instance)
     db.session.add(pi)

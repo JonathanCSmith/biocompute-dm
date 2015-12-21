@@ -417,6 +417,8 @@ class PipelineInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
+    current_execution_index = db.Column(db.Integer, default=-1)
+
     pipeline_id = db.Column(db.Integer, db.ForeignKey("Pipeline.id"))
     current_module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"))
 

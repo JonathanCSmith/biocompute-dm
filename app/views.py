@@ -615,7 +615,7 @@ def test_pipeline(pid=""):
     pi = utils.create_pipeline_instance(p)
 
     # Get the first module and build an instance
-    m = p.module.query.filter_by(execution_index=0).first()
+    m = p.module.filter_by(execution_index=0).first()
     mi = utils.create_module_instance(m, pi)
 
     # TODO: Generate module options, based on behaviours and query the server about it
