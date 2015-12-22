@@ -412,7 +412,8 @@ def input_sequencing_submission(type="none"):
             response = excel.make_response_from_book_dict(sequencing_submission_template.submission_data, "xls")
             response.headers["Content-Disposition"] = "attachment; filename=template_for_sequencing_submission.xls"
             return response
-        return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
+        return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form,
+                               form2=form2)
 
     elif type == "upload":
         if form.validate_on_submit():
@@ -421,31 +422,38 @@ def input_sequencing_submission(type="none"):
                 extension = filename.split(".")[1]
 
                 try:
-                    sheet = pyexcel.load_from_memory(extension, request.files["form-file_upload"].read(), sheetname="Submission Data")
+                    sheet = pyexcel.load_from_memory(extension, request.files["form-file_upload"].read(),
+                                                     sheetname="Submission Data")
 
                 except ValueError:
                     flash("Could not find the Submission Data sheet in the provided excel file", "error")
-                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission",
+                                           form=form, form2=form2)
 
                 array = pyexcel.to_array(sheet)
                 for entry in array:
                     del entry[1]
 
                 if len(array[0]) is not 2:
-                    flash("Either no information was provided, or too much. We are only expecting one column of data beyond our conventional information (i.e. 3rd column is the last column!", "error")
-                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
+                    flash(
+                            "Either no information was provided, or too much. We are only expecting one column of data beyond our conventional information (i.e. 3rd column is the last column!",
+                            "error")
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission",
+                                           form=form, form2=form2)
 
                 data = dict(array)
 
                 error = sequencing_submission_template.validate_data_sheet(data)
                 if error is not None:
                     flash("File was missing data for: " + error, "error")
-                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form,
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission",
+                                           form=form,
                                            form2=form2)
 
                 s = sequencing_submission_template.build_submission_entry(data)
                 if s is None:
-                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form,
+                    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission",
+                                           form=form,
                                            form2=form2)
 
                 flash("Document uploaded successfully", "success")
@@ -460,21 +468,22 @@ def input_sequencing_submission(type="none"):
     elif type == "manual":
         if form2.validate_on_submit():
             s = utils.create_sequencing_submission(
-                form2.sequence_submission_name.data,
-                form2.start_date.data,
-                form2.completion_date.data,
-                form2.data_location.data,
-                form2.flow_cell_id.data,
-                form2.genomics_lead.data,
-                form2.index_tag_cycles.data,
-                form2.read_cycles.data,
-                form2.paired_end.data
+                    form2.sequence_submission_name.data,
+                    form2.start_date.data,
+                    form2.completion_date.data,
+                    form2.data_location.data,
+                    form2.flow_cell_id.data,
+                    form2.genomics_lead.data,
+                    form2.index_tag_cycles.data,
+                    form2.read_cycles.data,
+                    form2.paired_end.data
             )
 
             flash("Sequencing submission submitted successfully", "success")
             return redirect(url_for("submission", sid=s.display_key, type=s.type))
 
-    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form, form2=form2)
+    return render_template("input_sequencing_submission.html", title="Input Sequencing Submission", form=form,
+                           form2=form2)
 
 
 @app.route("/sample_groups", methods=["GET", "POST"])
@@ -535,10 +544,12 @@ def input_sequencing_sample_mappings(type="", sid=""):
     from app.static.io import sequencing_sample_mappings_template
     if request.method == "GET":
         if type == "download":
-            response = excel.make_response_from_book_dict(sequencing_sample_mappings_template.sample_mappings_data, "xls")
+            response = excel.make_response_from_book_dict(sequencing_sample_mappings_template.sample_mappings_data,
+                                                          "xls")
             response.headers["Content-Disposition"] = "attachment; filename=template_for_sequencing_sample_mapping.xls"
             return response
-        return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
+        return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings",
+                               form=form, sid=sid)
 
     elif type == "upload":
         if form.validate_on_submit():
@@ -548,11 +559,13 @@ def input_sequencing_sample_mappings(type="", sid=""):
 
                 # Magic to get an csv/excel, transpose it and assign the first value as the dict key
                 try:
-                    sheet = pyexcel.load_from_memory(extension, request.files["file_upload"].read(), "Sample Mappings Data")
+                    sheet = pyexcel.load_from_memory(extension, request.files["file_upload"].read(),
+                                                     "Sample Mappings Data")
 
                 except ValueError:
                     flash("Could not find the Sample Mappings Data sheet in the provided excel file", "error")
-                    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
+                    return render_template("input_sequencing_sample_mappings.html",
+                                           title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
                 raw = pyexcel.to_array(sheet)
                 transposed = list(zip(*raw))
@@ -560,7 +573,8 @@ def input_sequencing_sample_mappings(type="", sid=""):
 
                 passed = sequencing_sample_mappings_template.validate_data_sheet(data)
                 if not passed:
-                    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
+                    return render_template("input_sequencing_sample_mappings.html",
+                                           title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
                 passed = sequencing_sample_mappings_template.build_sample_mappings(sid, data)
                 if passed:
@@ -568,7 +582,8 @@ def input_sequencing_sample_mappings(type="", sid=""):
                     return redirect(url_for("sequencing_submission", sid=sid, type=""))
 
                 else:
-                    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
+                    return render_template("input_sequencing_sample_mappings.html",
+                                           title="Input Sequencing Sample Mappings", form=form, sid=sid)
 
             else:
                 flash("Missing file information", "error")
@@ -576,7 +591,8 @@ def input_sequencing_sample_mappings(type="", sid=""):
         else:
             flash("Missing file information", "error")
 
-    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form, sid=sid)
+    return render_template("input_sequencing_sample_mappings.html", title="Input Sequencing Sample Mappings", form=form,
+                           sid=sid)
 
 
 @app.route("/run_pipeline/<sample_group>|<pipeline>")
@@ -604,11 +620,13 @@ def pipeline(pid=""):
 
 @app.route("/test_pipeline")
 @login_required("Site Admin")
-def test_pipeline(pid=""):
-    # TODO REMOVE THIS:
+def test_pipeline(pid="", type="", sid=""):
+    # TODO REMOVE BELOW THIS: ITS TEST CODE
     from app.models import Pipeline
     p = Pipeline.query.filter_by(name="test_pipeline").first()
     pid = p.display_key
+    type = "I"
+    # TODO REMOVE ABOVE THIS: ITS TEST CODE
 
     # Get the relevant pipeline and build an instance
     p = Pipeline.query.filter_by(display_key=pid).first()
@@ -624,18 +642,84 @@ def test_pipeline(pid=""):
     # from app.models import Ticket
     # t = utils.create_ticket(mi)
 
-    # Setup working directory
-    # TODO: How does this behaviour change based on the plugin type
-
     # Setup samples csv
-    # TODO: How does this behaviour change based on the csv
+    import csv
+    if type == "I":
+        # Create the working directory
+        working_directory_root = os.path.join(config.REMOTE_SUBMISSIONS_PATH, pi.display_key)
+        if not os.path.exists(working_directory_root):
+            os.makedirs(working_directory_root)
+
+        # Build a single line csv that just gives information about the submission
+        csv_path = os.path.join(working_directory_root, "io.txt")
+        with open(csv_path, "w", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            line = sid + "," + config.REMOTE_RAW_PATH + "/" + sid + "," + config.REMOTE_SUBMISSIONS_PATH + "/" + pi.display_key
+            writer.writerow(line)
+
+    elif type == "II":
+        # Create the working directory
+        working_directory_root = os.path.join(config.REMOTE_SAMPLES_PATH, pi.display_key)
+        if not os.path.exists(working_directory_root):
+            os.makedirs(working_directory_root)
+
+        # Build a csv of relevant samples and their output directory
+        # TODO: assess for per module
+        from app.models import SampleGroup
+        sg = SampleGroup.query.filter_by(display_key=sid).first()
+        csv_path = os.path.join(working_directory_root, "io.txt")
+        with open(csv_path, "w", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for sample in sg.sample.all():
+                sample_directory = os.path.join(working_directory_root, sample.display_key)
+                if not os.path.exists(sample_directory):
+                    os.makedirs(sample_directory)
+
+                line = sample.display_key + "," + config.REMOTE_SUBMISSIONS_PATH + "/" + sg.source_pipeline.display_key + "/" + sample.display_key + "," + config.REMOTE_SAMPLES_PATH + "/" + pi.display_key + "/" + sample.display_key
+                writer.writerow(line)
+
+    else:
+        # Create the working directory
+        working_directory_root = os.path.join(config.REMOTE_INVESTIGATIONS_PATH, pi.display_key)
+        if not os.path.exists(working_directory_root):
+            os.makedirs(working_directory_root)
+
+        # Build a csv of relevant samples and their output directory
+        # TODO: As above
+        from app.models import Investigation
+        i = Investigation.query.filter_by(display_key=sid).first()
+        csv_path = os.path.join(working_directory_root, "io.txt")
+        with open(csv_path, "w", newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for sg in i.sample_group.all():
+                for sample in sg.sample.all():
+                    sample_directory = os.path.join(working_directory_root, sample.display_key)
+                    if not os.path.exists(sample_directory):
+                        os.makedirs(sample_directory)
+
+                    line = sample.display_key + "," + config.REMOTE_SAMPLES_PATH + "/" + sg.source_pipeline.display_key + "/" + sample.display_key + "," + config.REMOTE_INVESTIGATIONS_PATH + "/" + pi.display_key + "/" + sample.display_key
+                    writer.writerow(line)
+
+    # TODO: Assess whether or not we need to modify r/w/x privileges here
 
     # Step 4) Submit job
-    shell_path = os.path.join(os.path.dirname(__file__), "static")
-    shell_path = os.path.join(shell_path, "pipelines")
-    shell_path = os.path.join(shell_path, "submit_job.sh")
+    root_path = os.path.join(os.path.dirname(__file__), "static")
+    root_path = os.path.join(root_path, "pipelines")
+    shell_path = os.path.join(root_path, "submit_job.sh")
     pipeline_path = m.executor
-    process = subprocess.Popen([shell_path, "-t=A_Ticket", "-j=A_JOB", "-s=" + pipeline_path, "-w=rand", "-i=csv", "-v='a=1,b=eleven'"]).stdout
+    process = subprocess.Popen(
+            [
+                shell_path,
+                "-t=A_Ticket",
+                "-j=A_JOB",
+                "-s=" + pipeline_path,
+                "-w=" + working_directory_root,
+                "-i=" + csv_path,
+                "-v='a=1,b=eleven'"
+            ],
+            cwd=root_path, stdout=subprocess.PIPE, stdin=subprocess.PIPE).stdout
+    lines = process.readline()
+    print(lines)
 
     return redirect(url_for("empty"))
 
@@ -658,4 +742,3 @@ def message():
     else:
         tmp_message = request.form
         return "<html></html>"
-

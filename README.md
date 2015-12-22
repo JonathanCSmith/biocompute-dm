@@ -75,5 +75,20 @@ This information will need to contain the name of your database as well as user 
 
 ### Pipeline Patterns - Rolling your own
 
+#### Pipeline Types
+There are three pipeline types that can be created in BioCIS, respectfully represented by their roman numerals. 
+
+Type I plugins deconvolute information into separate samples. This pipeline type is markedly different from its counterparts
+  as it directly informs the database of additional information by recursively analysing the path on which the pipeline's output
+  was stored. I.e. within .../pipeline_instance_id/... the pipeline informs that database about separate samples by generatring folders
+  for them based on internally assigned sample ids. There will be no namespace conflict other than that used by the pipeline as 
+  these names are later translated into internal GUIDs.
+  
+Type II plugins works on a group of samples produced by the same Type I pipeline instance. This normally represents the
+ processing stage.
+ 
+Type III plugins work on groups of sample groups, normally attributed to a project and may contain cross-sample, cross-batch
+ type controls.
+
 - TODO
 

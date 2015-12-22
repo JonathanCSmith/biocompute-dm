@@ -58,12 +58,13 @@ for directory in directories:
     description = json_instance.get("description")
     author = json_instance.get("author")
     version = json_instance.get("version")
+    type = json_instance.get("pipeline_type")
 
-    pipeline_instance = Pipeline.query.filter_by(name=name, description=description, author=author, version=version).first()
+    pipeline_instance = Pipeline.query.filter_by(name=name, description=description, author=author, version=version, pipeline_type=type).first()
     if pipeline_instance is not None:
         continue
 
-    pipeline_instance = utils.create_pipeline(name, description, author, version)
+    pipeline_instance = utils.create_pipeline(name, description, author, version, type)
 
     for module in json_instance.get("modules"):
         mod = utils.create_module(module.get("name"), module.get("description"), module.get("executor"), module.get("index_in_execution_order"), pipeline_instance)

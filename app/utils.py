@@ -295,9 +295,9 @@ def get_allowed_documents_query():
     return None
 
 
-def get_allowed_pipeline(name, description, author, version):
+def get_allowed_pipeline(name, description, author, version, type):
     if current_user.is_authenticated and current_user.role == "Site Admin":
-        return Pipeline.query.filter_by(name=name, description=description, author=author, version=version).first()
+        return Pipeline.query.filter_by(name=name, description=description, author=author, version=version, pipeline_type = type).first()
 
     return None
 
@@ -310,12 +310,13 @@ def get_pipeline_by_display_key(display_key):
     return Pipeline.query.filter_by(display_key=display_key).first()
 
 
-def create_pipeline(name, description, author, version):
+def create_pipeline(name, description, author, version, type):
     pipeline = Pipeline()
     pipeline.name = name
     pipeline.description = description
     pipeline.author = author
     pipeline.version = version
+    pipeline.pipeline_type = type
 
     db.session.add(pipeline)
     db.session.commit()

@@ -240,9 +240,11 @@ class SampleGroup(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey("Customer.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("Group.id"))
     investigation_id = db.Column(db.Integer, db.ForeignKey("Investigation.id"))
+    source_pipeline_id = db.Column(db.Integer, db.ForeignKey("PipelineInstance.id"))
     current_pipeline_id = db.Column(db.Integer, db.ForeignKey("PipelineInstance.id"))
 
-    current_pipeline = db.RelationshipProperty("PipelineInstance", backref="sample_group", uselist=False)
+    source_pipeline_instance = db.RelationshipProperty("PipelineInstance", uselist=False, foreign_keys=[source_pipeline_id])
+    current_pipeline_instance = db.RelationshipProperty("PipelineInstance", backref="sample_group", uselist=False, foreign_keys=[current_pipeline_id]) # TODO: Assess if we really want to backref this - I'm not sure of it's usecase tbh
     sample = db.RelationshipProperty("Sample", backref="sample_group", lazy="dynamic")
     past_runs = db.RelationshipProperty("PipelineInstance", backref="old_sample_group")
 
@@ -374,6 +376,7 @@ class Pipeline(db.Model):
     description = db.Column(db.String(500), nullable=False)
     author = db.Column(db.String(50), nullable=False)
     version = db.Column(db.String(50), nullable=False)
+    type = db.Column(db.Enum("I", "II", "III"), nullable=False)
 
     module = db.RelationshipProperty("PipelineModule", backref="pipeline", lazy="dynamic")
     instance = db.RelationshipProperty("PipelineInstance", backref="pipeline", lazy="dynamic")
@@ -431,7 +434,7 @@ class PipelineModuleInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     display_key = db.Column(db.String(32), default=lambda: uuid.uuid4().hex, unique=True)
 
-    current_status = db.Column(db.Enum("NOT_STARTED, RUNNING, WAITING, FINISHED, ERRORED"))
+    current_status = db.Column(db.Enum("NOT_STARTED, RUNNING, WAITING, FINISHED, ERRORED"), default="NOT_STARTED")
 
     module_id = db.Column(db.Integer, db.ForeignKey("PipelineModule.id"), nullable=False)
     pipeline_instance_id = db.Column(db.Integer, db.ForeignKey("PipelineInstance.id"), nullable=False)

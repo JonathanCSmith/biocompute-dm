@@ -140,11 +140,12 @@ def build(file):
     description = json_instance.get("description")
     author = json_instance.get("author")
     version = json_instance.get("version")
-    pipeline_instance = utils.get_allowed_pipeline(name, description, author, version)
+    type = json_instance.get("pipeline_type")
+    pipeline_instance = utils.get_allowed_pipeline(name, description, author, version, type)
     if pipeline_instance is not None:
         return False
 
-    pipeline_instance = utils.create_pipeline(name, description, author, version)
+    pipeline_instance = utils.create_pipeline(name, description, author, version, type)
     for module in json_instance.get("modules"):
         mod = utils.create_module(module.get("name"), module.get("description"), module.get("executor"), module.get("index_in_execution_order"), pipeline_instance)
 

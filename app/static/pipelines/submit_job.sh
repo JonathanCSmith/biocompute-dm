@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+echo "Beginning job submission"
 
 # Take all script input arguments and build strings for them
 for i in "$@"
@@ -60,12 +61,16 @@ STRING="JOBID=\$\(qsub -cwd -N"
 STRING+=" ${JOB_NAME} -v ${VARS} ${SCRIPT_STRING}\)"
 
 # Submit the job and its monitor
+OUTPUT_DIRECTORY=${WORKING_DIRECTORY}
+OUTPUT_DIRECTORY+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
     eval "${STRING}"
     eval "JOBID=\$\( echo \$\{JOBID\} \| grep -o -E '[0-9]+' \)"
     qsub -hold_jid "${JOBID}" -N CLEANUP ./cleanup.sh -v "TICKET=${TICKET},JOBID=${JOBID}" # The monitor
-" > header_node_output.txt 2>&1
+" > ${OUTPUT_DIRECTORY} 2>&1
 
 # Move the output into our working directory
-mv ./header_node_output.txt WORKING_DIRECTORY
-rm ./header_node_output.txt
+#mv ./header_node_output.txt ${WORKING_DIRECTORY}
+#rm ./header_node_output.txt
+
+echo "Job submission complete"
