@@ -1,12 +1,12 @@
 #!flask/bin/python
-__author__ = 'jon'
-
 import imp
 
 from migrate.versioning import api
 from app import db
 from config import SQLALCHEMY_DATABASE_URI
 from config import SQLALCHEMY_MIGRATE_REPO
+
+__author__ = 'jon'
 
 # Create model
 print("Creating db model")

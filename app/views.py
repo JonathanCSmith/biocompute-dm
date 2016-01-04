@@ -620,12 +620,11 @@ def pipeline(pid=""):
 
 @app.route("/test_pipeline")
 @login_required("Site Admin")
-def test_pipeline(pid="", type="", sid=""):
+def test_pipeline(pid="", unique_group_id=""):
     # TODO REMOVE BELOW THIS: ITS TEST CODE
     from app.models import Pipeline
     p = Pipeline.query.filter_by(name="test_pipeline").first()
     pid = p.display_key
-    type = "I"
     # TODO REMOVE ABOVE THIS: ITS TEST CODE
 
     # Get the relevant pipeline and build an instance
@@ -638,74 +637,65 @@ def test_pipeline(pid="", type="", sid=""):
 
     # TODO: Generate module options, based on behaviours and query the server about it
 
-    # Setup and Acquire Ticket
-    # from app.models import Ticket
-    # t = utils.create_ticket(mi)
-
     # Setup samples csv
     import csv
-    if type == "I":
+    if p.type == "I":
         # Create the working directory
-        working_directory_root = os.path.join(config.REMOTE_SUBMISSIONS_PATH, pi.display_key)
-        if not os.path.exists(working_directory_root):
-            os.makedirs(working_directory_root)
+        working_directory = os.path.join(config.SUBMISSIONS_PATH_ON_HPC, pi.display_key)
+        if not os.path.exists(working_directory):
+            os.makedirs(working_directory)
 
         # Build a single line csv that just gives information about the submission
-        csv_path = os.path.join(working_directory_root, "io.txt")
+        csv_path = os.path.join(working_directory, "io.txt")
         with open(csv_path, "w", newline='') as csvfile:
             writer = csv.writer(csvfile)
-            line = sid + "," + config.REMOTE_RAW_PATH + "/" + sid + "," + config.REMOTE_SUBMISSIONS_PATH + "/" + pi.display_key
-            writer.writerow(line)
+            writer.writerow([unique_group_id, config.RAW_DATA_PATH_ON_HPC + "/" + unique_group_id, config.SUBMISSIONS_PATH_ON_HPC + "/" + pi.display_key])
 
     elif type == "II":
         # Create the working directory
-        working_directory_root = os.path.join(config.REMOTE_SAMPLES_PATH, pi.display_key)
-        if not os.path.exists(working_directory_root):
-            os.makedirs(working_directory_root)
+        working_directory = os.path.join(config.SAMPLES_PATH_ON_HPC, pi.display_key)
+        if not os.path.exists(working_directory):
+            os.makedirs(working_directory)
 
         # Build a csv of relevant samples and their output directory
         # TODO: assess for per module
         from app.models import SampleGroup
-        sg = SampleGroup.query.filter_by(display_key=sid).first()
-        csv_path = os.path.join(working_directory_root, "io.txt")
+        sg = SampleGroup.query.filter_by(display_key=unique_group_id).first()
+        csv_path = os.path.join(working_directory, "io.txt")
         with open(csv_path, "w", newline='') as csvfile:
             writer = csv.writer(csvfile)
             for sample in sg.sample.all():
-                sample_directory = os.path.join(working_directory_root, sample.display_key)
+                sample_directory = os.path.join(working_directory, sample.display_key)
                 if not os.path.exists(sample_directory):
                     os.makedirs(sample_directory)
 
-                line = sample.display_key + "," + config.REMOTE_SUBMISSIONS_PATH + "/" + sg.source_pipeline.display_key + "/" + sample.display_key + "," + config.REMOTE_SAMPLES_PATH + "/" + pi.display_key + "/" + sample.display_key
-                writer.writerow(line)
+                writer.writerow([sample.display_key, config.SUBMISSIONS_PATH_ON_HPC + "/" + sg.source_pipeline.display_key + "/" + sample.display_key, config.SAMPLES_PATH_ON_HPC + "/" + pi.display_key + "/" + sample.display_key])
 
     else:
         # Create the working directory
-        working_directory_root = os.path.join(config.REMOTE_INVESTIGATIONS_PATH, pi.display_key)
-        if not os.path.exists(working_directory_root):
-            os.makedirs(working_directory_root)
+        working_directory = os.path.join(config.INVESTIGATIONS_PATH_ON_HPC, pi.display_key)
+        if not os.path.exists(working_directory):
+            os.makedirs(working_directory)
 
         # Build a csv of relevant samples and their output directory
         # TODO: As above
         from app.models import Investigation
-        i = Investigation.query.filter_by(display_key=sid).first()
-        csv_path = os.path.join(working_directory_root, "io.txt")
+        i = Investigation.query.filter_by(display_key=unique_group_id).first()
+        csv_path = os.path.join(working_directory, "io.txt")
         with open(csv_path, "w", newline='') as csvfile:
             writer = csv.writer(csvfile)
             for sg in i.sample_group.all():
                 for sample in sg.sample.all():
-                    sample_directory = os.path.join(working_directory_root, sample.display_key)
+                    sample_directory = os.path.join(working_directory, sample.display_key)
                     if not os.path.exists(sample_directory):
                         os.makedirs(sample_directory)
 
-                    line = sample.display_key + "," + config.REMOTE_SAMPLES_PATH + "/" + sg.source_pipeline.display_key + "/" + sample.display_key + "," + config.REMOTE_INVESTIGATIONS_PATH + "/" + pi.display_key + "/" + sample.display_key
-                    writer.writerow(line)
+                    writer.writerow([sample.display_key, config.SAMPLES_PATH_ON_HPC + "/" + sg.source_pipeline.display_key + "/" + sample.display_key, config.INVESTIGATIONS_PATH_ON_HPC + "/" + pi.display_key + "/" + sample.display_key])
 
     # TODO: Assess whether or not we need to modify r/w/x privileges here
 
     # Step 4) Submit job
-    root_path = os.path.join(os.path.dirname(__file__), "static")
-    root_path = os.path.join(root_path, "pipelines")
-    shell_path = os.path.join(root_path, "submit_job.sh")  # Move to constant - no need to build this every time
+    shell_path = config.HPC_JOB_SUBMISSION_FILE
     pipeline_path = m.executor
     process = subprocess.Popen(
             [
@@ -713,11 +703,15 @@ def test_pipeline(pid="", type="", sid=""):
                 "-t=A_Ticket",
                 "-j=A_JOB",
                 "-s=" + pipeline_path,
-                "-w=" + working_directory_root,
+                "-w=" + working_directory,
                 "-i=" + csv_path,
                 "-v='a=1,b=eleven'"
             ],
-            cwd=root_path, stdout=subprocess.PIPE, stdin=subprocess.PIPE).stdout
+            cwd=working_directory,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.PIPE
+    ).stdout
 
     # Lets read out our process information - this is relatively safe as it should just entail a job submission
     # Anything more complex may lead to the website hanging...

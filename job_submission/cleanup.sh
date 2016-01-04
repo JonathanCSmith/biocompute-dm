@@ -9,3 +9,5 @@ ssh biocis@10.202.64.28 "
 "
 
 # Begin calculating stats whilst on a node and inform the webserver
+
+# Remove this file?

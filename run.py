@@ -1,5 +1,6 @@
 #!flask/bin/python3
+from app import app
+
 __author__ = 'jon'
 
-from app import app
 app.run(debug=True)

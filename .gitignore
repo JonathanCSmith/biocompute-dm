@@ -10,11 +10,15 @@ to_remove/cgi-bin/mypol.te
 /flask
 /html
 /config.py
-/investigations
-/link
 /db_repository
-/samples
+
+# Local files
+/pipelines
+/pipeline_instances
 /raw
+/submissions
+/samples
+/investigations
 
 # Dia files
 *.autosave

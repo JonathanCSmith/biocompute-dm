@@ -297,7 +297,7 @@ def get_allowed_documents_query():
 
 def get_allowed_pipeline(name, description, author, version, type):
     if current_user.is_authenticated and current_user.role == "Site Admin":
-        return Pipeline.query.filter_by(name=name, description=description, author=author, version=version, pipeline_type = type).first()
+        return Pipeline.query.filter_by(name=name, description=description, author=author, version=version, type=type).first()
 
     return None
 
@@ -330,7 +330,7 @@ def create_module(name, description, executor, order_index, pipeline):
 
     # Full path to executor - we have to use the config value here because it may be located at a different place
     # on the remote
-    p = os.path.join(config.REMOTE_PIPELINES_PATH, pipeline.name)
+    p = os.path.join(config.PIPELINES_PATH_ON_HPC, pipeline.name)
     p = os.path.join(p, executor)
     module.executor = p
 
@@ -395,17 +395,9 @@ def flash_errors(form):
 
 
 def refresh_pipelines():
-    path = os.path.join(os.path.dirname(__file__), "..")
-    path = os.path.join(path, "link")
-    if not os.path.exists(path):
-        flash("Could not locate link directory. Please ensure this folder exists.", "error")
-        return False
-
-    path = os.path.join(path, "pipelines")
-    if not os.path.exists(path):
-        flash("Could not locate pipelines directory. Please ensure there is a valid symlink for the folder in the links folder!", "error")
-        return False
-
+    # Webserver side
+    import config
+    path = config.PIPELINES_PATH_ON_WEBSERVER
     directories = os.listdir(path)
     found = False
     for directory in directories:

@@ -137,8 +137,9 @@ class Investigation(db.Model):
 
     def validate_investigation_directory(self):
         if self.directory is None:
-            path = os.path.join(os.getcwd(), "link")
-            path = os.path.join(path, "investigations")
+            # Local variant as this code is execute webserver side
+            import config
+            path = config.INVESTIGATIONS_PATH_ON_WEBSERVER
             self.directory = os.path.join(path, str(self.id) + "_" + self.name)
 
         # Create our investigation directory if necessary
