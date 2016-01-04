@@ -60,7 +60,7 @@ for directory in directories:
     version = json_instance.get("version")
     type = json_instance.get("pipeline_type")
 
-    pipeline_instance = Pipeline.query.filter_by(name=name, description=description, author=author, version=version, pipeline_type=type).first()
+    pipeline_instance = Pipeline.query.filter_by(name=name, description=description, author=author, version=version, type=type).first()
     if pipeline_instance is not None:
         continue
 

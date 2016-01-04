@@ -316,7 +316,7 @@ def create_pipeline(name, description, author, version, type):
     pipeline.description = description
     pipeline.author = author
     pipeline.version = version
-    pipeline.pipeline_type = type
+    pipeline.type = type
 
     db.session.add(pipeline)
     db.session.commit()

@@ -244,9 +244,13 @@ class SampleGroup(db.Model):
     current_pipeline_id = db.Column(db.Integer, db.ForeignKey("PipelineInstance.id"))
 
     source_pipeline_instance = db.RelationshipProperty("PipelineInstance", uselist=False, foreign_keys=[source_pipeline_id])
-    current_pipeline_instance = db.RelationshipProperty("PipelineInstance", backref="sample_group", uselist=False, foreign_keys=[current_pipeline_id]) # TODO: Assess if we really want to backref this - I'm not sure of it's usecase tbh
+    # TODO: Assess if we really want to backref below - I'm not sure of it's use case tbh
+    current_pipeline_instance = db.RelationshipProperty(
+            "PipelineInstance",
+            backref="sample_group",
+            uselist=False, foreign_keys=[current_pipeline_id]
+    )
     sample = db.RelationshipProperty("Sample", backref="sample_group", lazy="dynamic")
-    past_runs = db.RelationshipProperty("PipelineInstance", backref="old_sample_group")
 
     __tablename__ = "SampleGroup"
     __mapper_args__ = {"polymorphic_on": type}
