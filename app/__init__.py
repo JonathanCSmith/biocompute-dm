@@ -6,6 +6,17 @@ from flask import Flask, g
 app = Flask(__name__)
 app.config.from_object("config")
 
+
+# Logging setup
+import logging
+
+if not app.debug:
+    applogger = app.logger
+    file_handler = logging.FileHandler("error.log")
+    file_handler.setLevel(logging.WARNING)
+    applogger.addHandler(file_handler)
+
+
 import config
 
 app.secret_key = config.SECRET_KEY
