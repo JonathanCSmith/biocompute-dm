@@ -705,7 +705,7 @@ def test_pipeline(pid="", type="", sid=""):
     # Step 4) Submit job
     root_path = os.path.join(os.path.dirname(__file__), "static")
     root_path = os.path.join(root_path, "pipelines")
-    shell_path = os.path.join(root_path, "submit_job.sh")
+    shell_path = os.path.join(root_path, "submit_job.sh")  # Move to constant - no need to build this every time
     pipeline_path = m.executor
     process = subprocess.Popen(
             [
@@ -718,8 +718,16 @@ def test_pipeline(pid="", type="", sid=""):
                 "-v='a=1,b=eleven'"
             ],
             cwd=root_path, stdout=subprocess.PIPE, stdin=subprocess.PIPE).stdout
-    lines = process.readline()
-    print(lines)
+
+    # Lets read out our process information - this is relatively safe as it should just entail a job submission
+    # Anything more complex may lead to the website hanging...
+    while True:
+        lines = process.readline()
+        if lines == "" and process.poll() is not None:
+            break
+
+        if lines:
+            print(lines.strip())
 
     return redirect(url_for("empty"))
 
