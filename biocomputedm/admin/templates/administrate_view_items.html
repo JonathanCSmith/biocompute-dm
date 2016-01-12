@@ -1,0 +1,33 @@
+{% extends "administrate.html" %}
+{% block custom_css %}
+<link rel="stylesheet" type="text/css" href="/static/css/administrate.css?v=3">
+{% endblock %}
+
+{% block administrate %}
+{% block administrate_view %}
+{% endblock %}
+<br>
+<table class="pagenator">
+    <tr>
+        <td></td>
+        <td>&lt;&lt;</td>
+        <td>
+            {% if obs.has_prev %}
+            <a href="{{ url_for('submissions', page=posts.prev_num) }}">Previous</a>
+            {% else %}
+            Previous
+            {% endif %}
+        </td>
+        <td>|</td>
+        <td>
+            {% if obs.has_next %}
+            <a href="{{ url_for('submissions', page=posts.next_num) }}">Next</a>
+            {% else %}
+            Next
+            {% endif %}
+        </td>
+        <td>&gt;&gt;</td>
+        <td></td>
+    </tr>
+</table>
+{% endblock %}

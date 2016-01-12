@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="input-table clear">
+    <table>
+        <tr>
+            <td>
+                <form action="{{ url_for('manage.new_submission') }}" method=post>
+                    <div class="action">
+                        <h3>Submission Information</h3>
+                        {{ form.hidden_tag() }}
+                        <table class="internal">
+                            {# <!-- Submission properties --> #}
+                        </table>
+
+                        {# <!-- for enumerated directories select one to submit --> #}
+
+                        <button type="submit" class="action">Submit</button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

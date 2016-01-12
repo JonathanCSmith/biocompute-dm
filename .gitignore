@@ -20,5 +20,5 @@ to_remove/cgi-bin/mypol.te
 /samples
 /investigations
 
-# Dia files
-*.autosave
+# Debug files
+/error.log

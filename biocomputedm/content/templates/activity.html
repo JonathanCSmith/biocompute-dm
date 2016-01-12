@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <table>
+        <tr>
+            <td>
+                <div class="action">
+                    <h3>Upload Data</h3>
+                    <a class="input" href="{{ url_for('manage.upload_data') }}">Upload a new dataset</a>
+                    <ul>
+                        <li>Allows you to upload data to Biocompute-DM's file system</li>
+                        <li>Files must be either .zip or .gz</li>
+                        <li>Files will be placed in a quarantined zone and unzipped.</li>
+                        <li>Unzipped file structures should constitute be as follows /unzipped folder name/data only (i.e. no nested directories)</li>
+                        <li>Uploaded data can be added to Biocompute-DM's management framework by choosing the submit data option</li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Submit Data</h3>
+                    <a class="input" href="{{ url_for('manage.new_submission') }}">Submit a new dataset</a>
+                    <ul>
+                        <li>Submit a dataset from your uploaded files or from your group's directory</li>
+                        <li>Submitted data must be directly below its containing folder (e.g. /upload1/data_file_1)</li>
+                        <li>Submitted data (from your upload directory) becomes visible to your group once added</li>
+                        <li>Submitted data can then be deconvoluted using available plugins to  generate per sample information</li>
+                    </ul>
+                </div>
+            </td>
+
+
+
+            {#
+            <td>
+                <div class="action">
+                    <h3>Add an Investigation</h3>
+                    <a class="input" href="{{ url_for('new_investigation') }}">Add a new investigation.</a>
+                    <ul>
+                        <li>Create a parent investigation that can hold multiple samples and sample groupings</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Add a Sequencing Submission</h3>
+                    <a class="input" href="{{ url_for('input_sequencing_submission') }}">Add a new sequencing submission.</a>
+                    <ul>
+                        <li>Add your sequencing run to the system to begin the deconvolution process.</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+
+            <td>
+                <div class="action">
+                    <h3>Add a Flow Cytometry Submission</h3>
+                    <a class="input" href="{{ url_for('input_flow_cytometry_submission') }}">Add a new flow cytometry submission.</a>
+                    <ul>
+                        <li>Add your flow cytometry run to the system to begin the deconvolution process.</li>
+                        <li></li>
+                    </ul>
+                </div>
+            </td>
+            #}
+        </tr>
+    </table>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/index.js"></script>
+{% endblock %}

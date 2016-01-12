@@ -1,0 +1,23 @@
+{% extends "administrate_view_items.html" %}
+{% block administrate_view %}
+<h3>Pipelines</h3>
+<table class="content">
+    <tr>
+        <th>Pipeline Name</th>
+        <th>Description</th>
+        <th>Author</th>
+        <th>Version</th>
+        <th>Type</th>
+    </tr>
+
+    {% for pipeline in obs.items %}
+    <tr>
+        <td>{{ pipeline.name }}</td>
+        <td>{{ pipeline.description }}</td>
+        <td>{{ pipeline.author }}</td>
+        <td>{{ pipeline.version }}</td>
+        <td>{{ pipeline.type }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

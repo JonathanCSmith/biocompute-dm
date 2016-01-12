@@ -1,17 +1,24 @@
 import os
 
-__author__ = 'jon'
+__author__ = "jon"
 
+ROOT_WEBSERVER_DIRECTORY = ""
 SECRET_KEY = ""
 
+ERROR_LOG_LOCATION = "error.log"
+
+MAIL_USERNAME = ""
+MAIL_PASSWORD = ""
+MAIL_SERVER = ""
+MAIL_SOURCE_ADDRESS = ""
+
+DATABASE_USERNAME = ""
+DATABASE_PASSWORD = ""
+DATABASE_LOCATION = ""
+DATABASE_NAME = ""
+
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-USERNAME = ""
-PASSWORD = ""
-LOCATION = ""
-DATABASE = ""
-
-SQLALCHEMY_DATABASE_URI = "mysql+pymysql://" + USERNAME + ":" + PASSWORD + "@" + LOCATION + "/" + DATABASE
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://" + DATABASE_USERNAME + ":" + DATABASE_PASSWORD + "@" + DATABASE_LOCATION + "/" + DATABASE_NAME
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, "db_repository")
 
 SITE_ADMIN_USERNAME = ""
@@ -19,6 +26,7 @@ SITE_ADMIN_PASSWORD = ""
 SITE_ADMIN_EMAIL = ""
 
 HPC_JOB_SUBMISSION_FILE = ""
+SFTP_SCRIPTS_PATH = ""
 
 PIPELINES_PATH_ON_WEBSERVER = ""
 PIPELINES_PATH_ON_HPC = ""

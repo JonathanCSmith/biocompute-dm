@@ -1,0 +1,135 @@
+{% extends "bootstrap/base.html" %}
+{% block doc %}
+<html>
+    <head>
+        {% block styles %}
+        {{ super() }}
+
+        <link rel=stylesheet type="text/css" href="/static/css/style.css?v=40">
+        {% block custom_css %}
+        {% endblock %}
+
+        {% endblock %}
+
+        {% block scripts %}
+        {{ super() }}
+        {% endblock %}
+
+        {% if title %}
+        <title>{{ title }} - Biological Compute Data Manager</title>
+        {% else %}
+        <title>Welcome to the Biological Compute Data Manager</title>
+        {% endif %}
+    </head>
+
+    <body>
+        <header>
+            <div class="brand">
+                <div class="container">
+                    <h1>Biocompute<i>-DM</i></h1>
+                    <p>Biological Compute Data Management System</p>
+                </div>
+            </div>
+        </header>
+
+        <nav>
+            <div class="navbar navbar-default navbar-static-top capture nav-style">
+                <div class="container">
+                    <div class="navbar-footer">
+                        <p class="navbar-text visible-xs-inline-block pull-left">BioCIS Navigation:</p>
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-header-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+
+                    <div class="collapse navbar-collapse navbar-header-collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="{{ url_for('index') }}">Home</a></li>
+
+                            {% if g.user.is_authenticated %}
+
+                            {% if g.user.type == "User" %}
+                            {#<li><a href="{{ url_for('manage.submissions') }} ">My Submissions</a></li>#}
+                            {#<li><a href="{{ url_for('sample_groups') }}">My Sample Groups</a></li>#}
+                            {% endif %}
+
+                            {#<li><a href="{{ url_for('investigations') }}">My Investigations</a></li>#}
+
+                            {% if g.user.get_role() == "Site Admin" %}
+                            <li><a href="{{ url_for('admin.administrate') }}">My Admin</a></li>
+                            {% elif g.user.get_role() == "Group Admin" %}
+                            <li><a href="{{ url_for('admin.administrate') }}">My Admin</a></li>
+                            {% endif %}
+
+                            {% endif %}
+
+                            <li>
+                                {% if g.user.is_authenticated %}
+                                <a href="{{ url_for('admin.logout') }}">Logout</a>
+                                {% else %}
+                                <a href="{{ url_for('admin.login') }}">Login</a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main>
+            <div class="messages">
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="{{ category }} message">
+                    <h3>{{ category.upper() }}</h3>
+                    <p>{{ message }}</p>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="content">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+
+        <footer>
+            <div class="navbar navbar-default navbar-fixed-bottom nav-style">
+                <div class="container">
+                    <div class="navbar-footer">
+                        <p class="navbar-text visible-xs-inline-block pull-left">BioCIS Properties:</p>
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-footer-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+
+                    <div class="collapse navbar-collapse navbar-footer-collapse">
+                        <ul class="nav navbar-nav">
+                            {% if g.user.is_authenticated %}
+                            <li><a href="{{ url_for('manage.user_profile') }}">Profile</a></li>
+                            {% endif %}
+
+                            {% if g.user.is_authenticated %}
+                            <li><a href="{{ url_for('content.about') }}">About Biocompute-DM</a></li>
+                            {% endif %}
+
+                            <li><a href="{{ url_for('content.terms_and_conditions') }}">Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script src="/static/js/main.js"></script>
+        {% block custom_scripts %}
+        {% endblock %}
+    </body>
+</html>
+{% endblock %}
