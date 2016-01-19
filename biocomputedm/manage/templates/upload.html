@@ -5,8 +5,15 @@
         <tr>
             <div class="action">
                 <h3>SFTP Client</h3>
+                <object type="application/x-java-applet" height="300" width="500">
+                    <param name="code" value="uk.gov.nhs.gstt.brc.bioinformatics.jon.EmbeddedSFTP">
+                    <param name="archive" value="{{ url_for('static', filename='EmbeddedSFTP-0.0.0-jar-with-dependencies.jar') }}">
+                    <param name="java_arguments" value="-Djnlp.packEnabled=true"/>
+                    SFTP Applet failed to run.
+                </object>
                 {# <!-- Applet goes here! --> #}
                 <ul>
+                    <li>The current version of this app is self signed, so you will need to add it to the java exceptions site list <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jweb/security/exception_site_list.html">here</a>. The source code can be found <a href="https://github.com/JonathanCSmith/EmbeddedSFTP">here</a></li>
                     <li>Do not close out your web page whilst uploading.</li>
                     <li>If your upload gets interrupted it should be possible to continue uploading.</li>
                 </ul>
