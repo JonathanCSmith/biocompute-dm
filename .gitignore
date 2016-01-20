@@ -6,7 +6,7 @@ to_remove/cgi-bin/mypol.te
 
 # development files
 /.idea
-/biocis.iml
+/Biocompute-DM.iml
 /flask
 /html
 /config.py

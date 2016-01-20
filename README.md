@@ -6,6 +6,8 @@
 ### Ubuntu Installation (mileage will vary for other OSs)
 - Setup a machine with a Lamp(y) stack
 
+- Create a user called biocompute-dm
+
 - Clone branch containing the flask builds onto the machine to /var/www (or equivalent)
 
 - Within the repository folder create a virtual environment:
@@ -41,7 +43,7 @@
         - flask/bin/pip install Flask-Script
         
 - Modify your apache2 installation according to the best practices listed below
-  * Note, it is always assumed that script execution on the webserver is performed using the user 'biocis'
+  * Note, it is always assumed that script execution on the webserver is performed using the user 'biocompute-dm'
 
 - Create your own config.py by copying the template and inserting the relevant information.
 
@@ -63,9 +65,9 @@
 2. The sftpusers group exists in the system
 3. The sftp bash scripts have the correct permissions to be executed as sudo
   * Type sudo visudo
-  * Below the line `%sudo ALL=(ALL:ALL) ALL` add the followings for each bash script:
+  * Below the line `%sudo ALL=(ALL:ALL) ALL` add the followings for each sftp (in your sftp folder) bash script:
         
-        biocis ALL=(ALL) NOPASSWD: [path to script]
+        biocompute-dm ALL=(ALL) NOPASSWD: [path to script]
         
   * Ensure that the files are owned by root and have 700 permissions! (this prevents nefarious execution)
   * Note, the current sftp add_user scripts use hash passwords, for this you must install whois
@@ -96,7 +98,7 @@
 ### Pipeline Patterns - Rolling your own
 
 #### Pipeline Types
-There are three pipeline types that can be created in BioCIS, respectfully represented by their roman numerals. 
+There are three pipeline types that can be created in Biocompute-DM, respectfully represented by their roman numerals. 
 
 * Type I plugins deconvolute information into separate samples. This pipeline type is markedly different from its counterparts
   as it directly informs the database of additional information by analysing the path on which the pipeline's output

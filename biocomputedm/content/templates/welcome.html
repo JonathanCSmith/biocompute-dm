@@ -1,9 +1,9 @@
 {% extends "index.html" %}
 {% block main %}
-<h3>Welcome to BioCIS - A Genomics and Translational Bioinformatics Core Collaboration</h3>
+<h3>Welcome to Biocompute-DM - A Genomics and Translational Bioinformatics Core Collaboration</h3>
 {% if user.is_authenticated %}
 <ul>
-    <li>Find out about BioCIS below:</li>
+    <li>Find out about Biocompute-DM below:</li>
 </ul>
 {% else %}
 <a class="input" href="{{ url_for('admin.login') }}">Login</a>
