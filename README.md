@@ -41,6 +41,7 @@
         - flask/bin/pip install Flask-Script
         
 - Modify your apache2 installation according to the best practices listed below
+  * Note, it is always assumed that script execution on the webserver is performed using the user 'biocis'
 
 - Create your own config.py by copying the template and inserting the relevant information.
 
@@ -60,11 +61,14 @@
            AllowTcpForwarding no
            
 2. The sftpusers group exists in the system
-3. The bash scripts in repo/biocomputedm/admin/helpers have the correct permissions to be executed as sudo
+3. The sftp bash scripts have the correct permissions to be executed as sudo
   * Type sudo visudo
   * Below the line `%sudo ALL=(ALL:ALL) ALL` add the followings for each bash script:
         
-        www-data ALL=(ALL) NOPASSWD: [path to script]
+        biocis ALL=(ALL) NOPASSWD: [path to script]
+        
+  * Ensure that the files are owned by root and have 700 permissions! (this prevents nefarious execution)
+  * Note, the current sftp add_user scripts use hash passwords, for this you must install whois
         
 
 

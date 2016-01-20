@@ -1,37 +1,33 @@
 import os
 import subprocess
 
+import getpass
+
 from biocomputedm import utils
 from flask import current_app
 
 
 def create_group_directory(group):
-    utils.make_directory(group.directory)
+    # TODO: Currently group members don't have write access
+    utils.make_directory(os.path.join(current_app.config["RAW_DATA_PATH_ON_WEBSERVER"], group.name))
 
 
 def create_user_directory(user, realpass):
+    # TODO: Currently users are not members of their group!
     path = os.path.join(current_app.config["SFTP_SCRIPTS_PATH"], "add_user.sh")
-    cmd = "sudo " + path
     process_out = subprocess.Popen(
             [
-                cmd,
-                "-u=" + user.name,
+                "sudo",
+                path,
+                "-u=" + user.username,
                 "-p=" + realpass,
                 "-r=" + current_app.config["RAW_DATA_PATH_ON_WEBSERVER"],
-                "-d=" + user.display_name
+                "-d=" + user.display_key
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             stdin=subprocess.PIPE
-    ).stdout
+    )
 
-    # Print out our logs
-    while True:
-        lines = process_out.readline()
-        if lines == "" and process_out.poll() is not None:
-            break
-
-        if lines:
-            print(lines.strip())
-
+    print(process_out.communicate())
     return

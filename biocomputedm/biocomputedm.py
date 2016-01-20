@@ -9,6 +9,9 @@ from .extensions import db, mail, login_manager
 __author__ = "jon"
 
 
+# TODO: Mark out dead users/groups and rm from folders
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object("config")
@@ -140,7 +143,8 @@ def load_defaults(app):
 
     if admin is None:
         group = Group.create(name="Site Admins")
-        user = User.create(username=app.config["SITE_ADMIN_USERNAME"], password=app.config["SITE_ADMIN_PASSWORD"], email=app.config["SITE_ADMIN_EMAIL"], group=group)
+        user = User.create(username=app.config["SITE_ADMIN_USERNAME"], password=app.config["SITE_ADMIN_PASSWORD"],
+                           email=app.config["SITE_ADMIN_EMAIL"], group=group)
         group.set_administrator(user)
         group.save()
         user.set_role("Site Admin")

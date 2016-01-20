@@ -47,8 +47,8 @@ esac
 done
 
 # Add the user, to the sftp group, with password and home directory
-SFTP_DIRECTORY=${SFTP_ROOT}+"/"+${USER_DIRECTORY_NAME}
-USER_DIRECTORY=${SFTP_DIRECTORY}+"/landing_zone"
+SFTP_DIRECTORY=${SFTP_ROOT}"/"${USER_DIRECTORY_NAME}
+USER_DIRECTORY=${SFTP_DIRECTORY}"/landing_zone"
 ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 useradd -g sftpusers -p ${ENCRYPTED_PASS} -d ${USER_DIRECTORY} -s /sbin/nologin ${USERNAME}
 
@@ -56,4 +56,5 @@ useradd -g sftpusers -p ${ENCRYPTED_PASS} -d ${USER_DIRECTORY} -s /sbin/nologin 
 mkdir ${SFTP_DIRECTORY}
 chown root:root ${SFTP_DIRECTORY}
 mkdir ${USER_DIRECTORY}
-chown ${USERNAME}:sftpusers ${USER_DIRECTORY}
+chown ${USERNAME}:${USERNAME} ${USER_DIRECTORY}
+exit

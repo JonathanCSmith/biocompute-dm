@@ -11,7 +11,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Permissions wrapper & environment contextualiser
 class Group(SurrogatePK, Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
-    directory = db.Column(db.String(120), nullable=False)
 
     member = relationship("Person", backref="group", lazy="dynamic")
 
@@ -26,7 +25,11 @@ class Group(SurrogatePK, Model):
 
     def __init__(self, name):
         db.Model.__init__(self, name=name)
-        self.directory = os.path.join(current_app.config["RAW_DATA_PATH_ON_WEBSERVER"], self.display_key)
+
+        # Hack, we need the default values here
+        db.session.add(self)
+        db.session.commit()
+
         helper_functions.create_group_directory(self)
 
     def __repr__(self):
@@ -71,6 +74,10 @@ class Person(UserMixin, SurrogatePK, Model):
         self.set_password(password)
         group.member.append(self)
         group.save()
+
+        # Hack, we need the default values here
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self):
         return "<Member %r %r>" % (self.username, self.email)
