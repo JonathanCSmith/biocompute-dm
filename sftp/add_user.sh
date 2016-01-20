@@ -18,7 +18,7 @@ do
 case $i in
     # Ticket for transactions
     -u=*|-user=*)
-    USERNAME="${i#*=}"
+    USERNAME="biocompute-DM_user_${i#*=}"
     shift
     ;;
 
@@ -56,5 +56,5 @@ useradd -g sftpusers -p ${ENCRYPTED_PASS} -d ${USER_DIRECTORY} -s /sbin/nologin 
 mkdir ${SFTP_DIRECTORY}
 chown root:root ${SFTP_DIRECTORY}
 mkdir ${USER_DIRECTORY}
-chown ${USERNAME}:${USERNAME} ${USER_DIRECTORY}
+chown ${USERNAME}:sftpusers ${USER_DIRECTORY}
 exit
