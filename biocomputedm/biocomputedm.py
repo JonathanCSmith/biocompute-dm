@@ -1,5 +1,4 @@
-from biocomputedm.admin.models import User, create_group, Group
-from biocomputedm.decorators import login_required
+from biocomputedm.admin.models import User, Group
 from biocomputedm.pipelines.models import Pipeline, create_module, create_option
 from biocomputedm.pipelines.models import create_pipeline
 from flask import Flask

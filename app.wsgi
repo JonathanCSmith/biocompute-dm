@@ -1,6 +1,6 @@
 import sys
-import config
 
+from . import config
 from biocomputedm.biocomputedm import create_app
 
 __author__ = "jon"
