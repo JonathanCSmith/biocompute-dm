@@ -1,10 +1,10 @@
 import sys
 
-sys.path.insert(0, "./")
+from biocomputedm import biocomputedm
 
-from biocomputedm.biocomputedm import create_app
+sys.path.insert(0, "./")
 
 __author__ = "jon"
 
 # Build the app last
-application = create_app()
+application = biocomputedm.create_app()
