@@ -1,8 +1,8 @@
 import sys
 
-from biocomputedm import biocomputedm
+sys.path.insert(0, "/var/www/biocomputedm")
 
-sys.path.insert(0, "./")
+from biocomputedm import biocomputedm
 
 __author__ = "jon"
 
