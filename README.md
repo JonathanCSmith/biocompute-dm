@@ -48,6 +48,7 @@
 - Create your own config.py by copying the template and inserting the relevant information.
 
 - Follow database instructions for "New database schema"
+  * Note: all commands within manage.py should be called as your biocompute-dm user (or the owner of the error.log directory)
 
 - SFTP Setup
 1. Openssh sftp is allowed and configured correctly using the /etc/ssh/sshd_config file

@@ -51,10 +51,4 @@ SFTP_DIRECTORY=${SFTP_ROOT}"/"${USER_DIRECTORY_NAME}
 USER_DIRECTORY=${SFTP_DIRECTORY}"/landing_zone"
 ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 useradd -g sftpusers -p ${ENCRYPTED_PASS} -d ${USER_DIRECTORY} -s /sbin/nologin ${USERNAME}
-
-# Create the sftp root and the user's home. Assign appropriate permissions
-mkdir ${SFTP_DIRECTORY}
-chown root:root ${SFTP_DIRECTORY}
-mkdir ${USER_DIRECTORY}
-chown ${USERNAME}:sftpusers ${USER_DIRECTORY}
 exit
