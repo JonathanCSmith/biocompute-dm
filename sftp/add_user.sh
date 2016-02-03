@@ -50,7 +50,6 @@ done
 USER_SFTP_DIRECTORY="${SFTP_ROOT}/${USER_DIRECTORY_NAME}"
 LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/landing_zone"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
-echo ${PASSWORD}
 
 # Add the user
 useradd "${USERNAME}" -g sftpusers -d "${USER_SFTP_DIRECTORY}" -s /sbin/nologin
