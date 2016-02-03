@@ -47,8 +47,8 @@ esac
 done
 
 # Add the user, to the sftp group, with password and home directory
-USER_SFTP_DIRECTORY=${SFTP_ROOT}"/"${USER_DIRECTORY_NAME}
-LANDING_DIRECTORY=${USER_SFTP_DIRECTORY}"/landing_zone"
+USER_SFTP_DIRECTORY="${SFTP_ROOT}/${USER_DIRECTORY_NAME}"
+LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/landing_zone"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
 # Add the user
@@ -61,7 +61,7 @@ chmod 750 ${USER_SFTP_DIRECTORY}
 
 # Create a user writable directory - this is their landing zone
 mkdir ${LANDING_DIRECTORY}
-chown ${USERNAME}:${USERNAME} ${LANDING_DIRECTORY}
-chmod 755 ${LANDING_DIRECTORY}
+chown ${USERNAME}:sftpusers ${LANDING_DIRECTORY}
+chmod 600 ${LANDING_DIRECTORY}
 
 exit
