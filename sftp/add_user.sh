@@ -16,7 +16,7 @@
 for i in "$@"
 do
 case $i in
-    # Ticket for transactions
+    # Username
     -u=*|-user=*)
     USERNAME="biocompute-DM_user_${i#*=}"
     shift
@@ -47,17 +47,17 @@ esac
 done
 
 # Add the user, to the sftp group, with password and home directory
-SFTP_DIRECTORY=${SFTP_ROOT}"/"${USER_DIRECTORY_NAME}
-LANDING_DIRECTORY=${SFTP_DIRECTORY}"/landing_zone"
+USER_SFTP_DIRECTORY=${SFTP_ROOT}"/"${USER_DIRECTORY_NAME}
+LANDING_DIRECTORY=${USER_SFTP_DIRECTORY}"/landing_zone"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
 # Add the user
-useradd -g sftpusers -p ${PASSWORD} -d ${SFTP_DIRECTORY} -s /sbin/nologin ${USERNAME}
+useradd -g sftpusers -p ${PASSWORD} -d ${USER_SFTP_DIRECTORY} -s /sbin/nologin ${USERNAME}
 
 # Create the user's directory - note it must be owned by root!
-mkdir ${SFTP_DIRECTORY}
-chown root:sftpusers ${SFTP_DIRECTORY}
-chmod 750 ${SFTP_DIRECTORY}
+mkdir ${USER_SFTP_DIRECTORY}
+chown root:sftpusers ${USER_SFTP_DIRECTORY}
+chmod 750 ${USER_SFTP_DIRECTORY}
 
 # Create a user writable directory - this is their landing zone
 mkdir ${LANDING_DIRECTORY}
