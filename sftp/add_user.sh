@@ -52,16 +52,16 @@ LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/landing_zone"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
 # Add the user
-useradd -g sftpusers -p ${PASSWORD} -d ${USER_SFTP_DIRECTORY} -s /sbin/nologin ${USERNAME}
+useradd -g sftpusers -p "${PASSWORD}" -d "${USER_SFTP_DIRECTORY}" -s /sbin/nologin "${USERNAME}"
 
 # Create the user's directory - note it must be owned by root!
-mkdir ${USER_SFTP_DIRECTORY}
-chown root:sftpusers ${USER_SFTP_DIRECTORY}
-chmod 750 ${USER_SFTP_DIRECTORY}
+mkdir "${USER_SFTP_DIRECTORY}"
+chown root:sftpusers "${USER_SFTP_DIRECTORY}"
+chmod 750 "${USER_SFTP_DIRECTORY}"
 
 # Create a user writable directory - this is their landing zone
-mkdir ${LANDING_DIRECTORY}
-chown ${USERNAME}:sftpusers ${LANDING_DIRECTORY}
-chmod 600 ${LANDING_DIRECTORY}
+mkdir "${LANDING_DIRECTORY}"
+chown "${USERNAME}":sftpusers "${LANDING_DIRECTORY}"
+chmod 600 "${LANDING_DIRECTORY}"
 
 exit
