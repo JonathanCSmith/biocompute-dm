@@ -52,11 +52,12 @@
 
 - SFTP Setup
 1. Openssh sftp is allowed and configured correctly using the /etc/ssh/sshd_config file
-  * At the start of the file:
+  * In the middle of the file comment out the first line and add the second:
   
+        #Subsystem       sftp    /usr/libexec/openssh/sftp-server
         Sybsystem sftp internal-sftp
         
-  * At the end of the file:
+  * At the end of the file add the following information:
     
         Match Group sftpusers
            ChrootDirectory %h

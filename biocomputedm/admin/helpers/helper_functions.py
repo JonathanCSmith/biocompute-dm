@@ -9,7 +9,7 @@ from flask import current_app
 
 def create_group_directory(group):
     # TODO: Currently group members don't have write access
-    utils.make_directory(os.path.join(current_app.config["RAW_DATA_PATH_ON_WEBSERVER"], group.name))
+    utils.make_directory(os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], group.name))
 
 
 def create_user_directory(user, realpass):
@@ -21,7 +21,7 @@ def create_user_directory(user, realpass):
                 path,
                 "-u=" + user.username,
                 "-p=" + realpass,
-                "-r=" + current_app.config["RAW_DATA_PATH_ON_WEBSERVER"],
+                "-r=" + current_app.config["SFTP_USER_ROOT_PATH"],
                 "-d=" + user.display_key
             ],
             stdout=subprocess.PIPE,

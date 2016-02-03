@@ -48,7 +48,20 @@ done
 
 # Add the user, to the sftp group, with password and home directory
 SFTP_DIRECTORY=${SFTP_ROOT}"/"${USER_DIRECTORY_NAME}
-USER_DIRECTORY=${SFTP_DIRECTORY}"/landing_zone"
-ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
-useradd -g sftpusers -p ${ENCRYPTED_PASS} -d ${USER_DIRECTORY} -s /sbin/nologin ${USERNAME}
+LANDING_DIRECTORY=${SFTP_DIRECTORY}"/landing_zone"
+#ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
+
+# Add the user
+useradd -g sftpusers -p ${PASSWORD} -d ${SFTP_DIRECTORY} -s /sbin/nologin ${USERNAME}
+
+# Create the user's directory - note it must be owned by root!
+mkdir ${SFTP_DIRECTORY}
+chown root:sftpusers ${SFTP_DIRECTORY}
+chmod 750 ${SFTP_DIRECTORY}
+
+# Create a user writable directory - this is their landing zone
+mkdir ${LANDING_DIRECTORY}
+chown ${USERNAME}:${USERNAME} ${LANDING_DIRECTORY}
+chmod 755 ${LANDING_DIRECTORY}
+
 exit
