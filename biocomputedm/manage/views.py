@@ -28,8 +28,8 @@ def user_profile():
 
 
 # Move data from external into landing_zone
-@manage.route("/upload_data/<int:page>")
 @manage.route("/upload_data/f:<file_uploaded>")
+@manage.route("/upload_data/<int:page>")
 @manage.route("/upload_data")
 @login_required("ANY")
 def upload_data(page=1, file_uploaded=""):
