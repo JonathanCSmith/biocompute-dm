@@ -1,6 +1,9 @@
 import os
+import tarfile
 
 import time
+
+import zipfile
 
 from biocomputedm.decorators import login_required
 from flask import Blueprint, render_template, redirect, url_for
@@ -26,9 +29,10 @@ def user_profile():
 
 # Move data from external into landing_zone
 @manage.route("/upload_data/<int:page>")
+@manage.route("/upload_data/f:<file_uploaded>")
 @manage.route("/upload_data")
 @login_required("ANY")
-def upload_data(page=1):
+def upload_data(page=1, file_uploaded=""):
     # Current user information
     folder = current_user.display_key
 
@@ -36,8 +40,36 @@ def upload_data(page=1):
     path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], folder)
     path = os.path.join(path, "landing_zone")
 
+    if file_uploaded is not "":
+        # On file upload, unzip and delete original
+        file_path = os.path.join(path, file_uploaded)
+        if file_path.endswith('.zip'):
+            opener, mode = zipfile.ZipFile, 'r'
+        elif file_path.endswith('.tar.gz') or file_path.endswith('.tgz'):
+            opener, mode = tarfile.open, 'r:gz'
+        elif file_path.endswith('.tar.bz2') or file_path.endswith('.tbz'):
+            opener, mode = tarfile.open, 'r:bz2'
+        else:
+            # Delete the file - we can't do anything with it anyway
+            os.remove(file_path)
+            return
+
+        # Build a restore point
+        cwd = os.getcwd()
+        os.chdir(path)
+
+        # Attempt to unpack
+        try:
+            file = opener(path, mode)
+            try:
+                file.extractall()
+            finally:
+                file.close()
+        finally:
+            os.chdir(cwd)
+
     # list of the available files
-    filepaths = next(os.walk(path))[2]
+    filepaths = next(os.walk(path))[1]
     if len(filepaths) > 20:
         filepaths = filepaths[(page - 1) * 20:(page * 20) - 1]
 
