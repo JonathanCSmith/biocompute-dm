@@ -63,6 +63,6 @@ chmod 750 "${USER_SFTP_DIRECTORY}"
 # Create a user writable directory - this is their landing zone
 mkdir "${LANDING_DIRECTORY}"
 chown "${USERNAME}":sftpusers "${LANDING_DIRECTORY}"
-chmod 600 "${LANDING_DIRECTORY}"
+chmod 755 "${LANDING_DIRECTORY}"
 
 exit
