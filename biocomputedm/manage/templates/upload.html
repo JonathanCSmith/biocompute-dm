@@ -1,27 +1,27 @@
 {% extends "base.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
 {% block content %}
 <div class="input-table clear">
     <div class="action exempt">
-        <table>
-            <tr>
-                <div class="action">
-                    <h3>SFTP Client</h3>
-                    <object type="application/x-java-applet" height="300" width="500">
-                        <param name="code" value="uk.gov.nhs.gstt.brc.bioinformatics.jon.EmbeddedSFTP">
-                        <param name="archive" value="{{ url_for('static', filename='EmbeddedSFTP-0.0.0-jar-with-dependencies.jar') }}">
-                        <param name="java_arguments" value="-Djnlp.packEnabled=true"/>
-                        SFTP Applet failed to run.
-                    </object>
-                    <ul>
-                        <li>The current version of this app is self signed, so you will need to add it to the java exceptions site list as described: <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jweb/security/exception_site_list.html">here</a>. The source code can be found <a href="https://github.com/JonathanCSmith/EmbeddedSFTP">here</a></li>
-                        <li>Do not close out your web page whilst uploading.</li>
-                        <li>If your upload gets interrupted it should be possible to continue uploading.</li>
-                        <li>Full fledged SFTP accounts are available, information on which should have been provided on sign up and can be requested again by clicking <a href="">here</a></li>
-                    </ul>
-                </div>
-            </tr>
-        </table>
+        <h3>SFTP Client</h3>
+        <object type="application/x-java-applet" height="300" width="500">
+            <param name="code" value="uk.gov.nhs.gstt.brc.bioinformatics.jon.EmbeddedSFTP">
+            <param name="archive" value="{{ url_for('static', filename='EmbeddedSFTP-0.0.0-jar-with-dependencies.jar') }}">
+            <param name="java_arguments" value="-Djnlp.packEnabled=true"/>
+            SFTP Applet failed to run.
+        </object>
+        <ul>
+            <li>The current version of this app is self signed, so you will need to add it to the java exceptions site list as described: <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jweb/security/exception_site_list.html">here</a>. The source code can be found <a href="https://github.com/JonathanCSmith/EmbeddedSFTP">here</a></li>
+            <li>Do not close out your web page whilst uploading.</li>
+            <li>If your upload gets interrupted it should be possible to continue uploading.</li>
+            <li>Full fledged SFTP accounts are available, information on which should have been provided on sign up and can be requested again by clicking <a href="">here</a></li>
+        </ul>
     </div>
+
+    <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Currently Staged Files</h3>
@@ -51,7 +51,7 @@
                 <td></td>
                 <td>&lt;&lt;</td>
                 <td>
-                    {% if obs.has_prev %}
+                    {% if has_prev %}
                     <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
                     {% else %}
                     Previous
@@ -59,7 +59,7 @@
                 </td>
                 <td>|</td>
                 <td>
-                    {% if obs.has_next %}
+                    {% if has_next %}
                     <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
                     {% else %}
                     Next
@@ -70,5 +70,7 @@
             </tr>
         </table>
     </div>
+
+    <div class="spacer"></div>
 </div>
 {% endblock %}

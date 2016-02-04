@@ -41,6 +41,20 @@ def upload_data(page=1):
     if len(filepaths) > 20:
         filepaths = filepaths[(page - 1) * 20:(page * 20) - 1]
 
+        if page == 1:
+            p = False
+        else:
+            p = True
+
+        if (page * 20) - 1 < len(filepaths):
+            n = True
+        else:
+            n = False
+
+    else:
+        p = False
+        n = False
+
     files = []
     for file in filepaths:
         s = os.stat(os.path.join(path, file))
@@ -50,7 +64,7 @@ def upload_data(page=1):
             "date": time.ctime(s.st_ctime)
         })
 
-    return render_template("upload.html", tile="Upload your data", files=files, page=page)
+    return render_template("upload.html", tile="Upload your data", files=files, page=page, has_prev=p, has_next=n)
 
 
 # Move data from external into landing_zone
