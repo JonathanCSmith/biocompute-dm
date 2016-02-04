@@ -1,5 +1,11 @@
+import os
+
+import time
+
 from biocomputedm.decorators import login_required
 from flask import Blueprint, render_template, redirect, url_for
+from flask import current_app
+from flask.ext.login import current_user
 
 manage = Blueprint("manage", __name__, static_folder="static", template_folder="templates")
 
@@ -19,11 +25,32 @@ def user_profile():
 
 
 # Move data from external into landing_zone
-# TODO: Can this be user specific sftp zones?
+@manage.route("/upload_data/<int:page>")
 @manage.route("/upload_data")
 @login_required("ANY")
-def upload_data():
-    return render_template("upload.html", tile="Upload your data")
+def upload_data(page=1):
+    # Current user information
+    folder = current_user.display_key
+
+    # Build path to the users sftp dir
+    path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], folder)
+    path = os.path.join(path, "landing_zone")
+
+    # list of the available files
+    filepaths = next(os.walk(path))[2]
+    if len(filepaths) > 20:
+        filepaths = filepaths[(page - 1) * 20:(page * 20) - 1]
+
+    files = []
+    for file in filepaths:
+        s = os.stat(os.path.join(path, file))
+        files.append({
+            "name": file,
+            "size": s.st_size,
+            "date": time.ctime(s.st_ctime)
+        })
+
+    return render_template("upload.html", tile="Upload your data", files=files, page=page)
 
 
 # Move data from external into landing_zone
@@ -75,6 +102,3 @@ def analyse(sg_id=""):
 @login_required("ANY")
 def analysed(page=1):
     return redirect(url_for("empty"))
-
-
-
