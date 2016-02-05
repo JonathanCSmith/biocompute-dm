@@ -40,36 +40,8 @@ def upload_data(page=1, file_uploaded=""):
     path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], folder)
     path = os.path.join(path, "landing_zone")
 
-    if file_uploaded is not "":
-        # On file upload, unzip and delete original
-        file_path = os.path.join(path, file_uploaded)
-        if file_path.endswith('.zip'):
-            opener, mode = zipfile.ZipFile, 'r'
-        elif file_path.endswith('.tar.gz') or file_path.endswith('.tgz'):
-            opener, mode = tarfile.open, 'r:gz'
-        elif file_path.endswith('.tar.bz2') or file_path.endswith('.tbz'):
-            opener, mode = tarfile.open, 'r:bz2'
-        else:
-            # Delete the file - we can't do anything with it anyway
-            os.remove(file_path)
-            return
-
-        # Build a restore point
-        cwd = os.getcwd()
-        os.chdir(path)
-
-        # Attempt to unpack
-        try:
-            file = opener(file_path, mode)
-            try:
-                file.extractall()
-            finally:
-                file.close()
-        finally:
-            os.chdir(cwd)
-
     # list of the available files
-    filepaths = next(os.walk(path))[1]
+    filepaths = next(os.walk(path))[2]
     if len(filepaths) > 20:
         filepaths = filepaths[(page - 1) * 20:(page * 20) - 1]
 
