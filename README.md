@@ -44,7 +44,7 @@
         
 - Modify your apache2 installation according to the best practices listed below
   * It is always assumed that script execution on the webserver is performed using the user 'biocompute-dm'
-  * This user should be a member of a group called webadmin
+  * This administrative user must be a member of the group sftpusers
 
 - Create your own config.py by copying the template and inserting the relevant information.
 
