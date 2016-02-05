@@ -43,7 +43,8 @@
         - flask/bin/pip install Flask-Script
         
 - Modify your apache2 installation according to the best practices listed below
-  * Note, it is always assumed that script execution on the webserver is performed using the user 'biocompute-dm'
+  * It is always assumed that script execution on the webserver is performed using the user 'biocompute-dm'
+  * This user should be a member of a group called webadmin
 
 - Create your own config.py by copying the template and inserting the relevant information.
 
