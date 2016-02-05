@@ -28,7 +28,7 @@ chmod 750 "${GROUP_SFTP_DIRECTORY}"
 
 mkdir "${LANDING_DIRECTORY}"
 chown root:sftpusers "${LANDING_DIRECTORY}"
-chmod 755 "${LANDING_DIRECTORY}"
+chmod 775 "${LANDING_DIRECTORY}"
 
 exit
 
