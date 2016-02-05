@@ -1,9 +1,6 @@
-import os
-
+from biocomputedm.admin.helpers import helper_functions
 from biocomputedm.database import SurrogatePK, Model, reference_col, relationship
 from biocomputedm.extensions import db
-from biocomputedm.admin.helpers import helper_functions
-from flask import current_app
 from flask.ext.login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,14 +9,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 class Group(SurrogatePK, Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
 
-    member = relationship("Person", backref="group", lazy="dynamic")
+    members = relationship("Person", backref="group", lazy="dynamic")
+    submissions = relationship("Submission", backref="group", lazy="dynamic")
 
-    # TODO: CHANGE
-    investigation = db.RelationshipProperty("Investigation", backref="group", lazy="dynamic")
-    document = db.RelationshipProperty("Document", backref="group", lazy="dynamic")
-    submission = db.RelationshipProperty("Submission", backref="group", lazy="dynamic")
-    sample_group = db.RelationshipProperty("SampleGroup", backref="group", lazy="dynamic")
-    sample = db.RelationshipProperty("Sample", backref="group", lazy="dynamic")
+    # # TODO: CHANGE
+    # investigation = db.RelationshipProperty("Investigation", backref="group", lazy="dynamic")
+    # document = db.RelationshipProperty("Document", backref="group", lazy="dynamic")
+    # submission = db.RelationshipProperty("Submission", backref="group", lazy="dynamic")
+    # sample_group = db.RelationshipProperty("SampleGroup", backref="group", lazy="dynamic")
+    # sample = db.RelationshipProperty("Sample", backref="group", lazy="dynamic")
 
     __tablename__ = "Group"
 
@@ -41,7 +39,7 @@ class Group(SurrogatePK, Model):
             return
 
         administrator.set_role("Group Admin")
-        self.member.append(administrator)
+        self.members.append(administrator)
 
 
 def create_group(group_name, admin_name, admin_password, admin_email):
@@ -61,8 +59,8 @@ class Person(UserMixin, SurrogatePK, Model):
     group_id = reference_col("Group")
 
     # TODO: CHANGE
-    investigation = db.RelationshipProperty("Investigation", backref="submitter", lazy="dynamic")
-    document = db.RelationshipProperty("Document", backref="submitter", lazy="dynamic")
+    # investigation = db.RelationshipProperty("Investigation", backref="submitter", lazy="dynamic")
+    # document = db.RelationshipProperty("Document", backref="submitter", lazy="dynamic")
 
     _password = db.Column(db.String(160))
 
@@ -72,7 +70,7 @@ class Person(UserMixin, SurrogatePK, Model):
     def __init__(self, username, email, password, group):
         db.Model.__init__(self, username=username, email=email)
         self.set_password(password)
-        group.member.append(self)
+        group.members.append(self)
         group.save()
 
         # Hack, we need the default values here
@@ -102,10 +100,12 @@ class Person(UserMixin, SurrogatePK, Model):
 class User(Person):
     id = reference_col("Person", primary_key=True)
 
+    submissions = relationship("Submission", backref="submitter", lazy="dynamic")
+
     # TODO: Change
-    submission = db.RelationshipProperty("Submission", backref="submitter", lazy="dynamic")
-    sample_group = db.RelationshipProperty("SampleGroup", backref="submitter", lazy="dynamic")
-    sample = db.RelationshipProperty("Sample", backref="submitter", lazy="dynamic")
+    # submission = db.RelationshipProperty("Submission", backref="submitter", lazy="dynamic")
+    # sample_group = db.RelationshipProperty("SampleGroup", backref="submitter", lazy="dynamic")
+    # sample = db.RelationshipProperty("Sample", backref="submitter", lazy="dynamic")
 
     __tablename__ = "User"
     __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Person.id)}

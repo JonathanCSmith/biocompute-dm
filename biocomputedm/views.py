@@ -416,13 +416,4 @@ __author__ = 'jon'
 #     return redirect(url_for("empty"))
 #
 #
-# @app.route("/message", methods=["GET", "POST"])
-# def message():
-#     global tmp_message
-#     if request.method == "GET":
-#         m = tmp_message
-#         return render_template("message.html", dictionary=m)
-#
-#     else:
-#         tmp_message = request.form
-#         return "<html></html>"
+

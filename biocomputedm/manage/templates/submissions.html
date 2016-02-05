@@ -1,0 +1,17 @@
+{% extends "table.html" %}
+{% block table %}
+<h3>Submissions</h3>
+<table class="content">
+    <tr>
+        <th>Submission Name</th>
+        <th>Submission Description</th>
+    </tr>
+
+    {% for submission in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('manage.submission', sid=submission.display_key) }}">{{ submission.name }}</a></td>
+        <td>{{ submission.description }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

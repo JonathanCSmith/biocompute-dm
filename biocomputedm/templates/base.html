@@ -51,7 +51,8 @@
                             {% if g.user.is_authenticated %}
 
                             {% if g.user.type == "User" %}
-                            {#<li><a href="{{ url_for('manage.submissions') }} ">My Submissions</a></li>#}
+                            <li><a href="{{ url_for('manage.uploads') }} ">My Uploads</a></li>
+                            <li><a href="{{ url_for('manage.submissions') }} ">My Submissions</a></li>
                             {#<li><a href="{{ url_for('sample_groups') }}">My Sample Groups</a></li>#}
                             {% endif %}
 
@@ -95,6 +96,7 @@
             <div class="content">
                 {% block content %}
                 {% endblock %}
+                <div class="spacer"></div>
             </div>
         </main>
 

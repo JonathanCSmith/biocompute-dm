@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Submission: {{ submission.name }}</h3>
+
+        <ul>
+            <li>{{ submission.description }}</li>
+        </ul>
+
+        <table class="content">
+            <tr>
+                <th>File Name</th>
+                <th>File Size (bytes)</th>
+                <th>File Creation Date</th>
+            </tr>
+
+            {% for file in files %}
+            <tr>
+                <td>{{ file["name"] }}</td>
+                <td>{{ file["size"] }}</td>
+                <td>{{ file["date"] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <table class="pagenator">
+            <tr>
+                <td></td>
+                <td>&lt;&lt;</td>
+                <td>
+                    {% if has_prev %}
+                    <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
+                    {% else %}
+                    Previous
+                    {% endif %}
+                </td>
+                <td>|</td>
+                <td>
+                    {% if has_next %}
+                    <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
+                    {% else %}
+                    Next
+                    {% endif %}
+                </td>
+                <td>&gt;&gt;</td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Pipelines</h3>
+
+        {% if submission.pipeline_instance %}
+        <table class="content2">
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Pipeline Description</th>
+                <th>Pipeline Author</th>
+                <th>Pipeline Version</th>
+            </tr>
+            <tr>
+                <td>{{ submission.pipeline_instance.pipeline.name }}</td>
+                <td>{{ submission.pipeline_instance.pipeline.description }}</td>
+                <td>{{ submission.pipeline_instance.pipeline.author }}</td>
+                <td>{{ submission.pipeline_instance.pipeline.version }}</td>
+            </tr>
+            <tr>
+                {% for stage in submission.pipeline_instance.module_instance%}
+                {% if stage.current_status == "WAITING" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "RUNNING" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "FINISHED" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "ERRORED" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% elif stage.current_status == "NOT_STARTED" %}
+                <td style="background-image:url(#)">{{ stage.name }}</td>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </table>
+
+        {% else %}
+        <h4>No current pipeline - please select a pipeline to begin a run</h4>
+        <select class="selection">
+            <option selected value="None">None</option>
+            {% for pipeline in pipelines %}
+            <option value="{{ pipeline.name }}">{{ pipeline.name }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+
+        <div class="spacer"></div>
+
+        {% for pipeline in pipelines %}
+        <div id="{{ pipeline.name }}" class="description" style="display: none">
+            <table class="content2">
+                <tr>
+                    <th>Pipeline Name</th>
+                    <th>Pipeline Description</th>
+                    <th>Pipeline Author</th>
+                    <th>Pipeline Version</th>
+                </tr>
+                <tr>
+                    <td>{{ pipeline.name }}</td>
+                    <td>{{ pipeline.description }}</td>
+                    <td>{{ pipeline.author }}</td>
+                    <td>{{ pipeline.version }}</td>
+                </tr>
+            </table>
+            <div class="spacer"></div>
+            <a class="input" href="{{ url_for('pipelines.run_pipeline', type=submission, obj=submission.display_key, pipeline=pipeline.display_key) }}">Select</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/selectContent.js"></script>
+{% endblock %}

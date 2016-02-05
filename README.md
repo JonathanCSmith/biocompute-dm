@@ -42,6 +42,11 @@
         - flask/bin/pip install jsonschema
         - flask/bin/pip install Flask-Script
         
+- Install the following applications:
+  * 7z : sudo apt-get install p7zip-full
+  * unrar : sudo apt-get install unrar
+  * unzip : sudo apt-get install unzip
+        
 - Modify your apache2 installation according to the best practices listed below
   * It is always assumed that script execution on the webserver is performed using the user 'biocompute-dm'
   * This administrative user must be a member of the group sftpusers

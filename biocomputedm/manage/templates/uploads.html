@@ -4,17 +4,36 @@
 {% endblock %}
 
 {% block content %}
-<div class="input-table">
+<div class="input-table clear">
     <div class="action exempt">
-        {% block table %}
-        {% endblock %}
-        <div class="spacer"></div>
+        <h3>Currently Staged Files</h3>
+
+        <ul>
+            <li>Note, this list is not refreshed when you have used the above. Refresh the page if you need this page to update.</li>
+        </ul>
+
+        <table class="content">
+            <tr>
+                <th>File Name</th>
+                <th>File Size (bytes)</th>
+                <th>File Creation Date</th>
+            </tr>
+
+            {% for file in files %}
+            <tr>
+                <td>{{ file["name"] }}</td>
+                <td>{{ file["size"] }}</td>
+                <td>{{ file["date"] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
         <table class="pagenator">
             <tr>
                 <td></td>
                 <td>&lt;&lt;</td>
                 <td>
-                    {% if obs.has_prev %}
+                    {% if has_prev %}
                     <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
                     {% else %}
                     Previous
@@ -22,7 +41,7 @@
                 </td>
                 <td>|</td>
                 <td>
-                    {% if obs.has_next %}
+                    {% if has_next %}
                     <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
                     {% else %}
                     Next

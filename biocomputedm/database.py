@@ -2,7 +2,6 @@
 import uuid
 
 from biocomputedm.extensions import db
-
 from sqlalchemy.orm import relationship
 
 # Alias common SQLAlchemy names
@@ -62,13 +61,8 @@ class SurrogatePK(object):
                 (isinstance(record_id, basestring) and record_id.isdigit(),
                  isinstance(record_id, (int, float))),
         ):
-            return cls.query.get(int(record_id))
+            return cls.query.get_or_404(int(record_id))
         return None
-
-
-    @classmethod
-    def get_by_display_key(cls, display_key):
-        return cls.query.get(display_key=display_key)
 
 
 def reference_col(tablename, nullable=False, pk_name='id', **kwargs):
