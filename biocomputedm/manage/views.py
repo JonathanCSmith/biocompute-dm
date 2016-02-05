@@ -60,7 +60,7 @@ def upload_data(page=1, file_uploaded=""):
 
         # Attempt to unpack
         try:
-            file = opener(path, mode)
+            file = opener(file_path, mode)
             try:
                 file.extractall()
             finally:
