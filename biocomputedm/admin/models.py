@@ -1,5 +1,5 @@
 from biocomputedm.admin.helpers import helper_functions
-from biocomputedm.database import SurrogatePK, Model, reference_col, relationship
+from biocomputedm.database import SurrogatePK, Model, reference_col, relationship, String, Column
 from biocomputedm.extensions import db
 from flask.ext.login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 # Permissions wrapper & environment contextualiser
 class Group(SurrogatePK, Model):
-    name = db.Column(db.String(50), unique=True, nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
 
     members = relationship("Person", backref="group", lazy="dynamic")
     submissions = relationship("Submission", backref="group", lazy="dynamic")
@@ -51,10 +51,10 @@ def create_group(group_name, admin_name, admin_password, admin_email):
 
 # Person table, abstract parent for individuals interacting with the software
 class Person(UserMixin, SurrogatePK, Model):
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    role = db.Column(db.Enum("Member", "Group Admin", "Site Admin"), default="Member")
-    type = db.Column(db.String(50), nullable=False)
+    username = Column(String(50), unique=True, nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+    role = Column(db.Enum("Member", "Group Admin", "Site Admin"), default="Member")
+    type = Column(String(50), nullable=False)
 
     group_id = reference_col("Group")
 
@@ -62,7 +62,7 @@ class Person(UserMixin, SurrogatePK, Model):
     # investigation = db.RelationshipProperty("Investigation", backref="submitter", lazy="dynamic")
     # document = db.RelationshipProperty("Document", backref="submitter", lazy="dynamic")
 
-    _password = db.Column(db.String(160))
+    _password = Column(String(160))
 
     __tablename__ = "Person"
     __mapper_args__ = {"polymorphic_on": type}

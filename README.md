@@ -134,7 +134,7 @@ There are three pipeline types that can be created in Biocompute-DM, respectfull
 Below is an example pipeline. Things to note:
 
 * pipeline_type is an enum of I, II or III
-* index in execution order's number does not matter - however the ordering is (i.e. 1, 2 is just as relevant 0, 1)
+* the modules are executed in the order that they are listed
 * parameter name represents the flag that will be provided to your executor with the value selected by the user (in the form parameter=value)
 * user_interaction_type is an enum of string, boolean, library
 
@@ -150,7 +150,6 @@ Below is an example pipeline. Things to note:
           "name": "module_1",
           "description": "step 1",
           "executor": "somefile",
-          "index_in_execution_order": 0,
           "options": [
             {
               "display_name": "Cool Selection!",
@@ -164,7 +163,6 @@ Below is an example pipeline. Things to note:
           "name": "module_2",
           "description": "step 2, note the executor for this module must be present in the same location as this file",
           "executor": "somefile2",
-          "index_in_execution_order": 1,
           "options": [
             {
               "display_name": "Cool Selection!",

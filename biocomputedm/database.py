@@ -5,7 +5,13 @@ from biocomputedm.extensions import db
 from sqlalchemy.orm import relationship
 
 # Alias common SQLAlchemy names
+Table = db.Table
 Column = db.Column
+Enum = db.Enum
+String = db.String
+Integer = db.Integer
+Boolean = db.Boolean
+ForeignKey = db.ForeignKey
 relationship = relationship
 basestring = (str, bytes)
 

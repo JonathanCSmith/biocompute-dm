@@ -2,6 +2,7 @@ from biocomputedm.models import *
 from biocomputedm.pipelines.models import Pipeline, PipelineInstance, PipelineModuleInstance
 from flask import flash
 from flask.ext.login import current_user
+from sqlalchemy import update
 
 __author__ = 'jon'
 
@@ -310,33 +311,6 @@ def get_pipeline_by_display_key(display_key):
     return Pipeline.query.filter_by(display_key=display_key).first()
 
 
-def create_pipeline_instance(p):
-    pipeline = PipelineInstance()
-    p.instance.append(pipeline)
-
-    db.session.add(pipeline)
-    db.session.add(p)
-    db.session.commit()
-
-    return pipeline
-
-
-def create_module_instance(m, pi):
-    module_instance = PipelineModuleInstance()
-    module_instance.current_status = "NOT_STARTED"
-    module_instance.module_id = m.id
-
-    pi.current_module_id = m.id
-    pi.module_instance.append(module_instance)
-    pi.current_execution_index = m.execution_index
-
-    db.session.add(module_instance)
-    db.session.add(pi)
-    db.session.commit()
-
-    return module_instance
-
-
 # Function to display errors
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -348,10 +322,14 @@ def flash_errors(form):
 
 
 def refresh_pipelines():
-    # Webserver side
+    # Mark all as legacy on refresh then re-add
+    db.session.execute(update(Pipeline, values={Pipeline.executable: False}))
+    db.session.commit()
+
+    # Webserver side - as we need the execution paths to be correct for the executors
     path = current_app.config["PIPELINES_PATH_ON_WEBSERVER"]
     directories = os.listdir(path)
-    found = False
+    has_new = False
     for directory in directories:
         directory_path = os.path.join(path, directory)
         if not os.path.isdir(directory_path):
@@ -365,14 +343,9 @@ def refresh_pipelines():
         if not template_helper.validate(file):
             continue
 
-        found |= template_helper.build(file)
+        has_new |= template_helper.build(file)
 
-    if found:
-        flash("Successfully loaded all pipelines from the pipeline directory.", "success")
-    else:
-        flash("No pipelines were loaded as none were found or they were already present.", "warning")
-
-    return True
+    return has_new
 
 
 def make_directory(directory):

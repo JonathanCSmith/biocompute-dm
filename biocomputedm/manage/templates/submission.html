@@ -80,7 +80,7 @@
                 <td style="background-image:url(#)">{{ stage.name }}</td>
                 {% elif stage.current_status == "FINISHED" %}
                 <td style="background-image:url(#)">{{ stage.name }}</td>
-                {% elif stage.current_status == "ERRORED" %}
+                {% elif stage.current_status == "ERROR" %}
                 <td style="background-image:url(#)">{{ stage.name }}</td>
                 {% elif stage.current_status == "NOT_STARTED" %}
                 <td style="background-image:url(#)">{{ stage.name }}</td>
@@ -94,7 +94,7 @@
         <select class="selection">
             <option selected value="None">None</option>
             {% for pipeline in pipelines %}
-            <option value="{{ pipeline.name }}">{{ pipeline.name }}</option>
+            <option value="{{ pipeline.name ~ ': ' ~ pipeline.version }}">{{ pipeline.name ~ ': ' ~ pipeline.version }}</option>
             {% endfor %}
         </select>
         {% endif %}
@@ -102,7 +102,7 @@
         <div class="spacer"></div>
 
         {% for pipeline in pipelines %}
-        <div id="{{ pipeline.name }}" class="description" style="display: none">
+        <div id="{{ pipeline.name ~ ': ' ~ pipeline.version }}" class="description" style="display: none">
             <table class="content2">
                 <tr>
                     <th>Pipeline Name</th>
@@ -118,7 +118,7 @@
                 </tr>
             </table>
             <div class="spacer"></div>
-            <a class="input" href="{{ url_for('pipelines.run_pipeline', type=submission, obj=submission.display_key, pipeline=pipeline.display_key) }}">Select</a>
+            <a class="input" href="{{ url_for('pipelines.build_submission_pipeline', oid=submission.display_key, pid=pipeline.display_key) }}">Select</a>
         </div>
         {% endfor %}
     </div>

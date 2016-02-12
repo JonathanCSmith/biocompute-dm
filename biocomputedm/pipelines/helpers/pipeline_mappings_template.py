@@ -1,10 +1,8 @@
 import json
-import jsonschema
 
+import jsonschema
 from biocomputedm import utils
-from biocomputedm.extensions import db
-from biocomputedm.pipelines.models import create_module
-from biocomputedm.pipelines.models import create_pipeline, create_option
+from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption
 from flask import flash
 
 pipeline = \
@@ -32,11 +30,13 @@ pipeline = \
         },
         "pipeline_type": {
           "id": "pipeline_type",
-          "enum": [
-            "I",
-            "II",
-            "III"
-          ]
+          "type": {
+            "enum": [
+              "I",
+              "II",
+              "III"
+            ]
+          }
         },
         "author": {
           "id": "author",
@@ -56,7 +56,6 @@ pipeline = \
               "name",
               "description",
               "executor",
-              "index_in_execution_order",
               "options"
             ],
             "properties": {
@@ -72,10 +71,6 @@ pipeline = \
                 "id": "executor",
                 "type": "string"
               },
-              "index_in_execution_order": {
-                "id": "index_in_execution_order",
-                "type": "integer"
-              },
               "options:": {
                 "id": "options:",
                 "type": "array",
@@ -84,13 +79,19 @@ pipeline = \
                   "type": "object",
                   "required": [
                     "display_name",
+                    "description",
                     "parameter_name",
                     "default_value",
-                    "user_interaction_type"
+                    "user_interaction_type",
+                    "necessary"
                   ],
                   "properties": {
                     "display_name": {
                       "id": "display_name",
+                      "type": "string"
+                    },
+                    "description": {
+                      "id": "description",
                       "type": "string"
                     },
                     "parameter_name": {
@@ -103,11 +104,18 @@ pipeline = \
                     },
                     "user_interaction_type": {
                       "id": "user_interaction_type",
-                      "enum": [
-                        "string",
-                        "boolean",
-                        "library"
-                      ]
+                      "type": {
+                        "enum": [
+                          "file",
+                          "string",
+                          "boolean",
+                          "library"
+                        ]
+                      }
+                    },
+                    "necessary": {
+                      "id": "necessary",
+                      "type": "boolean"
                     }
                   }
                 }
@@ -144,15 +152,29 @@ def build(file):
     author = json_instance.get("author")
     version = json_instance.get("version")
     type = json_instance.get("pipeline_type")
-    pipeline = utils.get_allowed_pipeline(name, description, author, version, type)
+    pipeline = Pipeline.query.filter_by(name=name, description=description, author=author, version=version, type=type).first()
     if pipeline is not None:
+        pipeline.update(executable=True)
         return False
 
-    pipeline = create_pipeline(name, description, author, version, type)
+    pipeline = Pipeline.create(name=name, description=description, author=author, version=version, type=type)
+    pipeline.update(executable=True)
+    count = -1
     for module in json_instance.get("modules"):
-        mod = create_module(module.get("name"), module.get("description"), module.get("executor"), module.get("index_in_execution_order"), pipeline)
+        count += 1
+        mod = PipelineModule.create(name=module.get("name"),
+                                    description=module.get("description"),
+                                    executor=module.get("executor"),
+                                    execution_index=count,
+                                    pipeline=pipeline)
 
         for option in module.get("options"):
-            opt = create_option(option.get("display_name"), option.get("parameter_name"), option.get("default_value"), option.get("user_interaction_type"), mod)
+            opt = PipelineModuleOption.create(display_name=option.get("display_name"),
+                                              description=option.get("description"),
+                                              parameter_name=option.get("parameter_name"),
+                                              default_value=option.get("default_value"),
+                                              user_interaction_type=option.get("user_interaction_type"),
+                                              necessary=option.get("necessary"),
+                                              module=mod)
 
     return True

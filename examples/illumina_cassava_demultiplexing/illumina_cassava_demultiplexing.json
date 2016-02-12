@@ -9,7 +9,6 @@
       "name": "cassava",
       "description": "Run the cassava demultiplexer on source sequencing data",
       "executor": "cassava_module.sh",
-      "index_in_execution_order": 0,
       "options": []
     }
   ]

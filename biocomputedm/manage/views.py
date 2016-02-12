@@ -6,6 +6,7 @@ from biocomputedm import utils
 from biocomputedm.decorators import login_required
 from biocomputedm.manage import forms
 from biocomputedm.manage.models import Submission, get_submissions_query_by_user
+from biocomputedm.pipelines.models import Pipeline
 from flask import Blueprint, render_template, redirect, url_for
 from flask import abort
 from flask import current_app
@@ -255,7 +256,10 @@ def submission(sid=""):
             "date": time.ctime(s.st_ctime)
         })
 
-    return render_template("submission.html", title="Submission", submission=submission, files=files, pipelines="")
+    # list of the available type I pipelines
+    pipelines = Pipeline.query.filter_by(type="I", executable=True)
+
+    return render_template("submission.html", title="Submission", submission=submission, files=files, pipelines=pipelines)
 
 
 @manage.route("/process")

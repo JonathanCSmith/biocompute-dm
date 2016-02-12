@@ -5,9 +5,8 @@
 function addSelectionGroupBehaviours() {
     $('.selection').change(function(){
         var selected = $(this).find(':selected').text();
-        //alert(selected);
         $(".description").hide();
-        $('#' + selected).show();
+        $("[id='" + selected + "'").show();
     });
 }
 

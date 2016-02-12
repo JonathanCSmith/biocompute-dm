@@ -70,7 +70,7 @@
                 <td style="background-image:url(#)">{{ stage.name }}</td>
                 {% elif grouping.current_pipeline.current_module.status == "FINISHED" %}
                 <td style="background-image:url(#)">{{ stage.name }}</td>
-                {% elif grouping.current_pipeline.current_module.status == "ERRORED" %}
+                {% elif grouping.current_pipeline.current_module.status == "ERROR" %}
                 <td style="background-image:url(#)">{{ stage.name }}</td>
                 {% elif grouping.current_pipeline.current_module.status == "NOT_STARTED" %}
                 <td style="background-image:url(#)">{{ stage.name }}</td>

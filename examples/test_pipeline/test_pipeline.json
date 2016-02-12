@@ -3,14 +3,49 @@
   "description": "Testing Pipeline",
   "pipeline_type": "I",
   "author": "Jonathan Smith",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "modules": [
     {
       "name": "test",
       "description": "tester for server side execution",
       "executor": "test.sh",
-      "index_in_execution_order": 0,
-      "options": []
+      "options": [
+        {
+          "display_name": "Text Field!",
+          "parameter_name": "-T",
+          "default_value": "No Text",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "this is a text field"
+        },
+
+        {
+          "display_name": "Boolean Field!",
+          "parameter_name": "-B",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "this is a boolean field"
+        },
+
+        {
+          "display_name": "Library Field!",
+          "parameter_name": "-L",
+          "default_value": "Def",
+          "user_interaction_type": "library",
+          "necessary": false,
+          "description": "this is a library field"
+        },
+
+        {
+          "display_name": "File Field!",
+          "parameter_name": "-F",
+          "default_value": "default.html",
+          "user_interaction_type": "file",
+          "necessary": true,
+          "description": "this is a file field"
+        }
+      ]
     }
   ]
 }

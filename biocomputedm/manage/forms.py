@@ -9,10 +9,3 @@ class NewSubmissionForm(Form):
     submission_description = StringField("Submission Description", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
-    def validate(self):
-        if not Form.validate(self):
-            flash("There was an error with your submission.", "error")
-            return False
-
-        return True
-
