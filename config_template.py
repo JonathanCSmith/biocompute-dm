@@ -25,21 +25,21 @@ SITE_ADMIN_USERNAME = ""
 SITE_ADMIN_PASSWORD = ""
 SITE_ADMIN_EMAIL = ""
 
+# NOTE Everything below here should be OS independent paths (i.e. //)
 HPC_JOB_SUBMISSION_FILE = ""
 SCRIPTS_PATH = ""
+
+# SFTP root folder
 SFTP_USER_ROOT_PATH = ""
 
-PIPELINES_PATH_ON_WEBSERVER = ""
-PIPELINES_PATH_ON_HPC = ""
+# Allows different relative path to be provided per environment - however, the contents should be identical (i.e. remote
+# mount, sshfs, samba etc - they can also be exactly the same path if the webserver is executed from the HPC environ)
+HPC_ROOT_PATH = ""
+WEBSERVER_ROOT_PATH = ""
 
-RAW_DATA_PATH_ON_WEBSERVER = ""
-RAW_DATA_PATH_ON_HPC = ""
-
-SUBMISSIONS_PATH_ON_WEBSERVER = ""
-SUBMISSIONS_PATH_ON_HPC = ""
-
-SAMPLES_PATH_ON_WEBSERVER = ""
-SAMPLES_PATH_ON_HPC = ""
-
-INVESTIGATIONS_PATH_ON_WEBSERVER = ""
-INVESTIGATIONS_PATH_ON_HPC = ""
+# Paths relative to the above
+PIPELINE_SCRIPTS_PATH_AFTER_RELATIVE_ROOT = ""
+PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT = ""
+SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT = ""
+SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT = ""
+PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT = ""

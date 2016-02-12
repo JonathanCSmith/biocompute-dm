@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Please input the following module properties:</h3>
+
+        <form action="{{ url_for('pipelines.build_module_instance', pid=pid, oid=oid, index=index) }}" method=post enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <table class="small_content">
+                {% for field in form %}
+                {% if (field.label.text != "Submit") and (field.label.text != "Csrf Token") %}
+                <tr>
+                    {% if field.type != "FileField" %}
+                    <td>{{ field.label(title=field.description) }}</td>
+                    <td colspan="2">{{ field(title=field.description) }}</td>
+                    {% else %}
+                    <td>{{ field.label(title=field.description) }}</td>
+                    <td colspan="2">{{ field(size=50, title=field.description) }}</td>
+                    {% endif %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="3">
+                        {{ form.submit_field(class_="input") }}
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/tooltip.js"></script>
+{% endblock %}

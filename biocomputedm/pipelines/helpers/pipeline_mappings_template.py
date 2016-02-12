@@ -1,16 +1,90 @@
 import json
 
 import jsonschema
-from biocomputedm import utils
 from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption
 from flask import flash
 
 pipeline = \
     '''
     {
-    "$schema": "http://json-schema.org/draft-04/schema#",
-      "id": "/",
       "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "pipeline_type": {
+          "enum": ["I", "II", "III"]
+        },
+        "author": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "executor": {
+                "type": "string"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "display_name": {
+                      "type": "string"
+                    },
+                    "parameter_name": {
+                      "type": "string"
+                    },
+                    "default_value": {
+                      "type": "string"
+                    },
+                    "user_interaction_type": {
+                      "enum": ["boolean", "string", "library", "file"]
+                    },
+                    "necessary": {
+                      "type": "boolean"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "display_name",
+                    "parameter_name",
+                    "default_value",
+                    "user_interaction_type",
+                    "necessary",
+                    "description"
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "description",
+              "executor",
+              "options"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
       "required": [
         "name",
         "description",
@@ -18,112 +92,7 @@ pipeline = \
         "author",
         "version",
         "modules"
-      ],
-      "properties": {
-        "name": {
-          "id": "name",
-          "type": "string"
-        },
-        "description": {
-          "id": "description",
-          "type": "string"
-        },
-        "pipeline_type": {
-          "id": "pipeline_type",
-          "type": {
-            "enum": [
-              "I",
-              "II",
-              "III"
-            ]
-          }
-        },
-        "author": {
-          "id": "author",
-          "type": "string"
-        },
-        "version": {
-          "id": "version",
-          "type": "string"
-        },
-        "modules": {
-          "id": "modules",
-          "type": "array",
-          "items": {
-            "id": "1",
-            "type": "object",
-            "required": [
-              "name",
-              "description",
-              "executor",
-              "options"
-            ],
-            "properties": {
-              "name": {
-                "id": "name",
-                "type": "string"
-              },
-              "description": {
-                "id": "description",
-                "type": "string"
-              },
-              "executor": {
-                "id": "executor",
-                "type": "string"
-              },
-              "options:": {
-                "id": "options:",
-                "type": "array",
-                "items": {
-                  "id": "1",
-                  "type": "object",
-                  "required": [
-                    "display_name",
-                    "description",
-                    "parameter_name",
-                    "default_value",
-                    "user_interaction_type",
-                    "necessary"
-                  ],
-                  "properties": {
-                    "display_name": {
-                      "id": "display_name",
-                      "type": "string"
-                    },
-                    "description": {
-                      "id": "description",
-                      "type": "string"
-                    },
-                    "parameter_name": {
-                      "id": "parameter_name",
-                      "type": "string"
-                    },
-                    "default_value": {
-                      "id": "default_value",
-                      "type": "string"
-                    },
-                    "user_interaction_type": {
-                      "id": "user_interaction_type",
-                      "type": {
-                        "enum": [
-                          "file",
-                          "string",
-                          "boolean",
-                          "library"
-                        ]
-                      }
-                    },
-                    "necessary": {
-                      "id": "necessary",
-                      "type": "boolean"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      ]
     }
     '''
 
@@ -152,7 +121,8 @@ def build(file):
     author = json_instance.get("author")
     version = json_instance.get("version")
     type = json_instance.get("pipeline_type")
-    pipeline = Pipeline.query.filter_by(name=name, description=description, author=author, version=version, type=type).first()
+    pipeline = Pipeline.query.filter_by(name=name, description=description, author=author, version=version,
+                                        type=type).first()
     if pipeline is not None:
         pipeline.update(executable=True)
         return False

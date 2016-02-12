@@ -1,5 +1,5 @@
 from biocomputedm.admin.models import User, Group
-from biocomputedm.pipelines.helpers.pipeline_mappings_template import build
+from biocomputedm.pipelines.models import refresh_pipelines
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from .extensions import db, mail, login_manager
@@ -146,4 +146,4 @@ def load_defaults(app):
         user.save()
 
     # Build our default pipelines
-    found = utils.refresh_pipelines()
+    found = refresh_pipelines()

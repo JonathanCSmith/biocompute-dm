@@ -2,7 +2,8 @@ import os
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
-from biocomputedm.pipelines.forms import build_options_form
+from biocomputedm.manage.models import Submission, SampleGroup
+from biocomputedm.pipelines.forms import build_options_form, PipelinePropertiesForm
 from biocomputedm.pipelines.models import Pipeline, PipelineInstance, PipelineModuleInstance, PipelineModuleOptionValue
 from flask import Blueprint, redirect, url_for, current_app, render_template
 from flask import flash
@@ -33,55 +34,72 @@ def refresh_pipelines():
     return redirect(url_for("admin.administrate"))
 
 
-@pipelines.route("/build_submission_pipeline/<oid>|<pid>|<execution_type>|<options_type>", methods=["GET", "POST"])
-@pipelines.route("/build_submission_pipeline/<oid>|<pid>")
+@pipelines.route("/build_pipeline_instance/<oid>|<pid>|<runtime_type>", methods=["GET", "POST"])
 @login_required("ANY")
-def build_submission_pipeline(oid="", pid="", execution_type="", options_type=""):
-    if oid == "" or pid == "":
+def build_pipeline_instance(oid="", pid="", runtime_type=""):
+    if oid == "" or pid == "" or type == "":
         flash("The pipeline information provided was invalid", "error")
         return redirect(url_for("index"))
 
+    # Retrieve our db records
+    pipeline = Pipeline.query.filter_by(display_key=pid).first()
+    if pipeline is None:
+        flash("There pipeline information provided was invalid", "error")
+        return redirect(url_for("index"))
+
+    # Generate the form responsible for gathering the required information
+    form = PipelinePropertiesForm(request.form)
+
     # Build the pipeline information and get information from the user about how we want to execute
     if request.method == "GET":
-        # Retrieve our db records
-        pipeline = Pipeline.query.filter_by(display_key=pid).first()
-        if pipeline is None:
-            flash("There pipeline information provided was invalid", "error")
-            return redirect(url_for("index"))
-
-        # Pipeline initiation properties get
-        return render_template("build_pipeline.html", pid=pipeline.display_key, oid=oid, pipeline=pipeline)
+        return render_template("build_pipeline_instance.html", pid=pipeline.display_key, oid=oid,
+                               runtime_type=runtime_type, pipeline=pipeline, form=form)
 
     # The user has selected the pipeline and now wants to execute it using their selection
     else:
+        # Get our properties
+        execution_type = str(form.execution_field.data)
+        options_type = str(form.options_field.data)
+
         # Check our other input args
-        if execution_type != "Per Module" or execution_type != "Continuous":
+        if execution_type != "Per Module" and execution_type != "Continuous":
             flash("The pipeline information provided regarding execution type was invalid", "error")
             return redirect(url_for("index"))
 
-        if options_type != "All" or options_type != "Default":
+        if options_type != "Custom" and options_type != "Default":
             flash("The pipeline information provided regarding options type was invalid", "error")
             return redirect(url_for("index"))
 
-        # DB object retrieval
-        pipeline = Pipeline.query.filter_by(display_key=pid).first()
+        if runtime_type != "submission" and runtime_type != "sample_group":
+            flash("The pipeline information provided regarding runtime type was invalid", "error")
+            return redirect(url_for("index"))
+
+        # Type of datasource
+        if runtime_type == "submission":
+            data_source = Submission.query.filter_by(display_key=oid).first()
+        else:
+            data_source = SampleGroup.query.filter_by(display_key=oid).first()
+
+        if data_source is None:
+            flash("The pipeline information provided was invalid", "error")
+            return redirect(url_for("index"))
 
         # Instance creation and assignment
-        pipeline_instance = PipelineInstance.create(pipeline=pipeline)
+        pipeline_instance = PipelineInstance.create(pipeline=pipeline, data_source=data_source)
         pipeline_instance.update(execution_type=execution_type, options_type=options_type)
 
         # Create the directory to hold the submission
-        pipeline_directory = os.path.join(current_app.config["PIPELINES_PATH_ON_WEBSERVER"],
-                                          pipeline.display_key)
+        pipeline_directory = utils.get_path("pipeline_data", "webserver")
+        pipeline_directory = os.path.join(pipeline_directory, pipeline_instance.display_key)
         utils.make_directory(pipeline_directory)
 
-        return redirect(url_for("build_module", pid=pid, oid=oid, index=0))
+        return redirect(url_for("pipelines.build_module_instance", pid=pipeline_instance.display_key, oid=oid, index=0))
 
 
 # The behaviour of continue building is complex an d
-@pipelines.route("/build_module/<pid>|<oid>|<int:index>", methods=["GET", "POST"])
+@pipelines.route("/build_module_instance/<pid>|<oid>|<int:index>", methods=["GET", "POST"])
 @login_required("ANY")
-def build_module(pid="", oid="", index=-1):
+def build_module_instance(pid="", oid="", index=-1):
     if pid == "" or oid == "":
         flash("There was an error with your provided information.", "error")
         return redirect(url_for("index"))
@@ -95,9 +113,6 @@ def build_module(pid="", oid="", index=-1):
     # Note this is fall through from post so that we can iterate where necessary
     module_instances = pipeline_instance.module_instances.all()
     modules = pipeline_instance.pipeline.modules.all()
-    if len(module_instances) != index:
-        flash("There was an error building the next pipeline module", "error")
-        return redirect(url_for("index"))
 
     # Find the correct module template
     module = None
@@ -111,36 +126,50 @@ def build_module(pid="", oid="", index=-1):
         flash("There was an error building the next pipeline module", "error")
         return redirect(url_for("index"))
 
-    # Build the new module instance and attach
-    module_instance = PipelineModuleInstance.create(module=module, instance=pipeline_instance)
-    pipeline_instance.module_instances.append(module_instance)
-    pipeline_instance.save()
+    # Check whether we need to create a module instance for this
+    if len(module_instances) == index:
+        module_instance = PipelineModuleInstance.create(module=module, instance=pipeline_instance)
+        pipeline_instance.module_instances.append(module_instance)
+        pipeline_instance.save()
+
+    # This is likely to occur during a page refresh
+    elif len(module_instances) == index + 1:
+        module_instance = PipelineModuleInstance.query.filter_by(module=module).first()
+        if module_instance is None:
+            flash("There was an error building the next pipeline module", "error")
+            return redirect(url_for("index"))
+
+    # Bad request
+    else:
+        flash("There was an error building the next pipeline module", "error")
+        return redirect(url_for("index"))
 
     # We only want to assign values for the module we are about to generate that are absolutely necessary
-    # This will be done for all modules before running the pipeline
     if pipeline_instance.options_type == "Default":
         # Retrieve the module options
-        possible_options = module_instance.module.options.all()
+        possible_options = module.options.all()
         options = []
         for option in possible_options:
             if option.necessary:
                 options.append(option)
                 continue
 
-            option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
-            option_value.update(value=option.default_value)
-            module_instance.option_values.append(option_value)
-            module_instance.save()
-
-    # We want to assign values for the module we are about to generate
-    # if continue_building == 2 assign the rest iteratively (handled in post)
+    # We want to assign all values for the module we are about to generate
     else:
         # Retrieve the module options
-        options = module_instance.module.options.all()
+        options = module.options.all()
 
     # Handle the case where there are no options to assign to this module
     if len(options) == 0:
-        return redirect(url_for("run_pipeline", pid=pid, oid=oid))
+        index += 1
+
+        # If we are out of modules to assign or we do not want to assign more information just yet
+        if len(modules) == index or pipeline_instance.execution_type == "Per Module":
+            return redirect(url_for("pipelines.run_pipeline_instance", pid=pid, oid=oid))
+
+        # Continue assigning information
+        else:
+            return redirect(url_for("pipelines.build_module_instance", pid=pid, oid=oid, index=index))
 
     # Build a form containing all of the options
     form = build_options_form(options, request.form)
@@ -150,7 +179,10 @@ def build_module(pid="", oid="", index=-1):
 
     # Parse the options and inject them into our pipeline information
     if request.method == "POST":
-        options = module_instance.module.options.query.all()
+        # We need to handle page refreshes
+        values = module_instance.option_values.all()
+        for value in values:
+            value.delete()
 
         # We need to handle the case where a template has been requested
         # (i.e. a button other than the form submit button)
@@ -166,8 +198,9 @@ def build_module(pid="", oid="", index=-1):
             for option in file_options:
                 field = getattr(form, option.display_key + "_template")
                 if field is not None and bool(field.data):
-                    directory = None  # TODO: provide a directory here!
-                    return send_from_directory(directory, option.default_value)
+                    directory = os.path.join(utils.get_path("pipeline_scripts", "webserver"),
+                                             pipeline_instance.pipeline.name)
+                    return send_from_directory(directory, option.default_value, as_attachment=True)
 
         # Validate the form properties
         if form.validate_on_submit():
@@ -175,14 +208,19 @@ def build_module(pid="", oid="", index=-1):
                 if option.user_interaction_type == "file":
                     field = getattr(form, option.display_key + "_upload")
 
+                    # Update the db
+                    option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
+
                     # Save the file - we cannot validate this so we have to hope that it is provisioned in the pipeline
-                    directory = None  # TODO: Pipeline directory on HPC
+                    directory = utils.get_path("pipeline_data", "webserver")
+                    directory = os.path.join(directory, pipeline_instance.display_key)
                     filename = secure_filename(field.data.filename)
+                    if filename == "":
+                        filename = option.name + "_" + option_value.display_key + "_file"
                     filepath = os.path.join(directory, filename)
                     field.data.save(filepath)
 
-                    # Update the db
-                    option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
+                    # Build the filepath into our value
                     option_value.update(value=filepath)
                     module_instance.option_values.append(option_value)
                     module_instance.save()
@@ -217,29 +255,42 @@ def build_module(pid="", oid="", index=-1):
                 else:
                     continue
 
-            # Exit as we are doing per module execution
-            if pipeline_instance.execution_type == "Per Module":
-                return redirect(url_for("run_pipeline", pid=pid, oid=oid))
+            # Add in any default fields?
+            if pipeline_instance.options_type == "Default":
+                # Retrieve the module options
+                possible_options = module.options.all()
+                for option in possible_options:
+                    # Check that we wont have created this option already!
+                    if option.necessary:
+                        continue
 
-            # Exit as we have assigned all of our modules
+                    # Append the default option set
+                    option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
+                    option_value.update(value=option.default_value)
+                    module_instance.option_values.append(option_value)
+                    module_instance.save()
+
             index += 1
-            if len(module_instances) == index:
-                return redirect(url_for("run_pipeline", pid=pid, oid=oid))
 
-            # Call self so that we build the next module
-            return redirect(url_for("build_module", pid=pid, oid=oid, index=index))
+            # If we are out of modules to assign or we do not want to assign more information just yet
+            if len(modules) == index or pipeline_instance.execution_type == "Per Module":
+                return redirect(url_for("pipelines.run_pipeline_instance", pid=pid, oid=oid))
+
+            # Continue assigning information
+            else:
+                return redirect(url_for("pipelines.build_module_instance", pid=pid, oid=oid, index=index))
 
         else:
             utils.flash_errors(form)
-            return render_template("build_module", pid=pid, oid=oid, index=index)
+            return render_template("build_module_instance.html", pid=pid, oid=oid, index=index)
 
     else:
-        return render_template("build_module.html", pid=pid, oid=oid, index=index, form=form)
+        return render_template("build_module_instance.html", pid=pid, oid=oid, index=index, form=form)
 
 
-@pipelines.route("/run_pipeline")
+@pipelines.route("/run_pipeline_instance")
 @login_required("ANY")
-def run_pipeline():
+def run_pipeline_instance():
     # Check that the current user owns the object provided
 
     # Pipeline initiation db

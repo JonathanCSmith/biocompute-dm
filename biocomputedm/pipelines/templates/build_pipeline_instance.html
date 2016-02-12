@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Pipeline: {{ pipeline.name }}</h3>
+
+        <div>
+            <table class="content2">
+                <tr>
+                    <th>Pipeline Name</th>
+                    <th>Pipeline Description</th>
+                    <th>Pipeline Author</th>
+                    <th>Pipeline Version</th>
+                </tr>
+                <tr>
+                    <td>{{ pipeline.name }}</td>
+                    <td>{{ pipeline.description }}</td>
+                    <td>{{ pipeline.author }}</td>
+                    <td>{{ pipeline.version }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="spacer"></div>
+
+        <form action="{{ url_for('pipelines.build_pipeline_instance', pid=pid, oid=oid, runtime_type=runtime_type) }}" method=post>
+            {{ form.hidden_tag() }}
+
+            <h3>Please select the following runtime options:</h3>
+
+            <table class="small_content">
+                <tr><td>{{ form.execution_field.label }}</td><td>{{ form.execution_field }}</td></tr>
+                <tr><td>{{ form.options_field.label }}</td><td>{{ form.options_field }}</td></tr>
+                <tr><td colspan="2">{{ form.submit_field(class_="input") }}</td></tr>
+            </table>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

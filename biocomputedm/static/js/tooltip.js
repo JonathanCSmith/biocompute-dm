@@ -3,7 +3,7 @@
  */
 
 function addTooltipBehaviours() {
-    $('input').tooltip({
+    $(document).tooltip({
         placement: "right",
         trigger: "hover"
     });

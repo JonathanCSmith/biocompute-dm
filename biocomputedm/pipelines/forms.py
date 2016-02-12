@@ -4,6 +4,12 @@ from wtforms import StringField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired
 
 
+class PipelinePropertiesForm(Form):
+    execution_field = SelectField("Execution Type:", choices=[("Continuous", "Continuous"), ("Per Module", "Per Module")])
+    options_field = SelectField("Options Choices:", choices=[("Default", "Default"), ("Custom", "Custom")])
+    submit_field = SubmitField("Submit")
+
+
 def build_options_form(options, post_data):
     clazz = OptionsForm
     synthetics = clazz.synthetics
@@ -30,7 +36,7 @@ def build_options_form(options, post_data):
         elif option.user_interaction_type == "string":
             clazz = clazz.append_field(option.display_key,
                                        StringField(option.display_name,
-                                                   option.default_value,
+                                                   default=option.default_value,
                                                    validators=[DataRequired()],
                                                    description=option.description))
             synthetics.append(option.display_key)
@@ -42,7 +48,7 @@ def build_options_form(options, post_data):
             synthetics.append(option.display_key)
 
         elif option.user_interaction_type == "library":
-            choices = None  # TODO: Query the available library files!
+            choices = [("Test", "Test")]
             clazz = clazz.append_field(option.display_key,
                                        SelectField(option.display_name,
                                                    choices=choices,
@@ -54,10 +60,11 @@ def build_options_form(options, post_data):
             continue
 
     clazz.synthetics = synthetics
-    if post_data is not None:
-        form = clazz(post_data)
-    else:
-        form = clazz()
+    form = clazz()
+    # if post_data is not None:
+    #     form = clazz(post_data)
+    # else:
+    #     form = clazz()
 
     return form
 

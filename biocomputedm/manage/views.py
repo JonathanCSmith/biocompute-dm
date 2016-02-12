@@ -186,7 +186,7 @@ def new_submission():
                 group.update()
 
                 # Create the directory to hold the submission
-                output_directory_path = os.path.join(current_app.config["SUBMISSIONS_PATH_ON_WEBSERVER"],
+                output_directory_path = os.path.join(utils.get_path("submission_data", "webserver"),
                                                      submission.display_key)
                 utils.make_directory(output_directory_path)
 
@@ -243,7 +243,7 @@ def submission(sid=""):
     folder = submission.display_key
 
     # Build path to the users sftp dir
-    directory_path = os.path.join(current_app.config["SUBMISSIONS_PATH_ON_WEBSERVER"], folder)
+    directory_path = os.path.join(utils.get_path("submission_data", "webserver"), folder)
 
     # list of the available files
     filepaths = next(os.walk(directory_path))[2]
@@ -259,7 +259,8 @@ def submission(sid=""):
     # list of the available type I pipelines
     pipelines = Pipeline.query.filter_by(type="I", executable=True)
 
-    return render_template("submission.html", title="Submission", submission=submission, files=files, pipelines=pipelines)
+    return render_template("submission.html", title="Submission", submission=submission, files=files,
+                           pipelines=pipelines)
 
 
 @manage.route("/process")

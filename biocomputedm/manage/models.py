@@ -1,10 +1,24 @@
-from biocomputedm.database import SurrogatePK, Model, reference_col, relationship, Table, Column, Integer, ForeignKey, \
-    String
+from biocomputedm.database import *
 from biocomputedm.extensions import db
+from biocomputedm.pipelines.models import PipelineInstance
 from flask.ext.login import current_user
 
 
-class Submission(SurrogatePK, Model):
+class DataSource(SurrogatePK, Model):
+    current_pipeline = relationship(PipelineInstance, uselist=False)
+    past_pipelines = relationship(PipelineInstance)
+    type = Column(String(50), nullable=False)
+
+    __tablename__ = "DataSource"
+    __mapper_args__ = {"polymorphic_on": type}
+
+    def __init__(self, **kwargs):
+        db.Model.__init__(self, **kwargs)
+
+
+class Submission(DataSource):
+    id = reference_col("DataSource", primary_key=True)
+
     name = Column(String(50), nullable=False)
     description = Column(String(500), nullable=False)
     validated = Column(db.Boolean, default=False, nullable=False)
@@ -13,9 +27,10 @@ class Submission(SurrogatePK, Model):
     submitter_id = reference_col("User")
 
     __tablename__ = "Submission"
+    __mapper_args__ = {"polymorphic_identity": "Submission", "inherit_condition": (id == DataSource.id)}
 
     def __init__(self, name, description):
-        db.Model.__init__(self, name=name, description=description)
+        DataSource.__init__(self, name=name, description=description)
 
     def __repr__(self):
         return "<Submission %s>" % self.name
@@ -31,7 +46,9 @@ sample_grouping_association_table = Table("sample_grouping",
                                           Column("sample_id", Integer, ForeignKey("Sample.id")))
 
 
-class SampleGroup(SurrogatePK, Model):
+class SampleGroup(DataSource):
+    id = reference_col("DataSource", primary_key=True)
+
     creator_id = reference_col("User")
     group_id = reference_col("Group")
 
@@ -39,6 +56,13 @@ class SampleGroup(SurrogatePK, Model):
     group = relationship("Group", uselist=False)
 
     __tablename__ = "SampleGroup"
+    __mapper_args__ = {"polymorphic_identity": "SampleGroup", "inherit_condition": (id == DataSource.id)}
+
+    def __init__(self, creator, group):
+        DataSource.__init__(self, creator=creator, group=group)
+
+    def __repr__(self):
+        return "<SampleGroup created by %s for %s>" % (self.creator.name, self.group.name)
 
 
 class Sample(SurrogatePK, Model):

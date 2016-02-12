@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block custom_css %}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
 {% endblock %}
 
 {% block content %}
@@ -56,9 +57,9 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Pipelines</h3>
+        <h3>Currently Running Pipeline</h3>
 
-        {% if submission.pipeline_instance %}
+        {% if submission.current_pipeline %}
         <table class="content2">
             <tr>
                 <th>Pipeline Name</th>
@@ -67,37 +68,65 @@
                 <th>Pipeline Version</th>
             </tr>
             <tr>
-                <td>{{ submission.pipeline_instance.pipeline.name }}</td>
-                <td>{{ submission.pipeline_instance.pipeline.description }}</td>
-                <td>{{ submission.pipeline_instance.pipeline.author }}</td>
-                <td>{{ submission.pipeline_instance.pipeline.version }}</td>
-            </tr>
-            <tr>
-                {% for stage in submission.pipeline_instance.module_instance%}
-                {% if stage.current_status == "WAITING" %}
-                <td style="background-image:url(#)">{{ stage.name }}</td>
-                {% elif stage.current_status == "RUNNING" %}
-                <td style="background-image:url(#)">{{ stage.name }}</td>
-                {% elif stage.current_status == "FINISHED" %}
-                <td style="background-image:url(#)">{{ stage.name }}</td>
-                {% elif stage.current_status == "ERROR" %}
-                <td style="background-image:url(#)">{{ stage.name }}</td>
-                {% elif stage.current_status == "NOT_STARTED" %}
-                <td style="background-image:url(#)">{{ stage.name }}</td>
-                {% endif %}
-                {% endfor %}
+                <td>{{ submission.current_pipeline.pipeline.name }}</td>
+                <td>{{ submission.current_pipeline.pipeline.description }}</td>
+                <td>{{ submission.current_pipeline.pipeline.author }}</td>
+                <td>{{ submission.current_pipeline.pipeline.version }}</td>
             </tr>
         </table>
 
+        <div class="input-table clear">
+            <table>
+                <tr>
+                    {% for stage in submission.current_pipeline.module_instances%}
+                    <td>
+                        {% if stage.current_status == "WAITING" %}
+                        <div class="square action bg img1">{{ stage.module.name }}</div>
+                        {% elif stage.current_status == "RUNNING" %}
+                        <div class="square bg img2">{{ stage.module.name }}</div>
+                        {% elif stage.current_status == "FINISHED" %}
+                        <div class="square bg img3">{{ stage.module.name }}</div>
+                        {% elif stage.current_status == "ERROR" %}
+                        <div class="square bg img4">{{ stage.module.name }}</div>
+                        {% elif stage.current_status == "NOT_STARTED" %}
+                        <div class="square bg img5">{{ stage.module.name }}</div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+
+        {#
+        {% for stage in submission.current_pipeline.module_instances%}
+        <div class="square">
+            <div class="square_content">
+                <div class="table">
+                    {% if stage.current_status == "WAITING" %}
+                    <div class="table-cell bg img1">{{ stage.module.name }}</div>
+                    {% elif stage.current_status == "RUNNING" %}
+                    <div class="table-cell bg img2">{{ stage.module.name }}</div>
+                    {% elif stage.current_status == "FINISHED" %}
+                    <div class="table-cell bg img3">{{ stage.module.name }}</div>
+                    {% elif stage.current_status == "ERROR" %}
+                    <div class="table-cell bg img4">{{ stage.module.name }}</div>
+                    {% elif stage.current_status == "NOT_STARTED" %}
+                    <div class="table-cell bg img5">{{ stage.module.name }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        #}
+
         {% else %}
-        <h4>No current pipeline - please select a pipeline to begin a run</h4>
+        <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
         <select class="selection">
             <option selected value="None">None</option>
             {% for pipeline in pipelines %}
             <option value="{{ pipeline.name ~ ': ' ~ pipeline.version }}">{{ pipeline.name ~ ': ' ~ pipeline.version }}</option>
             {% endfor %}
         </select>
-        {% endif %}
 
         <div class="spacer"></div>
 
@@ -118,9 +147,10 @@
                 </tr>
             </table>
             <div class="spacer"></div>
-            <a class="input" href="{{ url_for('pipelines.build_submission_pipeline', oid=submission.display_key, pid=pipeline.display_key) }}">Select</a>
+            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.display_key, pid=pipeline.display_key, runtime_type='submission') }}">Select</a>
         </div>
         {% endfor %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}

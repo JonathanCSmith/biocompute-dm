@@ -7,6 +7,7 @@ function addSelectionGroupBehaviours() {
         var selected = $(this).find(':selected').text();
         $(".description").hide();
         $("[id='" + selected + "'").show();
+        selected == "None" ? $('#toggle').show() : $('#toggle').hide();
     });
 }
 

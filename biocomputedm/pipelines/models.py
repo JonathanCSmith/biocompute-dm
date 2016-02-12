@@ -1,9 +1,10 @@
 import os
 
+from biocomputedm import utils
 from biocomputedm.database import relationship, reference_col, Model, SurrogatePK, Column, Enum, String, Integer, \
     Boolean
 from biocomputedm.extensions import db
-from flask import current_app
+from sqlalchemy import update
 
 
 class Pipeline(SurrogatePK, Model):
@@ -45,7 +46,7 @@ class PipelineModule(SurrogatePK, Model):
         db.Model.__init__(self,
                           name=name,
                           description=description,
-                          executor=os.path.join(current_app.config["PIPELINES_PATH_ON_HPC"], executor),
+                          executor=os.path.join(utils.get_path("pipeline_scripts", "hpc"), executor),
                           execution_index=execution_index)
         pipeline.modules.append(self)
 
@@ -59,7 +60,7 @@ class PipelineModuleOption(SurrogatePK, Model):
     parameter_name = Column(String(50), nullable=False)
     user_interaction_type = Column(Enum("file", "string", "boolean", "library"), nullable=False)
     default_value = Column(String(50), nullable=False)
-    necessary = Column(Boolean, default_value=False)
+    necessary = Column(Boolean, default=False)
 
     module_id = reference_col("PipelineModule")
 
@@ -88,17 +89,19 @@ class PipelineModuleOption(SurrogatePK, Model):
 
 class PipelineInstance(SurrogatePK, Model):
     current_execution_index = Column(Integer, default=-1)
-    execution_type = Column(Enum("Per Module", "Continuous"), default="DEFAULT")
-    options_type = Column(Enum("All", "Default"), default="Default")
+    execution_type = Column(Enum("Per Module", "Continuous"), default="Continuous")
+    options_type = Column(Enum("Custom", "Default"), default="Default")
 
     pipeline_id = reference_col("Pipeline")
+    data_source_id = reference_col("DataSource", nullable=True)
 
     module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic")
 
     __tablename__ = "PipelineInstance"
 
-    def __init__(self, pipeline):
+    def __init__(self, pipeline, data_source):
         db.Model.__init__(self, pipeline=pipeline)
+        data_source.update(current_pipeline=self)
 
     def __repr__(self):
         return "<Pipeline Instance for %s at module %s>" % (self.pipeline.name, self.current_execution_index)
@@ -124,7 +127,7 @@ class PipelineModuleInstance(SurrogatePK, Model):
 
 
 class PipelineModuleOptionValue(SurrogatePK, Model):
-    value = Column(String(50))
+    value = Column(String(100))
 
     option_id = reference_col("PipelineModuleOption")
     module_instance_id = reference_col("PipelineModuleInstance")
@@ -139,3 +142,30 @@ class PipelineModuleOptionValue(SurrogatePK, Model):
 
     def __repr__(self):
         return "<Option Value for: %s with value %s>" % (self.option.display_name, self.value)
+
+
+def refresh_pipelines():
+    # Mark all as legacy on refresh then re-add
+    db.session.execute(update(Pipeline, values={Pipeline.executable: False}))
+    db.session.commit()
+
+    # Webserver side - as we need the execution paths to be correct for the executors
+    path = utils.get_path("pipeline_scripts", "webserver")
+    directories = os.listdir(path)
+    has_new = False
+    for directory in directories:
+        directory_path = os.path.join(path, directory)
+        if not os.path.isdir(directory_path):
+            continue
+
+        file = os.path.join(directory_path, directory + ".json")
+        if not os.path.isfile(file):
+            continue
+
+        from biocomputedm.pipelines.helpers import pipeline_mappings_template as template_helper
+        if not template_helper.validate(file):
+            continue
+
+        has_new |= template_helper.build(file)
+
+    return has_new
