@@ -199,14 +199,14 @@ def new_submission():
 
                 # Execute our move, unpack and delete script asynchronously so as to not interrupt webserving
                 sources = sources[:-1]  # remove that pesky extra comma :D
-                process = subprocess.Popen(
+                subprocess.Popen(
                         [
                             "sudo",
                             script_path,
                             "-d=" + output_directory_path,
                             "-s=" + sources,
                             "-i=" + submission.display_key,
-                            "-p=" + current_app.config["NETWORK_PATH_TO_WEBSERVER_FROM_HPC"]
+                            "-p=" + current_app.config["WEBSERVER_PORT_IF_NOT_DEFAULT"]
                         ]
                 )  # We are allowing this to execute on it's own - no need to monitor
 

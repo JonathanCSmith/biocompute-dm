@@ -25,6 +25,9 @@ SITE_ADMIN_USERNAME = ""
 SITE_ADMIN_PASSWORD = ""
 SITE_ADMIN_EMAIL = ""
 
+WEBSERVER_PORT = "5000"  # Flask default
+NETWORK_PATH_TO_WEBSERVER_FROM_HPC = ""
+
 # NOTE Everything below here should be OS independent paths (i.e. //)
 HPC_JOB_SUBMISSION_FILE = ""
 SCRIPTS_PATH = ""
@@ -36,7 +39,6 @@ SFTP_USER_ROOT_PATH = ""
 # mount, sshfs, samba etc - they can also be exactly the same path if the webserver is executed from the HPC environ)
 HPC_ROOT_PATH = ""
 WEBSERVER_ROOT_PATH = ""
-NETWORK_PATH_TO_WEBSERVER_FROM_HPC = ""
 
 # Paths relative to the above
 PIPELINE_SCRIPTS_PATH_AFTER_RELATIVE_ROOT = ""

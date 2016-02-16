@@ -22,7 +22,7 @@ case ${i} in
 
     # Webserver ip from hpc
     -p=*)
-    ADDRESS="${i#*=}"
+    PORT="${i#*=}"
     shift
     ;;
 
@@ -46,5 +46,5 @@ do
 done
 
 # Post message
-curl --form "submission=${SUBMISSION_ID}" "${ADDRESS}"/manage_message
+curl --form "submission=${SUBMISSION_ID}" 127.0.0.1:"${PORT}"/manage_message
 exit
