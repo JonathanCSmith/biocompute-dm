@@ -206,7 +206,7 @@ def new_submission():
                             "-d=" + output_directory_path,
                             "-s=" + sources,
                             "-i=" + submission.display_key,
-                            "-p=" + current_app.config["WEBSERVER_PORT_IF_NOT_DEFAULT"]
+                            "-p=" + current_app.config["WEBSERVER_PORT"]
                         ]
                 )  # We are allowing this to execute on it's own - no need to monitor
 
