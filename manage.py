@@ -1,6 +1,8 @@
 import os
+import subprocess
 
-from biocomputedm.biocomputedm import create_app, load_defaults
+from biocomputedm.biocomputedm import create_app, load_defaults, get_registered_users
+from biocomputedm.extensions import db
 from coverage.backward import imp
 from flask.ext.script import Manager
 from migrate.versioning import api
@@ -22,7 +24,6 @@ def run():
 
 @manager.command
 def initdb():
-    from biocomputedm.extensions import db
     db.drop_all()
     db.create_all()
 
@@ -39,7 +40,6 @@ def initdb():
 
 @manager.command
 def migrate_db():
-    from biocomputedm.extensions import db
     # Create model
     print("Creating db model")
     v = api.db_version(app.config["SQLALCHEMY_DATABASE_URI"], app.config["SQLALCHEMY_MIGRATE_REPO"])
@@ -85,6 +85,87 @@ def downgrade_db():
     v = api.db_version(app.config["SQLALCHEMY_DATABASE_URI"], app.config["SQLALCHEMY_MIGRATE_REPO"])
     print("Current database version is: " + str(v))
 
+
+@manager.command
+def clean(key):
+    if key != "FORCE":
+        return
+
+    users = get_registered_users(app)
+
+    # Cleanup folder
+    cleanup_directory = os.path.join(app.config["SCRIPTS_PATH"], "cleanup")
+
+    # Dump sftp users
+    for user in users:
+        subprocess.Popen(
+            [
+                "sudo",
+                os.path.join(cleanup_directory, "wipe_user.sh"),
+                "-u=" + user
+            ]
+        ).wait()
+
+    # Dump database
+    db.session.close()
+    db.session.bind.dispose()
+    subprocess.Popen(
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_database.sh"),
+            "-u=" + app.config["DATABASE_USERNAME"],
+            "-p=" + app.config["DATABASE_PASSWORD"],
+            "-l=" + app.config["DATABASE_LOCATION"],
+            "-n=" + app.config["DATABASE_NAME"]
+        ]
+    ).wait()
+
+    # Clean directories
+    subprocess.Popen(
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_directory.sh"),
+            "-p=" + app.config["SFTP_USER_ROOT_PATH"]
+        ]
+    ).wait()
+
+    # Clean directories
+    subprocess.Popen(
+            [
+                "sudo",
+                os.path.join(cleanup_directory, "wipe_directory.sh"),
+                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"])
+            ]
+    ).wait()
+
+    # Clean directories
+    subprocess.Popen(
+            [
+                "sudo",
+                os.path.join(cleanup_directory, "wipe_directory.sh"),
+                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"])
+            ]
+    ).wait()
+
+    # Clean directories
+    subprocess.Popen(
+            [
+                "sudo",
+                os.path.join(cleanup_directory, "wipe_directory.sh"),
+                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"])
+            ]
+    ).wait()
+
+    # Clean directories
+    subprocess.Popen(
+            [
+                "sudo",
+                os.path.join(cleanup_directory, "wipe_directory.sh"),
+                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"])
+            ]
+    ).wait()
+
+    initdb()
 
 if __name__ == "__main__":
     manager.run()

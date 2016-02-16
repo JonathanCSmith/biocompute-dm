@@ -73,6 +73,7 @@ def setup_extensions(app):
     login_manager.init_app(app)
     login_manager.login_view = "admin.login"
     login_manager.refresh_view = "admin.reauth"
+    login_manager.login_message_category = "warning"
 
     # flask-bootstrap
     Bootstrap(app)
@@ -147,3 +148,12 @@ def load_defaults(app):
 
     # Build our default pipelines
     found = refresh_pipelines()
+
+
+def get_registered_users(app):
+    persons = User.query.all()
+    names = []
+    for person in persons:
+        names.append(person.username)
+
+    return names

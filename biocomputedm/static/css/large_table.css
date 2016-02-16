@@ -53,6 +53,21 @@ div.content table.content tr:nth-child(odd) td {
     background: #FEFEFE;
 }
 
+div.content table.content2 {
+    width:98%;
+    margin-left:1%;
+    margin-right:1%;
+
+    border-collapse: collapse;
+    border-spacing: 0;
+    color: #333;
+
+    table-layout: fixed;
+
+    text-align: center;
+    border: 1px solid #F6F6F6;
+}
+
 div.content table.content2 th, div.content table.content2 td {
     border: 1px solid transparent;
     transition: all 0.3s;

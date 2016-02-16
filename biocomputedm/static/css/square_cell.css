@@ -1,28 +1,46 @@
-.square {
-    width: 100%;
-    height: 0;
-    padding-bottom: 100%;
+div.content table.table-resize {
+    border-collapse: collapse;
+    border: 0;
+    table-layout: fixed;
 }
 
-.bg {
+div.content table.table-resize tr {
+    max-height: 200px;
+    text-shadow: none;
+}
+
+div.content div.action.exempt table.table-resize td {
+    vertical-align: top;
+}
+
+.resize {
     background: no-repeat center center;
     background-size: cover; /* you change this to "contain" if you don't want the images to be cropped */
-    max-height: 200px;
-    max-width: 200px;
 }
 
-.img1{
-    background-image: url('/static/images/intervention.png');
+.img1 {
+    background-image: url('/static/images/complete.png');
 }
-.img2{
-    background-image: url('/static/images/progress.png');
+.img2 {
+    background-image: url('/static/images/incomplete.png');
 }
-.img3{
-    background-image: url('/static/images/finished.png');
+
+.bg1 {
+    background-color: yellow;
 }
-.img4{
-    background-image: url('/static/images/stopped.png');
+
+.bg2 {
+    background-color: limegreen;
 }
-.img5{
-    background-image: url('/static/images/finished.png');
+
+.bg3 {
+    background-color: blue;
+}
+
+.bg4 {
+    background-color: red;
+}
+
+.bg5 {
+    background-color: silver;
 }

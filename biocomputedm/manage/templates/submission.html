@@ -75,49 +75,47 @@
             </tr>
         </table>
 
+        <div class="spacer"></div>
+
+        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', pid=submission.current_pipeline.display_key) }}">View Pipeline Instance</a>
+
+        <div class="spacer"></div>
+
         <div class="input-table clear">
-            <table>
+            <table class="table-resize">
                 <tr>
-                    {% for stage in submission.current_pipeline.module_instances%}
-                    <td>
-                        {% if stage.current_status == "WAITING" %}
-                        <div class="square action bg img1">{{ stage.module.name }}</div>
-                        {% elif stage.current_status == "RUNNING" %}
-                        <div class="square bg img2">{{ stage.module.name }}</div>
-                        {% elif stage.current_status == "FINISHED" %}
-                        <div class="square bg img3">{{ stage.module.name }}</div>
-                        {% elif stage.current_status == "ERROR" %}
-                        <div class="square bg img4">{{ stage.module.name }}</div>
-                        {% elif stage.current_status == "NOT_STARTED" %}
-                        <div class="square bg img5">{{ stage.module.name }}</div>
-                        {% endif %}
-                    </td>
+                    <td></td>
+                    {% for stage in submission.current_pipeline.pipeline.modules %}
+                    {% if loop.last %}
+                    {% if submission.current_pipeline.current_execution_status == "WAITING" %}
+                    <td class="resize img1 bg1">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
+                    <td class="resize img1 bg2">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
+                    <td class="resize img1 bg3">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
+                    <td class="resize img1 bg4">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
+                    <td class="resize img1 bg5">{{ stage.name }}</td>
+                    {% endif %}
+                    {% else %}
+                    {% if submission.current_pipeline.current_execution_status == "WAITING" %}
+                    <td class="resize img2 bg1">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
+                    <td class="resize img2 bg2">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
+                    <td class="resize img2 bg3">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
+                    <td class="resize img2 bg4">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
+                    <td class="resize img2 bg5">{{ stage.name }}</td>
+                    {% endif %}
+                    {% endif %}
                     {% endfor %}
+                    <td></td>
                 </tr>
             </table>
         </div>
-
-        {#
-        {% for stage in submission.current_pipeline.module_instances%}
-        <div class="square">
-            <div class="square_content">
-                <div class="table">
-                    {% if stage.current_status == "WAITING" %}
-                    <div class="table-cell bg img1">{{ stage.module.name }}</div>
-                    {% elif stage.current_status == "RUNNING" %}
-                    <div class="table-cell bg img2">{{ stage.module.name }}</div>
-                    {% elif stage.current_status == "FINISHED" %}
-                    <div class="table-cell bg img3">{{ stage.module.name }}</div>
-                    {% elif stage.current_status == "ERROR" %}
-                    <div class="table-cell bg img4">{{ stage.module.name }}</div>
-                    {% elif stage.current_status == "NOT_STARTED" %}
-                    <div class="table-cell bg img5">{{ stage.module.name }}</div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-        #}
 
         {% else %}
         <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
@@ -157,4 +155,5 @@
 
 {% block custom_scripts %}
 <script src="/static/js/selectContent.js"></script>
+<script src="/static/js/resizeTable.js"></script>
 {% endblock %}

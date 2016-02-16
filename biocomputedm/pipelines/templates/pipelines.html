@@ -12,7 +12,7 @@
 
     {% for pipeline in obs.items %}
     <tr>
-        <td>{{ pipeline.name }}</td>
+        <td><a href="{{ url_for('pipelines.display_pipeline', pid=pipeline.display_key) }}">{{ pipeline.name }}</a></td>
         <td>{{ pipeline.description }}</td>
         <td>{{ pipeline.author }}</td>
         <td>{{ pipeline.version }}</td>

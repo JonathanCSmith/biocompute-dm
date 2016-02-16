@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Pipeline Properties</h3>
+
+        <table class="content2">
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Pipeline Description</th>
+                <th>Pipeline Author</th>
+                <th>Pipeline Version</th>
+                <th>Current Status</th>
+                <th>Current Execution Index</th>
+            </tr>
+            <tr>
+                <td>{{ pipeline_instance.pipeline.name }}</td>
+                <td>{{ pipeline_instance.pipeline.description }}</td>
+                <td>{{ pipeline_instance.pipeline.author }}</td>
+                <td>{{ pipeline_instance.pipeline.version }}</td>
+                <td>{{ pipeline_instance.current_execution_status }}</td>
+                <td>{{ pipeline_instance.current_execution_index }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Pipeline Controls</h3>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Module Information</h3>
+
+        <table class="table-resize">
+            <tr>
+                <td></td>
+                {% for stage in pipeline_instance.pipeline.modules %}
+                {% if loop.last %}
+                {% if pipeline_instance.current_execution_status == "WAITING" %}
+                <td class="resize img1 bg1">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "RUNNING" %}
+                <td class="resize img1 bg2">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "FINISHED" %}
+                <td class="resize img1 bg3">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "ERROR" %}
+                <td class="resize img1 bg4">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
+                <td class="resize img1 bg5">{{ stage.name }}</td>
+                {% endif %}
+                {% else %}
+                {% if pipeline_instance.current_execution_status == "WAITING" %}
+                <td class="resize img2 bg1">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "RUNNING" %}
+                <td class="resize img2 bg2">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "FINISHED" %}
+                <td class="resize img2 bg3">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "ERROR" %}
+                <td class="resize img2 bg4">{{ stage.name }}</td>
+                {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
+                <td class="resize img2 bg5">{{ stage.name }}</td>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/resizeTable.js"></script>
+{% endblock %}

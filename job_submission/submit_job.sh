@@ -4,16 +4,10 @@ echo "Beginning job submission"
 # Take all script input arguments and build strings for them
 for i in "$@"
 do
-case $i in
-    # Ticket for transactions
+case ${i} in
+    # Ticket for transactions - also used as the job name for the outermost pipeline specific job
     -t=*|--ticket=*)
     TICKET="${i#*=}"
-    shift
-    ;;
-
-    # Job name argument
-    -n=*|--name=*)
-    JOB_NAME="${i#*=}"
     shift
     ;;
 
@@ -57,8 +51,7 @@ fi
 scp ./cleanup.sh biocis@10.202.64.28:~
 
 # Create command string
-STRING="JOBID=\$\(qsub -cwd -N"
-STRING+=" ${JOB_NAME} -v ${VARS} ${SCRIPT_STRING}\)"
+STRING="JOBID=\$\(qsub -cwd -N ${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
 
 # Submit the job and its monitor
 OUTPUT_DIRECTORY=${WORKING_DIRECTORY}

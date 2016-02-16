@@ -1,37 +1,71 @@
 import os
+import subprocess
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
 from biocomputedm.manage.models import Submission, SampleGroup
+from biocomputedm.pipelines import models
 from biocomputedm.pipelines.forms import build_options_form, PipelinePropertiesForm
-from biocomputedm.pipelines.models import Pipeline, PipelineInstance, PipelineModuleInstance, PipelineModuleOptionValue
+from biocomputedm.pipelines.models import Pipeline, PipelineInstance, PipelineModuleInstance, PipelineModuleOptionValue, \
+    create_pipeline_instance
 from flask import Blueprint, redirect, url_for, current_app, render_template
 from flask import flash
 from flask import request
 from flask import send_from_directory
+from flask.ext.login import current_user
 from werkzeug.utils import secure_filename
 
 pipelines = Blueprint("pipelines", __name__, static_folder="static", template_folder="templates")
 
 
-@pipelines.route("/show_pipelines")
-@pipelines.route("/show_pipelines/<int:page>")
-@login_required("Site Admin", "Group Admin")
-def show_pipelines(page=1):
-    p = Pipeline.query.paginate(page=page, per_page=20)
-    return render_template("pipelines.html", title="Pipelines", page=page, obs=p)
-
-
 @pipelines.route("/refresh_pipelines")
 @login_required("Site Admin")
 def refresh_pipelines():
-    found = utils.refresh_pipelines()
+    found = models.refresh_pipelines()
     if found:
         flash("Successfully loaded all pipelines from the pipeline directory.", "success")
     else:
         flash("No pipelines were loaded as none were found or they were already present.", "warning")
 
     return redirect(url_for("admin.administrate"))
+
+
+@pipelines.route("/display_pipelines")
+@pipelines.route("/display_pipelines/<int:page>")
+@login_required("Site Admin", "Group Admin")
+def display_pipelines(page=1):
+    p = Pipeline.query.paginate(page=page, per_page=20)
+    return render_template("pipelines.html", title="Pipelines", page=page, obs=p)
+
+
+@pipelines.route("/display_pipeline/<pid>")
+@login_required("ANY")
+def display_pipeline(pid=""):
+    p = Pipeline.query.filter_by(display_key=pid).first()
+    if p is None:
+        flash("There was an error finding your pipeline", "error")
+        return redirect(url_for("index"))
+
+    return render_template("pipeline.html", pipeline=p)
+
+
+@pipelines.route("/display_pipeline_instances/<int:page>")
+@pipelines.route("/display_pipeline_instances")
+@login_required("ANY")
+def display_pipeline_instances(page=1):
+    obs = current_user.group.pipeline_instances.query.paginate(page=page, per_page=20)
+    return render_template("pipeline_instances.html", title="Pipeline Instances", page=page, obs=obs)
+
+
+@pipelines.route("/display_pipeline_instance/<pid>")
+@login_required("ANY")
+def display_pipeline_instance(pid=""):
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=pid).first()
+    if pipeline_instance is None:
+        flash("Could not locate the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    return render_template("pipeline_instance.html", title="Pipeline Instance", pipeline_instance=pipeline_instance)
 
 
 @pipelines.route("/build_pipeline_instance/<oid>|<pid>|<runtime_type>", methods=["GET", "POST"])
@@ -52,7 +86,8 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
 
     # Build the pipeline information and get information from the user about how we want to execute
     if request.method == "GET":
-        return render_template("build_pipeline_instance.html", pid=pipeline.display_key, oid=oid,
+        return render_template("build_pipeline_instance.html", title="Pipeline Options", pid=pipeline.display_key,
+                               oid=oid,
                                runtime_type=runtime_type, pipeline=pipeline, form=form)
 
     # The user has selected the pipeline and now wants to execute it using their selection
@@ -85,13 +120,14 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
             return redirect(url_for("index"))
 
         # Instance creation and assignment
-        pipeline_instance = PipelineInstance.create(pipeline=pipeline, data_source=data_source)
-        pipeline_instance.update(execution_type=execution_type, options_type=options_type)
+        pipeline_instance = create_pipeline_instance(current_user.group, pipeline, data_source, execution_type,
+                                                     options_type)
 
         # Create the directory to hold the submission
         pipeline_directory = utils.get_path("pipeline_data", "webserver")
         pipeline_directory = os.path.join(pipeline_directory, pipeline_instance.display_key)
         utils.make_directory(pipeline_directory)
+        utils.make_directory(os.path.join(pipeline_directory, "samples_output"))
 
         return redirect(url_for("pipelines.build_module_instance", pid=pipeline_instance.display_key, oid=oid, index=0))
 
@@ -165,7 +201,8 @@ def build_module_instance(pid="", oid="", index=-1):
 
         # If we are out of modules to assign or we do not want to assign more information just yet
         if len(modules) == index or pipeline_instance.execution_type == "Per Module":
-            return redirect(url_for("pipelines.run_pipeline_instance", pid=pid, oid=oid))
+            pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
+            return redirect(url_for("pipelines.execute_pipeline_instance", pid=pid, oid=oid))
 
         # Continue assigning information
         else:
@@ -221,7 +258,7 @@ def build_module_instance(pid="", oid="", index=-1):
                     field.data.save(filepath)
 
                     # Build the filepath into our value
-                    option_value.update(value=filepath)
+                    option_value.update(value=filename)
                     module_instance.option_values.append(option_value)
                     module_instance.save()
 
@@ -274,7 +311,8 @@ def build_module_instance(pid="", oid="", index=-1):
 
             # If we are out of modules to assign or we do not want to assign more information just yet
             if len(modules) == index or pipeline_instance.execution_type == "Per Module":
-                return redirect(url_for("pipelines.run_pipeline_instance", pid=pid, oid=oid))
+                pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
+                return redirect(url_for("pipelines.execute_pipeline_instance", pid=pid, oid=oid))
 
             # Continue assigning information
             else:
@@ -282,139 +320,93 @@ def build_module_instance(pid="", oid="", index=-1):
 
         else:
             utils.flash_errors(form)
-            return render_template("build_module_instance.html", pid=pid, oid=oid, index=index)
 
-    else:
-        return render_template("build_module_instance.html", pid=pid, oid=oid, index=index, form=form)
+    return render_template("build_module_instance.html", title="Pipeline Module Options", pid=pid, oid=oid, index=index,
+                           form=form)
 
 
-@pipelines.route("/run_pipeline_instance")
+@pipelines.route("/resume_pipeline/<pid>")
 @login_required("ANY")
-def run_pipeline_instance():
-    # Check that the current user owns the object provided
-
-    # Pipeline initiation db
-
-    # Pipeline initiation variables
-
-    # Pipeline asynchronous executor
-    # TODO: set execution index
+def resume_pipeline_instance(pid="", oid=""):
     return redirect(url_for("empty"))
 
 
-@pipelines.route("/test_pipeline")
-@login_required("Site Admin")
-def test_pipeline(pid="", unique_group_id=""):
-    app = current_app
+@pipelines.route("/execute_pipeline_instance/<pid>|<oid>")
+@login_required("ANY")
+def execute_pipeline_instance(pid="", oid=""):
+    # Check that our objects exist
+    pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
+    if pipeline_instance is None:
+        flash("Could not identify the provided pipeline", "error")
+        return redirect(url_for("index"))
 
-    # TODO REMOVE BELOW THIS: ITS TEST CODE
-    p = Pipeline.query.filter_by(name="test_pipeline").first()
-    pid = p.display_key
-    # TODO REMOVE ABOVE THIS: ITS TEST CODE
+    # Directories
+    working_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
+    csv_path = os.path.join(working_directory, "data_map.csv")
+    output_directory = os.path.join(working_directory, "samples_output")
 
-    # Get the relevant pipeline and build an instance
-    p = Pipeline.query.filter_by(display_key=pid).first()
-    pi = utils.create_pipeline_instance(p)
-
-    # Get the first module and build an instance
-    m = p.module.filter_by(execution_index=0).first()
-    mi = utils.create_module_instance(m, pi)
-
-    # TODO: Generate module options, based on behaviours and query the server about it
-
-    # Setup samples csv
+    # Get the object and build it's data path file
     import csv
-    if p.type == "I":
-        # Create the working directory
-        working_directory = os.path.join(app.config["SUBMISSIONS_PATH_ON_HPC"], pi.display_key)
-        if not os.path.exists(working_directory):
-            os.makedirs(working_directory)
+    if pipeline_instance.pipeline.type == "I":
+        o = Submission.query.filter_by(display_key=oid).first()
+        if o is None:
+            flash("Could not identify the provided object", "error")
+            return redirect(url_for("index"))
 
-        # Build a single line csv that just gives information about the submission
-        csv_path = os.path.join(working_directory, "io.txt")
-        with open(csv_path, "w", newline='') as csvfile:
+        # Build the csv
+        with open(csv_path, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([unique_group_id, app.config["RAW_DATA_PATH_ON_HPC"] + "/" + unique_group_id,
-                             app.config["SUBMISSIONS_PATH_ON_HPC"] + "/" + pi.display_key])
-
-    elif type == "II":
-        # Create the working directory
-        working_directory = os.path.join(app.config["SAMPLES_PATH_ON_HPC"], pi.display_key)
-        if not os.path.exists(working_directory):
-            os.makedirs(working_directory)
-
-        # Build a csv of relevant samples and their output directory
-        # TODO: assess for per module
-        from biocomputedm.models import SampleGroup
-        sg = SampleGroup.query.filter_by(display_key=unique_group_id).first()
-        csv_path = os.path.join(working_directory, "io.txt")
-        with open(csv_path, "w", newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            for sample in sg.sample.all():
-                sample_directory = os.path.join(working_directory, sample.display_key)
-                if not os.path.exists(sample_directory):
-                    os.makedirs(sample_directory)
-
-                writer.writerow([sample.display_key,
-                                 app.config[
-                                     "SUBMISSIONS_PATH_ON_HPC"] + "/" + sg.source_pipeline.display_key + "/" + sample.display_key,
-                                 app.config["SAMPLES_PATH_ON_HPC"] + "/" + pi.display_key + "/" + sample.display_key])
+            writer.writerow([oid, os.path.join(utils.get_path("submission_data", "hpc"), oid), output_directory])
 
     else:
-        # Create the working directory
-        working_directory = os.path.join(app.config["INVESTIGATIONS_PATH_ON_HPC"], pi.display_key)
-        if not os.path.exists(working_directory):
-            os.makedirs(working_directory)
+        o = SampleGroup.query.filter_by(display_key=oid).first()
+        if o is None:
+            flash("Could not identify the provided object", "error")
+            return redirect(url_for("index"))
 
-        # Build a csv of relevant samples and their output directory
-        # TODO: As above
-        from biocomputedm.models import Investigation
-        i = Investigation.query.filter_by(display_key=unique_group_id).first()
-        csv_path = os.path.join(working_directory, "io.txt")
-        with open(csv_path, "w", newline='') as csvfile:
+        # Build the csv
+        with open(csv_path, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
-            for sg in i.sample_group.all():
-                for sample in sg.sample.all():
-                    sample_directory = os.path.join(working_directory, sample.display_key)
-                    if not os.path.exists(sample_directory):
-                        os.makedirs(sample_directory)
+            for sample in o.samples.query.all():
+                writer.writerow([sample.display_key, os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
+                                 os.path.join(output_directory, sample.display_key)])
 
-                    writer.writerow([sample.display_key,
-                                     app.config[
-                                         "SAMPLES_PATH_ON_HPC"] + "/" + sg.source_pipeline.display_key + "/" + sample.display_key,
-                                     app.config[
-                                         "INVESTIGATIONS_PATH_ON_HPC"] + "/" + pi.display_key + "/" + sample.display_key])
+    current_module_instance = models.get_current_module_instance(pipeline_instance)
+    if current_module_instance is None:
+        flash("Could not identify the current pipeline status", "error")
+        return redirect(url_for("index"))
 
-    # TODO: Assess whether or not we need to modify r/w/x privileges here
-    raise NameError("Blind stop")
+    # Behaviour on current module status
+    if pipeline_instance.current_execution_status != "NOT_STARTED":
+        flash("Attempted to start a pipeline that is not in the correct state.", "error")
+        return redirect(url_for("empty"))
 
-    # Step 4) Submit job
-    shell_path = app.config["HPC_JOB_SUBMISSION_FILE"]
-    pipeline_path = m.executor
-    process = subprocess.Popen(
-            [
-                shell_path,
-                "-t=A_Ticket",
-                "-j=A_JOB",
-                "-s=" + pipeline_path,
-                "-w=" + working_directory,
-                "-i=" + csv_path,
-                "-v='a=1,b=eleven'"
-            ],
-            cwd=working_directory,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            stdin=subprocess.PIPE
-    ).stdout
+    # Build variables string
+    vstring = "'"
+    for value in current_module_instance.option_values:
+        marker = value.option.parameter_name
+        result = value.value
+        vstring += marker + "=" + result + ","
+    vstring = vstring[:-1] + "'"
 
-    # Lets read out our process information - this is relatively safe as it should just entail a job submission
-    # Anything more complex may lead to the website hanging...
-    while True:
-        lines = process.readline()
-        if lines == "" and process.poll() is not None:
-            break
+    # Submit module w/ options into HPC - note the cwd
+    shell_path = current_app.config["HPC_JOB_SUBMISSION_FILE"]
+    executor_path = current_module_instance.module.executor
+    with open("submission_out.log", "wb") as out, open("submission_error.log", "wb") as err:
+        subprocess.Popen(
+                [
+                    shell_path,
+                    "-t=" + pipeline_instance.display_key,
+                    "-s=" + executor_path,
+                    "-w=" + working_directory,
+                    "-i=" + csv_path,
+                    "-v=" + vstring
+                ],
+                cwd=os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
+                stdout=out,
+                stderr=err
+        )
 
-        if lines:
-            print(lines.strip())
-
-    return redirect(url_for("empty"))
+    pipeline_instance.update(current_execution_status="RUNNING")
+    flash("Pipeline executing", "Success")
+    return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Pipeline Properties</h3>
+
+        <table class="content2">
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Pipeline Description</th>
+                <th>Pipeline Author</th>
+                <th>Pipeline Version</th>
+            </tr>
+            <tr>
+                <td>{{ pipeline.name }}</td>
+                <td>{{ pipeline.description }}</td>
+                <td>{{ pipeline.author }}</td>
+                <td>{{ pipeline.version }}</td>
+            </tr>
+        </table>
+
+        <div class="spacer"></div>
+
+        <div class="input-table clear">
+            <table class="table-resize">
+                <tr>
+                    <td></td>
+                    {% for stage in pipeline.modules %}
+                    <td class="resize img1 bg5">{{ stage.name }}</td>
+                    {% endfor %}
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/resizeTable.js"></script>
+{% endblock %}

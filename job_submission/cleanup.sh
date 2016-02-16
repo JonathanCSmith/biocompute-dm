@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-
-TICKET = ${TICKET}
-JOBID = ${JOBID}
+TICKET=${TICKET}
+JOBID=${JOBID}
 
 # Notify that cleanup should begin on the webserver
 ssh biocis@10.202.64.28 "

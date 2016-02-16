@@ -89,9 +89,11 @@ class PipelineModuleOption(SurrogatePK, Model):
 
 class PipelineInstance(SurrogatePK, Model):
     current_execution_index = Column(Integer, default=-1)
+    current_execution_status = Column(Enum("NOT_STARTED", "RUNNING", "WAITING", "FINISHED", "ERROR"), default="WAITING")
     execution_type = Column(Enum("Per Module", "Continuous"), default="Continuous")
     options_type = Column(Enum("Custom", "Default"), default="Default")
 
+    group_id = reference_col("Group")
     pipeline_id = reference_col("Pipeline")
     data_source_id = reference_col("DataSource", nullable=True)
 
@@ -99,17 +101,23 @@ class PipelineInstance(SurrogatePK, Model):
 
     __tablename__ = "PipelineInstance"
 
-    def __init__(self, pipeline, data_source):
-        db.Model.__init__(self, pipeline=pipeline)
-        data_source.update(current_pipeline=self)
+    def __init__(self, pipeline, execution_type, options_type):
+        db.Model.__init__(self, pipeline=pipeline, execution_type=execution_type, options_type=options_type)
 
     def __repr__(self):
         return "<Pipeline Instance for %s at module %s>" % (self.pipeline.name, self.current_execution_index)
 
 
-class PipelineModuleInstance(SurrogatePK, Model):
-    current_status = Column(Enum("NOT_STARTED", "RUNNING", "WAITING", "FINISHED", "ERROR"), default="NOT_STARTED")
+def create_pipeline_instance(group, pipeline, data_source, execution_type, options_type):
+    pipeline_instance = PipelineInstance(pipeline=pipeline, execution_type=execution_type, options_type=options_type)
+    group.pipeline_instances.append(pipeline_instance)
+    pipeline_instance.save()
+    group.save()
+    data_source.update(current_pipeline=pipeline_instance)
+    return pipeline_instance
 
+
+class PipelineModuleInstance(SurrogatePK, Model):
     module_id = reference_col("PipelineModule")
     pipeline_instance_id = reference_col("PipelineInstance")
 
@@ -169,3 +177,13 @@ def refresh_pipelines():
         has_new |= template_helper.build(file)
 
     return has_new
+
+
+def get_current_module_instance(pipeline_instance):
+    if pipeline_instance is None:
+        return None
+
+    current_execution_index = pipeline_instance.current_execution_index
+    for mod in pipeline_instance.module_instances:
+        if mod.module.execution_index == current_execution_index:
+            return mod

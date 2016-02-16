@@ -11,6 +11,7 @@ class Group(SurrogatePK, Model):
 
     members = relationship("Person", backref="group", lazy="dynamic")
     submissions = relationship("Submission", backref="group", lazy="dynamic")
+    pipeline_instances = relationship("PipelineInstance", lazy="dynamic")
 
     # # TODO: CHANGE
     # investigation = db.RelationshipProperty("Investigation", backref="group", lazy="dynamic")

@@ -1,0 +1,27 @@
+{% extends "administrate_view_items.html" %}
+{% block administrate_view %}
+<h3>Pipelines</h3>
+<table class="content">
+    <tr>
+        <th>Pipeline Name</th>
+        <th>Description</th>
+        <th>Author</th>
+        <th>Version</th>
+        <th>Type</th>
+        <th>Current Status</th>
+        <th>Current Execution Index</th>
+    </tr>
+
+    {% for pipeline_instance in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('pipelines.display_pipeline_instance', pid=pipeline.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
+        <td>{{ pipeline_instance.pipeline.description }}</td>
+        <td>{{ pipeline_instance.pipeline.author }}</td>
+        <td>{{ pipeline_instance.pipeline.version }}</td>
+        <td>{{ pipeline_instance.pipeline.type }}</td>
+        <td>{{ pipeline_instance.current_execution_status }}</td>
+        <td>{{ pipeline_instance.current_execution_index }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
