@@ -20,6 +20,13 @@ case ${i} in
     shift
     ;;
 
+    # Webserver ip from hpc
+    -p=*)
+    ADDRESS="${i#*=}"
+    shift
+    ;;
+
+
     # Unknown
     *)
     ;;
@@ -39,5 +46,5 @@ do
 done
 
 # Post message
-curl --form "submission=${SUBMISSION_ID}" 127.0.0.1:5000/manage_message
+curl --form "submission=${SUBMISSION_ID}" "${ADDRESS}"/manage_message
 exit

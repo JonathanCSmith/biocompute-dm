@@ -36,6 +36,7 @@ SFTP_USER_ROOT_PATH = ""
 # mount, sshfs, samba etc - they can also be exactly the same path if the webserver is executed from the HPC environ)
 HPC_ROOT_PATH = ""
 WEBSERVER_ROOT_PATH = ""
+NETWORK_PATH_TO_WEBSERVER_FROM_HPC = ""
 
 # Paths relative to the above
 PIPELINE_SCRIPTS_PATH_AFTER_RELATIVE_ROOT = ""

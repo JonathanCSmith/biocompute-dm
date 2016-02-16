@@ -392,7 +392,7 @@ def execute_pipeline_instance(pid="", oid=""):
     # Submit module w/ options into HPC - note the cwd
     shell_path = current_app.config["HPC_JOB_SUBMISSION_FILE"]
     executor_path = current_module_instance.module.executor
-    with open("submission_out.log", "wb") as out, open("submission_error.log", "wb") as err:
+    with open(os.path.join(working_directory, "submission_out.log"), "wb") as out, open(os.path.join(working_directory, "submission_error.log"), "wb") as err:
         subprocess.Popen(
                 [
                     shell_path,

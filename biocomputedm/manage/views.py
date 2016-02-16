@@ -205,7 +205,8 @@ def new_submission():
                             script_path,
                             "-d=" + output_directory_path,
                             "-s=" + sources,
-                            "-i=" + submission.display_key
+                            "-i=" + submission.display_key,
+                            "-p=" + current_app.config["NETWORK_PATH_TO_WEBSERVER_FROM_HPC"]
                         ]
                 )  # We are allowing this to execute on it's own - no need to monitor
 
