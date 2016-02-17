@@ -406,7 +406,7 @@ def execute_pipeline_instance(pid="", oid=""):
                     "-i=" + csv_path,
                     "-v=" + vstring
                 ],
-                cwd=os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
+                # cwd=os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
                 stdout=out,
                 stderr=err
         )

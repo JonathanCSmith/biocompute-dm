@@ -48,9 +48,8 @@ if [ "${VARIABLES_STRING}" ]; then
 fi
 
 # Copy over script file
-echo cwd
-echo pwd
-echo "${WORKING_DIRECTORY}"
+echo "Current: ${PWD}"
+echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
 # Create command string
