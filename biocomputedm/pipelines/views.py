@@ -341,7 +341,9 @@ def execute_pipeline_instance(pid="", oid=""):
         return redirect(url_for("index"))
 
     # Directories
+    local_working_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
     working_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
+    local_csv_path = os.path.join(local_working_directory, "data_map.csv")
     csv_path = os.path.join(working_directory, "data_map.csv")
     output_directory = os.path.join(working_directory, "samples_output")
 
@@ -354,7 +356,7 @@ def execute_pipeline_instance(pid="", oid=""):
             return redirect(url_for("index"))
 
         # Build the csv
-        with open(csv_path, "w", newline="") as csvfile:
+        with open(local_csv_path, "a", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([oid, os.path.join(utils.get_path("submission_data", "hpc"), oid), output_directory])
 
@@ -365,11 +367,12 @@ def execute_pipeline_instance(pid="", oid=""):
             return redirect(url_for("index"))
 
         # Build the csv
-        with open(csv_path, "w", newline="") as csvfile:
+        with open(local_csv_path, "a", newline="") as csvfile:
             writer = csv.writer(csvfile)
             for sample in o.samples.query.all():
-                writer.writerow([sample.display_key, os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                                 os.path.join(output_directory, sample.display_key)])
+                writer.writerow(
+                        [sample.display_key, os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
+                         os.path.join(output_directory, sample.display_key)])
 
     current_module_instance = models.get_current_module_instance(pipeline_instance)
     if current_module_instance is None:
@@ -392,7 +395,8 @@ def execute_pipeline_instance(pid="", oid=""):
     # Submit module w/ options into HPC - note the cwd
     shell_path = current_app.config["HPC_JOB_SUBMISSION_FILE"]
     executor_path = current_module_instance.module.executor
-    with open(os.path.join(working_directory, "submission_out.log"), "wb") as out, open(os.path.join(working_directory, "submission_error.log"), "wb") as err:
+    with open(os.path.join(local_working_directory, "submission_out.log"), "wb") as out, \
+            open(os.path.join(local_working_directory, "submission_error.log"), "wb") as err:
         subprocess.Popen(
                 [
                     shell_path,
