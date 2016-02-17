@@ -65,7 +65,7 @@ echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
 # Create command string
-STRING="JOBID=\$\(qsub -cwd -N ${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
+STRING="JOBID=\$\(qsub -cwd -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
 
 # Submit the job and its monitor
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
@@ -73,7 +73,7 @@ OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
     eval "${STRING}"
     eval "JOBID=\$\( echo \$\{JOBID\} \| grep -o -E '[0-9]+' \)"
-    qsub -hold_jid "${JOBID}" -N CLEANUP ./cleanup.sh -v "TICKET=${TICKET},JOBID=${JOBID}" # The monitor
+    qsub -hold_jid "${JOBID}" -N CLEANUP -v "TICKET=${TICKET},JOBID=${JOBID}" ./cleanup.sh
 " > ${OUTPUT_FILE} 2>&1
 
 # Move the output into our working directory
