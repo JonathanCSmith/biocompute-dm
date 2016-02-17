@@ -400,6 +400,7 @@ def execute_pipeline_instance(pid="", oid=""):
         subprocess.Popen(
                 [
                     shell_path,
+                    "-m=" + current_module_instance.module.name,
                     "-t=" + pipeline_instance.display_key,
                     "-s=" + executor_path,
                     "-l=" + local_working_directory,

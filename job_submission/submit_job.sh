@@ -5,6 +5,12 @@ echo "Beginning job submission"
 for i in "$@"
 do
 case ${i} in
+    # Module name for logging etc
+    -m=*)
+    MODULE="${i#*=}"
+    shift
+    ;;
+
     # Ticket for transactions - also used as the job name for the outermost pipeline specific job
     -t=*|--ticket=*)
     TICKET="${i#*=}"
@@ -54,7 +60,7 @@ esac
 done
 
 # Combine the strings in a meaningful manner
-VARS="ticket=${TICKET},pipeline_source=${PIPELINE_SOURCE_DIRECTORY},working_directory=${WORKING_DIRECTORY},samples=${INPUTS_STRING}"
+VARS="ticket=${TICKET},pipeline_source=${PIPELINE_SOURCE_DIRECTORY},samples=${INPUTS_STRING}"
 if [ "${VARIABLES_STRING}" ]; then
     VARS="${VARS},${VARIABLES_STRING}"
 fi
@@ -65,13 +71,16 @@ echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
 # Create command string
-STRING="JOBID=\$\(qsub -cwd -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
+STRING="JOBID=\$\(qsub -cwd ${working_directory} -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
 
 # Submit the job and its monitor
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
+    echo Beginning submission log for module "${MODULE}"
+    echo Command: "${STRING}"
     eval "${STRING}"
+    echo Job capture string: "JOBID=\$\( echo \$\{JOBID\} \| grep -o -E '[0-9]+' \)"
     eval "JOBID=\$\( echo \$\{JOBID\} \| grep -o -E '[0-9]+' \)"
     qsub -hold_jid "${JOBID}" -N CLEANUP -v "TICKET=${TICKET},JOBID=${JOBID}" ./cleanup.sh
 " > ${OUTPUT_FILE} 2>&1
