@@ -77,13 +77,13 @@ STRING="JOBID=\$\(qsub -cwd ${WORKING_DIRECTORY} -o ${MODULE}_output.log -e ${MO
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
-    echo Beginning submission log for module "${MODULE}"
-    echo Command: "${STRING}"
-    eval "${STRING}"
-    echo Job Submission String: "${JOBID}"
-    eval 'JOBID=$(echo ' "${JOBID}" ' | grep -o -E \'[0-9]+\')'
-    echo Parsed Job Id: "${JOBID}"
-    qsub -hold_jid "${JOBID}" -N CLEANUP -v "TICKET=${TICKET},JOBID=${JOBID}" ./cleanup.sh
+    echo Beginning submission log for module: ${MODULE}
+    echo Command String: ${STRING}
+    eval ${STRING}
+    echo Job Submission Information: \$\{JOBID\}
+    eval JOBID=\$\(echo \$\{JOBID\} \| grep -o -E '[0-9]+'\)
+    echo Parsed Job Id: \$\{JOBID\}
+    qsub -hold_jid \$\{JOBID\} -N cleanup-${TICKET} -v TICKET=${TICKET},JOBID=\$\{JOBID\} ./cleanup.sh
 " > ${OUTPUT_FILE} 2>&1
 
 # Move the output into our working directory
