@@ -17,6 +17,12 @@ case ${i} in
     shift
     ;;
 
+    # Local Output Directory
+    -l=*)
+    LOCAL_OUTPUT_DIRECTORY="${i#*=}"
+    shift
+    ;;
+
     # Working directory argument
     -w=*|--working=*)
     WORKING_DIRECTORY="${i#*=}"
@@ -56,7 +62,7 @@ scp ./cleanup.sh biocis@10.202.64.28:~
 STRING="JOBID=\$\(qsub -cwd -N ${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
 
 # Submit the job and its monitor
-OUTPUT_FILE=${WORKING_DIRECTORY}
+OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
     eval "${STRING}"

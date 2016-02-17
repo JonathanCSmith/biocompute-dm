@@ -402,6 +402,7 @@ def execute_pipeline_instance(pid="", oid=""):
                     shell_path,
                     "-t=" + pipeline_instance.display_key,
                     "-s=" + executor_path,
+                    "-l=" + local_working_directory,
                     "-w=" + working_directory,
                     "-i=" + csv_path,
                     "-v=" + vstring
