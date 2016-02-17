@@ -50,7 +50,7 @@ done
 # Combine the strings in a meaningful manner
 VARS="ticket=${TICKET},working_directory=${WORKING_DIRECTORY},samples=${INPUTS_STRING}"
 if [ "${VARIABLES_STRING}" ]; then
-    VARS+=",${VARIABLES_STRING}"
+    VARS="${VARS},${VARIABLES_STRING}"
 fi
 
 # Copy over script file
