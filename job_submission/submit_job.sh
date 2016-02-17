@@ -71,7 +71,7 @@ echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
 # Create command string
-STRING="JOBID=\$\(qsub -cwd ${working_directory} -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
+STRING="JOBID=\$\(qsub -cwd ${WORKING_DIRECTORY} -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
 
 # Submit the job and its monitor
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
@@ -80,8 +80,9 @@ ssh biocis@10.202.64.28 "
     echo Beginning submission log for module "${MODULE}"
     echo Command: "${STRING}"
     eval "${STRING}"
-    echo Job capture string: "JOBID=\$\( echo \$\{JOBID\} \| grep -o -E '[0-9]+' \)"
-    eval "JOBID=\$\( echo \$\{JOBID\} \| grep -o -E '[0-9]+' \)"
+    echo Job Submission String: "${JOBID}"
+    eval 'JOBID=$(echo ' "${JOBID}" ' | grep -o -E \'[0-9]+\')'
+    echo Parsed Job Id: "${JOBID}"
     qsub -hold_jid "${JOBID}" -N CLEANUP -v "TICKET=${TICKET},JOBID=${JOBID}" ./cleanup.sh
 " > ${OUTPUT_FILE} 2>&1
 
