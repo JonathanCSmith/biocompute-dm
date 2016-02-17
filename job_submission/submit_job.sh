@@ -23,6 +23,12 @@ case ${i} in
     shift
     ;;
 
+    # Pipeline files directory
+    -p=*)
+    PIPELINE_SOURCE_DIRECTORY="${i#*=}"
+    shift
+    ;;
+
     # Working directory argument
     -w=*|--working=*)
     WORKING_DIRECTORY="${i#*=}"
@@ -48,7 +54,7 @@ esac
 done
 
 # Combine the strings in a meaningful manner
-VARS="ticket=${TICKET},working_directory=${WORKING_DIRECTORY},samples=${INPUTS_STRING}"
+VARS="ticket=${TICKET},pipeline_source=${PIPELINE_SOURCE_DIRECTORY},working_directory=${WORKING_DIRECTORY},samples=${INPUTS_STRING}"
 if [ "${VARIABLES_STRING}" ]; then
     VARS="${VARS},${VARIABLES_STRING}"
 fi

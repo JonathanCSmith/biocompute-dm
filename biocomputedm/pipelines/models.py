@@ -46,7 +46,8 @@ class PipelineModule(SurrogatePK, Model):
         db.Model.__init__(self,
                           name=name,
                           description=description,
-                          executor=os.path.join(utils.get_path("pipeline_scripts", "hpc"), executor),
+                          executor=os.path.join(os.path.join(utils.get_path("pipeline_scripts", "hpc"), pipeline.name),
+                                                executor),
                           execution_index=execution_index)
         pipeline.modules.append(self)
 
