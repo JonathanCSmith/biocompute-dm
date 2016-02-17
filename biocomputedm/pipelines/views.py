@@ -385,12 +385,12 @@ def execute_pipeline_instance(pid="", oid=""):
         return redirect(url_for("empty"))
 
     # Build variables string
-    vstring = "'"
+    vstring = "\'"
     for value in current_module_instance.option_values:
         marker = value.option.parameter_name
         result = value.value
-        vstring += marker + "=\'" + result + "\',"
-    vstring = vstring[:-1] + "'"
+        vstring += marker + "=\"" + result + "\","
+    vstring = vstring[:-1] + "\'"
 
     # Submit module w/ options into HPC - note the cwd
     shell_path = current_app.config["HPC_JOB_SUBMISSION_FILE"]
