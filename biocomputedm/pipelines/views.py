@@ -1,5 +1,6 @@
 import os
 import subprocess
+from datetime import datetime
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
@@ -9,6 +10,7 @@ from biocomputedm.pipelines.forms import build_options_form, PipelinePropertiesF
 from biocomputedm.pipelines.models import Pipeline, PipelineInstance, PipelineModuleInstance, PipelineModuleOptionValue, \
     create_pipeline_instance
 from flask import Blueprint, redirect, url_for, current_app, render_template
+from flask import abort
 from flask import flash
 from flask import request
 from flask import send_from_directory
@@ -16,6 +18,53 @@ from flask.ext.login import current_user
 from werkzeug.utils import secure_filename
 
 pipelines = Blueprint("pipelines", __name__, static_folder="static", template_folder="templates")
+
+
+@pipelines.route("/pipelines_manage/<oid>")
+def message(oid=""):
+    if request.method == "GET":
+        return abort(404)
+
+    else:
+        msg = request.form
+        event = msg["event"]
+        if event == "module_end":
+            module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
+            if module_instance is None:
+                return abort(404)
+
+            # TODO: Check padding for day
+            # TODO: Consider moving
+            sub = datetime.strptime(msg["sub"], '%a %b %d %H:%M:%S %Y')
+            start = datetime.strptime(msg["start"], '%a %b %d %H:%M:%S %Y')
+            end = datetime.strptime(msg["end"], '%a %b %d %H:%M:%S %Y')
+            wait = start - sub
+            duration = end - start
+            module_instance.update(wait_time=wait, execution_time=duration)
+
+            # Inform our pipeline and handle appropriately
+            pipeline_instance = module_instance.pipeline_instance
+            if pipeline_instance.current_execution_index == len(pipeline_instance.pipeline.modules):
+                pipeline_instance.update(current_execution_status="FINISHED")
+
+            elif pipeline_instance.execution_type == "Per Module":
+                pipeline_instance.update(current_execution_status="WAITING")
+
+            else:
+                pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
+                execute_pipeline_instance(pipeline_instance.display_key, pipeline_instance.data_source_id)
+
+        elif event == "module_error":
+            module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
+            if module_instance is None:
+                return abort(404)
+
+            module_instance.pipeline_instance.update(current_execution_status="ERROR")
+
+        else:
+            return abort(404)
+
+    return "success"
 
 
 @pipelines.route("/refresh_pipelines")
@@ -340,6 +389,12 @@ def execute_pipeline_instance(pid="", oid=""):
         flash("Could not identify the provided pipeline", "error")
         return redirect(url_for("index"))
 
+    # Check that we have a module to execute
+    current_module_instance = models.get_current_module_instance(pipeline_instance)
+    if current_module_instance is None:
+        flash("Could not identify the current pipeline status", "error")
+        return redirect(url_for("index"))
+
     # Directories
     local_working_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
     working_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
@@ -374,16 +429,6 @@ def execute_pipeline_instance(pid="", oid=""):
                         [sample.display_key, os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
                          os.path.join(output_directory, sample.display_key)])
 
-    current_module_instance = models.get_current_module_instance(pipeline_instance)
-    if current_module_instance is None:
-        flash("Could not identify the current pipeline status", "error")
-        return redirect(url_for("index"))
-
-    # Behaviour on current module status
-    if pipeline_instance.current_execution_status != "NOT_STARTED":
-        flash("Attempted to start a pipeline that is not in the correct state.", "error")
-        return redirect(url_for("empty"))
-
     # Build variables string
     vstring = ""
     for value in current_module_instance.option_values:
@@ -406,7 +451,8 @@ def execute_pipeline_instance(pid="", oid=""):
                     "-l=" + local_working_directory,
                     "-w=" + working_directory,
                     "-i=" + csv_path,
-                    "-v=" + vstring
+                    "-v=" + vstring,
+                    "-s=" + current_app.config["NETWORK_PATH_TO_WEBSERVER_FROM_HPC"]
                 ],
                 stdout=out,
                 stderr=err

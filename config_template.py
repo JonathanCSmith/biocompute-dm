@@ -25,7 +25,7 @@ SITE_ADMIN_USERNAME = ""
 SITE_ADMIN_PASSWORD = ""
 SITE_ADMIN_EMAIL = ""
 
-WEBSERVER_PORT = "5000"  # Flask default
+LOCAL_WEBSERVER_PORT = "5000"  # Flask default
 NETWORK_PATH_TO_WEBSERVER_FROM_HPC = ""
 
 # NOTE Everything below here should be OS independent paths (i.e. //)

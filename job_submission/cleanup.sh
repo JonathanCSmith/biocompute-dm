@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-TICKET=${TICKET}
-JOBID=${JOBID}
-
-# Notify that cleanup should begin on the webserver
-ssh biocis@10.202.64.28 "
-    curl --form status="cleanup,${JOBID},${JOB_ID}" 10.202.64.27:190008/messages|"${TICKET}"
-"
+# Remove this file now as it's already in mem
+rm cleanup.sh
 
 # Begin calculating stats whilst on a node and inform the webserver
+SUB_TIME=$(qacct -j ${JOBID} | awk -v i=13 j=2)
+START_TIME=$(qacct -j ${JOBID} | awk -v i=13 j=3)
+END_TIME=$(qacct -j ${JOBID} | awk -v i=13 j=4)
 
-# Remove this file?
+
+ssh biocis@10.202.64.28 << EOF
+    curl --form status=\"event=module_end,sub=${SUB_TIME},stat=${START_TIME},end=${END_TIME} ${SERVER}/message/pipelines|${TICKET}\"
+EOF

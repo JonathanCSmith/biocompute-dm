@@ -17,8 +17,8 @@ from flask.ext.login import current_user
 manage = Blueprint("manage", __name__, static_folder="static", template_folder="templates")
 
 
-@manage.route("/manage_message", methods=["GET", "POST"])
-def message():
+@manage.route("/manage_message/<oid>", methods=["POST"])
+def message(oid=""):
     if request.method == "GET":
         return abort(404)
 
@@ -32,7 +32,7 @@ def message():
                 submission.validated = True
                 submission.update()
 
-        return ""
+        return "success"
 
 
 @manage.route("/user_profile")
@@ -206,7 +206,7 @@ def new_submission():
                             "-d=" + output_directory_path,
                             "-s=" + sources,
                             "-i=" + submission.display_key,
-                            "-p=" + current_app.config["WEBSERVER_PORT"]
+                            "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
                         ]
                 )  # We are allowing this to execute on it's own - no need to monitor
 

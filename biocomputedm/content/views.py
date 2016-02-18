@@ -1,5 +1,11 @@
+from datetime import datetime
+
 from biocomputedm.decorators import login_required
 from flask import Blueprint, render_template, g
+from flask import abort
+from flask import redirect
+from flask import request
+from flask import url_for
 
 content = Blueprint("content", __name__, static_folder="static", template_folder="templates")
 
@@ -43,3 +49,18 @@ def data_analysis():
 @content.route("/terms_and_conditions")
 def terms_and_conditions():
     return render_template("terms_and_conditions.html", title="Terms and Conditions")
+
+
+@content.route("/message/<type>|<oid>", methods=["POST"])
+def message(type="", oid=""):
+    if type == "":
+        return abort(404)
+
+    if type == "manage":
+        return redirect(url_for("manage.message", oid=oid), code=307)
+
+    elif type == "pipelines":
+        return redirect(url_for("pipeline.message", oid=oid), code=307)
+
+    else:
+        return abort(404)

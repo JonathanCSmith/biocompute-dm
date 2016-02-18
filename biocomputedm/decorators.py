@@ -1,7 +1,10 @@
+from threading import Thread
+
 from biocomputedm.extensions import login_manager
 from flask.ext.login import current_user
 
 __author__ = "jon"
+
 
 def login_required(*role):
     def wrapper(fn):
@@ -27,5 +30,13 @@ def login_required(*role):
             return login_manager.unauthorized()
 
         return decorated_view
+
+    return wrapper
+
+
+def async(f):
+    def wrapper(*args, **kwargs):
+        thr = Thread(target=f, args=args, kwargs=kwargs)
+        thr.start()
 
     return wrapper
