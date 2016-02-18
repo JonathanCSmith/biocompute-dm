@@ -71,12 +71,9 @@ echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
 # Create command string
-MAIN_EX_COMMAND="JOBID=\$\(qsub -cwd \'${WORKING_DIRECTORY}\' -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
-JOBID_COMMAND='JOBID=\$\(echo \$\{JOBID\} \| grep -o -E "[0-9]+"\)'
-CLEANUP_EX_COMMAND_HEAD='qsub -hold_jid '
-CLEANUP_EX_COMMAND_MID=" -N cleanup-${TICKET} -v TICKET=${TICKET},JOBID="
-CLEANUP_EX_COMMAND_TAIL=' ./cleanup.sh'
-CLEANUP_EX_COMMAND="${CLEANUP_EX_COMMAND_HEAD}"'${JOBID}'"${CLEANUP_EX_COMMAND_MID}"'${JOB_ID}'"${CLEANUP_EX_COMMAND_TAIL}"
+MAIN_EX_COMMAND='JOBID=$(qsub -cwd \"'"${WORKING_DIRECTORY}"'\" -o '"${MODULE}"'_output.log -e '"${MODULE}"'_error.log -N job-'"${TICKET}"' -v '"${VARS}"' '"${SCRIPT_STRING}"')'
+JOBID_COMMAND='JOBID=$(echo ${JOBID} | grep -o -E "[0-9]+")'
+CLEANUP_EX_COMMAND='qsub -hold_jid ${JOBID} -N cleanup-'"${TICKET}"' -v TICKET='"${TICKET}"',JOBID=${JOB_ID} ./cleanup.sh'
 
 echo Main Command: ${MAIN_EX_COMMAND}
 echo Job ID Parser: ${JOBID_COMMAND}
