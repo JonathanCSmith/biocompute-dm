@@ -82,12 +82,13 @@ echo Cleanup Command: ${CLEANUP_EX_COMMAND}
 # Submit the job and its monitor
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
-ssh biocis@10.202.64.28 "
+ssh biocis@10.202.64.28 <<here > ${OUTPUT_FILE} 2>&1 | grep -A 3
     echo Beginning submission log for module: ${MODULE}
     JOBID=\$(qsub -cwd \"${WORKING_DIRECTORY}\" -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING});
     JOBID=\$(echo \$JOBID \| grep -o -E '[0-9]_');
     qsub -hold_jid \${JOBID} -N cleanup-${TICKET} -v TICKET=${TICKET},JOBID=${JOBID} ./cleanup.sh
-" > ${OUTPUT_FILE} 2>&1 | grep -A 3
+here
+
 
 # Move the output into our working directory
 #mv ./header_node_output.txt ${WORKING_DIRECTORY}
