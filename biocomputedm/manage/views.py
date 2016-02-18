@@ -206,7 +206,9 @@ def new_submission():
                             "-s=" + sources,
                             "-i=" + submission.display_key,
                             "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
-                        ]
+                        ],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
                 )  # We are allowing this to execute on it's own - no need to monitor
 
                 # Meanwhile, here we will inform the user and display confirmation
