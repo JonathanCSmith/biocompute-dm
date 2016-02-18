@@ -71,26 +71,24 @@ echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
 # Create command string
-INFO_1="echo Command String: ${MAIN_EX_COMMAND}"
 MAIN_EX_COMMAND="JOBID=\$\(qsub -cwd \'${WORKING_DIRECTORY}\' -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING}\)"
-INFO_2='echo Job Submission Information: ${JOBID}'
 JOBID_COMMAND='JOBID=\$\(echo \$\{JOBID\} \| grep -o -E "[0-9]+"\)'
-INFO_3='echo Parsed Job Id: ${JOBID}'
 CLEANUP_EX_COMMAND_HEAD='qsub -hold_jid '
 CLEANUP_EX_COMMAND_MID=" -N cleanup-${TICKET} -v TICKET=${TICKET},JOBID="
 CLEANUP_EX_COMMAND_TAIL=' ./cleanup.sh'
 CLEANUP_EX_COMMAND="${CLEANUP_EX_COMMAND_HEAD}"'${JOBID}'"${CLEANUP_EX_COMMAND_MID}"'${JOB_ID}'"${CLEANUP_EX_COMMAND_TAIL}"
+
+echo Main Command: ${MAIN_EX_COMMAND}
+echo Job ID Parser: ${JOBID_COMMAND}
+echo Cleanup Command: ${CLEANUP_EX_COMMAND}
 
 # Submit the job and its monitor
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
     echo Beginning submission log for module: ${MODULE}
-    eval ${INFO_1}
     eval ${MAIN_EX_COMMAND}
-    eval ${INFO_2}
     eval ${JOBID_COMMAND}
-    eval ${INFO_3}
     eval ${CLEANUP_EX_COMMAND}
 " > ${OUTPUT_FILE} 2>&1
 
