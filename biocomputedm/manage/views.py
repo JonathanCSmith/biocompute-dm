@@ -24,8 +24,7 @@ def message(oid=""):
 
     # This post contains a message destined for the server - used for hooks etc
     else:
-        msg = request.form
-        display_key = msg["submission"]
+        display_key = oid
         if display_key is not None and display_key is not "":
             submission = Submission.query.filter_by(display_key=display_key).first()
             if submission is not None:

@@ -1,11 +1,7 @@
-from datetime import datetime
-
 from biocomputedm.decorators import login_required
+from biocomputedm.pipelines.views import pipelines
 from flask import Blueprint, render_template, g
 from flask import abort
-from flask import redirect
-from flask import request
-from flask import url_for
 
 content = Blueprint("content", __name__, static_folder="static", template_folder="templates")
 
@@ -53,14 +49,13 @@ def terms_and_conditions():
 
 @content.route("/message/<type>|<oid>", methods=["POST"])
 def message(type="", oid=""):
-    if type == "":
-        return abort(404)
-
     if type == "manage":
-        return redirect(url_for("manage.message", oid=oid), code=307)
+        from biocomputedm.manage.views import message
+        return message(oid=oid)
 
     elif type == "pipelines":
-        return redirect(url_for("pipeline.message", oid=oid), code=307)
+        from biocomputedm.pipelines.views import message
+        return pipelines.message(oid=oid)
 
     else:
         return abort(404)

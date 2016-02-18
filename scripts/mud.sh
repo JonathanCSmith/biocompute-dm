@@ -46,5 +46,5 @@ do
 done
 
 # Post message
-curl --form "submission=${SUBMISSION_ID}" 127.0.0.1:"${PORT}"/manage_message
+curl --form "event=subcomplete" 127.0.0.1:"${PORT}"/message/manage\|"${SUBMISSION_ID}"
 exit
