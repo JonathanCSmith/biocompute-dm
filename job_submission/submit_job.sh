@@ -75,8 +75,7 @@ OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 << EOF > ${OUTPUT_FILE} 2>&1
     echo Beginning submission log for module: ${MODULE}
-    JOBID=\$\(qsub -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -wd \"${WORKING_DIRECTORY}\" -v ${VARS} ${SCRIPT_STRING}\);
-    JOBID=\$\(echo \$JOBID \| grep -o -E '[0-9]_'\);
+    JOBID=\$(qsub -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -wd \"${WORKING_DIRECTORY}\" -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
     qsub -hold_jid \$JOBID -N cleanup-${TICKET} -wd \"${WORKING_DIRECTORY}\" -v TICKET=${TICKET},JOBID=\$JOBID ./cleanup.sh
 EOF
 
