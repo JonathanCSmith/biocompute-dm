@@ -85,13 +85,13 @@ OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
     echo Beginning submission log for module: ${MODULE}
     ${MAIN_EX_COMMAND}
-    eval lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
+    lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
     echo \$\{lastCommand\}
     ${JOBID_COMMAND}
-    eval lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
+    lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
     echo \$\{lastCommand\}
     ${CLEANUP_EX_COMMAND}
-    eval lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
+    lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
     echo \$\{lastCommand\}
 " > ${OUTPUT_FILE} 2>&1
 
