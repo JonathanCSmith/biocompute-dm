@@ -84,9 +84,9 @@ OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
     echo Beginning submission log for module: ${MODULE}
-    eval ${MAIN_EX_COMMAND}
-    eval ${JOBID_COMMAND}
-    eval ${CLEANUP_EX_COMMAND}
+    ${MAIN_EX_COMMAND}
+    ${JOBID_COMMAND}
+    ${CLEANUP_EX_COMMAND}
 " > ${OUTPUT_FILE} 2>&1
 
 # Move the output into our working directory
