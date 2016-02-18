@@ -84,16 +84,10 @@ OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
 ssh biocis@10.202.64.28 "
     echo Beginning submission log for module: ${MODULE}
-    ${MAIN_EX_COMMAND}
-    lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
-    echo \$\{lastCommand\}
-    ${JOBID_COMMAND}
-    lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
-    echo \$\{lastCommand\}
-    ${CLEANUP_EX_COMMAND}
-    lastCommand=\$\(`cat ~/.bash_history \|tail -n2 \|head -n1` \| sed 's/[0-9]* //'\)
-    echo \$\{lastCommand\}
-" > ${OUTPUT_FILE} 2>&1
+    JOBID=\$(qsub -cwd \"${WORKING_DIRECTORY}\" -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING});
+    JOBID=\$(echo \$JOBID \| grep -o -E '[0-9]_');
+    qsub -hold_jid \${JOBID} -N cleanup-${TICKET} -v TICKET=${TICKET},JOBID=${JOBID} ./cleanup.sh
+" > ${OUTPUT_FILE} 2>&1 | grep -A 3
 
 # Move the output into our working directory
 #mv ./header_node_output.txt ${WORKING_DIRECTORY}
