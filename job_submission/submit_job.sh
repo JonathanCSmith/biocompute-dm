@@ -70,24 +70,15 @@ echo "Current: ${PWD}"
 echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
-# Create command string
-MAIN_EX_COMMAND='JOBID=$(qsub -cwd \"'"${WORKING_DIRECTORY}"'\" -o '"${MODULE}"'_output.log -e '"${MODULE}"'_error.log -N job-'"${TICKET}"' -v '"${VARS}"' '"${SCRIPT_STRING}"')'
-JOBID_COMMAND='JOBID=$(echo ${JOBID} | grep -o -E "[0-9]+")'
-CLEANUP_EX_COMMAND='qsub -hold_jid ${JOBID} -N cleanup-'"${TICKET}"' -v TICKET='"${TICKET}"',JOBID=${JOB_ID} ./cleanup.sh'
-
-echo Main Command: ${MAIN_EX_COMMAND}
-echo Job ID Parser: ${JOBID_COMMAND}
-echo Cleanup Command: ${CLEANUP_EX_COMMAND}
-
 # Submit the job and its monitor
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/header_node_output.txt"
-ssh biocis@10.202.64.28 <<here > ${OUTPUT_FILE} 2>&1 | grep -A 3
+ssh biocis@10.202.64.28 << EOF > ${OUTPUT_FILE} 2>&1
     echo Beginning submission log for module: ${MODULE}
-    JOBID=\$(qsub -cwd \"${WORKING_DIRECTORY}\" -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -v ${VARS} ${SCRIPT_STRING});
-    JOBID=\$(echo \$JOBID \| grep -o -E '[0-9]_');
-    qsub -hold_jid \${JOBID} -N cleanup-${TICKET} -v TICKET=${TICKET},JOBID=${JOBID} ./cleanup.sh
-here
+    \$JOBID=\$(qsub -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -wd \"${WORKING_DIRECTORY}\" -v ${VARS} ${SCRIPT_STRING});
+    \$JOBID=\$(echo \$JOBID \| grep -o -E '[0-9]_');
+    qsub -hold_jid \$JOBID -N cleanup-${TICKET} -wd \"${WORKING_DIRECTORY}\" -v TICKET=${TICKET},JOBID=\$JOBID ./cleanup.sh
+EOF
 
 
 # Move the output into our working directory
