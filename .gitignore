@@ -22,3 +22,4 @@ to_remove/cgi-bin/mypol.te
 
 # Debug files
 /error.log
+/BIODIP Summary v 5.0.xlsx.zip
