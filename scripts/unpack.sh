@@ -11,7 +11,7 @@ fi
 req_progs=(7z unrar unzip)
 for p in ${req_progs[@]}; do
   hash "$p" 2>&- || \
-  { echo >&2 " Required program \"$p\" not installed."; exit 1; }
+  { echo " Required program \"$p\" not installed."  >&2; exit 1; }
 done
 
 # Test if file exists
