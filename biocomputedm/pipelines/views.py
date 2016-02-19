@@ -447,7 +447,7 @@ def execute_pipeline_instance(pid="", oid=""):
                     shell_path,
                     "-m=" + current_module_instance.module.name,
                     "-t=" + pipeline_instance.display_key,
-                    "-s=" + executor_path,
+                    "-e=" + executor_path,
                     "-l=" + local_working_directory,
                     "-w=" + working_directory,
                     "-i=" + csv_path,

@@ -18,7 +18,7 @@ case ${i} in
     ;;
 
     # Script execution path - note this must be relative to the OGS
-    -s=*|--script=*)
+    -e=*)
     SCRIPT_STRING="${i#*=}"
     shift
     ;;
