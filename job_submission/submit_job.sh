@@ -76,15 +76,20 @@ echo "Current: ${PWD}"
 echo "Pipeline: ${WORKING_DIRECTORY}"
 scp ./cleanup.sh biocis@10.202.64.28:~
 
+echo Module to Submit: ${MODULE}
+echo Ticket Id: ${TICKET}
+echo Working Directory: ${WORKING_DIRECTORY}
+echo Variables: ${VARS}
+echo Script: ${SCRIPT_STRING}
+
 # Submit the job and its monitor
 OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
 OUTPUT_FILE+="/module_submission.txt"
 ssh biocis@10.202.64.28 << EOF > ${OUTPUT_FILE} 2>&1
     echo Beginning submission log for module: ${MODULE}
-    JOBID=\$(qsub -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING});
+    JOBID=\$(qsub -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
     echo Job Id: \$JOBID
-    echo Job Id Parser: \$(\$JOBID  | cut -d ' ' -f 3)
-    qsub -hold_jid \$JOBID -N cleanup-${TICKET} -v SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ./cleanup.sh
+    qsub -hold_jid \$JOBID -N cleanup-"${TICKET}" -v SERVER="${SERVER}",TICKET="${TICKET}",JOBID=\$JOBID ./cleanup.sh
 EOF
 
 echo "Job submission complete"
