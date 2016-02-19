@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+from biocomputedm import utils
 from biocomputedm.biocomputedm import create_app, load_defaults, get_registered_users
 from biocomputedm.extensions import db
 from coverage.backward import imp
@@ -94,7 +95,8 @@ def clean(key):
     users = get_registered_users(app)
 
     # Cleanup folder
-    cleanup_directory = os.path.join(app.config["SCRIPTS_PATH"], "cleanup")
+    cleanup_directory = utils.get_path("scripts", "webserver")
+    cleanup_directory = os.path.join(cleanup_directory, "cleanup")
 
     # Dump sftp users
     for user in users:

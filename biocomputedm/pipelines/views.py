@@ -1,5 +1,4 @@
 import os
-import subprocess
 from datetime import datetime
 
 from biocomputedm import utils
@@ -20,7 +19,7 @@ from werkzeug.utils import secure_filename
 pipelines = Blueprint("pipelines", __name__, static_folder="static", template_folder="templates")
 
 
-@pipelines.route("/pipelines_manage/<oid>")
+@pipelines.route("/pipelines_manage/<oid>", methods=["POST"])
 def message(oid=""):
     if request.method == "GET":
         return abort(404)
@@ -35,16 +34,17 @@ def message(oid=""):
 
             # TODO: Check padding for day
             # TODO: Consider moving
-            sub = datetime.strptime(msg["sub"], '%a %b %d %H:%M:%S %Y')
-            start = datetime.strptime(msg["start"], '%a %b %d %H:%M:%S %Y')
-            end = datetime.strptime(msg["end"], '%a %b %d %H:%M:%S %Y')
-            wait = start - sub
-            duration = end - start
-            module_instance.update(wait_time=wait, execution_time=duration)
+            if msg["sub"] == "0":
+                sub = datetime.strptime(msg["sub"], '%a %b %d %H:%M:%S %Y')
+                start = datetime.strptime(msg["start"], '%a %b %d %H:%M:%S %Y')
+                end = datetime.strptime(msg["end"], '%a %b %d %H:%M:%S %Y')
+                wait = start - sub
+                duration = end - start
+                module_instance.update(wait_time=wait, execution_time=duration)
 
             # Inform our pipeline and handle appropriately
             pipeline_instance = module_instance.pipeline_instance
-            if pipeline_instance.current_execution_index == len(pipeline_instance.pipeline.modules):
+            if pipeline_instance.current_execution_index == len(pipeline_instance.pipeline.modules.all()) - 1:
                 pipeline_instance.update(current_execution_status="FINISHED")
 
             elif pipeline_instance.execution_type == "Per Module":
@@ -52,7 +52,11 @@ def message(oid=""):
 
             else:
                 pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
-                execute_pipeline_instance(pipeline_instance.display_key, pipeline_instance.data_source_id)
+
+                from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_instance
+                execute_pipeline_instance(current_app._get_current_object(),
+                                          module_instance.pipeline_instance.display_key,
+                                          module_instance.pipeline_instance.data_source.display_key)
 
         elif event == "module_error":
             module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
@@ -216,6 +220,9 @@ def build_module_instance(pid="", oid="", index=-1):
         module_instance = PipelineModuleInstance.create(module=module, instance=pipeline_instance)
         pipeline_instance.module_instances.append(module_instance)
         pipeline_instance.save()
+        pipeline_directory = utils.get_path("pipeline_data", "webserver")
+        pipeline_directory = os.path.join(pipeline_directory, pipeline_instance.display_key)
+        utils.make_directory(os.path.join(pipeline_directory, module.name))
 
     # This is likely to occur during a page refresh
     elif len(module_instances) == index + 1:
@@ -251,7 +258,12 @@ def build_module_instance(pid="", oid="", index=-1):
         # If we are out of modules to assign or we do not want to assign more information just yet
         if len(modules) == index or pipeline_instance.execution_type == "Per Module":
             pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
-            return redirect(url_for("pipelines.execute_pipeline_instance", pid=pid, oid=oid))
+
+            from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_instance
+            execute_pipeline_instance(current_app._get_current_object(), pid, oid)
+            flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
+                  "warning")
+            return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))
 
         # Continue assigning information
         else:
@@ -361,7 +373,12 @@ def build_module_instance(pid="", oid="", index=-1):
             # If we are out of modules to assign or we do not want to assign more information just yet
             if len(modules) == index or pipeline_instance.execution_type == "Per Module":
                 pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
-                return redirect(url_for("pipelines.execute_pipeline_instance", pid=pid, oid=oid))
+
+                from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_instance
+                execute_pipeline_instance(current_app._get_current_object(), pid, oid)
+                flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
+                      "warning")
+                return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))
 
             # Continue assigning information
             else:
@@ -379,85 +396,95 @@ def build_module_instance(pid="", oid="", index=-1):
 def resume_pipeline_instance(pid="", oid=""):
     return redirect(url_for("empty"))
 
-
-@pipelines.route("/execute_pipeline_instance/<pid>|<oid>")
-@login_required("ANY")
-def execute_pipeline_instance(pid="", oid=""):
-    # Check that our objects exist
-    pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
-    if pipeline_instance is None:
-        flash("Could not identify the provided pipeline", "error")
-        return redirect(url_for("index"))
-
-    # Check that we have a module to execute
-    current_module_instance = models.get_current_module_instance(pipeline_instance)
-    if current_module_instance is None:
-        flash("Could not identify the current pipeline status", "error")
-        return redirect(url_for("index"))
-
-    # Directories
-    local_working_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
-    working_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
-    local_csv_path = os.path.join(local_working_directory, "data_map.csv")
-    csv_path = os.path.join(working_directory, "data_map.csv")
-    output_directory = os.path.join(working_directory, "samples_output")
-
-    # Get the object and build it's data path file
-    import csv
-    if pipeline_instance.pipeline.type == "I":
-        o = Submission.query.filter_by(display_key=oid).first()
-        if o is None:
-            flash("Could not identify the provided object", "error")
-            return redirect(url_for("index"))
-
-        # Build the csv
-        with open(local_csv_path, "a", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow([oid, os.path.join(utils.get_path("submission_data", "hpc"), oid), output_directory])
-
-    else:
-        o = SampleGroup.query.filter_by(display_key=oid).first()
-        if o is None:
-            flash("Could not identify the provided object", "error")
-            return redirect(url_for("index"))
-
-        # Build the csv
-        with open(local_csv_path, "a", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            for sample in o.samples.query.all():
-                writer.writerow(
-                        [sample.display_key, os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                         os.path.join(output_directory, sample.display_key)])
-
-    # Build variables string
-    vstring = ""
-    for value in current_module_instance.option_values:
-        marker = value.option.parameter_name
-        result = value.value
-        vstring += marker + "=\"" + result + "\","
-    vstring = vstring[:-1]
-
-    # Submit module w/ options into HPC - note the cwd
-    shell_path = current_app.config["HPC_JOB_SUBMISSION_FILE"]
-    executor_path = current_module_instance.module.executor
-    with open(os.path.join(local_working_directory, "job_submission_out.log"), "wb") as out, \
-            open(os.path.join(local_working_directory, "job_submission_error.log"), "wb") as err:
-        subprocess.Popen(
-                [
-                    shell_path,
-                    "-m=" + current_module_instance.module.name,
-                    "-t=" + pipeline_instance.display_key,
-                    "-e=" + executor_path,
-                    "-l=" + local_working_directory,
-                    "-w=" + working_directory,
-                    "-i=" + csv_path,
-                    "-v=" + vstring,
-                    "-s=" + current_app.config["NETWORK_PATH_TO_WEBSERVER_FROM_HPC"]
-                ],
-                stdout=out,
-                stderr=err
-        )
-
-    pipeline_instance.update(current_execution_status="RUNNING")
-    flash("Pipeline executing", "Success")
-    return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))
+# @pipelines.route("/execute_pipeline_instance/<pid>|<oid>")
+# @login_required("ANY")
+# def execute_pipeline_instance(pid="", oid=""):
+#     # Check that our objects exist
+#     pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
+#     if pipeline_instance is None:
+#         flash("Could not identify the provided pipeline", "error")
+#         return redirect(url_for("index"))
+#
+#     # Check that we have a module to execute
+#     current_module_instance = models.get_current_module_instance(pipeline_instance)
+#     if current_module_instance is None:
+#         flash("Could not identify the current pipeline status", "error")
+#         return redirect(url_for("index"))
+#
+#     # Directories
+#     local_working_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
+#     working_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
+#     local_csv_path = os.path.join(local_working_directory, "data_map.csv")
+#     csv_path = os.path.join(working_directory, "data_map.csv")
+#     output_directory = os.path.join(working_directory, "samples_output")
+#
+#     # Get the object and build it's data path file
+#     import csv
+#     if pipeline_instance.pipeline.type == "I":
+#         o = Submission.query.filter_by(display_key=oid).first()
+#         if o is None:
+#             flash("Could not identify the provided object", "error")
+#             return redirect(url_for("index"))
+#
+#         # Build the csv
+#         with open(local_csv_path, "a", newline="") as csvfile:
+#             writer = csv.writer(csvfile)
+#             writer.writerow([oid, os.path.join(utils.get_path("submission_data", "hpc"), oid), output_directory])
+#
+#     else:
+#         o = SampleGroup.query.filter_by(display_key=oid).first()
+#         if o is None:
+#             flash("Could not identify the provided object", "error")
+#             return redirect(url_for("index"))
+#
+#         # Build the csv
+#         with open(local_csv_path, "a", newline="") as csvfile:
+#             writer = csv.writer(csvfile)
+#             for sample in o.samples.query.all():
+#                 writer.writerow(
+#                         [sample.display_key, os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
+#                          os.path.join(output_directory, sample.display_key)])
+#
+#     # Build variables string
+#     vstring = ""
+#     for value in current_module_instance.option_values:
+#         marker = value.option.parameter_name
+#         result = value.value
+#         vstring += marker + "=\"" + result + "\","
+#     vstring = vstring[:-1]
+#
+#     # Submit module w/ options into HPC - note the cwd
+#     shell_path = os.path.join(utils.get_path("scripts", "webserver"), "jobs")
+#     cleanup_script_path = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "jobs"), "cleanup.sh")
+#     if current_app.config["HPC_DEBUG"] == "False":
+#         shell_path = os.path.join(shell_path, "submit_job.sh")
+#         server = current_app.config["NETWORK_PATH_TO_WEBSERVER_FROM_HPC"]
+#     else:
+#         shell_path = os.path.join(shell_path, "fake_submit_job.sh")
+#         server = current_app.config["LOCAL_WEBSERVER_PORT"]
+#
+#     executor_path = current_module_instance.module.executor
+#     with open(os.path.join(local_working_directory, "job_submission_out.log"), "wb") as out, \
+#             open(os.path.join(local_working_directory, "job_submission_error.log"), "wb") as err:
+#         subprocess.Popen(
+#                 [
+#                     shell_path,
+#                     "-u=" + current_app.config["HPC_USERNAME"],
+#                     "-h=" + current_app.config["NETWORK_PATH_TO_HPC_FROM_WEBSERVER"],
+#                     "-m=" + current_module_instance.module.name,
+#                     "-t=" + current_module_instance.display_key,
+#                     "-e=" + executor_path,
+#                     "-l=" + local_working_directory,
+#                     "-w=" + working_directory,
+#                     "-i=" + csv_path,
+#                     "-v=" + vstring,
+#                     "-c=" + cleanup_script_path,
+#                     "-s=" + server
+#                 ],
+#                 stdout=out,
+#                 stderr=err
+#         )
+#
+#     pipeline_instance.update(current_execution_status="RUNNING")
+#     flash("Pipeline executing", "Success")
+#     return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))

@@ -55,7 +55,7 @@ def message(type="", oid=""):
 
     elif type == "pipelines":
         from biocomputedm.pipelines.views import message
-        return pipelines.message(oid=oid)
+        return message(oid=oid)
 
     else:
         return abort(404)

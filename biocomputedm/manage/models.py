@@ -5,7 +5,7 @@ from flask.ext.login import current_user
 
 
 class DataSource(SurrogatePK, Model):
-    current_pipeline = relationship(PipelineInstance, uselist=False)
+    current_pipeline = relationship(PipelineInstance, uselist=False, backref="data_source")
     past_pipelines = relationship(PipelineInstance)
     type = Column(String(50), nullable=False)
 

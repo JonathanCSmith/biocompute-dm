@@ -190,14 +190,15 @@ def new_submission():
                 utils.make_directory(output_directory_path)
 
                 # Submit the directory and uploaded file information to our m.u.d. script
-                script_path = os.path.join(current_app.config["SCRIPTS_PATH"], "mud.sh")
+                script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
+                script_path = os.path.join(script_path, "mud.sh")
                 sources = ""
                 for i in ids:
                     source_path = os.path.join(directory_path, i)
                     sources = sources + source_path + ","
+                sources = sources[:-1]  # remove that pesky extra comma :D
 
                 # Execute our move, unpack and delete script asynchronously so as to not interrupt webserving
-                sources = sources[:-1]  # remove that pesky extra comma :D
                 subprocess.Popen(
                         [
                             "sudo",

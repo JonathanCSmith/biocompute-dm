@@ -50,7 +50,7 @@
                 {% elif pipeline_instance.current_execution_status == "RUNNING" %}
                 <td class="resize img1 bg2">{{ stage.name }}</td>
                 {% elif pipeline_instance.current_execution_status == "FINISHED" %}
-                <td class="resize img1 bg3">{{ stage.name }}</td>
+                <td class="resize img2 bg3">{{ stage.name }}</td>
                 {% elif pipeline_instance.current_execution_status == "ERROR" %}
                 <td class="resize img1 bg4">{{ stage.name }}</td>
                 {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}

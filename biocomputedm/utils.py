@@ -318,7 +318,9 @@ def get_path(target, environment):
     else:
         raise ValueError("environment must either be: webserver or hpc")
 
-    if target == "pipeline_scripts":
+    if target == "scripts":
+        target_path = current_app.config["MANAGEMENT_SCRIPTS_PATH_AFTER_RELATIVE_ROOT"]
+    elif target == "pipeline_scripts":
         target_path = current_app.config["PIPELINE_SCRIPTS_PATH_AFTER_RELATIVE_ROOT"]
     elif target == "pipeline_data":
         target_path = current_app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"]

@@ -171,7 +171,7 @@ def refresh_pipelines():
         if not os.path.isfile(file):
             continue
 
-        from biocomputedm.pipelines.helpers import pipeline_mappings_template as template_helper
+        from biocomputedm.pipelines.helpers import pipeline_helper as template_helper
         if not template_helper.validate(file):
             continue
 

@@ -1,12 +1,13 @@
 import os
 import subprocess
 
+from biocomputedm import utils
 from flask import current_app
 
 
 def create_group_directory(group):
     # TODO: Currently group members don't have write access
-    path = os.path.join(current_app.config["SCRIPTS_PATH"], "add_group.sh")
+    path = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "admin"), "add_group.sh")
     process_out = subprocess.Popen(
             [
                 "sudo",
@@ -25,7 +26,7 @@ def create_group_directory(group):
 
 def create_user_directory(user, realpass):
     # TODO: Currently users are not members of their group!
-    path = os.path.join(current_app.config["SCRIPTS_PATH"], "add_user.sh")
+    path = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "admin"), "add_user.sh")
     process_out = subprocess.Popen(
             [
                 "sudo",

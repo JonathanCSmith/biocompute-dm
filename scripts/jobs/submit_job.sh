@@ -5,6 +5,17 @@ echo "Beginning job submission"
 for i in "$@"
 do
 case ${i} in
+    # HPC Username
+    -u=*)
+    USERNAME="${i#*=}"
+    shift
+    ;;
+
+    -h=*)
+    HPC_IP="${i#*=}"
+    shift
+    ;;
+
     # Module name for logging etc
     -m=*)
     MODULE="${i#*=}"
@@ -53,6 +64,12 @@ case ${i} in
     shift
     ;;
 
+    # Cleanup script path
+    -c=*)
+    CLEANUP_SCRIPT="${i#*=}"
+    shift
+    ;;
+
     # Ping back location
     -s=*)
     SERVER="${i#*=}"
@@ -71,25 +88,22 @@ if [ "${VARIABLES_STRING}" ]; then
     VARS="${VARS},${VARIABLES_STRING}"
 fi
 
-# Copy over script file
+# Good Logging
 echo "Current: ${PWD}"
 echo "Pipeline: ${WORKING_DIRECTORY}"
-scp ./cleanup.sh biocis@10.202.64.28:~
-
 echo Module to Submit: ${MODULE}
 echo Ticket Id: ${TICKET}
 echo Working Directory: ${WORKING_DIRECTORY}
 echo Variables: ${VARS}
 echo Script: ${SCRIPT_STRING}
+echo Beginning SSH
 
 # Submit the job and its monitor
-OUTPUT_FILE=${LOCAL_OUTPUT_DIRECTORY}
-OUTPUT_FILE+="/module_submission.txt"
-ssh biocis@10.202.64.28 << EOF > ${OUTPUT_FILE} 2>&1
+ssh ${USERNAME}@${HPC_IP} << EOF
     echo Beginning submission log for module: ${MODULE}
-    JOBID=\$(qsub -o ${MODULE}_output.log -e ${MODULE}_error.log -N job-${TICKET} -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
+    JOBID=\$(qsub -N job-${TICKET} -o ${MODULE}_module_output.log -e ${MODULE}_module_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
     echo Job Id: \$JOBID
-    qsub -hold_jid \$JOBID -N cleanup-"${TICKET}" -v SERVER="${SERVER}",TICKET="${TICKET}",JOBID=\$JOBID ./cleanup.sh
+    qsub -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE}_module_cleanup.log -e ${MODULE}_module_cleanup.log -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
 EOF
 
 echo "Job submission complete"
