@@ -59,8 +59,8 @@ class PipelineModuleOption(SurrogatePK, Model):
     display_name = Column(String(50), nullable=False)
     description = Column(String(500), nullable=False)
     parameter_name = Column(String(50), nullable=False)
-    user_interaction_type = Column(Enum("file", "string", "boolean", "library"), nullable=False)
-    default_value = Column(String(50), nullable=False)
+    user_interaction_type = Column(Enum("file", "string", "boolean", "library", "enum", "flag"), nullable=False)
+    default_value = Column(String(100), nullable=False)
     necessary = Column(Boolean, default=False)
 
     module_id = reference_col("PipelineModule")

@@ -1,0 +1,40 @@
+Readme:
+	sshd
+	visudo
+	unzipper dependency
+	expected output structure from pipelines
+	module working directory structure
+Content:
+	long description handling
+	titles on all pages
+	pipeline / module stats display
+Test pipeline:
+	progress handling / display
+	execution types / option types
+	physical outputs + sample generation
+	output display
+Permissions:
+	validate existing
+	generate common pathways for ensuring permissions
+Pipelines:
+	enum generation from json
+	refresh or resume handling
+	logic for sample data generation
+Config:
+	"""""??????update on rosalind!!!!!!!!!!
+DB:
+	modules to store stats
+Fixes:
+	job submission to pipe outputs into upper files (to test)
+Tests:
+	Test Pipeline
+Feature:
+	Library:
+		Submission form
+		Directory
+		DB Entry
+		List generation in pipeline forms
+	Emails
+	Message Logging for Admins
+		messages to be stored in db
+		views for messages in admin console

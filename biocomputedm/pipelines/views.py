@@ -323,7 +323,8 @@ def build_module_instance(pid="", oid="", index=-1):
                     module_instance.option_values.append(option_value)
                     module_instance.save()
 
-                elif option.user_interaction_type == "string":
+                elif option.user_interaction_type == "string" \
+                        or option.user_interaction_type == "enum":
                     field = getattr(form, option.display_key)
 
                     # Update the db

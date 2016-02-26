@@ -56,6 +56,16 @@ def build_options_form(options, post_data):
                                                    description=option.description))
             synthetics.append(option.display_key)
 
+        elif option.user_interaction_type == "enum":
+            choices = option.default_value.split(",")
+            clazz = clazz.append_field(option.display_key,
+                                       SelectField(option.display_name,
+                                                   default=choices[0],
+                                                   choices=choices,
+                                                   validators=[DataRequired()],
+                                                   description=option.description))
+            synthetics.append(option.display_key)
+
         else:
             continue
 

@@ -1,14 +1,12 @@
 import json
 import os
 import subprocess
-from datetime import datetime
 
 import jsonschema
 from biocomputedm import utils
 from biocomputedm.decorators import async
 from biocomputedm.manage.models import Submission, SampleGroup
-from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption, PipelineModuleInstance, \
-    PipelineInstance
+from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption, PipelineInstance
 from flask import current_app
 from flask import flash
 
@@ -59,9 +57,11 @@ pipeline = \
                     },
                     "default_value": {
                       "type": "string"
+                      // Note enum defaults are handled specially. A comma separated list is provided where the first
+                      // element is also the default.
                     },
                     "user_interaction_type": {
-                      "enum": ["boolean", "string", "library", "file"]
+                      "enum": ["boolean", "string", "library", "file", "enum"]
                     },
                     "necessary": {
                       "type": "boolean"
@@ -173,7 +173,8 @@ def execute_pipeline_instance(app, pid="", oid=""):
             return
 
         # Directories
-        local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
+        local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"),
+                                                pipeline_instance.display_key)
         remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
         local_csv_path = os.path.join(local_pipeline_directory, "data_map.csv")
         csv_path = os.path.join(remote_pipeline_directory, "data_map.csv")
@@ -225,8 +226,15 @@ def execute_pipeline_instance(app, pid="", oid=""):
         vstring = ""
         for value in current_module_instance.option_values:
             marker = value.option.parameter_name
-            result = value.value
-            vstring += marker + "=\"" + result + "\","
+            if value.option.user_interaction_type == "library":
+                # TODO: input actual library path for webserver
+                result = value.value
+                vstring += marker + "=\"" + result + "\","
+
+            else:
+                result = value.value
+                vstring += marker + "=\"" + result + "\","
+
         if len(vstring) != 0:
             vstring = vstring[:-1]
 

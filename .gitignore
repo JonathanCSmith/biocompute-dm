@@ -6,7 +6,6 @@ to_remove/cgi-bin/mypol.te
 
 # development files
 /.idea
-/Biocompute-DM.iml
 /flask
 /html
 /config.py
@@ -14,7 +13,6 @@ to_remove/cgi-bin/mypol.te
 
 # Local files
 /pipelines
-/pipeline_instances
 /raw
 /submissions
 /samples
