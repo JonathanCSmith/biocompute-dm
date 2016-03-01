@@ -15,7 +15,7 @@
           "parameter_name": "sample_sheet",
           "default_value": "SampleSheet.csv",
           "user_interaction_type": "file",
-          "necessary": true,
+          "necessary": false,
           "description": "Please provide a sample sheet that conforms to the template available below."
         },
 

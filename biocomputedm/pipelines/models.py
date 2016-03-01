@@ -9,7 +9,7 @@ from sqlalchemy import update
 
 class Pipeline(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
-    description = Column(Text, nullable=False)
+    description = Column(String(500), nullable=False)
     author = Column(String(50), nullable=False)
     version = Column(String(50), nullable=False)
     type = Column(Enum("I", "II", "III"), nullable=False)
