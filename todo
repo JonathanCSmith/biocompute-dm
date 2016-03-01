@@ -9,23 +9,17 @@ Content:
 	titles on all pages
 	pipeline / module stats display
 Test pipeline:
-	progress handling / display
-	execution types / option types
 	physical outputs + sample generation
 	output display
 Permissions:
 	validate existing
 	generate common pathways for ensuring permissions
 Pipelines:
-	enum generation from json
 	refresh or resume handling
 	logic for sample data generation
 Config:
-	"""""??????update on rosalind!!!!!!!!!!
 DB:
 	modules to store stats
-Fixes:
-	job submission to pipe outputs into upper files (to test)
 Tests:
 	Test Pipeline
 Feature:
@@ -38,3 +32,15 @@ Feature:
 	Message Logging for Admins
 		messages to be stored in db
 		views for messages in admin console
+
+1) Finish demux module
+	e) Copy example data to submission
+	f) Update scripts + pipelines on server
+2) Run demux module (cycle testing until happy)
+3) Create fastq module
+4) Run fastq module
+5) Build outputs
+
+6) Build sample grouping db records
+7) Build output display
+8) Build output download paths

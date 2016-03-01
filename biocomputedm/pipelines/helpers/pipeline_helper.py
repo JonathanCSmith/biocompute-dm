@@ -182,7 +182,7 @@ def execute_pipeline_instance(app, pid="", oid=""):
         # Get the object and build it's data path file - only on first module, this stays constant otherwise
         if pipeline_instance.current_execution_index == 0:
             # Make the directories
-            samples_output_directory = os.path.join(remote_pipeline_directory, "output")
+            samples_output_directory = os.path.join(remote_pipeline_directory, "samples_output")
             utils.make_directory(samples_output_directory)
 
             import csv
@@ -218,7 +218,7 @@ def execute_pipeline_instance(app, pid="", oid=""):
                                 [
                                     sample.display_key,
                                     os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                                    os.path.join(sample_output_directory)
+                                    sample_output_directory
                                 ]
                         )
 
@@ -250,7 +250,10 @@ def execute_pipeline_instance(app, pid="", oid=""):
 
         executor_path = current_module_instance.module.executor
         local_module_directory = os.path.join(local_pipeline_directory, current_module_instance.module.name)
-        remote_module_directory = os.path.join(remote_pipeline_directory, current_module_instance.module.name)
+        modules_output_directory = os.path.join(remote_pipeline_directory, "modules_output")
+        utils.make_directory(modules_output_directory)
+        remote_module_directory = os.path.join(modules_output_directory, current_module_instance.module.name)
+        utils.make_directory(remote_module_directory)
         with open(os.path.join(local_module_directory, "job_submission_out.log"), "wb") as out, \
                 open(os.path.join(local_module_directory, "job_submission_error.log"), "wb") as err:
             subprocess.Popen(
@@ -262,7 +265,8 @@ def execute_pipeline_instance(app, pid="", oid=""):
                         "-t=" + current_module_instance.display_key,
                         "-e=" + executor_path,
                         "-l=" + local_module_directory,
-                        "-w=" + remote_module_directory,
+                        "-w=" + remote_pipeline_directory,
+                        "-o=" + remote_module_directory,
                         "-i=" + csv_path,
                         "-v=" + vstring,
                         "-c=" + cleanup_script_path,

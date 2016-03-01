@@ -19,10 +19,11 @@ div.content div.action.exempt table.table-resize td {
 }
 
 .img1 {
-    background-image: url('/static/images/complete.png');
+    background-image: url('/static/images/module_partial.png');
 }
+
 .img2 {
-    background-image: url('/static/images/incomplete.png');
+    background-image: url('/static/images/module_complete.png');
 }
 
 .bg1 {
@@ -42,5 +43,5 @@ div.content div.action.exempt table.table-resize td {
 }
 
 .bg5 {
-    background-color: silver;
+    background-color: white;
 }

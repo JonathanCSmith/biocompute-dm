@@ -46,7 +46,7 @@ class PipelineModule(SurrogatePK, Model):
         db.Model.__init__(self,
                           name=name,
                           description=description,
-                          executor=os.path.join(os.path.join(utils.get_path("pipeline_scripts", "hpc"), pipeline.name),
+                          executor=os.path.join(os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"), pipeline.name),
                                                 executor),
                           execution_index=execution_index)
         pipeline.modules.append(self)
@@ -159,7 +159,7 @@ def refresh_pipelines():
     db.session.commit()
 
     # Webserver side - as we need the execution paths to be correct for the executors
-    path = utils.get_path("pipeline_scripts", "webserver")
+    path = os.path.join(utils.get_path("scripts", "webserver"), "pipelines")
     directories = os.listdir(path)
     has_new = False
     for directory in directories:

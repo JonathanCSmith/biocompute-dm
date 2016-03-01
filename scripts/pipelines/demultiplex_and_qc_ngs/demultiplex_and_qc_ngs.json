@@ -13,7 +13,7 @@
         {
           "display_name": "Sample Sheet Informations:",
           "parameter_name": "sample_sheet",
-          "default_value": "sampleSheet.csv",
+          "default_value": "SampleSheet.csv",
           "user_interaction_type": "file",
           "necessary": true,
           "description": "Please provide a sample sheet that conforms to the template available below."
@@ -47,7 +47,7 @@
         },
 
         {
-          "display_name": "Index Reads generate FastQ Files:",
+          "display_name": "Index Reads Generate FastQ Files:",
           "parameter_name": "create_fastq_index",
           "default_value": "False",
           "user_interaction_type": "boolean",
@@ -97,7 +97,8 @@
           "default_value": "22",
           "user_interaction_type": "string",
           "necessary": false,
-          "description": "This option applies when a read is trimmed to below the length specified by the --minimum-trimmed-read-length option (default of 35). These parameters specify the following behavior: If the number of bases left after adapter trimming is less than --minimum-trimmed-read-length, force the read length to be equal to --minimum-trimmed-read-length by masking adapter bases (replace with Ns) that fall below this length. If the number of ACGT bases left after this process falls below --mask-short-adapter-reads, mask all bases, resulting in a read with --minimum-trimmed-read-length number of Ns."        },
+          "description": "This option applies when a read is trimmed to below the length specified by the --minimum-trimmed-read-length option (default of 35). These parameters specify the following behavior: If the number of bases left after adapter trimming is less than --minimum-trimmed-read-length, force the read length to be equal to --minimum-trimmed-read-length by masking adapter bases (replace with Ns) that fall below this length. If the number of ACGT bases left after this process falls below --mask-short-adapter-reads, mask all bases, resulting in a read with --minimum-trimmed-read-length number of Ns."
+        },
 
         {
           "display_name": "Tile Properties:",

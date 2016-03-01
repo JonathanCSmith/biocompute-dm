@@ -52,6 +52,12 @@ case ${i} in
     shift
     ;;
 
+    # Output directory for this module's displayable output
+    -o=*)
+    OUTPUT_DIRECTORY="${i#*=}"
+    shift
+    ;;
+
     # Specific argument for the inputs file
     -i=*|--inputs=*)
     INPUTS_STRING="${i#*=}"
@@ -83,7 +89,7 @@ esac
 done
 
 # Combine the strings in a meaningful manner
-VARS="ticket=${TICKET},pipeline_source=${PIPELINE_SOURCE_DIRECTORY},samples=${INPUTS_STRING}"
+VARS="ticket=${TICKET},pipeline_source=${PIPELINE_SOURCE_DIRECTORY},samples=${INPUTS_STRING},module_output_directory=${OUTPUT_DIRECTORY}"
 if [ "${VARIABLES_STRING}" ]; then
     VARS="${VARS},${VARIABLES_STRING}"
 fi

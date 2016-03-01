@@ -320,8 +320,6 @@ def get_path(target, environment):
 
     if target == "scripts":
         target_path = current_app.config["MANAGEMENT_SCRIPTS_PATH_AFTER_RELATIVE_ROOT"]
-    elif target == "pipeline_scripts":
-        target_path = current_app.config["PIPELINE_SCRIPTS_PATH_AFTER_RELATIVE_ROOT"]
     elif target == "pipeline_data":
         target_path = current_app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"]
     elif target == "submission_data":
@@ -332,7 +330,7 @@ def get_path(target, environment):
         target_path = current_app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"]
     else:
         raise ValueError(
-                "Valid inputs for target are: pipeline_scripts, pipeline_data, submission_data, sample_data, project_data")
+                "Valid inputs for target are: scripts, pipeline_data, submission_data, sample_data, project_data")
 
     return os.path.join(environment_path, target_path)
 

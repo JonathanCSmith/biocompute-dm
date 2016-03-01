@@ -296,8 +296,7 @@ def build_module_instance(pid="", oid="", index=-1):
             for option in file_options:
                 field = getattr(form, option.display_key + "_template")
                 if field is not None and bool(field.data):
-                    directory = os.path.join(utils.get_path("pipeline_scripts", "webserver"),
-                                             pipeline_instance.pipeline.name)
+                    directory = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "pipelines"), pipeline_instance.pipeline.name)
                     return send_from_directory(directory, option.default_value, as_attachment=True)
 
         # Validate the form properties
