@@ -106,7 +106,7 @@ pipeline = \
 
 
 def validate(file):
-    json_instance = json.loads(codecs.open(file, "r", "utf-8").read())
+    json_instance = json.loads(codecs.open(file, mode="r", encoding="utf-8").read())
 
     try:
         jsonschema.validate(json_instance, json.loads(pipeline))
@@ -127,7 +127,7 @@ def validate(file):
 
 
 def build(file):
-    json_instance = json.loads(codecs.open(file, "r", "utf-8").read())
+    json_instance = json.loads(codecs.open(file, mode="r", encoding="utf-8").read())
     name = json_instance.get("name")
     description = json_instance.get("description")
     author = json_instance.get("author")
