@@ -57,8 +57,6 @@ pipeline = \
                     },
                     "default_value": {
                       "type": "string"
-                      // Note enum defaults are handled specially. A comma separated list is provided where the first
-                      // element is also the default.
                     },
                     "user_interaction_type": {
                       "enum": ["boolean", "string", "library", "file", "enum"]
