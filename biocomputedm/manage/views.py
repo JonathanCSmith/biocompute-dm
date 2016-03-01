@@ -249,9 +249,17 @@ def submission(sid=""):
     directory_path = os.path.join(utils.get_path("submission_data", "webserver"), folder)
 
     # list of the available files
-    filepaths = next(os.walk(directory_path))[2]
+    filepaths = next(os.walk(directory_path))
     files = []
-    for file in filepaths:
+    for file in filepaths[1]:
+        s = os.stat(os.path.join(directory_path, file))
+        files.append({
+            "name": file,
+            "size": s.st_size,
+            "date": time.ctime(s.st_ctime)
+        })
+
+    for file in filepaths[2]:
         s = os.stat(os.path.join(directory_path, file))
         files.append({
             "name": file,

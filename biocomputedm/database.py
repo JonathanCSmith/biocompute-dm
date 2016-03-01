@@ -11,6 +11,7 @@ Enum = db.Enum
 String = db.String
 Integer = db.Integer
 Boolean = db.Boolean
+Text = db.Text
 ForeignKey = db.ForeignKey
 relationship = relationship
 basestring = (str, bytes)

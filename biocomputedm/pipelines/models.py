@@ -2,14 +2,14 @@ import os
 
 from biocomputedm import utils
 from biocomputedm.database import relationship, reference_col, Model, SurrogatePK, Column, Enum, String, Integer, \
-    Boolean
+    Boolean, Text
 from biocomputedm.extensions import db
 from sqlalchemy import update
 
 
 class Pipeline(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
-    description = Column(String(500), nullable=False)
+    description = Column(Text, nullable=False)
     author = Column(String(50), nullable=False)
     version = Column(String(50), nullable=False)
     type = Column(Enum("I", "II", "III"), nullable=False)
@@ -31,7 +31,7 @@ class Pipeline(SurrogatePK, Model):
 
 class PipelineModule(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
-    description = Column(String(500), nullable=False)
+    description = Column(Text, nullable=False)
     executor = Column(String(500), nullable=False)
     execution_index = Column(db.Integer, nullable=False)
 
@@ -57,7 +57,7 @@ class PipelineModule(SurrogatePK, Model):
 
 class PipelineModuleOption(SurrogatePK, Model):
     display_name = Column(String(50), nullable=False)
-    description = Column(String(500), nullable=False)
+    description = Column(Text, nullable=False)
     parameter_name = Column(String(50), nullable=False)
     user_interaction_type = Column(Enum("file", "string", "boolean", "library", "enum", "flag"), nullable=False)
     default_value = Column(String(100), nullable=False)
