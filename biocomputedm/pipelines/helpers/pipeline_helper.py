@@ -2,6 +2,8 @@ import json
 import os
 import subprocess
 
+import codecs
+
 import jsonschema
 from biocomputedm import utils
 from biocomputedm.decorators import async
@@ -104,7 +106,7 @@ pipeline = \
 
 
 def validate(file):
-    json_instance = json.loads(open(file).read())
+    json_instance = json.loads(codecs.open(file, "r", "utf-8").read())
 
     try:
         jsonschema.validate(json_instance, json.loads(pipeline))
@@ -115,6 +117,10 @@ def validate(file):
 
     except jsonschema.SchemaError as e:
         flash(e.message + " for file: " + file, "error")
+        return False
+
+    except Exception as e:
+        flash("File: " + file + " received: " + str(e), "error")
         return False
 
     return True

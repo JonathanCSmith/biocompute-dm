@@ -106,7 +106,7 @@
           "default_value": "False",
           "user_interaction_type": "string",
           "necessary": false,
-          "description": "The --tiles argument takes a regular expression to select for processing only a subset of the tiles available in the flow cell. This argument can be specified multiple times, one time for each regular expression. Examples: To select all the tiles ending with 5 in all lanes: --tiles [0–9][0–9][0–9]5 To select tile 2 in lane 1 and all the tiles in the other lanes: --tiles s_1_0002 --tiles s_[2–8]"
+          "description": "The --tiles argument takes a regular expression to select for processing only a subset of the tiles available in the flow cell. This argument can be specified multiple times, one time for each regular expression. Examples: To select all the tiles ending with 5 in all lanes: --tiles [0 to 9][0 to 9][0 to 9]5 To select tile 2 in lane 1 and all the tiles in the other lanes: --tiles s_1_0002 --tiles s_[2 to 8]"
         },
 
         {
@@ -151,7 +151,7 @@
           "default_value": "4",
           "user_interaction_type": "string",
           "necessary": false,
-          "description": "Zlib compression level (1–9) used for FASTQ files."
+          "description": "Zlib compression level (1 to 9) used for FASTQ files."
         },
 
         {
