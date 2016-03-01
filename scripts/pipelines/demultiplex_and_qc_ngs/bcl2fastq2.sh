@@ -11,7 +11,7 @@ echo "Beginning demultiplexing module"
 
 # Note we are only interested in the first line as we are only expecting 1 folder!
 IFS=","
-while read NAME, DATA_INPUT_DIRECTORY, DATA_OUTPUT_DIRECTORY
+while read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY
 do
     echo "Input file properties: ${NAME}, ${DATA_INPUT_DIRECTORY}, £{DATA_OUTPUT_DIRECTORY}"
 done <(head -n 1 "${samples}")
@@ -81,8 +81,9 @@ if [[ ${base_mask}} ]]; then
 fi
 
 EXECUTION_VARIABLES+="
-    --runfolder-dir ${WORKING_DIRECTORY} \
-    --output_dir ${WORKING_DIRECTORY} \
+    --input-dir ${DATA_INPUT_DIRECTORY} \
+    --output_dir ${DATA_OUTPUT_DIRECTORY} \
+    --runfolder-dir ${MODULE_OUTPUT_DIRECTORY} \
     --sample-sheet ${sample_sheet} \
     --loading_threads 2 \
     --demultiplexing_threads 4 \
