@@ -97,17 +97,18 @@ fi
 # Good Logging
 echo "Current: ${PWD}"
 echo "Pipeline: ${WORKING_DIRECTORY}"
-echo Module to Submit: ${MODULE}
-echo Ticket Id: ${TICKET}
-echo Working Directory: ${OUTPUT_DIRECTORY}
-echo Variables: ${VARS}
-echo Script: ${SCRIPT_STRING}
-echo Beginning SSH
+echo "Module to Submit: ${MODULE}"
+echo "Ticket Id: ${TICKET}"
+echo "Working Directory: ${OUTPUT_DIRECTORY}"
+echo "Variables: ${VARS}"
+echo "Script: ${SCRIPT_STRING}"
+echo "Beginning SSH"
 
 # Submit the job and its monitor
-ssh source /etc/profile; ${USERNAME}@${HPC_IP} << EOF
+ssh ${USERNAME}@${HPC_IP} << EOF
+    source /etc/profile;
     echo Beginning submission log for module: ${MODULE}
-    JOBID=\$(qsub -N job-${TICKET} -o ${OUTPUT_DIRECTORY}/${MODULE}_q_submission_output.log -e ${OUTPUT_DIRECTORY}/${MODULE}_q_submission_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
+    JOBID=\$(qsub -N job-${TICKET} -o ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_output.log -e ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
     echo Job Id: \$JOBID
     qsub -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE}_module_cleanup.log -e ${MODULE}_module_cleanup.log -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
 EOF
