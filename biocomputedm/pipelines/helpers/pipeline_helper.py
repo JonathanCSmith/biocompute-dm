@@ -199,7 +199,6 @@ def execute_pipeline_instance(app, pid="", oid=""):
                         directory_path = os.path.join(utils.get_path("submission_data", "hpc"), oid)
                         writer = csv.writer(csvfile)
                         filepaths = next(os.walk(directory_path))
-                        files = []
                         for file in filepaths[1]:
                             writer.writerow(
                                     [
@@ -243,11 +242,11 @@ def execute_pipeline_instance(app, pid="", oid=""):
                 if value.option.user_interaction_type == "library":
                     # TODO: input actual library path for webserver
                     result = value.value
-                    vstring += marker + "=\"" + result + "\","
+                    vstring += marker + "=" + result + ","
 
                 else:
                     result = value.value
-                    vstring += marker + "=\"" + result + "\","
+                    vstring += marker + "=" + result + ","
 
             if len(vstring) != 0:
                 vstring = vstring[:-1]
