@@ -23,6 +23,16 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 echo "Beginning runtime arguments parsing..."
 EXECUTION_VARIABLES=""
 
+# Necessary information
+EXECUTION_VARIABLES+=" --input-dir ${DATA_INPUT_DIRECTORY}"
+EXECUTION_VARIABLES+=" --output_dir ${DATA_OUTPUT_DIRECTORY}"
+EXECUTION_VARIABLES+=" --runfolder-dir ${MODULE_OUTPUT_DIRECTORY}"
+
+echo "sample_sheet = ${sample_sheet}"
+if [ "${sample_sheet}" != "SampleSheet.csv" ]; then
+    EXECUTION_VARIABLES+=" --sample-sheet ${sample_sheet}"
+fi
+
 echo "create_fastq_index = ${create_fastq_index}"
 if [ "${create_fastq_index}" != "False" ]; then
     EXECUTION_VARIABLES+=" --create-fastq-for-index-reads"
@@ -88,22 +98,11 @@ if [ "${base_mask}" != "False" ]; then
     done
 fi
 
-EXECUTION_VARIABLES+="
-    --input-dir ${DATA_INPUT_DIRECTORY} \
-    --output_dir ${DATA_OUTPUT_DIRECTORY} \
-    --runfolder-dir ${MODULE_OUTPUT_DIRECTORY} \
-    --sample-sheet ${sample_sheet} \
-    --loading_threads 2 \
-    --demultiplexing_threads 4 \
-    --processsing_threads 8 \
-    --writing_threads 2 \
-    --adapter_stringency ${adapter_stringency} \
-    --aggregated-tiles ${aggregated_tiles} \
-    --barcode-mismatches ${barcode_mismatches} \
-    --mininmum-trimmed-read-length ${minimum_read_length} \
-    --mask-short-adapter-reads ${masked_adapter_read_length} \
-    --fastq-compression-level ${compression_level} \
-"
+# Has safe defaults
+EXECUTION_VARIABLES+=" --adapter_stringency \"${adapter_stringency} --aggregated-tiles ${aggregated_tiles} --barcode-mismatches ${barcode_mismatches} --mininmum-trimmed-read-length ${minimum_read_length} --mask-short-adapter-reads ${masked_adapter_read_length} --fastq-compression-level ${compression_level}"
+
+# Don't allow the user to change these just yet
+EXECUTION_VARIABLES+=" --loading_threads 2 --demultiplexing_threads 4 --processsing_threads 8 --writing_threads 2"
 
 echo "Calculated runtime arguments: ${EXECUTION_VARIABLES}"
 # =================================== DONE BUILDING OUR EXECUTION VARIABLES! ==========================================
