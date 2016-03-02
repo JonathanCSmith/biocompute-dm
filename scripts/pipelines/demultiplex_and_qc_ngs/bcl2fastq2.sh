@@ -15,6 +15,7 @@ MODULE_OUTPUT_DIRECTORY="${module_output_directory}" # This is our output direct
 
 echo "Submission input directory: ${DATA_INPUT_DIRECTORY}"
 echo "Submission output directory: ${DATA_OUTPUT_DIRECTORY}"
+echo "Extra: ${EXTRA}"
 echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # ========================================== FINISHED BUILDING OUR IO VALUES ==========================================
 
@@ -99,10 +100,10 @@ if [ "${base_mask}" != "False" ]; then
 fi
 
 # Has safe defaults
-EXECUTION_VARIABLES+=" --adapter-stringency ${adapter_stringency} --aggregated-tiles ${aggregated_tiles} --barcode-mismatches ${barcode_mismatches} --mininmum-trimmed-read-length ${minimum_read_length} --mask-short-adapter-reads ${masked_adapter_read_length} --fastq-compression-level ${compression_level}"
+EXECUTION_VARIABLES+=" --adapter-stringency ${adapter_stringency} --aggregated-tiles ${aggregated_tiles} --barcode-mismatches ${barcode_mismatches} --minimum-trimmed-read-length ${minimum_read_length} --mask-short-adapter-reads ${masked_adapter_read_length} --fastq-compression-level ${compression_level}"
 
 # Don't allow the user to change these just yet
-EXECUTION_VARIABLES+=" --loading-threads 2 --demultiplexing-threads 4 --processsing-threads 8 --writing-threads 2"
+EXECUTION_VARIABLES+=" --loading-threads 2 --demultiplexing-threads 4 --processing-threads 8 --writing-threads 2"
 
 echo "Calculated runtime arguments: ${EXECUTION_VARIABLES}"
 # =================================== DONE BUILDING OUR EXECUTION VARIABLES! ==========================================
