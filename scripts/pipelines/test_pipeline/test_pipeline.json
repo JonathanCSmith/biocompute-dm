@@ -42,7 +42,7 @@
           "parameter_name": "f",
           "default_value": "default.html",
           "user_interaction_type": "file",
-          "necessary": true,
+          "necessary": false,
           "description": "this is a file field"
         }
       ]

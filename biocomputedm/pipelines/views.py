@@ -181,6 +181,7 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
         pipeline_directory = os.path.join(pipeline_directory, pipeline_instance.display_key)
         utils.make_directory(pipeline_directory)
         utils.make_directory(os.path.join(pipeline_directory, "samples_output"))
+        utils.make_directory(os.path.join(pipeline_directory, "modules_output"))
 
         return redirect(url_for("pipelines.build_module_instance", pid=pipeline_instance.display_key, oid=oid, index=0))
 
@@ -220,9 +221,6 @@ def build_module_instance(pid="", oid="", index=-1):
         module_instance = PipelineModuleInstance.create(module=module, instance=pipeline_instance)
         pipeline_instance.module_instances.append(module_instance)
         pipeline_instance.save()
-        pipeline_directory = utils.get_path("pipeline_data", "webserver")
-        pipeline_directory = os.path.join(pipeline_directory, pipeline_instance.display_key)
-        utils.make_directory(os.path.join(pipeline_directory, module.name))
 
     # This is likely to occur during a page refresh
     elif len(module_instances) == index + 1:
@@ -237,14 +235,16 @@ def build_module_instance(pid="", oid="", index=-1):
         return redirect(url_for("index"))
 
     # We only want to assign values for the module we are about to generate that are absolutely necessary
+    options = []
+    default_options = []
     if pipeline_instance.options_type == "Default":
         # Retrieve the module options
         possible_options = module.options.all()
-        options = []
         for option in possible_options:
             if option.necessary:
                 options.append(option)
-                continue
+            else:
+                default_options.append(option)
 
     # We want to assign all values for the module we are about to generate
     else:
@@ -253,6 +253,13 @@ def build_module_instance(pid="", oid="", index=-1):
 
     # Handle the case where there are no options to assign to this module
     if len(options) == 0:
+        for option in default_options:
+            # Append the default option set
+            option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
+            option_value.update(value=option.default_value)
+            module_instance.option_values.append(option_value)
+            module_instance.save()
+
         index += 1
 
         # If we are out of modules to assign or we do not want to assign more information just yet
@@ -355,13 +362,7 @@ def build_module_instance(pid="", oid="", index=-1):
 
             # Add in any default fields?
             if pipeline_instance.options_type == "Default":
-                # Retrieve the module options
-                possible_options = module.options.all()
-                for option in possible_options:
-                    # Check that we wont have created this option already!
-                    if option.necessary:
-                        continue
-
+                for option in default_options:
                     # Append the default option set
                     option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
                     option_value.update(value=option.default_value)

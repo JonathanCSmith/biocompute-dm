@@ -164,121 +164,124 @@ def build(file):
 
 @async
 def execute_pipeline_instance(app, pid="", oid=""):
-    with app.app_context():
-        # Check that our objects exist
-        pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
-        if pipeline_instance is None:
-            return
+    try:
+        with app.app_context():
+            # Check that our objects exist
+            pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
+            if pipeline_instance is None:
+                return
 
-        # Check that we have a module to execute
-        from biocomputedm.pipelines.models import get_current_module_instance
-        current_module_instance = get_current_module_instance(pipeline_instance)
-        if current_module_instance is None:
-            return
+            # Check that we have a module to execute
+            from biocomputedm.pipelines.models import get_current_module_instance
+            current_module_instance = get_current_module_instance(pipeline_instance)
+            if current_module_instance is None:
+                return
 
-        # Directories
-        local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"),
-                                                pipeline_instance.display_key)
-        remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
-        local_csv_path = os.path.join(local_pipeline_directory, "data_map.csv")
-        csv_path = os.path.join(remote_pipeline_directory, "data_map.csv")
+            # Directories
+            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"),
+                                                    pipeline_instance.display_key)
+            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
+            local_csv_path = os.path.join(local_pipeline_directory, "data_map.csv")
+            csv_path = os.path.join(remote_pipeline_directory, "data_map.csv")
 
-        # Get the object and build it's data path file - only on first module, this stays constant otherwise
-        if pipeline_instance.current_execution_index == 0:
-            # Make the directories
-            samples_output_directory = os.path.join(remote_pipeline_directory, "samples_output")
-            utils.make_directory(samples_output_directory)
+            # Get the object and build it's data path file - only on first module, this stays constant otherwise
+            if pipeline_instance.current_execution_index == 0:
+                samples_output_directory = os.path.join(remote_pipeline_directory, "samples_output")
 
-            import csv
-            if pipeline_instance.pipeline.type == "I":
+                import csv
+                if pipeline_instance.pipeline.type == "I":
 
-                o = Submission.query.filter_by(display_key=oid).first()
-                if o is None:
-                    return
+                    o = Submission.query.filter_by(display_key=oid).first()
+                    if o is None:
+                        return
 
-                # Build the csv
-                with open(local_csv_path, "a", newline="") as csvfile:
-                    writer = csv.writer(csvfile)
-                    writer.writerow(
-                            [
-                                oid,
-                                os.path.join(utils.get_path("submission_data", "hpc"), oid),
-                                samples_output_directory
-                            ])
-
-            else:
-                o = SampleGroup.query.filter_by(display_key=oid).first()
-                if o is None:
-                    return
-
-                # Build the csv
-                with open(local_csv_path, "a", newline="") as csvfile:
-                    writer = csv.writer(csvfile)
-                    for sample in o.samples.query.all():
-                        sample_output_directory = os.path.join(samples_output_directory, sample.display_key)
-                        utils.make_directory(sample_output_directory)
-
+                    # Build the csv
+                    with open(local_csv_path, "a", newline="") as csvfile:
+                        writer = csv.writer(csvfile)
                         writer.writerow(
                                 [
-                                    sample.display_key,
-                                    os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                                    sample_output_directory
-                                ]
-                        )
+                                    oid,
+                                    os.path.join(utils.get_path("submission_data", "hpc"), oid),
+                                    samples_output_directory
+                                ])
 
-        # Build variables string
-        vstring = ""
-        for value in current_module_instance.option_values:
-            marker = value.option.parameter_name
-            if value.option.user_interaction_type == "library":
-                # TODO: input actual library path for webserver
-                result = value.value
-                vstring += marker + "=\"" + result + "\","
+                else:
+                    o = SampleGroup.query.filter_by(display_key=oid).first()
+                    if o is None:
+                        return
 
+                    # Build the csv
+                    with open(local_csv_path, "a", newline="") as csvfile:
+                        writer = csv.writer(csvfile)
+                        for sample in o.samples.query.all():
+                            sample_output_directory = os.path.join(samples_output_directory, sample.display_key)
+                            utils.make_directory(sample_output_directory)
+
+                            writer.writerow(
+                                    [
+                                        sample.display_key,
+                                        os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
+                                        sample_output_directory
+                                    ]
+                            )
+
+            # Build variables string
+            vstring = ""
+            for value in current_module_instance.option_values:
+                marker = value.option.parameter_name
+                if value.option.user_interaction_type == "library":
+                    # TODO: input actual library path for webserver
+                    result = value.value
+                    vstring += marker + "=\"" + result + "\","
+
+                else:
+                    result = value.value
+                    vstring += marker + "=\"" + result + "\","
+
+            if len(vstring) != 0:
+                vstring = vstring[:-1]
+
+            # Submit module w/ options into HPC - note the cwd
+            shell_path = os.path.join(utils.get_path("scripts", "webserver"), "jobs")
+            cleanup_script_path = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "jobs"), "cleanup.sh")
+            if current_app.config["HPC_DEBUG"] == "False":
+                shell_path = os.path.join(shell_path, "submit_job.sh")
+                server = current_app.config["NETWORK_PATH_TO_WEBSERVER_FROM_HPC"]
             else:
-                result = value.value
-                vstring += marker + "=\"" + result + "\","
+                shell_path = os.path.join(shell_path, "fake_submit_job.sh")
+                server = current_app.config["LOCAL_WEBSERVER_PORT"]
 
-        if len(vstring) != 0:
-            vstring = vstring[:-1]
+            local_modules_output_directory = os.path.join(local_pipeline_directory, "modules_output")
+            local_module_directory = os.path.join(local_modules_output_directory, current_module_instance.module.name)
+            utils.make_directory(local_module_directory)
 
-        # Submit module w/ options into HPC - note the cwd
-        shell_path = os.path.join(utils.get_path("scripts", "webserver"), "jobs")
-        cleanup_script_path = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "jobs"), "cleanup.sh")
-        if current_app.config["HPC_DEBUG"] == "False":
-            shell_path = os.path.join(shell_path, "submit_job.sh")
-            server = current_app.config["NETWORK_PATH_TO_WEBSERVER_FROM_HPC"]
-        else:
-            shell_path = os.path.join(shell_path, "fake_submit_job.sh")
-            server = current_app.config["LOCAL_WEBSERVER_PORT"]
+            remote_modules_output_directory = os.path.join(remote_pipeline_directory, "modules_output")
+            remote_module_directory = os.path.join(remote_modules_output_directory, current_module_instance.module.name)
 
-        executor_path = current_module_instance.module.executor
-        local_module_directory = os.path.join(local_pipeline_directory, current_module_instance.module.name)
-        modules_output_directory = os.path.join(remote_pipeline_directory, "modules_output")
-        utils.make_directory(modules_output_directory)
-        remote_module_directory = os.path.join(modules_output_directory, current_module_instance.module.name)
-        utils.make_directory(remote_module_directory)
-        with open(os.path.join(local_module_directory, "job_submission_out.log"), "wb") as out, \
-                open(os.path.join(local_module_directory, "job_submission_error.log"), "wb") as err:
-            subprocess.Popen(
-                    [
-                        shell_path,
-                        "-u=" + current_app.config["HPC_USERNAME"],
-                        "-h=" + current_app.config["NETWORK_PATH_TO_HPC_FROM_WEBSERVER"],
-                        "-m=" + current_module_instance.module.name,
-                        "-t=" + current_module_instance.display_key,
-                        "-e=" + executor_path,
-                        "-l=" + local_module_directory,
-                        "-w=" + remote_pipeline_directory,
-                        "-o=" + remote_module_directory,
-                        "-i=" + csv_path,
-                        "-v=" + vstring,
-                        "-c=" + cleanup_script_path,
-                        "-s=" + server
-                    ],
-                    stdout=out,
-                    stderr=err
-            )
+            with open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_out.log"), "wb") as out, \
+                    open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_error.log"), "wb") as err:
+                subprocess.Popen(
+                        [
+                            shell_path,
+                            "-u=" + current_app.config["HPC_USERNAME"],
+                            "-h=" + current_app.config["NETWORK_PATH_TO_HPC_FROM_WEBSERVER"],
+                            "-m=" + current_module_instance.module.name,
+                            "-t=" + current_module_instance.display_key,
+                            "-e=" + current_module_instance.module.executor,
+                            "-l=" + local_module_directory,
+                            "-w=" + remote_pipeline_directory,
+                            "-o=" + remote_module_directory,
+                            "-i=" + csv_path,
+                            "-v=" + vstring,
+                            "-c=" + cleanup_script_path,
+                            "-s=" + server
+                        ],
+                        stdout=out,
+                        stderr=err
+                )
 
-        pipeline_instance.update(current_execution_status="RUNNING")
+            pipeline_instance.update(current_execution_status="RUNNING")
+            return
+    except Exception as e:
+        flash("There was an exception when executing the current pipeline: " + str(e), "error")
         return

@@ -79,8 +79,8 @@ echo Ticket Id: ${TICKET}
 echo Working Directory: ${WORKING_DIRECTORY}
 echo Variables: ${VARS}
 echo Script: ${SCRIPT_STRING}
-echo Beginning SSH
+echo "Beginning SSH"
 
-# Pingback for status
+# Pingback for status - TODO: Silence it?
 curl --form event="module_end" --form sub="${SUB_TIME}" --form stat="${START_TIME}" --form end="${END_TIME}" 127.0.0.1:${SERVER}/"message/pipelines|${TICKET}"
 echo "Job submission complete"
