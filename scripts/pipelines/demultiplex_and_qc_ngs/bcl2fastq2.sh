@@ -25,9 +25,8 @@ echo "Beginning runtime arguments parsing..."
 EXECUTION_VARIABLES=""
 
 # Necessary information
-EXECUTION_VARIABLES+=" --input-dir ${DATA_INPUT_DIRECTORY}"
 EXECUTION_VARIABLES+=" --output-dir ${DATA_OUTPUT_DIRECTORY}"
-EXECUTION_VARIABLES+=" --runfolder-dir ${MODULE_OUTPUT_DIRECTORY}"
+EXECUTION_VARIABLES+=" --runfolder-dir ${DATA_INPUT_DIRECTORY}2"  ## TODO: THIS 2 is temporary!!!!!
 
 echo "sample_sheet = ${sample_sheet}"
 if [ "${sample_sheet}" != "SampleSheet.csv" ]; then
@@ -109,6 +108,6 @@ echo "Calculated runtime arguments: ${EXECUTION_VARIABLES}"
 # =================================== DONE BUILDING OUR EXECUTION VARIABLES! ==========================================
 
 module load bioinformatics/bcl2fastq2/2.17.1.14
-bcl2fastq "${EXECUTION_VARIABLES}"
+bcl2fastq ${EXECUTION_VARIABLES}
 
 IFS="${OLDIFS}"
