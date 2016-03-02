@@ -190,20 +190,31 @@ def execute_pipeline_instance(app, pid="", oid=""):
 
                 import csv
                 if pipeline_instance.pipeline.type == "I":
-
                     o = Submission.query.filter_by(display_key=oid).first()
                     if o is None:
                         return
 
                     # Build the csv
                     with open(local_csv_path, "a", newline="") as csvfile:
+                        directory_path = os.path.join(utils.get_path("submission_data", "hpc"), oid)
                         writer = csv.writer(csvfile)
-                        writer.writerow(
-                                [
-                                    oid,
-                                    os.path.join(utils.get_path("submission_data", "hpc"), oid),
-                                    samples_output_directory
-                                ])
+                        filepaths = next(os.walk(directory_path))
+                        files = []
+                        for file in filepaths[1]:
+                            writer.writerow(
+                                    [
+                                        oid,
+                                        os.path.join(directory_path, file),
+                                        samples_output_directory
+                                    ])
+
+                        for file in filepaths[2]:
+                            writer.writerow(
+                                    [
+                                        oid,
+                                        os.path.join(directory_path, file),
+                                        samples_output_directory
+                                    ])
 
                 else:
                     o = SampleGroup.query.filter_by(display_key=oid).first()
