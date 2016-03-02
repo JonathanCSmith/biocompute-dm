@@ -242,11 +242,11 @@ def execute_pipeline_instance(app, pid="", oid=""):
                 if value.option.user_interaction_type == "library":
                     # TODO: input actual library path for webserver
                     result = value.value
-                    vstring += marker + "=" + result + ","
+                    vstring += marker + "=\"" + result + "\","
 
                 else:
                     result = value.value
-                    vstring += marker + "=" + result + ","
+                    vstring += marker + "=\"" + result + "\","
 
             if len(vstring) != 0:
                 vstring = vstring[:-1]
