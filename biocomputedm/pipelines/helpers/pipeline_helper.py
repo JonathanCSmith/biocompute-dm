@@ -202,21 +202,21 @@ def execute_pipeline_instance(app, pid="", oid=""):
                         writer = csv.writer(csvfile)
                         filepaths = next(os.walk(local_input_path))
                         for file in filepaths[1]:
-                            print(os.path.join(remote_input_path, file))
                             writer.writerow(
                                     [
                                         oid,
                                         os.path.join(remote_input_path, file),
-                                        samples_output_directory
+                                        samples_output_directory,
+                                        "EMPTY INFORMATION"
                                     ])
 
                         for file in filepaths[2]:
-                            print(os.path.join(remote_input_path, file))
                             writer.writerow(
                                     [
                                         oid,
                                         os.path.join(remote_input_path, file),
-                                        samples_output_directory
+                                        samples_output_directory,
+                                        "EMPTY INFORMATION"
                                     ])
 
                 else:
@@ -235,7 +235,8 @@ def execute_pipeline_instance(app, pid="", oid=""):
                                     [
                                         sample.display_key,
                                         os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                                        sample_output_directory
+                                        sample_output_directory,
+                                        "EMPTY INFORMATION"
                                     ]
                             )
 

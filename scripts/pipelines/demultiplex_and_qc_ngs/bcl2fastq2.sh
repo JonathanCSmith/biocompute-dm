@@ -24,13 +24,13 @@ echo "Beginning runtime arguments parsing..."
 EXECUTION_VARIABLES=""
 
 # Necessary information
-EXECUTION_VARIABLES+=" --input-dir \"${DATA_INPUT_DIRECTORY}\""
-EXECUTION_VARIABLES+=" --output-dir \"${DATA_OUTPUT_DIRECTORY}\""
-EXECUTION_VARIABLES+=" --runfolder-dir \"${MODULE_OUTPUT_DIRECTORY}\""
+EXECUTION_VARIABLES+=" --input-dir ${DATA_INPUT_DIRECTORY}"
+EXECUTION_VARIABLES+=" --output-dir ${DATA_OUTPUT_DIRECTORY}"
+EXECUTION_VARIABLES+=" --runfolder-dir ${MODULE_OUTPUT_DIRECTORY}"
 
 echo "sample_sheet = ${sample_sheet}"
 if [ "${sample_sheet}" != "SampleSheet.csv" ]; then
-    EXECUTION_VARIABLES+=" --sample-sheet \"${sample_sheet}\""
+    EXECUTION_VARIABLES+=" --sample-sheet ${sample_sheet}"
 fi
 
 echo "create_fastq_index = ${create_fastq_index}"
@@ -84,7 +84,7 @@ if [ "${tiles}" != "False" ]; then
     IFS=";" read -r -a array <<< "${tiles}"
     for field in "${array[@]}";
     do
-        EXECUTION_VARIABLES+=" --tiles \"${field}\""
+        EXECUTION_VARIABLES+=" --tiles ${field}"
     done
 fi
 
@@ -94,12 +94,12 @@ if [ "${base_mask}" != "False" ]; then
     IFS=";" read -r -a array <<< "${base_mask}"
     for field in "${array[@]}";
     do
-        EXECUTION_VARIABLES+=" --base-mask \"${field}\""
+        EXECUTION_VARIABLES+=" --base-mask ${field}"
     done
 fi
 
 # Has safe defaults
-EXECUTION_VARIABLES+=" --adapter-stringency \"${adapter_stringency}\" --aggregated-tiles \"${aggregated_tiles}\" --barcode-mismatches \"${barcode_mismatches}\" --mininmum-trimmed-read-length \"${minimum_read_length}\" --mask-short-adapter-reads \"${masked_adapter_read_length}\" --fastq-compression-level \"${compression_level}\""
+EXECUTION_VARIABLES+=" --adapter-stringency ${adapter_stringency} --aggregated-tiles ${aggregated_tiles} --barcode-mismatches ${barcode_mismatches} --mininmum-trimmed-read-length ${minimum_read_length} --mask-short-adapter-reads ${masked_adapter_read_length} --fastq-compression-level ${compression_level}"
 
 # Don't allow the user to change these just yet
 EXECUTION_VARIABLES+=" --loading-threads 2 --demultiplexing-threads 4 --processsing-threads 8 --writing-threads 2"
