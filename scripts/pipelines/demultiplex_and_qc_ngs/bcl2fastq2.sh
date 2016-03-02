@@ -12,9 +12,16 @@ echo "Beginning demultiplexing module"
 # Note we are only interested in the first line as we are only expecting 1 folder!
 IFS=","
 COUNTER=0
-while read -r NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY
+declare DATA_INPUT_DIRECTORY
+declare DATA_OUTPUT_DIRECTORY
+while read -r NAME INPUT OUTPUT
 do
-    echo "Input file properties: ${NAME}, ${DATA_INPUT_DIRECTORY}, ${DATA_OUTPUT_DIRECTORY}"
+    if [[ ${COUNTER} -eq 0 ]]; then
+        echo "Input file properties: ${NAME}, ${INPUT}, ${OUTPUT}"
+        let DATA_INPUT_DIRECTORY=${INPUT}
+        let DATA_OUTPUT_DIRECTORY=${OUTPUT}
+        let ${COUNTER}=${COUNTER}+1
+    fi
 done < <(head -n 1 "${samples}")
 MODULE_OUTPUT_DIRECTORY="${module_output_directory}" # This is our output directory for display module specific stuffz
 
@@ -27,39 +34,39 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # =========================================== BUILD OUR EXECUTION VARIABLES! ==========================================
 echo "Beginning runtime arguments parsing..."
 EXECUTION_VARIABLES=""
-if [[ ${create_fastq_index} ]]; then
+if [[ ${create_fastq_index} == "False" ]]; then
     EXECUTION_VARIABLES+=" --create-fastq-for-index-reads"
 fi
 
-if [[ ${ignore_missing_bcl} ]]; then
+if [[ ${ignore_missing_bcl} == "False" ]]; then
     EXECUTION_VARIABLES+=" --ignore-missing-bcls"
 fi
 
-if [[ ${ignore_missing_filter} ]]; then
+if [[ ${ignore_missing_filter} == "False" ]]; then
     EXECUTION_VARIABLES+=" --ignore-missing-filter"
 fi
 
-if [[ ${ignore_missing_positions} ]]; then
+if [[ ${ignore_missing_positions} == "False" ]]; then
     EXECUTION_VARIABLES+=" --ignore-missing-positions"
 fi
 
-if [[ ${with_failed_reads} ]]; then
+if [[ ${with_failed_reads} == "False" ]]; then
     EXECUTION_VARIABLES+=" --with-failed-reads"
 fi
 
-if [[ ${write-rev-comp} ]]; then
+if [[ ${write-rev-comp} == "False" ]]; then
     EXECUTION_VARIABLES+=" --write-fastq-reverse-complement"
 fi
 
-if [[ ${no_compression} ]]; then
+if [[ ${no_compression} == "False" ]]; then
     EXECUTION_VARIABLES+=" --no-bgzf-compression"
 fi
 
-if [[ ${no_lane_splitting} ]]; then
+if [[ ${no_lane_splitting} == "False" ]]; then
     EXECUTION_VARIABLES+=" --no-lane-splitting"
 fi
 
-if [[ ${find_adapters_using_sliding_window} ]]; then
+if [[ ${find_adapters_using_sliding_window} == "False" ]]; then
     EXECUTION_VARIABLES+=" --find-adapters-with-sliding-window"
 fi
 
