@@ -202,6 +202,7 @@ def execute_pipeline_instance(app, pid="", oid=""):
                         writer = csv.writer(csvfile)
                         filepaths = next(os.walk(local_input_path))
                         for file in filepaths[1]:
+                            print(os.path.join(remote_input_path, file))
                             writer.writerow(
                                     [
                                         oid,
@@ -210,6 +211,7 @@ def execute_pipeline_instance(app, pid="", oid=""):
                                     ])
 
                         for file in filepaths[2]:
+                            print(os.path.join(remote_input_path, file))
                             writer.writerow(
                                     [
                                         oid,
