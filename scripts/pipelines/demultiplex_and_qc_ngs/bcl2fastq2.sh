@@ -10,7 +10,7 @@ OLDIFS=${IFS}
 echo "Beginning demultiplexing module"
 
 # Note we are only interested in the first line as we are only expecting 1 folder!
-IFS="," read NAME INPUT OUTPUT < <(sed -n 1p < "${samples}")
+IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY < <(sed -n 1p < "${samples}")
 MODULE_OUTPUT_DIRECTORY="${module_output_directory}" # This is our output directory for display module specific stuffz
 
 echo "Submission input directory: ${DATA_INPUT_DIRECTORY}"
