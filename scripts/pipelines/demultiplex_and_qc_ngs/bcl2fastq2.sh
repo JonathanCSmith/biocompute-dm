@@ -10,7 +10,7 @@ OLDIFS="${IFS}"
 echo "Beginning demultiplexing module"
 
 # Note we are only interested in the first line as we are only expecting 1 folder!
-IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY < <(sed -n 1p < "${samples}")
+IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${samples}")
 MODULE_OUTPUT_DIRECTORY="${module_output_directory}" # This is our output directory for display module specific stuffz
 
 echo "Submission input directory: ${DATA_INPUT_DIRECTORY}"
@@ -99,7 +99,7 @@ if [ "${base_mask}" != "False" ]; then
 fi
 
 # Has safe defaults
-EXECUTION_VARIABLES+=" --adapter_stringency \"${adapter_stringency} --aggregated-tiles ${aggregated_tiles} --barcode-mismatches ${barcode_mismatches} --mininmum-trimmed-read-length ${minimum_read_length} --mask-short-adapter-reads ${masked_adapter_read_length} --fastq-compression-level ${compression_level}"
+EXECUTION_VARIABLES+=" --adapter_stringency ${adapter_stringency} --aggregated-tiles ${aggregated_tiles} --barcode-mismatches ${barcode_mismatches} --mininmum-trimmed-read-length ${minimum_read_length} --mask-short-adapter-reads ${masked_adapter_read_length} --fastq-compression-level ${compression_level}"
 
 # Don't allow the user to change these just yet
 EXECUTION_VARIABLES+=" --loading_threads 2 --demultiplexing_threads 4 --processsing_threads 8 --writing_threads 2"
