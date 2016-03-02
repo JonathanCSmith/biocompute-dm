@@ -108,9 +108,9 @@ echo "Beginning SSH"
 ssh ${USERNAME}@${HPC_IP} << EOF
     source /etc/profile;
     echo Beginning submission log for module: ${MODULE}
-    JOBID=\$(qsub -N job-${TICKET} -o ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_output.log -e ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -N job-${TICKET} -o ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_output.log -e ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
     echo Job Id: \$JOBID
-    qsub -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE}_module_cleanup.log -e ${MODULE}_module_cleanup.log -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
+    qsub -V -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE}_module_cleanup.log -e ${MODULE}_module_cleanup.log -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
 EOF
 
 echo "Job submission complete"
