@@ -196,14 +196,16 @@ def execute_pipeline_instance(app, pid="", oid=""):
 
                     # Build the csv
                     with open(local_csv_path, "a", newline="") as csvfile:
-                        directory_path = os.path.join(utils.get_path("submission_data", "hpc"), oid)
+                        remote_input_path = os.path.join(utils.get_path("submission_data", "hpc"), oid)
+                        local_input_path = os.path.join(utils.get_path("submission_data", "webserver"), oid)
+
                         writer = csv.writer(csvfile)
-                        filepaths = next(os.walk(directory_path))
+                        filepaths = next(os.walk(local_input_path))
                         for file in filepaths[1]:
                             writer.writerow(
                                     [
                                         oid,
-                                        os.path.join(directory_path, file),
+                                        os.path.join(remote_input_path, file),
                                         samples_output_directory
                                     ])
 
@@ -211,7 +213,7 @@ def execute_pipeline_instance(app, pid="", oid=""):
                             writer.writerow(
                                     [
                                         oid,
-                                        os.path.join(directory_path, file),
+                                        os.path.join(remote_input_path, file),
                                         samples_output_directory
                                     ])
 
