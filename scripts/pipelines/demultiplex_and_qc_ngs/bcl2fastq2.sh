@@ -102,6 +102,6 @@ echo "Calculated runtime arguments: ${EXECUTION_VARIABLES}"
 # =================================== DONE BUILDING OUR EXECUTION VARIABLES! ==========================================
 
 module load bioinformatics/bcl2fastq2/2.17.1.14
-bcl2fastq2 "${EXECUTION_VARIABLES}"
+bcl2fastq "${EXECUTION_VARIABLES}"
 
 IFS="${OLDIFS}"
