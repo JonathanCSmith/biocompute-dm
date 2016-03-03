@@ -252,20 +252,26 @@ def submission(sid=""):
     filepaths = next(os.walk(directory_path))
     files = []
     for file in filepaths[1]:
-        s = os.stat(os.path.join(directory_path, file))
-        files.append({
-            "name": file,
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
+        try:
+            s = os.stat(os.path.join(directory_path, file))
+            files.append({
+                "name": file,
+                "size": s.st_size,
+                "date": time.ctime(s.st_ctime)
+            })
+        except:
+            pass
 
     for file in filepaths[2]:
-        s = os.stat(os.path.join(directory_path, file))
-        files.append({
-            "name": file,
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
+        try:
+            s = os.stat(os.path.join(directory_path, file))
+            files.append({
+                "name": file,
+                "size": s.st_size,
+                "date": time.ctime(s.st_ctime)
+            })
+        except:
+            pass
 
     # list of the available type I pipelines
     pipelines = Pipeline.query.filter_by(type="I", executable=True)

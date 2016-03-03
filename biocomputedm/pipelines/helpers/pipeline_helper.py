@@ -202,22 +202,28 @@ def execute_pipeline_instance(app, pid="", oid=""):
                         writer = csv.writer(csvfile)
                         filepaths = next(os.walk(local_input_path))
                         for file in filepaths[1]:
-                            writer.writerow(
-                                    [
-                                        oid,
-                                        os.path.join(remote_input_path, file),
-                                        samples_output_directory,
-                                        "EMPTY INFORMATION"
-                                    ])
+                            try:
+                                writer.writerow(
+                                        [
+                                            oid,
+                                            os.path.join(remote_input_path, file),
+                                            samples_output_directory,
+                                            "EMPTY INFORMATION"
+                                        ])
+                            except:
+                                pass
 
                         for file in filepaths[2]:
-                            writer.writerow(
-                                    [
-                                        oid,
-                                        os.path.join(remote_input_path, file),
-                                        samples_output_directory,
-                                        "EMPTY INFORMATION"
-                                    ])
+                            try:
+                                writer.writerow(
+                                        [
+                                            oid,
+                                            os.path.join(remote_input_path, file),
+                                            samples_output_directory,
+                                            "EMPTY INFORMATION"
+                                        ])
+                            except:
+                                pass
 
                 else:
                     o = SampleGroup.query.filter_by(display_key=oid).first()
