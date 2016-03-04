@@ -282,6 +282,7 @@ def execute_pipeline_instance(app, pid="", oid=""):
             remote_module_directory = os.path.join(remote_modules_output_directory, current_module_instance.module.name)
 
             pipeline_scripts = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"), pipeline_instance.pipeline.name)
+            pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
             with open(os.path.join(local_module_directory,
                                    current_module_instance.module.name + "_hpc_submission_out.log"), "wb") as out, \
                     open(os.path.join(local_module_directory,
@@ -297,7 +298,8 @@ def execute_pipeline_instance(app, pid="", oid=""):
                             "-l=" + local_module_directory,
                             "-p=" + pipeline_scripts,
                             "-w=" + remote_pipeline_directory,
-                            "-o=" + remote_module_directory,
+                            "-mo=" + remote_module_directory,
+                            "-po=" + pipeline_output_directory,
                             "-i=" + csv_path,
                             "-v=" + vstring,
                             "-c=" + cleanup_script_path,
