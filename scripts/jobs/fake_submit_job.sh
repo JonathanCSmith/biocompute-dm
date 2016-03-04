@@ -66,7 +66,7 @@ esac
 done
 
 # Combine the strings in a meaningful manner
-VARS="ticket=${TICKET},pipeline_source=${PIPELINE_SOURCE_DIRECTORY},samples=${INPUTS_STRING}"
+VARS="USERNAME=${USERNAME},HPC_IP=${HPC_IP},TICKET=${TICKET},PIPELINE_SOURCE=${PIPELINE_SOURCE_DIRECTORY},SAMPLE_CSV=${INPUTS_STRING},PIPELINE_OUTPUT_DIRECTORY=${PIPELINE_OUTPUT_DIRECTORY},MODULE_OUTPUT_DIRECTORY=${MODULE_OUTPUT_DIRECTORY}"
 if [ "${VARIABLES_STRING}" ]; then
     VARS="${VARS},${VARIABLES_STRING}"
 fi
@@ -74,13 +74,14 @@ fi
 # Good logging
 echo "Current: ${PWD}"
 echo "Pipeline: ${WORKING_DIRECTORY}"
-echo Module to Submit: ${MODULE}
-echo Ticket Id: ${TICKET}
-echo Working Directory: ${WORKING_DIRECTORY}
-echo Variables: ${VARS}
-echo Script: ${SCRIPT_STRING}
+echo "Module to Submit: ${MODULE}"
+echo "Ticket Id: ${TICKET}"
+echo "Working Directory: ${WORKING_DIRECTORY}"
+echo "Variables: ${VARS}"
+echo "Script: ${SCRIPT_STRING}"
 echo "Beginning SSH"
 
 # Pingback for status - TODO: Silence it?
-curl --form event="module_end" --form sub="${SUB_TIME}" --form stat="${START_TIME}" --form end="${END_TIME}" 127.0.0.1:${SERVER}/"message/pipelines|${TICKET}"
+bash ${SCRIPT_STRING} "${INPUTS_STRING}"
+curl --silent --form event="module_end" --form sub="${SUB_TIME}" --form stat="${START_TIME}" --form end="${END_TIME}" 127.0.0.1:${SERVER}/"message/pipelines|${TICKET}"
 echo "Job submission complete"

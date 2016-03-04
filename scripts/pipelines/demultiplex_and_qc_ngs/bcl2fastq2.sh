@@ -10,8 +10,7 @@ OLDIFS="${IFS}"
 echo "Beginning demultiplexing module"
 
 # Note we are only interested in the first line as we are only expecting 1 folder!
-IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${samples}")
-MODULE_OUTPUT_DIRECTORY="${module_output_directory}" # This is our output directory for display module specific stuffz
+IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${SAMPLE_CSV}")
 
 echo "Submission input directory: ${DATA_INPUT_DIRECTORY}"
 echo "Submission output directory: ${DATA_OUTPUT_DIRECTORY}"
@@ -27,6 +26,8 @@ EXECUTION_VARIABLES=""
 # Necessary information
 EXECUTION_VARIABLES+=" --output-dir ${DATA_OUTPUT_DIRECTORY}"
 EXECUTION_VARIABLES+=" --runfolder-dir ${DATA_INPUT_DIRECTORY}2"  ## TODO: THIS 2 is temporary!!!!!
+EXECUTION_VARIABLES+=" --reports-dir ${MODULE_OUTPUT_DIRECTORY}"
+EXECUTION_VARIABLES+=" --stats-dir ${MODULE_OUTPUT_DIRECTORY}"
 
 echo "sample_sheet = ${sample_sheet}"
 if [ "${sample_sheet}" != "SampleSheet.csv" ]; then

@@ -3,10 +3,17 @@ from biocomputedm.extensions import db
 from biocomputedm.pipelines.models import PipelineInstance
 from flask.ext.login import current_user
 
+pipeline_instance_association_table = Table("PipelineGrouping",
+                                            Column("pipeline_instance_id", Integer, ForeignKey("PipelineInstance.id")),
+                                            Column("sample_id", Integer, ForeignKey("Sample.id")))
+
+sample_grouping_association_table = Table("SampleGrouping",
+                                          Column("sample_group_id", Integer, ForeignKey("SampleGroup.id")),
+                                          Column("sample_id", Integer, ForeignKey("Sample.id")))
+
 
 class DataSource(SurrogatePK, Model):
-    current_pipeline = relationship(PipelineInstance, uselist=False, backref="data_source")
-    past_pipelines = relationship(PipelineInstance)
+    current_pipeline = relationship(PipelineInstance, uselist=False, backref="current_data_source")
     type = Column(String(50), nullable=False)
 
     __tablename__ = "DataSource"
@@ -38,34 +45,70 @@ class Submission(DataSource):
 
 def get_submissions_query_by_user():
     if current_user.is_authenticated:
-        return Submission.query.filter_by(submitter=current_user).filter_by(validated=True)
+        return current_user.group.submissions.filter_by(validated=True)
 
-
-sample_grouping_association_table = Table("sample_grouping",
-                                          Column("sample_group_id", Integer, ForeignKey("SampleGroup.id")),
-                                          Column("sample_id", Integer, ForeignKey("Sample.id")))
+    return None
 
 
 class SampleGroup(DataSource):
     id = reference_col("DataSource", primary_key=True)
+    name = Column(String(50), nullable=False)
 
-    creator_id = reference_col("User")
-    group_id = reference_col("Group")
-
-    creator = relationship("User", uselist=False)
-    group = relationship("Group", uselist=False)
+    creator_id = reference_col("User", nullable=True)
+    group_id = reference_col("Group", nullable=True)
 
     __tablename__ = "SampleGroup"
     __mapper_args__ = {"polymorphic_identity": "SampleGroup", "inherit_condition": (id == DataSource.id)}
 
-    def __init__(self, creator, group):
-        DataSource.__init__(self, creator=creator, group=group)
+    def __init__(self, name, creator, group):
+        DataSource.__init__(self, name=name)
+        creator.sample_groups.append(self)
+        creator.update()
+        group.sample_groups.append(self)
+        group.update()
 
     def __repr__(self):
         return "<SampleGroup created by %s for %s>" % (self.creator.name, self.group.name)
 
 
+def get_sample_groups_query_by_user():
+    if current_user.is_authenticated:
+        return current_user.group.sample_groups
+
+    return None
+
+
 class Sample(SurrogatePK, Model):
-    sample_groups = relationship("SampleGroup", secondary=sample_grouping_association_table, backref="samples")
+    name = Column(String(50), nullable=False)
+
+    user_id = reference_col("User", nullable=True)
+    group_id = reference_col("Group", nullable=True)
+    submission_source_id = reference_col("Submission", nullable=True)
+    pipeline_source_id = reference_col("PipelineInstance", nullable=True)
+
+    submission_source = relationship("Submission", uselist=False)
+    pipeline_source = relationship("PipelineInstance", uselist=False)
+    sample_groups = relationship("SampleGroup", secondary=sample_grouping_association_table, lazy="dynamic", backref=backref("samples", lazy="dynamic"))
+    pipeline_runs = relationship("PipelineInstance", secondary=pipeline_instance_association_table, lazy="dynamic", backref=backref("samples", lazy="dynamic"))
 
     __tablename__ = "Sample"
+
+    def __init__(self, name, submission, pipeline):
+        db.Model.__init__(self, name=name)
+        self.submission_source = submission
+        self.pipeline_source = pipeline
+        self.save()
+
+        pipeline.user.samples.append(self)
+        pipeline.user.group.samples.append(self)
+        pipeline.save()
+
+    def __repr__(self):
+        return "<Sample name: %s>" % self.name
+
+
+def get_samples_query_by_user():
+    if current_user.is_authenticated:
+        return current_user.group.samples
+
+    return None

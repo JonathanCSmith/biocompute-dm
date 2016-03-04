@@ -88,11 +88,11 @@
                     {% for stage in submission.current_pipeline.pipeline.modules %}
                     {% if loop.last %}
                     {% if submission.current_pipeline.current_execution_status == "WAITING" %}
-                    <td class="resize img1 bg1">{{ stage.name }}</td>
+                    <td class="resize img1 bg3">{{ stage.name }}</td>
                     {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
-                    <td class="resize img1 bg2">{{ stage.name }}</td>
+                    <td class="resize img1 bg1">{{ stage.name }}</td>
                     {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
-                    <td class="resize img2 bg3">{{ stage.name }}</td>
+                    <td class="resize img2 bg2">{{ stage.name }}</td>
                     {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
                     <td class="resize img1 bg4">{{ stage.name }}</td>
                     {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
@@ -100,11 +100,11 @@
                     {% endif %}
                     {% else %}
                     {% if submission.current_pipeline.current_execution_status == "WAITING" %}
-                    <td class="resize img2 bg1">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
-                    <td class="resize img2 bg2">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
                     <td class="resize img2 bg3">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
+                    <td class="resize img2 bg1">{{ stage.name }}</td>
+                    {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
+                    <td class="resize img2 bg2">{{ stage.name }}</td>
                     {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
                     <td class="resize img2 bg4">{{ stage.name }}</td>
                     {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}

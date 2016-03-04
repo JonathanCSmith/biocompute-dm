@@ -172,6 +172,20 @@
           "description": "Find adapters with simple sliding window algorithm. Insertions and deletions of bases inside the adapter sequence are not handled"
         }
       ]
+    },
+
+    {
+      "name": "FastQC",
+      "description": "Performs fastqc report generation",
+      "executor": "fastqc.sh",
+      "options": []
+    },
+
+    {
+      "name": "Cleanup",
+      "description": "Directory cleanup for sample submission",
+      "executor": "cleaner.sh",
+      "options": []
     }
   ]
 }

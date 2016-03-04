@@ -10,15 +10,14 @@ class Group(SurrogatePK, Model):
     name = Column(String(50), unique=True, nullable=False)
 
     members = relationship("Person", backref="group", lazy="dynamic")
-    submissions = relationship("Submission", backref="group", lazy="dynamic")
-    pipeline_instances = relationship("PipelineInstance", lazy="dynamic")
+    submissions = relationship("Submission", lazy="dynamic", backref="group")
+    pipeline_instances = relationship("PipelineInstance", lazy="dynamic", backref="pipelines")
+    samples = relationship("Sample", lazy="dynamic", backref="group")
+    sample_groups = relationship("SampleGroup", lazy="dynamic", backref="group")
 
     # # TODO: CHANGE
     # investigation = db.RelationshipProperty("Investigation", backref="group", lazy="dynamic")
     # document = db.RelationshipProperty("Document", backref="group", lazy="dynamic")
-    # submission = db.RelationshipProperty("Submission", backref="group", lazy="dynamic")
-    # sample_group = db.RelationshipProperty("SampleGroup", backref="group", lazy="dynamic")
-    # sample = db.RelationshipProperty("Sample", backref="group", lazy="dynamic")
 
     __tablename__ = "Group"
 
@@ -102,11 +101,8 @@ class User(Person):
     id = reference_col("Person", primary_key=True)
 
     submissions = relationship("Submission", backref="submitter", lazy="dynamic")
-
-    # TODO: Change
-    # submission = db.RelationshipProperty("Submission", backref="submitter", lazy="dynamic")
-    # sample_group = db.RelationshipProperty("SampleGroup", backref="submitter", lazy="dynamic")
-    # sample = db.RelationshipProperty("Sample", backref="submitter", lazy="dynamic")
+    samples = relationship("Sample", backref="creator", lazy="dynamic")
+    sample_groups = relationship("SampleGroup", backref="creator", lazy="dynamic")
 
     __tablename__ = "User"
     __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Person.id)}

@@ -38,42 +38,64 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Module Information</h3>
+        <h3>Module Information - Select a Module for More Information.</h3>
 
         <table class="table-resize">
             <tr>
                 <td></td>
-                {% for stage in pipeline_instance.pipeline.modules %}
+                {% for module_instance in pipeline_instance.module_instances %}
                 {% if loop.last %}
                 {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td class="resize img1 bg3">{{ stage.name }}</td>
+                <td class="resize img1 bg3">
                 {% elif pipeline_instance.current_execution_status == "RUNNING" %}
-                <td class="resize img1 bg1">{{ stage.name }}</td>
+                <td class="resize img1 bg1">
                 {% elif pipeline_instance.current_execution_status == "FINISHED" %}
-                <td class="resize img2 bg2">{{ stage.name }}</td>
+                <td class="resize img2 bg2">
                 {% elif pipeline_instance.current_execution_status == "ERROR" %}
-                <td class="resize img1 bg4">{{ stage.name }}</td>
+                <td class="resize img1 bg4">
                 {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
-                <td class="resize img1 bg5">{{ stage.name }}</td>
+                <td class="resize img1 bg5">
                 {% endif %}
                 {% else %}
                 {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td class="resize img2 bg3">{{ stage.name }}</td>
+                <td class="resize img2 bg3">
                 {% elif pipeline_instance.current_execution_status == "RUNNING" %}
-                <td class="resize img2 bg1">{{ stage.name }}</td>
+                <td class="resize img2 bg1">
                 {% elif pipeline_instance.current_execution_status == "FINISHED" %}
-                <td class="resize img2 bg2">{{ stage.name }}</td>
+                <td class="resize img2 bg2">
                 {% elif pipeline_instance.current_execution_status == "ERROR" %}
-                <td class="resize img2 bg4">{{ stage.name }}</td>
+                <td class="resize img2 bg4">
                 {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
-                <td class="resize img2 bg5">{{ stage.name }}</td>
+                <td class="resize img2 bg5">
                 {% endif %}
                 {% endif %}
+
+                    <a style="display: block;" href="{{ url_for('pipelines.module_instance', oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
+                </td>
                 {% endfor %}
+
                 <td></td>
             </tr>
         </table>
     </div>
+
+    {% if pipeline_instance.current_execution_status != "NOT_STARTED" %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Pipeline Data</h3>
+
+        {% include "data_viewer.html" %}
+    </div>
+    {% endif %}
+
+    {% if pipeline_instance.current_execution_status == "FINISHED" %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Generated Sample Data - Select a Sample for More Information</h3>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 

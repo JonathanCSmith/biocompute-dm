@@ -7,11 +7,14 @@
         <th>Submission Description</th>
     </tr>
 
+    {% if obs %}
     {% for submission in obs.items %}
     <tr>
         <td><a href="{{ url_for('manage.submission', sid=submission.display_key) }}">{{ submission.name }}</a></td>
         <td>{{ submission.description }}</td>
     </tr>
     {% endfor %}
+    {% endif %}
+
 </table>
 {% endblock %}

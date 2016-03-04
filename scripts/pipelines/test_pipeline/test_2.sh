@@ -1,16 +1,28 @@
 #!/usr/bin/env bash
-echo "samples: '${samples}'"
-echo "T: '${T}'"
-echo "B: '${B}'"
-echo "L: '${L}'"
 
-# TODO Read samples and build an output file
-INPUT="${samples}"
-IFS=,
-[ ! -f ${INPUT} ] && { echo "${INPUT} file not found"; exit 99; }
-while read id source out
+OLDIFS="${IFS}"
+
+# ================================================= BUILD OUR IO VALUES ===============================================
+echo "Beginning demultiplexing module"
+
+# Note we are only interested in the first line as we are only expecting 1 folder!
+IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${1}")
+
+echo "Submission input directory: ${DATA_INPUT_DIRECTORY}"
+echo "Submission output directory: ${DATA_OUTPUT_DIRECTORY}"
+echo "Extra: ${EXTRA}"
+echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
+# ========================================== FINISHED BUILDING OUR IO VALUES ==========================================
+
+for id in `seq 1 10`;
 do
-    outfile="${out}//${id}.txt"
-    echo "test_data" > outfile
+    output_dir="${DATA_OUTPUT_DIRECTORY}//${id}"
+    mkdir "${output_dir}"
+
+    outfile="${output_dir}//${id}.txt"
+    echo "test_data" > "${outfile}"
+
     echo "placed fake data at: ${outfile}"
-done < ${INPUT}
+done
+
+IFS="${OLDIFS}"

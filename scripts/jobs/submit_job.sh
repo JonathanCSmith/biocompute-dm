@@ -53,8 +53,14 @@ case ${i} in
     ;;
 
     # Output directory for this module's displayable output
-    -o=*)
-    OUTPUT_DIRECTORY="${i#*=}"
+    -mo=*)
+    MODULE_OUTPUT_DIRECTORY="${i#*=}"
+    shift
+    ;;
+
+    # Output directory for this pipeline's displayable output
+    -po=*)
+    PIPELINE_OUTPUT_DIRECTORY="${i#*=}"
     shift
     ;;
 
@@ -89,7 +95,7 @@ esac
 done
 
 # Combine the strings in a meaningful manner
-VARS="ticket=${TICKET},pipeline_source=${PIPELINE_SOURCE_DIRECTORY},samples=${INPUTS_STRING},module_output_directory=${OUTPUT_DIRECTORY}"
+VARS="USERNAME=${USERNAME},HPC_IP=${HPC_IP},TICKET=${TICKET},PIPELINE_SOURCE=${PIPELINE_SOURCE_DIRECTORY},SAMPLE_CSV=${INPUTS_STRING},PIPELINE_OUTPUT_DIRECTORY=${PIPELINE_OUTPUT_DIRECTORY},MODULE_OUTPUT_DIRECTORY=${MODULE_OUTPUT_DIRECTORY}"
 if [ "${VARIABLES_STRING}" ]; then
     VARS="${VARS},${VARIABLES_STRING}"
 fi
@@ -99,7 +105,7 @@ echo "Current: ${PWD}"
 echo "Pipeline: ${WORKING_DIRECTORY}"
 echo "Module to Submit: ${MODULE}"
 echo "Ticket Id: ${TICKET}"
-echo "Working Directory: ${OUTPUT_DIRECTORY}"
+echo "Working Directory: ${MODULE_OUTPUT_DIRECTORY}"
 echo "Variables: ${VARS}"
 echo "Script: ${SCRIPT_STRING}"
 echo "Beginning SSH"
@@ -108,9 +114,9 @@ echo "Beginning SSH"
 ssh ${USERNAME}@${HPC_IP} << EOF
     source /etc/profile;
     echo Beginning submission log for module: ${MODULE}
-    JOBID=\$(qsub -V -N job-${TICKET} -o ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_output.log -e ${OUTPUT_DIRECTORY}//${MODULE}_q_submission_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -N job-${TICKET} -o ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_q_submission_output.log -e ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_q_submission_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
     echo Job Id: \$JOBID
-    qsub -V -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE}_module_cleanup.log -e ${MODULE}_module_cleanup.log -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
+    qsub -V -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_module_cleanup.log -e ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_module_cleanup.log -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
 EOF
 
 echo "Job submission complete"

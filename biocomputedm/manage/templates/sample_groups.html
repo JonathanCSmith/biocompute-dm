@@ -1,0 +1,24 @@
+{% extends "table.html" %}
+{% block table %}
+<h3>Samples</h3>
+<table class="content">
+    <tr>
+        <th>Name</th>
+        <th>Creator</th>
+        <th>Group</th>
+        <th>Number of Samples</th>
+    </tr>
+
+    {% if obs %}
+    {% for item in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('manage.sample_group', oid=item.display_key) }}">{{ item.name }}</a></td>
+        <td>{{ item.creator.username }}</td>
+        <td>{{ item.group.name }}</td>
+        <td>{{ item.samples.all()|length }}</td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+
+</table>
+{% endblock %}

@@ -5,7 +5,8 @@ import time
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
 from biocomputedm.manage import forms
-from biocomputedm.manage.models import Submission, get_submissions_query_by_user
+from biocomputedm.manage.models import Submission, get_submissions_query_by_user, get_samples_query_by_user, \
+    get_sample_groups_query_by_user
 from biocomputedm.pipelines.models import Pipeline
 from flask import Blueprint, render_template, redirect, url_for
 from flask import abort
@@ -134,6 +135,17 @@ def download():
     return redirect(url_for("empty"))
 
 
+@manage.route("/submissions/<int:page>")
+@manage.route("/submissions")
+@login_required("ANY")
+def submissions(page=1):
+    items = get_submissions_query_by_user()
+    if items is not None:
+        items = items.paginate(page=page, per_page=20)
+
+    return render_template("submissions.html", title="Submissions", page=page, obs=items)
+
+
 # Move data from landing_zone into submission (with id)
 @manage.route("/new_submission", methods=["GET", "POST"])
 @login_required("ANY")
@@ -221,15 +233,6 @@ def new_submission():
             return render_template("new_submission.html", title="New Data Submission", form=form, files=files)
 
 
-@manage.route("/submissions/<int:page>")
-@manage.route("/submissions")
-@login_required("ANY")
-def submissions(page=1):
-    s = get_submissions_query_by_user().paginate(page=page, per_page=20)
-    return render_template("submissions.html", title="My Submissions", page=page, obs=s)
-
-
-@manage.route("/submission")
 @manage.route("/submission/<sid>")
 @login_required("ANY")
 def submission(sid=""):
@@ -280,29 +283,60 @@ def submission(sid=""):
                            pipelines=pipelines)
 
 
-@manage.route("/process")
-@manage.route("/process/<sg_id>")
+@manage.route("/samples/<int:page>")
+@manage.route("/samples")
 @login_required("ANY")
-def process(sg_id=""):
-    return redirect(url_for("empty"))
+def samples(page=1):
+    items = get_samples_query_by_user()
+    if items is not None:
+        items = items.paginate(page=page, per_page=20)
+
+    return render_template("samples.html", title="Samples", page=page, obs=items)
 
 
-@manage.route("/processed")
-@manage.route("/processed/<int:page>")
+@manage.route("/sample/<oid>")
 @login_required("ANY")
-def processed(page=1):
-    return redirect(url_for("empty"))
+def sample(oid=""):
+    return abort(404)
 
 
-@manage.route("/analyse")
-@manage.route("/analyse/<sg_id>")
+@manage.route("/sample_groups/<int:page>")
+@manage.route("/sample_groups")
 @login_required("ANY")
-def analyse(sg_id=""):
-    return redirect(url_for("empty"))
+def sample_groups(page=1):
+    items = get_sample_groups_query_by_user()
+    if items is not None:
+        items = items.paginate(page=page, per_page=20)
+
+    return render_template("sample_groups.html", title="Sample Groups", page=page, obs=items)
 
 
-@manage.route("/analysed")
-@manage.route("/analysed/<int:page>")
+@manage.route("/new_sample_group")
 @login_required("ANY")
-def analysed(page=1):
-    return redirect(url_for("empty"))
+def new_sample_group():
+    return abort(404)
+
+
+@manage.route("/sample_group/<oid>")
+@login_required("ANY")
+def sample_group(oid=""):
+    return abort(404)
+
+
+@manage.route("/projects/<int:page>")
+@manage.route("/projects")
+@login_required("ANY")
+def projects(page=1):
+    return abort(404)
+
+
+@manage.route("/new_project")
+@login_required("ANY")
+def new_project():
+    return abort(404)
+
+
+@manage.route("/project/<oid>")
+@login_required("ANY")
+def project(oid=""):
+    return abort(404)

@@ -1,0 +1,24 @@
+{% extends "table.html" %}
+{% block table %}
+<h3>Samples</h3>
+<table class="content">
+    <tr>
+        <th>Sample Name</th>
+        <th>Number of Data Sets</th>
+        <th>Submission Source</th>
+        <th>Pipeline Source</th>
+    </tr>
+
+    {% if obs %}
+    {% for item in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('manage.sample', oid=item.display_key) }}">{{ item.name }}</a></td>
+        <td>{{ item.pipeline_runs.all()|length }}</td>
+        <td>{{ item.submission_source.name }}</td>
+        <td>{{ item.pipeline_source.pipeline.name }}</td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+
+</table>
+{% endblock %}

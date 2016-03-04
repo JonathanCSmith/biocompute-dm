@@ -1,5 +1,6 @@
 from biocomputedm.admin.models import User, Group
-from biocomputedm.pipelines.models import refresh_pipelines
+from biocomputedm.manage.models import SampleGroup, Sample
+from biocomputedm.pipelines.models import refresh_pipelines, Pipeline, PipelineInstance, create_pipeline_instance
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from .extensions import db, mail, login_manager
@@ -139,12 +140,12 @@ def load_defaults(app):
 
     if admin is None:
         group = Group.create(name="Site Admins")
-        user = User.create(username=app.config["SITE_ADMIN_USERNAME"], password=app.config["SITE_ADMIN_PASSWORD"],
+        admin = User.create(username=app.config["SITE_ADMIN_USERNAME"], password=app.config["SITE_ADMIN_PASSWORD"],
                            email=app.config["SITE_ADMIN_EMAIL"], group=group)
-        group.set_administrator(user)
+        group.set_administrator(admin)
         group.save()
-        user.set_role("Site Admin")
-        user.save()
+        admin.set_role("Site Admin")
+        admin.save()
 
     # Build our default pipelines
     found = refresh_pipelines()

@@ -7,10 +7,11 @@ import codecs
 import jsonschema
 from biocomputedm import utils
 from biocomputedm.decorators import async
-from biocomputedm.manage.models import Submission, SampleGroup
+from biocomputedm.manage.models import Submission, SampleGroup, Sample
 from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption, PipelineInstance
 from flask import current_app
 from flask import flash
+from flask.ext.login import current_user
 
 pipeline = \
     '''
@@ -180,7 +181,8 @@ def execute_pipeline_instance(app, pid="", oid=""):
             # Directories
             local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"),
                                                     pipeline_instance.display_key)
-            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
+            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"),
+                                                     pipeline_instance.display_key)
             local_csv_path = os.path.join(local_pipeline_directory, "data_map.csv")
             csv_path = os.path.join(remote_pipeline_directory, "data_map.csv")
 
@@ -279,8 +281,10 @@ def execute_pipeline_instance(app, pid="", oid=""):
             remote_modules_output_directory = os.path.join(remote_pipeline_directory, "modules_output")
             remote_module_directory = os.path.join(remote_modules_output_directory, current_module_instance.module.name)
 
-            with open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_out.log"), "wb") as out, \
-                    open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_error.log"), "wb") as err:
+            with open(os.path.join(local_module_directory,
+                                   current_module_instance.module.name + "_hpc_submission_out.log"), "wb") as out, \
+                    open(os.path.join(local_module_directory,
+                                      current_module_instance.module.name + "_hpc_submission_error.log"), "wb") as err:
                 subprocess.Popen(
                         [
                             shell_path,
@@ -304,5 +308,86 @@ def execute_pipeline_instance(app, pid="", oid=""):
             pipeline_instance.update(current_execution_status="RUNNING")
             return
     except Exception as e:
-        flash("There was an exception when executing the current pipeline: " + str(e), "error")
+        print("There was an exception when executing the current pipeline: " + str(e))
+        return
+
+
+@async
+def finish_pipeline_instance(app, pid="", oid=""):
+    try:
+        with app.app_context():
+            # Check that our objects exist
+            pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
+            if pipeline_instance is None:
+                return
+
+            # Build the output directory path
+            output_directory = os.path.join(
+                    os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
+                    "samples_output")
+
+            # Create a sample group
+            group = SampleGroup.create(name="Sample Group from Pipeline: " + pipeline_instance.pipeline.name,
+                                       creator=pipeline_instance.user,
+                                       group=pipeline_instance.user.group)
+
+            # Get the submission if relevant
+            submission = None
+            if pipeline_instance.pipeline.type == "I":
+                submission = Submission.query.filter_by(display_key=oid).first()
+                if submission is None:
+                    print(
+                        "Could not locate the submission for this pipeline. The pipeline outcome will not be submitted.")
+
+            # Look in the output directory for folders - these will be our sample names
+            filepaths = next(os.walk(output_directory))
+            for file in filepaths[1]:
+                try:
+                    if submission is not None:
+                        # Create the sample
+                        s = Sample.create(name=file, submission=submission, pipeline=pipeline_instance)
+
+                        # Make the directory
+                        utils.make_directory(
+                                os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+                    else:
+                        # Find the sample
+                        s = Sample.query.filter_by(display_key=file).first()
+                        if s is None:
+                            continue
+
+                    # Update the sample group
+                    group.samples.append(s)
+                    group.save()
+
+                    # Make the data directory and update the sample
+                    source = os.path.join(output_directory, file)
+                    data_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key),
+                                             pipeline_instance.display_key)
+                    utils.make_directory(data_path)
+                    s.pipeline_runs.append(pipeline_instance)
+
+                    # Transfer the data using an sh
+                    script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
+                    script_path = os.path.join(script_path, "move.sh")
+                    subprocess.Popen(
+                            [
+                                "sudo",
+                                script_path,
+                                "-s" + source,
+                                "-t" + data_path
+                            ],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE
+                    )
+
+                except Exception as e:
+                    print("There was an exception when executing the current pipeline: " + str(e))
+                    pass
+
+            # Fix up the pipeline status
+            pipeline_instance.update(current_data_source=None)
+
+    except Exception as e:
+        print("There was an exception when executing the current pipeline: " + str(e))
         return

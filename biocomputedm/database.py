@@ -2,7 +2,6 @@
 import uuid
 
 from biocomputedm.extensions import db
-from sqlalchemy.orm import relationship
 
 # Alias common SQLAlchemy names
 Table = db.Table
@@ -13,7 +12,8 @@ Integer = db.Integer
 Boolean = db.Boolean
 Text = db.Text
 ForeignKey = db.ForeignKey
-relationship = relationship
+relationship = db.relationship
+backref = db.backref
 basestring = (str, bytes)
 
 

@@ -51,10 +51,13 @@
                             {% if g.user.is_authenticated %}
 
                             {% if g.user.type == "User" %}
-                            <li><a href="{{ url_for('manage.uploads') }} ">My Uploads</a></li>
-                            <li><a href="{{ url_for('manage.submissions') }} ">My Submissions</a></li>
-                            {#<li><a href="{{ url_for('sample_groups') }}">My Sample Groups</a></li>#}
+                            <li><a href="{{ url_for('manage.uploads') }} ">Staging Drive</a></li>
+                            <li><a href="{{ url_for('manage.submissions') }} ">Submissions</a></li>
                             {% endif %}
+
+                            <li><a href="{{ url_for('manage.samples') }}">Samples</a></li>
+                            <li><a href="{{ url_for('manage.sample_groups') }}">Sample Groups</a></li>
+                            <li><a href="{{ url_for('manage.projects') }}">Projects</a></li>
 
                             {#<li><a href="{{ url_for('investigations') }}">My Investigations</a></li>#}
 

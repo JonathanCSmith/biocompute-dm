@@ -26,7 +26,6 @@ case ${i} in
     shift
     ;;
 
-
     # Unknown
     *)
     ;;

@@ -1,8 +1,7 @@
 import os
 
 from biocomputedm import utils
-from biocomputedm.database import relationship, reference_col, Model, SurrogatePK, Column, Enum, String, Integer, \
-    Boolean, Text
+from biocomputedm.database import *
 from biocomputedm.extensions import db
 from sqlalchemy import update
 
@@ -46,8 +45,9 @@ class PipelineModule(SurrogatePK, Model):
         db.Model.__init__(self,
                           name=name,
                           description=description,
-                          executor=os.path.join(os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"), pipeline.name),
-                                                executor),
+                          executor=os.path.join(
+                              os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"), pipeline.name),
+                              executor),
                           execution_index=execution_index)
         pipeline.modules.append(self)
 
@@ -94,26 +94,28 @@ class PipelineInstance(SurrogatePK, Model):
     execution_type = Column(Enum("Per Module", "Continuous"), default="Continuous")
     options_type = Column(Enum("Custom", "Default"), default="Default")
 
-    group_id = reference_col("Group")
     pipeline_id = reference_col("Pipeline")
+    user_id = reference_col("User", nullable=True)
+    group_id = reference_col("Group", nullable=True)
     data_source_id = reference_col("DataSource", nullable=True)
 
+    user = relationship("User", uselist=False)
     module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic")
 
     __tablename__ = "PipelineInstance"
 
-    def __init__(self, pipeline, execution_type, options_type):
+    def __init__(self, pipeline, execution_type, options_type, user):
         db.Model.__init__(self, pipeline=pipeline, execution_type=execution_type, options_type=options_type)
+        self.user = user
+        user.group.pipeline_instances.append(self)
+        user.group.save()
 
     def __repr__(self):
         return "<Pipeline Instance for %s at module %s>" % (self.pipeline.name, self.current_execution_index)
 
 
-def create_pipeline_instance(group, pipeline, data_source, execution_type, options_type):
-    pipeline_instance = PipelineInstance(pipeline=pipeline, execution_type=execution_type, options_type=options_type)
-    group.pipeline_instances.append(pipeline_instance)
-    pipeline_instance.save()
-    group.save()
+def create_pipeline_instance(user, pipeline, data_source, execution_type, options_type):
+    pipeline_instance = PipelineInstance(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=user)
     data_source.update(current_pipeline=pipeline_instance)
     return pipeline_instance
 
