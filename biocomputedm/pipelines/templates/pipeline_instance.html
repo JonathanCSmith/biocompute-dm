@@ -43,33 +43,35 @@
         <table class="table-resize">
             <tr>
                 <td></td>
-                {% for module_instance in pipeline_instance.module_instances %}
-                {% if loop.last %}
-                {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td class="resize img1 bg3">
-                {% elif pipeline_instance.current_execution_status == "RUNNING" %}
-                <td class="resize img1 bg1">
-                {% elif pipeline_instance.current_execution_status == "FINISHED" %}
-                <td class="resize img2 bg2">
-                {% elif pipeline_instance.current_execution_status == "ERROR" %}
-                <td class="resize img1 bg4">
-                {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
-                <td class="resize img1 bg5">
-                {% endif %}
-                {% else %}
-                {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td class="resize img2 bg3">
-                {% elif pipeline_instance.current_execution_status == "RUNNING" %}
-                <td class="resize img2 bg1">
-                {% elif pipeline_instance.current_execution_status == "FINISHED" %}
-                <td class="resize img2 bg2">
-                {% elif pipeline_instance.current_execution_status == "ERROR" %}
-                <td class="resize img2 bg4">
-                {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
-                <td class="resize img2 bg5">
-                {% endif %}
-                {% endif %}
 
+                {% for module_instance in pipeline_instance.module_instances %}
+                    {% if loop.index0 == pipeline_instance.current_execution_index %}
+                        {% if pipeline_instance.current_execution_status == "WAITING" %}
+                        <td class="resize img1 bg3">
+                        {% elif pipeline_instance.current_execution_status == "RUNNING" %}
+                        <td class="resize img1 bg1">
+                        {% elif pipeline_instance.current_execution_status == "FINISHED" %}
+                        <td class="resize img2 bg2">
+                        {% elif pipeline_instance.current_execution_status == "ERROR" %}
+                        <td class="resize img1 bg4">
+                        {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
+                        <td class="resize img1 bg5">
+                        {% endif %}
+                    {% elif loop.index0 < pipeline_instance.current_execution_index %}
+                        {% if pipeline_instance.current_execution_status == "WAITING" %}
+                        <td class="resize img2 bg3">
+                        {% elif pipeline_instance.current_execution_status == "RUNNING" %}
+                        <td class="resize img2 bg1">
+                        {% elif pipeline_instance.current_execution_status == "FINISHED" %}
+                        <td class="resize img2 bg2">
+                        {% elif pipeline_instance.current_execution_status == "ERROR" %}
+                        <td class="resize img2 bg4">
+                        {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
+                        <td class="resize img2 bg5">
+                        {% endif %}
+                    {% else %}
+                        <td class="resize img2 bg5">
+                    {% endif %}
                     <a style="display: block;" href="{{ url_for('pipelines.module_instance', oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
                 </td>
                 {% endfor %}

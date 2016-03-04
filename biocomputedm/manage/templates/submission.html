@@ -85,32 +85,38 @@
             <table class="table-resize">
                 <tr>
                     <td></td>
-                    {% for stage in submission.current_pipeline.pipeline.modules %}
-                    {% if loop.last %}
-                    {% if submission.current_pipeline.current_execution_status == "WAITING" %}
-                    <td class="resize img1 bg3">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
-                    <td class="resize img1 bg1">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
-                    <td class="resize img2 bg2">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
-                    <td class="resize img1 bg4">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
-                    <td class="resize img1 bg5">{{ stage.name }}</td>
-                    {% endif %}
-                    {% else %}
-                    {% if submission.current_pipeline.current_execution_status == "WAITING" %}
-                    <td class="resize img2 bg3">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
-                    <td class="resize img2 bg1">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
-                    <td class="resize img2 bg2">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
-                    <td class="resize img2 bg4">{{ stage.name }}</td>
-                    {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
-                    <td class="resize img2 bg5">{{ stage.name }}</td>
-                    {% endif %}
-                    {% endif %}
+
+                    {% for module_instance in submission.current_pipeline.module_instances %}
+                        {% if loop.index0 == submission.current_pipeline.current_execution_index %}
+                            {% if submission.current_pipeline.current_execution_status == "WAITING" %}
+                            <td class="resize img1 bg3">
+                            {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
+                            <td class="resize img1 bg1">
+                            {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
+                            <td class="resize img2 bg2">
+                            {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
+                            <td class="resize img1 bg4">
+                            {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
+                            <td class="resize img1 bg5">
+                            {% endif %}
+                        {% elif loop.index0 < submission.current_pipeline.current_execution_index %}
+                            {% if submission.current_pipeline.current_execution_status == "WAITING" %}
+                            <td class="resize img2 bg3">
+                            {% elif submission.current_pipeline.current_execution_status == "RUNNING" %}
+                            <td class="resize img2 bg1">
+                            {% elif submission.current_pipeline.current_execution_status == "FINISHED" %}
+                            <td class="resize img2 bg2">
+                            {% elif submission.current_pipeline.current_execution_status == "ERROR" %}
+                            <td class="resize img2 bg4">
+                            {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
+                            <td class="resize img2 bg5">
+                            {% endif %}
+                        {% else %}
+                            <td class="resize img2 bg5">
+                        {% endif %}
+
+                        <a style="display: block;" href="{{ url_for('pipelines.module_instance', oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
+                    </td>
                     {% endfor %}
                     <td></td>
                 </tr>
