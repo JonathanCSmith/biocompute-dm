@@ -37,7 +37,7 @@ FILE_LIST="${FILE_LIST%?}"
 # Pass to an array job to handle
 ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=${FILE_LIST}" "${PIPELINE_SOURCE}//fastqc_worker.sh"
+    qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=${FILE_LIST},LOGGING_DIR=${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh"
 END
 
 # Safe exit so we don't trip our error code below

@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 #$ -S /bin/bash
-# -V
+#$ -V
 #$ -pe smp 2
+#$ -o ${LOGGING_DIRECTORY}//fastqc_worker_${SGE_TASK_ID}_out.log
+#$ -e ${LOGGING_DIRECTORY}//fastqc_worker_${SGE_TASK_ID}_error.log
+
+# Debug
+echo "Array ID: ${SGE_TASK_ID}"
 
 # Parse the file path
 OLFIFS="${IFS}"
