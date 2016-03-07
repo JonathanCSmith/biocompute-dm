@@ -45,6 +45,7 @@ def migrate_db():
     print("Creating db model")
     v = api.db_version(app.config["SQLALCHEMY_DATABASE_URI"], app.config["SQLALCHEMY_MIGRATE_REPO"])
     migration = app.config["SQLALCHEMY_MIGRATE_REPO"] + ("/versions/%03d_migration.py" % (v + 1))
+    import imp
     tmp_module = imp.new_module("old_model")
     old_model = api.create_model(app.config["SQLALCHEMY_DATABASE_URI"], app.config["SQLALCHEMY_MIGRATE_REPO"])
     exec(old_model, tmp_module.__dict__)
