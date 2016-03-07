@@ -20,10 +20,10 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # Traverse the output path to generate a csv series of file paths
 FILE_LIST=""
 FILE_COUNT=0
-for f in "${DATA_OUTPUT_DIRECTORY}/*.fastq.gz" # We are only interested in demuxed files!
+for f in ${DATA_OUTPUT_DIRECTORY}/*.fastq.gz # We are only interested in demuxed files!
 do
-FILE_LIST+="${f},"
-FILE_COUNT=$((FILE_COUNT+1))
+    FILE_LIST+="${f},"
+    FILE_COUNT=$((FILE_COUNT+1))
 done
 
 echo "File Count ${FILE_COUNT}"
