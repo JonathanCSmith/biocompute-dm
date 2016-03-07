@@ -32,7 +32,9 @@ if [ ${FILE_COUNT} -ne 0 ]; then
     FILE_LIST="${FILE_LIST%?}"
 
     # Pass to an array job to handle
-    qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=${FILE_LIST}" "${PIPELINE_SOURCE}//fastqc_worker.sh"
+    ssh ${USERNAME}@${HPC_IP} << EOF
+        qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=${FILE_LIST}" "${PIPELINE_SOURCE}//fastqc_worker.sh"
+    EOF
 
     # Safe exit so we don't trip our error code below
     exit
@@ -43,7 +45,7 @@ fi
 >&2 echo "The provided directory did not contain any fastq.gz files - this indicates that the demux process did not run properly"
 # Ping back our info to the webserver - TODO: Silence it?
 ssh ${USERNAME}@${HPC_IP} << EOF
-    curl --silent --form event="module_error" ${SERVER}/message/pipelines|${TICKET}
+    curl --silent --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 IFS="${OLDIFS}"
 # =================================================== ERROR HANDLING ==================================================

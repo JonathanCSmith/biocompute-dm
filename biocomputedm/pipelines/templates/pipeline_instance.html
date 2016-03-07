@@ -40,7 +40,7 @@
                 <td><a href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
                 {% endif %}
 
-                <td><a class="input" href="{{ url_for('pipelines.restart_module', oid=pipeline_instance.display_key) }}">Restart Previous Module</a></td>
+                <td><a class="input" href="{{ url_for('pipelines.restart_module', oid=pipeline_instance.display_key) }}">Restart Current Module</a></td>
                 <td><a class="input" href="{{ url_for('pipelines.finish_current_module', oid=pipeline_instance.display_key) }}">Force Next Module</a></td>
 
                 <td><a class="input" href="{{ url_for('pipelines.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>

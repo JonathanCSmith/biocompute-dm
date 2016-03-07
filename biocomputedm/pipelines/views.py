@@ -1,4 +1,5 @@
 import os
+import subprocess
 from datetime import datetime
 
 from biocomputedm import utils
@@ -574,7 +575,31 @@ def restart_module(oid="", force=0):
 
     # TODO - If module is running parse for job id and kill all
 
-    # Remove directory - TODO SCRIPT CALL
+    # Display a list of module options to the user depending on the continue building flag
+    # Note this is fall through from post so that we can iterate where necessary
+    module_instances = pipeline_instance.module_instances.all()
+
+    # Find the correct module template
+    module = None
+    for mod in module_instances:
+        if mod.execution_index == pipeline_instance.current_execution_index:
+            module = mod
+            break
+
+    # Clean the module directory
+    subprocess.Popen(
+            [
+                "sudo",
+                os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "cleanup"), "wipe_directory.sh"),
+                "-p=" + os.path.join(
+                                os.path.join(
+                                        os.path.join(
+                                                utils.get_path("pipeline_data", "webserver"),
+                                                pipeline_instance.display_key),
+                                        "module_output"),
+                                module.name)
+            ]
+    ).wait()
 
     # We have the options already
     from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
