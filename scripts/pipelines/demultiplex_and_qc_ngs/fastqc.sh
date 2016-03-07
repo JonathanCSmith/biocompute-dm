@@ -27,12 +27,13 @@ do
 done
 
 echo "File Count ${FILE_COUNT}"
-echo "File List ${FILE_LIST}"
 
 # Error catching for no files (logic is inverted here because my IDE was playing havoc with the heredoc below)
 if [ ${FILE_COUNT} -ne 0 ]; then
+
 # Get rid of the extra comma
-FILE_LIST="${FILE_LIST%?}"
+FILE_LIST=${FILE_LIST%?}
+echo "File List ${FILE_LIST}"
 
 # Pass to an array job to handle
 ssh ${USERNAME}@${HPC_IP} << END
