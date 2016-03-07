@@ -28,16 +28,16 @@ done
 
 # Error catching for no files (logic is inverted here because my IDE was playing havoc with the heredoc below)
 if [ ${FILE_COUNT} -ne 0 ]; then
-    # Get rid of the extra comma
-    FILE_LIST="${FILE_LIST%?}"
+# Get rid of the extra comma
+FILE_LIST="${FILE_LIST%?}"
 
-    # Pass to an array job to handle
-    ssh ${USERNAME}@${HPC_IP} << EOF
-        qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=${FILE_LIST}" "${PIPELINE_SOURCE}//fastqc_worker.sh"
-    EOF
+# Pass to an array job to handle
+ssh ${USERNAME}@${HPC_IP} << END
+    qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=${FILE_LIST}" "${PIPELINE_SOURCE}//fastqc_worker.sh"
+END
 
-    # Safe exit so we don't trip our error code below
-    exit
+# Safe exit so we don't trip our error code below
+exit
 fi
 # ================================================== SUBMISSION DATA ==================================================
 
