@@ -14,6 +14,6 @@ IFS="${OLFIFS}"
 FILE_PATH=${FILE_PATHS[${SGE_TASK_ID}]}
 
 # Run FastQC on our specific file
-module load bioinformatics/fastqc/0.11.3
+module load bioinformatics/FastQC/0.11.3
 fastqc ${FILE_PATH}
 
