@@ -11,5 +11,5 @@ ssh ${USERNAME}@${HPC_IP} << EOF
     # TODO: Check on the whether the job was dropped
 
     # Ping back our info to the webserver - TODO: Silence it?
-    curl --silent --form "event=module_end" --form "sub=\$SUB_TIME" --form "stat=\$START_TIME" --form "end=\$END_TIME" \$SERVER\'/message/pipeline\|${TICKET}\'
+    curl --form "event=module_end" --form "sub=\$SUB_TIME" --form "stat=\$START_TIME" --form "end=\$END_TIME" \$SERVER\'/message/pipeline\|${TICKET}\'
 EOF

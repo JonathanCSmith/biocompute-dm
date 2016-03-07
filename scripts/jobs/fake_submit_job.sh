@@ -83,5 +83,5 @@ echo "Beginning SSH"
 
 # Pingback for status - TODO: Silence it?
 bash ${SCRIPT_STRING} "${INPUTS_STRING}"
-curl --silent --form event="module_end" --form sub="${SUB_TIME}" --form stat="${START_TIME}" --form end="${END_TIME}" 127.0.0.1:${SERVER}/"message/pipelines|${TICKET}"
+curl --form event="module_end" --form sub="${SUB_TIME}" --form stat="${START_TIME}" --form end="${END_TIME}" 127.0.0.1:${SERVER}/"message/pipelines|${TICKET}"
 echo "Job submission complete"
