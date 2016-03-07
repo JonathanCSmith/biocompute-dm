@@ -68,10 +68,10 @@
                         <td class="resize img2 bg2">
                         {% elif pipeline_instance.current_execution_status == "ERROR" %}
                         <td class="resize img1 bg4">
-                        {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
-                        <td class="resize img1 bg5">
                         {% elif pipeline_instance.current_execution_status == "STOPPED" %}
                         <td class="resize img1 bg6">
+                        {% else %}
+                        <td class="resize img2 bg5">
                         {% endif %}
                     {% elif loop.index0 < pipeline_instance.current_execution_index %}
                         {% if pipeline_instance.current_execution_status == "WAITING" %}
@@ -82,10 +82,10 @@
                         <td class="resize img2 bg2">
                         {% elif pipeline_instance.current_execution_status == "ERROR" %}
                         <td class="resize img2 bg4">
-                        {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
-                        <td class="resize img2 bg5">
                         {% elif pipeline_instance.current_execution_status == "STOPPED" %}
                         <td class="resize img1 bg6">
+                        {% else %}
+                        <td class="resize img2 bg5">
                         {% endif %}
                     {% else %}
                         <td class="resize img2 bg5">

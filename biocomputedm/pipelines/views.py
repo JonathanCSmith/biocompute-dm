@@ -265,7 +265,7 @@ def build_module_instance(pid="", oid="", index=-1):
     modules = pipeline_instance.pipeline.modules.all()
 
     # We are out of modules
-    if index > len(modules):
+    if index >= len(modules):
         flash("There are no more modules to build!", "warning")
         pipeline_instance.update(current_execution_status="FINISHED")
         return redirect(url_for("pipelines.display_pipeline_instance", pid=pipeline_instance.display_key))
@@ -589,7 +589,7 @@ def restart_module(oid="", force=0):
             module = mod
             break
 
-    if module.execution_index == len(module_instances):
+    if module.module.execution_index == len(module_instances) - 1:
         flash("It is currently not possible to restart the last module as information about the data source has been lost.", "warning")
         return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
 
