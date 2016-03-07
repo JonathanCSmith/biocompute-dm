@@ -35,9 +35,12 @@ Feature:
 
 ================================================================================
 Steps
-	* Update Dev Instance
-	* Run Micro Tests for Job Submission (no wiping!!!)
 	* Cycle DEMUX PIPELINE until working incl. cleanup
+	* Pipeline controls
+	* Sample + Sample Group Displays
+	* Customer
+	* Projects
+	* Downloading
 ================================================================================
 
 * Finish views as sketched
@@ -73,12 +76,6 @@ Steps
 	3) Constructor (routes) for output container for all relevant data sets
 	4) Mixed methods for displaying different outputs
 	5) Test using output from demux pipeline
-
-* Library Handling
-	1) Detection
-	2) JSON Scoping
-	3) Selection
-	4) Address forwarding
 
 * Sample Group Creation
 	1) GUI

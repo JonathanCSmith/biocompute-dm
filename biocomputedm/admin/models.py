@@ -1,4 +1,4 @@
-from biocomputedm.admin.helpers import helper_functions
+from biocomputedm.admin.helpers import admin_helper
 from biocomputedm.database import SurrogatePK, Model, reference_col, relationship, String, Column
 from biocomputedm.extensions import db
 from flask.ext.login import UserMixin
@@ -28,7 +28,7 @@ class Group(SurrogatePK, Model):
         db.session.add(self)
         db.session.commit()
 
-        helper_functions.create_group_directory(self)
+        admin_helper.create_group_directory(self)
 
     def __repr__(self):
         return "<Group %r>" % self.name
@@ -109,7 +109,7 @@ class User(Person):
 
     def __init__(self, username, email, password, group):
         Person.__init__(self, username=username, email=email, password=password, group=group)
-        helper_functions.create_user_directory(self, password)
+        admin_helper.create_user_directory(self, password)
 
     def __repr__(self):
         return "<User %r %r>" % (self.login_name, self.email)

@@ -98,6 +98,8 @@
                             <td class="resize img1 bg4">
                             {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
                             <td class="resize img1 bg5">
+                            {% elif submission.current_pipeline.current_execution_status == "STOPPED" %}
+                            <td class="resize img1 bg6">
                             {% endif %}
                         {% elif loop.index0 < submission.current_pipeline.current_execution_index %}
                             {% if submission.current_pipeline.current_execution_status == "WAITING" %}
@@ -110,6 +112,8 @@
                             <td class="resize img2 bg4">
                             {% elif submission.current_pipeline.current_execution_status == "NOT_STARTED" %}
                             <td class="resize img2 bg5">
+                            {% elif submission.current_pipeline.current_execution_status == "STOPPED" %}
+                            <td class="resize img2 bg6">
                             {% endif %}
                         {% else %}
                             <td class="resize img2 bg5">
@@ -151,7 +155,7 @@
                 </tr>
             </table>
             <div class="spacer"></div>
-            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.display_key, pid=pipeline.display_key, runtime_type='submission') }}">Select</a>
+            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>
         </div>
         {% endfor %}
         {% endif %}

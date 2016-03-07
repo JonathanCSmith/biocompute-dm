@@ -16,7 +16,8 @@ to_remove/cgi-bin/mypol.te
 /raw
 /submissions
 /samples
-/investigations
+/projects
+/reference
 
 # Debug files
 /error.log

@@ -1,0 +1,21 @@
+{% extends "administrate_view_items.html" %}
+{% block administrate_view %}
+<h3>Reference Data Libraries</h3>
+<table class="content">
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Version</th>
+        <th>Available</th>
+    </tr>
+
+    {% for item in obs.items %}
+    <tr>
+        <td>{{item.name}}</td>
+        <td>{{item.description}}</td>
+        <td>{{item.version}}</td>
+        <td>{{item.current}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

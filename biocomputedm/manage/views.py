@@ -5,8 +5,9 @@ import time
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
 from biocomputedm.manage import forms
+from biocomputedm.manage import models
 from biocomputedm.manage.models import Submission, get_submissions_query_by_user, get_samples_query_by_user, \
-    get_sample_groups_query_by_user
+    get_sample_groups_query_by_user, ReferenceData
 from biocomputedm.pipelines.models import Pipeline
 from flask import Blueprint, render_template, redirect, url_for
 from flask import abort
@@ -33,6 +34,26 @@ def message(oid=""):
                 submission.update()
 
         return "success"
+
+
+@manage.route("/refresh_reference_data")
+@login_required("Site Admin")
+def refresh_reference_data():
+    found = models.refresh_reference_data_library()
+    if found:
+        flash("Successfully loaded all reference data libraries", "success")
+    else:
+        flash("No reference data libraries were loaded as no new members were identified.", "warning")
+
+    return redirect(url_for("admin.administrate"))
+
+
+@manage.route("/display_reference_data")
+@manage.route("/display_reference_data/<int:page>")
+@login_required("ANY")
+def display_reference_data(page=1):
+    items = ReferenceData.query.paginate(page=page, per_page=20)
+    return render_template("reference_libraries.html", title="Reference Data", page=page, obs=items)
 
 
 @manage.route("/user_profile")

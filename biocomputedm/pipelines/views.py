@@ -21,71 +21,109 @@ pipelines = Blueprint("pipelines", __name__, static_folder="static", template_fo
 
 @pipelines.route("/pipelines_manage/<oid>", methods=["POST"])
 def message(oid=""):
-    if request.method == "GET":
-        return abort(404)
+    msg = request.form
+    event = msg["event"]
 
-    else:
-        msg = request.form
-        event = msg["event"]
-
-        # Module has finished
-        if event == "module_end":
-            module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
-            if module_instance is None:
-                return abort(404)
-
-            # Inform our pipeline and handle appropriately
-            pipeline_instance = module_instance.pipeline_instance
-            if pipeline_instance.current_execution_status == "ERROR":
-                return
-
-            # TODO: Check padding for day
-            if msg["sub"] == "0":
-                sub = datetime.strptime(msg["sub"], '%a %b %d %H:%M:%S %Y')
-                start = datetime.strptime(msg["start"], '%a %b %d %H:%M:%S %Y')
-                end = datetime.strptime(msg["end"], '%a %b %d %H:%M:%S %Y')
-                wait = start - sub
-                duration = end - start
-                module_instance.update(wait_time=wait, execution_time=duration)
-
-            # If its the last module
-            if pipeline_instance.current_execution_index == len(pipeline_instance.pipeline.modules.all()) - 1:
-                # TODO: Move to async
-                pipeline_instance.update(current_execution_status="FINISHED")
-
-                from biocomputedm.pipelines.helpers.pipeline_helper import finish_pipeline_instance
-                finish_pipeline_instance(current_app._get_current_object(),
-                                         module_instance.pipeline_instance.display_key,
-                                         module_instance.pipeline_instance.current_data_source.display_key)
-
-            # If we need to wait for options
-            elif pipeline_instance.execution_type == "Per Module":
-                pipeline_instance.update(current_execution_status="WAITING")
-
-                # TODO: Email notification
-
-            # Otherwise continue pipeline execution
-            else:
-                pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
-
-                from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_instance
-                execute_pipeline_instance(current_app._get_current_object(),
-                                          module_instance.pipeline_instance.display_key,
-                                          module_instance.pipeline_instance.current_data_source.display_key)
-
-        # Module has error
-        elif event == "module_error":
-            module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
-            if module_instance is None:
-                return abort(404)
-
-            module_instance.pipeline_instance.update(current_execution_status="ERROR")
-
-        # WHA
-        else:
+    # Module has finished
+    if event == "module_end":
+        module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
+        if module_instance is None:
+            return "<html>at p w/ " + oid + "</html>"
             return abort(404)
 
-    return "success"
+        # Check that the pipeline isn't in blocking mode
+        pipeline_instance = module_instance.pipeline_instance
+        if pipeline_instance.current_execution_status != "RUNNING":
+            return "<html>pipeline is in a false state</html>"
+            return abort(404)
+
+        # Display a list of module options to the user depending on the continue building flag
+        # Note this is fall through from post so that we can iterate where necessary
+        module_instances = pipeline_instance.module_instances.all()
+
+        # Find the correct module template
+        module = None
+        for mod in module_instances:
+            if mod.module.execution_index == pipeline_instance.current_execution_index:
+                module = mod
+                break
+
+        # Check that this is our currently running module
+        if module.display_key != oid:
+            return "<html>old message!</html>"
+            return abort(404)
+
+        # TODO: Check padding for day
+        if msg["sub"] == "0":
+            sub = datetime.strptime(msg["sub"], '%a %b %d %H:%M:%S %Y')
+            start = datetime.strptime(msg["start"], '%a %b %d %H:%M:%S %Y')
+            end = datetime.strptime(msg["end"], '%a %b %d %H:%M:%S %Y')
+            wait = start - sub
+            duration = end - start
+            module_instance.update(wait_time=wait, execution_time=duration)
+
+        # If its the last module
+        if pipeline_instance.current_execution_index == len(pipeline_instance.pipeline.modules.all()) - 1:
+            pipeline_instance.update(current_execution_status="FINISHED")
+
+            from biocomputedm.pipelines.helpers.pipeline_helper import finish_pipeline_instance
+            finish_pipeline_instance(current_app._get_current_object(),
+                                     module_instance.pipeline_instance.display_key,
+                                     module_instance.pipeline_instance.current_data_source.display_key)
+
+        # If we need to wait for options
+        elif pipeline_instance.execution_type == "Per Module":
+            pipeline_instance.update(current_execution_status="WAITING")
+
+            # TODO: Email notification
+
+        # Otherwise continue pipeline execution
+        else:
+            pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
+
+            from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+            execute_module_instance(current_app._get_current_object(),
+                                    module_instance.pipeline_instance.display_key,
+                                    module_instance.pipeline_instance.current_data_source.display_key)
+
+    # Module has error
+    elif event == "module_error":
+        module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
+        if module_instance is None:
+            return "<html>at p with v = " + oid + " no m</html>"
+            return abort(404)
+
+        # Check that the pipeline isn't in blocking mode
+        pipeline_instance = module_instance.pipeline_instance
+        if pipeline_instance.current_execution_status != "RUNNING":
+            return "<html>pipeline is in a false state</html>"
+            return abort(404)
+
+        # Display a list of module options to the user depending on the continue building flag
+        # Note this is fall through from post so that we can iterate where necessary
+        module_instances = pipeline_instance.module_instances.all()
+
+        # Find the correct module template
+        module = None
+        for mod in module_instances:
+            if mod.module.execution_index == pipeline_instance.current_execution_index:
+                module = mod
+                break
+
+        # Check that this is our currently running module
+        if module.display_key != oid:
+            return "<html>old message!</html>"
+            return abort(404)
+
+        module_instance.pipeline_instance.update(current_execution_status="ERROR")
+
+    # WHA
+    else:
+        return "<html>NOOP</html>"
+        return abort(404)
+
+    return "<html>success</html>"
+    return abort(404)
 
 
 @pipelines.route("/refresh_pipelines")
@@ -102,7 +140,7 @@ def refresh_pipelines():
 
 @pipelines.route("/display_pipelines")
 @pipelines.route("/display_pipelines/<int:page>")
-@login_required("Site Admin", "Group Admin")
+@login_required("ANY")
 def display_pipelines(page=1):
     p = Pipeline.query.paginate(page=page, per_page=20)
     return render_template("pipelines.html", title="Pipelines", page=page, obs=p)
@@ -145,6 +183,8 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
         flash("The pipeline information provided was invalid", "error")
         return redirect(url_for("index"))
 
+    # TODO validate data source isnt bound
+
     # Retrieve our db records
     pipeline = Pipeline.query.filter_by(display_key=pid).first()
     if pipeline is None:
@@ -175,7 +215,7 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
             flash("The pipeline information provided regarding options type was invalid", "error")
             return redirect(url_for("index"))
 
-        if runtime_type != "submission" and runtime_type != "sample_group":
+        if runtime_type != "Submission" and runtime_type != "SampleGroup":
             flash("The pipeline information provided regarding runtime type was invalid", "error")
             return redirect(url_for("index"))
 
@@ -215,6 +255,12 @@ def build_module_instance(pid="", oid="", index=-1):
     if pipeline_instance is None:
         flash("There was an error with your provided information.", "error")
         return redirect(url_for("index"))
+
+    # We are out of modules
+    if index > pipeline_instance.current_execution_index + 1:
+        flash("There are no more modules to build!", "warning")
+        pipeline_instance.update(current_execution_status="FINISHED")
+        return redirect(url_for("pipelines.display_pipeline_instance", pid=pipeline_instance.display_key))
 
     # Display a list of module options to the user depending on the continue building flag
     # Note this is fall through from post so that we can iterate where necessary
@@ -283,8 +329,8 @@ def build_module_instance(pid="", oid="", index=-1):
         if len(modules) == index or pipeline_instance.execution_type == "Per Module":
             pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
 
-            from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_instance
-            execute_pipeline_instance(current_app._get_current_object(), pid, oid)
+            from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+            execute_module_instance(current_app._get_current_object(), pid, oid)
             flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
                   "warning")
             return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))
@@ -366,12 +412,19 @@ def build_module_instance(pid="", oid="", index=-1):
                     module_instance.option_values.append(option_value)
                     module_instance.save()
 
-                elif option.user_interaction_type == "library":
+                elif option.user_interaction_type == "reference":
                     field = getattr(form, option.display_key)
 
+                    # Inefficient but effective :P
+                    value = str(field.data)
+                    name = value.split(" (")[0]
+
+                    # Lookup
+                    path = os.path.join(utils.get_path("reference_data", "hpc"), name)
+
+                    # Update the db
                     option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
-                    # TODO - this should be a db ref instead but we havent implemented libraries yet
-                    option_value.update(value=str(field.data))
+                    option_value.update(value=path)
                     module_instance.option_values.append(option_value)
                     module_instance.save()
 
@@ -393,8 +446,8 @@ def build_module_instance(pid="", oid="", index=-1):
             if len(modules) == index or pipeline_instance.execution_type == "Per Module":
                 pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
 
-                from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_instance
-                execute_pipeline_instance(current_app._get_current_object(), pid, oid)
+                from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+                execute_module_instance(current_app._get_current_object(), pid, oid)
                 flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
                       "warning")
                 return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))
@@ -414,3 +467,171 @@ def build_module_instance(pid="", oid="", index=-1):
 @login_required("ANY")
 def module_instance(oid=""):
     return abort(404)
+
+
+@pipelines.route("/continue_pipeline_instance/<oid>")
+@login_required("ANY")
+def continue_pipeline(oid=""):
+    if oid == "":
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+    if pipeline_instance is None:
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    # We were not waiting for input - something else has happened
+    if pipeline_instance.current_execution_status != "WAITING":
+        flash("Could not resume the current pipeline as it is in a false state", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
+
+    # We have the options already - from a state perspective I am not sure how this will arise but its best to handle
+    if pipeline_instance.execution_type == "Continuous":
+        from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+        execute_module_instance(current_app._get_current_object(),
+                                pipeline_instance.display_key,
+                                pipeline_instance.current_data_source.display_key)
+
+        flash("Submitting the next module for execution!", "success")
+        return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
+
+    # Need to obtain the options
+    else:
+        flash("Please enter the options for this module.", "success")
+        return redirect(url_for("pipelines.build_module_instance", pid=oid, oid=pipeline_instance.data_source_id,
+                                index=pipeline_instance.current_execution_index))
+
+
+@pipelines.route("/finish_current_module/<oid>")
+@pipelines.route("/finish_current_module/<oid>|<int:force>")
+@login_required("ANY")
+def force_finish_current_module(oid="", force=0):
+    if force != 1:
+        return redirect(url_for("content.confirm",
+                                message="Are you sure you wish to finish the current module early?",
+                                url="pipelines.finish_current_module"))
+
+    if oid == "":
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+    if pipeline_instance is None:
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance.update(current_execution_status="STOPPED")
+
+    # TODO - If module is running parse for job id and kill all
+
+    pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1), current_execution_status="RUNNING")
+
+    # We have the options already
+    if pipeline_instance.execution_type == "Continuous":
+        from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+        execute_module_instance(current_app._get_current_object(),
+                                pipeline_instance.display_key,
+                                pipeline_instance.current_data_source.display_key)
+
+        flash("Submitting the next module for execution!", "success")
+        return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
+
+    # Need to obtain the options
+    else:
+        flash("Please enter the options for this module.", "success")
+        return redirect(url_for("pipelines.build_module_instance", pid=oid, oid=pipeline_instance.data_source_id,
+                                index=pipeline_instance.current_execution_index))
+
+
+@pipelines.route("/restart_module/<oid>")
+@pipelines.route("/restart_module/<oid>|<int:force>")
+@login_required("ANY")
+def restart_module(oid="", force=0):
+    if force != 1:
+        return redirect(url_for("content.confirm",
+                                message="Are you sure you wish to restart the current module?",
+                                url="pipelines.restart_module"))
+
+    if oid == "":
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+    if pipeline_instance is None:
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance.update(current_execution_status="STOPPED")
+
+    # TODO - If module is running parse for job id and kill all
+
+    # Remove directory - TODO SCRIPT CALL
+
+    # We have the options already
+    from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+    execute_module_instance(current_app._get_current_object(),
+                            pipeline_instance.display_key,
+                            pipeline_instance.current_data_source.display_key)
+
+    flash("Resubmitting the module for execution!", "success")
+    return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
+
+
+@pipelines.route("/finish_pipeline/<oid>")
+@pipelines.route("/finish_pipeline/<oid>|<int:force>")
+@login_required("ANY")
+def finish_pipeline(oid="", force=0):
+    if force != 1:
+        return redirect(url_for("content.confirm",
+                                message="Are you sure you wish to quit the current pipeline?",
+                                url="pipelines.finish_pipeline"))
+
+    if oid == "":
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+    if pipeline_instance is None:
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance.update(current_execution_status="STOPPED")
+
+    # TODO - If module is running parse for job id and kill all
+
+    pipeline_instance.update(current_data_source=None)
+
+    flash("The pipeline was stopped and disassociated with your parent data set", "success")
+    return redirect(url_for("activity"))
+
+
+@pipelines.route("/restart_pipeline/<oid>")
+@pipelines.route("/restart_pipeline/<oid>|<int:force>")
+@login_required("ANY")
+def restart_pipeline(oid="", force=0):
+    if force != 1:
+        return redirect(url_for("content.confirm",
+                                message="Are you sure you wish to restart the current pipeline?",
+                                url="pipelines.restart_pipeline"))
+
+    if oid == "":
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+    if pipeline_instance is None:
+        flash("Could not load the provided pipeline instance", "error")
+        return redirect(url_for("empty"))
+
+    pipeline_instance.update(current_execution_status="STOPPED")
+
+    # TODO - If module is running parse for job id and kill all
+
+    data_source = pipeline_instance.current_data_source
+    pipeline_instance.update(current_data_source=None)
+
+    flash("The previous pipeline has been removed, follow the instructions below to restart!", "success")
+    return redirect(url_for("pipelines.build_pipeline_instance", pid=pipeline_instance.pipeline.display_key, oid=data_source.display_key, type=data_source.type))

@@ -328,9 +328,11 @@ def get_path(target, environment):
         target_path = current_app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"]
     elif target == "project_data":
         target_path = current_app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"]
+    elif target == "reference_data":
+        target_path = current_app.config["REFERENCE_DATA_PATH_AFTER_RELATIVE_ROOT"]
     else:
         raise ValueError(
-                "Valid inputs for target are: scripts, pipeline_data, submission_data, sample_data, project_data")
+                "Valid inputs for target are: scripts, pipeline_data, submission_data, sample_data, project_data and reference data")
 
     return os.path.join(environment_path, target_path)
 

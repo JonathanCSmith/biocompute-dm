@@ -59,7 +59,7 @@ class PipelineModuleOption(SurrogatePK, Model):
     display_name = Column(String(50), nullable=False)
     description = Column(Text, nullable=False)
     parameter_name = Column(String(50), nullable=False)
-    user_interaction_type = Column(Enum("file", "string", "boolean", "library", "enum", "flag"), nullable=False)
+    user_interaction_type = Column(Enum("file", "string", "boolean", "reference", "enum"), nullable=False)
     default_value = Column(String(100), nullable=False)
     necessary = Column(Boolean, default=False)
 
@@ -90,7 +90,7 @@ class PipelineModuleOption(SurrogatePK, Model):
 
 class PipelineInstance(SurrogatePK, Model):
     current_execution_index = Column(Integer, default=-1)
-    current_execution_status = Column(Enum("NOT_STARTED", "RUNNING", "WAITING", "FINISHED", "ERROR"), default="WAITING")
+    current_execution_status = Column(Enum("NOT_STARTED", "RUNNING", "WAITING", "FINISHED", "ERROR", "STOPPED"), default="WAITING")
     execution_type = Column(Enum("Per Module", "Continuous"), default="Continuous")
     options_type = Column(Enum("Custom", "Default"), default="Default")
 

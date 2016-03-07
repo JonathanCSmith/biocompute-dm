@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "Begging job cleanup"
+
 ssh ${USERNAME}@${HPC_IP} << EOF
     # Begin calculating stats whilst on a node and inform the webserver
     SUB_TIME=\$(qacct -j ${JOBID} | awk -v i=13 j=2);

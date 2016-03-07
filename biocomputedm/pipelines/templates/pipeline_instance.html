@@ -33,6 +33,20 @@
 
     <div class="action exempt">
         <h3>Pipeline Controls</h3>
+
+        <table>
+            <tr>
+                {% if pipeline_instance.current_execution_status == "WAITING" %}
+                <td><a href="{{ url_for('pipeline.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
+                {% endif %}
+
+                <td><a href="{{ url_for('pipeline.restart_module', oid=pipeline_instance.display_key) }}">Restart Previous Module</a></td>
+                <td><a href="{{ url_for('pipeline.finish_current_module', oid=pipeline_instance.display_key) }}"></a>Force Next Module</td>
+
+                <td><a href="{{ url_for('pipeline.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>
+                <td><a href="{{ url_for('pipeline.finish_pipeline', oid=pipeline_instance.display_key) }}">Quit and Remove Pipeline</a></td>
+            </tr>
+        </table>
     </div>
 
     <div class="spacer"></div>
@@ -56,6 +70,8 @@
                         <td class="resize img1 bg4">
                         {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
                         <td class="resize img1 bg5">
+                        {% elif pipeline_instance.current_execution_status == "STOPPED" %}
+                        <td class="resize img1 bg6">
                         {% endif %}
                     {% elif loop.index0 < pipeline_instance.current_execution_index %}
                         {% if pipeline_instance.current_execution_status == "WAITING" %}
@@ -68,6 +84,8 @@
                         <td class="resize img2 bg4">
                         {% elif pipeline_instance.current_execution_status == "NOT_STARTED" %}
                         <td class="resize img2 bg5">
+                        {% elif pipeline_instance.current_execution_status == "STOPPED" %}
+                        <td class="resize img1 bg6">
                         {% endif %}
                     {% else %}
                         <td class="resize img2 bg5">

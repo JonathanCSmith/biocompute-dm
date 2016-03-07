@@ -1,17 +1,15 @@
+import codecs
 import json
 import os
 import subprocess
 
-import codecs
-
 import jsonschema
 from biocomputedm import utils
 from biocomputedm.decorators import async
-from biocomputedm.manage.models import Submission, SampleGroup, Sample
+from biocomputedm.manage.models import Submission, SampleGroup, Sample, ReferenceData
 from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption, PipelineInstance
 from flask import current_app
 from flask import flash
-from flask.ext.login import current_user
 
 pipeline = \
     '''
@@ -62,7 +60,7 @@ pipeline = \
                       "type": "string"
                     },
                     "user_interaction_type": {
-                      "enum": ["boolean", "string", "library", "file", "enum"]
+                      "enum": ["boolean", "string", "reference", "file", "enum"]
                     },
                     "necessary": {
                       "type": "boolean"
@@ -164,7 +162,7 @@ def build(file):
 
 
 @async
-def execute_pipeline_instance(app, pid="", oid=""):
+def execute_module_instance(app, pid="", oid=""):
     try:
         with app.app_context():
             # Check that our objects exist
@@ -252,14 +250,8 @@ def execute_pipeline_instance(app, pid="", oid=""):
             vstring = ""
             for value in current_module_instance.option_values:
                 marker = value.option.parameter_name
-                if value.option.user_interaction_type == "library":
-                    # TODO: input actual library path for webserver
-                    result = value.value
-                    vstring += marker + "=\"" + result + "\","
-
-                else:
-                    result = value.value
-                    vstring += marker + "=\"" + result + "\","
+                result = value.value
+                vstring += marker + "=\"" + result + "\","
 
             if len(vstring) != 0:
                 vstring = vstring[:-1]
@@ -281,7 +273,8 @@ def execute_pipeline_instance(app, pid="", oid=""):
             remote_modules_output_directory = os.path.join(remote_pipeline_directory, "modules_output")
             remote_module_directory = os.path.join(remote_modules_output_directory, current_module_instance.module.name)
 
-            pipeline_scripts = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"), pipeline_instance.pipeline.name)
+            pipeline_scripts = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"),
+                                            pipeline_instance.pipeline.name)
             pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
             with open(os.path.join(local_module_directory,
                                    current_module_instance.module.name + "_hpc_submission_out.log"), "wb") as out, \
@@ -341,7 +334,7 @@ def finish_pipeline_instance(app, pid="", oid=""):
                 submission = Submission.query.filter_by(display_key=oid).first()
                 if submission is None:
                     print(
-                        "Could not locate the submission for this pipeline. The pipeline outcome will not be submitted.")
+                            "Could not locate the submission for this pipeline. The pipeline outcome will not be submitted.")
 
             # Look in the output directory for folders - these will be our sample names
             filepaths = next(os.walk(output_directory))

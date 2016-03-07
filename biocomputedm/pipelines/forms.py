@@ -1,3 +1,4 @@
+from biocomputedm.manage.models import ReferenceData
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import FileField, FileRequired
 from wtforms import StringField, BooleanField, SelectField, SubmitField
@@ -47,13 +48,18 @@ def build_options_form(options, post_data):
                                                     description=option.description))
             synthetics.append(option.display_key)
 
-        elif option.user_interaction_type == "library":
-            choices = [("Test", "Test")]
+        elif option.user_interaction_type == "refernce":
+            choices = []
+            choice_options = ReferenceData.query.filter_by(current=True).all()
+            for choice_option in choice_options:
+                choices.append(choice_option.name + " (" + choice_option.version + "): " + choice_option.description)
+
             clazz = clazz.append_field(option.display_key,
                                        SelectField(option.display_name,
                                                    choices=choices,
                                                    validators=[DataRequired()],
                                                    description=option.description))
+
             synthetics.append(option.display_key)
 
         elif option.user_interaction_type == "enum":

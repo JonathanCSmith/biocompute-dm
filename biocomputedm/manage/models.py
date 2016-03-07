@@ -1,7 +1,11 @@
+import os
+
+from biocomputedm import utils
 from biocomputedm.database import *
 from biocomputedm.extensions import db
 from biocomputedm.pipelines.models import PipelineInstance
 from flask.ext.login import current_user
+from sqlalchemy import update
 
 pipeline_instance_association_table = Table("PipelineGrouping",
                                             Column("pipeline_instance_id", Integer, ForeignKey("PipelineInstance.id")),
@@ -88,8 +92,10 @@ class Sample(SurrogatePK, Model):
 
     submission_source = relationship("Submission", uselist=False)
     pipeline_source = relationship("PipelineInstance", uselist=False)
-    sample_groups = relationship("SampleGroup", secondary=sample_grouping_association_table, lazy="dynamic", backref=backref("samples", lazy="dynamic"))
-    pipeline_runs = relationship("PipelineInstance", secondary=pipeline_instance_association_table, lazy="dynamic", backref=backref("samples", lazy="dynamic"))
+    sample_groups = relationship("SampleGroup", secondary=sample_grouping_association_table, lazy="dynamic",
+                                 backref=backref("samples", lazy="dynamic"))
+    pipeline_runs = relationship("PipelineInstance", secondary=pipeline_instance_association_table, lazy="dynamic",
+                                 backref=backref("samples", lazy="dynamic"))
 
     __tablename__ = "Sample"
 
@@ -112,3 +118,48 @@ def get_samples_query_by_user():
         return current_user.group.samples
 
     return None
+
+
+# Reference data set
+class ReferenceData(SurrogatePK, Model):
+    name = Column(String(50), nullable=False)
+    description = Column(db.String(500), nullable=False)
+    version = Column(String(50), nullable=False)
+    current = Column(Boolean(), default=False)
+
+    __tablename__ = "ReferenceData"
+    __table_args__ = (db.UniqueConstraint("name", "description", "version", name="_unique"),)
+
+    def __init__(self, name, description, version):
+        db.Model.__init__(self, name=name, description=description, version=version)
+
+    def __repr__(self):
+        return "<Reference Data with name: %s, description; %s and version: %s" % (
+            self.name, self.description, self.version)
+
+
+def refresh_reference_data_library():
+    # Mark all as legacy on refresh then re-add
+    db.session.execute(update(ReferenceData, values={ReferenceData.current: False}))
+    db.session.commit()
+
+    # HPC Side as we need the paths to be correct
+    path = utils.get_path("reference_data", "hpc")
+    directories = os.listdir(path)
+    has_new = False
+    for directory in directories:
+        directory_path = os.path.join(path, directory)
+        if not os.path.isdir(directory_path):
+            continue
+
+        file = os.path.join(directory_path, directory + ".json")
+        if not os.path.isfile(file):
+            continue
+
+        from biocomputedm.manage.helpers import resource_helper as template_helper
+        if not template_helper.validate(file):
+            continue
+
+        has_new |= template_helper.build(file)
+
+    return has_new

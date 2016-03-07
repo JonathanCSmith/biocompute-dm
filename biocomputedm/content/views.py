@@ -58,4 +58,5 @@ def message(type="", oid=""):
         return message(oid=oid)
 
     else:
+        return "<html>t = " + type + " v = " + oid + "</html>"
         return abort(404)
