@@ -50,12 +50,12 @@ def terms_and_conditions():
 @content.route("/message/<type>|<oid>", methods=["POST"])
 def message(type="", oid=""):
     if type == "manage":
-        from biocomputedm.manage.views import message
-        return message(oid=oid)
+        from biocomputedm.manage.views import message as alt_message
+        return alt_message(oid=oid)
 
     elif type == "pipelines":
-        from biocomputedm.pipelines.views import message
-        return message(oid=oid)
+        from biocomputedm.pipelines.views import message as alt_message
+        return alt_message(oid=oid)
 
     else:
         return "<html>t = " + type + " v = " + oid + "</html>"

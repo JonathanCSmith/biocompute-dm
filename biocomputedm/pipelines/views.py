@@ -19,111 +19,116 @@ from werkzeug.utils import secure_filename
 pipelines = Blueprint("pipelines", __name__, static_folder="static", template_folder="templates")
 
 
-@pipelines.route("/pipelines_manage/<oid>", methods=["POST"])
+@pipelines.route("/pipelines_message/<oid>", methods=["POST"])
 def message(oid=""):
     msg = request.form
     event = msg["event"]
 
-    # Module has finished
-    if event == "module_end":
-        module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
-        if module_instance is None:
-            return "<html>at p w/ " + oid + "</html>"
-            return abort(404)
+    try:
+        # Module has finished
+        if event == "module_end":
+            module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
+            if module_instance is None:
+                return "<html>at p w/ " + oid + "</html>"
+                return abort(404)
 
-        # Check that the pipeline isn't in blocking mode
-        pipeline_instance = module_instance.pipeline_instance
-        if pipeline_instance.current_execution_status != "RUNNING":
-            return "<html>pipeline is in a false state</html>"
-            return abort(404)
+            # Check that the pipeline isn't in blocking mode
+            pipeline_instance = module_instance.pipeline_instance
+            if pipeline_instance.current_execution_status != "RUNNING":
+                return "<html>pipeline is in a false state</html>"
+                return abort(404)
 
-        # Display a list of module options to the user depending on the continue building flag
-        # Note this is fall through from post so that we can iterate where necessary
-        module_instances = pipeline_instance.module_instances.all()
+            # Display a list of module options to the user depending on the continue building flag
+            # Note this is fall through from post so that we can iterate where necessary
+            module_instances = pipeline_instance.module_instances.all()
 
-        # Find the correct module template
-        module = None
-        for mod in module_instances:
-            if mod.module.execution_index == pipeline_instance.current_execution_index:
-                module = mod
-                break
+            # Find the correct module template
+            module = None
+            for mod in module_instances:
+                if mod.module.execution_index == pipeline_instance.current_execution_index:
+                    module = mod
+                    break
 
-        # Check that this is our currently running module
-        if module.display_key != oid:
-            return "<html>old message!</html>"
-            return abort(404)
+            # Check that this is our currently running module
+            if module.display_key != oid:
+                return "<html>old message!</html>"
+                return abort(404)
 
-        # TODO: Check padding for day
-        if msg["sub"] == "0":
-            sub = datetime.strptime(msg["sub"], '%a %b %d %H:%M:%S %Y')
-            start = datetime.strptime(msg["start"], '%a %b %d %H:%M:%S %Y')
-            end = datetime.strptime(msg["end"], '%a %b %d %H:%M:%S %Y')
-            wait = start - sub
-            duration = end - start
-            module_instance.update(wait_time=wait, execution_time=duration)
+            # TODO: Check padding for day
+            if msg["sub"] == "0":
+                sub = datetime.strptime(msg["sub"], '%a %b %d %H:%M:%S %Y')
+                start = datetime.strptime(msg["start"], '%a %b %d %H:%M:%S %Y')
+                end = datetime.strptime(msg["end"], '%a %b %d %H:%M:%S %Y')
+                wait = start - sub
+                duration = end - start
+                module_instance.update(wait_time=wait, execution_time=duration)
 
-        # If its the last module
-        if pipeline_instance.current_execution_index == len(pipeline_instance.pipeline.modules.all()) - 1:
-            pipeline_instance.update(current_execution_status="FINISHED")
+            # If its the last module
+            if pipeline_instance.current_execution_index == len(pipeline_instance.pipeline.modules.all()) - 1:
+                pipeline_instance.update(current_execution_status="FINISHED")
 
-            from biocomputedm.pipelines.helpers.pipeline_helper import finish_pipeline_instance
-            finish_pipeline_instance(current_app._get_current_object(),
-                                     module_instance.pipeline_instance.display_key,
-                                     module_instance.pipeline_instance.current_data_source.display_key)
+                from biocomputedm.pipelines.helpers.pipeline_helper import finish_pipeline_instance
+                finish_pipeline_instance(current_app._get_current_object(),
+                                         module_instance.pipeline_instance.display_key,
+                                         module_instance.pipeline_instance.current_data_source.display_key)
 
-        # If we need to wait for options
-        elif pipeline_instance.execution_type == "Per Module":
-            pipeline_instance.update(current_execution_status="WAITING")
+            # If we need to wait for options
+            elif pipeline_instance.execution_type == "Per Module":
+                pipeline_instance.update(current_execution_status="WAITING")
 
-            # TODO: Email notification
+                # TODO: Email notification
 
-        # Otherwise continue pipeline execution
+            # Otherwise continue pipeline execution
+            else:
+                pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
+
+                from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+                execute_module_instance(current_app._get_current_object(),
+                                        module_instance.pipeline_instance.display_key,
+                                        module_instance.pipeline_instance.current_data_source.display_key)
+
+        # Module has error
+        elif event == "module_error":
+            module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
+            if module_instance is None:
+                return "<html>at p with v = " + oid + " no m</html>"
+                return abort(404)
+
+            # Check that the pipeline isn't in blocking mode
+            pipeline_instance = module_instance.pipeline_instance
+            if pipeline_instance.current_execution_status != "RUNNING":
+                return "<html>pipeline is in a false state</html>"
+                return abort(404)
+
+            # Display a list of module options to the user depending on the continue building flag
+            # Note this is fall through from post so that we can iterate where necessary
+            module_instances = pipeline_instance.module_instances.all()
+
+            # Find the correct module template
+            module = None
+            for mod in module_instances:
+                if mod.module.execution_index == pipeline_instance.current_execution_index:
+                    module = mod
+                    break
+
+            # Check that this is our currently running module
+            if module.display_key != oid:
+                return "<html>old message!</html>"
+                return abort(404)
+
+            module_instance.pipeline_instance.update(current_execution_status="ERROR")
+
+        # WHA
         else:
-            pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
-
-            from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
-            execute_module_instance(current_app._get_current_object(),
-                                    module_instance.pipeline_instance.display_key,
-                                    module_instance.pipeline_instance.current_data_source.display_key)
-
-    # Module has error
-    elif event == "module_error":
-        module_instance = PipelineModuleInstance.query.filter_by(display_key=oid).first()
-        if module_instance is None:
-            return "<html>at p with v = " + oid + " no m</html>"
+            return "<html>NOOP</html>"
             return abort(404)
 
-        # Check that the pipeline isn't in blocking mode
-        pipeline_instance = module_instance.pipeline_instance
-        if pipeline_instance.current_execution_status != "RUNNING":
-            return "<html>pipeline is in a false state</html>"
-            return abort(404)
-
-        # Display a list of module options to the user depending on the continue building flag
-        # Note this is fall through from post so that we can iterate where necessary
-        module_instances = pipeline_instance.module_instances.all()
-
-        # Find the correct module template
-        module = None
-        for mod in module_instances:
-            if mod.module.execution_index == pipeline_instance.current_execution_index:
-                module = mod
-                break
-
-        # Check that this is our currently running module
-        if module.display_key != oid:
-            return "<html>old message!</html>"
-            return abort(404)
-
-        module_instance.pipeline_instance.update(current_execution_status="ERROR")
-
-    # WHA
-    else:
-        return "<html>NOOP</html>"
+        return "<html>success</html>"
         return abort(404)
 
-    return "<html>success</html>"
-    return abort(404)
+    except Exception as e:
+        return "<html>" + str(e) + "</html>"
+        return abort(404)
 
 
 @pipelines.route("/refresh_pipelines")
