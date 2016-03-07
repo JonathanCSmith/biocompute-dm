@@ -517,9 +517,10 @@ def continue_pipeline(oid=""):
 @login_required("ANY")
 def finish_current_module(oid="", force=0):
     if force != 1:
-        return redirect(url_for("content.confirm",
-                                message="Are you sure you wish to finish the current module early?",
-                                url="pipelines.finish_current_module"))
+        return render_template("confirm.html",
+                               message="Are you sure you wish to finish the current module early?",
+                               oid=oid,
+                               url="pipelines.finish_current_module")
 
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
@@ -534,7 +535,8 @@ def finish_current_module(oid="", force=0):
 
     # TODO - If module is running parse for job id and kill all
 
-    pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1), current_execution_status="RUNNING")
+    pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1),
+                             current_execution_status="RUNNING")
 
     # We have the options already
     if pipeline_instance.execution_type == "Continuous":
@@ -558,9 +560,10 @@ def finish_current_module(oid="", force=0):
 @login_required("ANY")
 def restart_module(oid="", force=0):
     if force != 1:
-        return redirect(url_for("content.confirm",
-                                message="Are you sure you wish to restart the current module?",
-                                url="pipelines.restart_module"))
+        return render_template("confirm.html",
+                               message="Are you sure you wish to restart the current module?",
+                               oid=oid,
+                               url="pipelines.restart_module")
 
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
@@ -582,9 +585,13 @@ def restart_module(oid="", force=0):
     # Find the correct module template
     module = None
     for mod in module_instances:
-        if mod.execution_index == pipeline_instance.current_execution_index:
+        if mod.module.execution_index == pipeline_instance.current_execution_index:
             module = mod
             break
+
+    if module.execution_index == len(module_instances):
+        flash("It is currently not possible to restart the last module as information about the data source has been lost.", "warning")
+        return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
 
     # Clean the module directory
     subprocess.Popen(
@@ -592,12 +599,12 @@ def restart_module(oid="", force=0):
                 "sudo",
                 os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "cleanup"), "wipe_directory.sh"),
                 "-p=" + os.path.join(
+                        os.path.join(
                                 os.path.join(
-                                        os.path.join(
-                                                utils.get_path("pipeline_data", "webserver"),
-                                                pipeline_instance.display_key),
-                                        "module_output"),
-                                module.name)
+                                        utils.get_path("pipeline_data", "webserver"),
+                                        pipeline_instance.display_key),
+                                "modules_output"),
+                        module.module.name)
             ]
     ).wait()
 
@@ -616,9 +623,10 @@ def restart_module(oid="", force=0):
 @login_required("ANY")
 def finish_pipeline(oid="", force=0):
     if force != 1:
-        return redirect(url_for("content.confirm",
-                                message="Are you sure you wish to quit the current pipeline?",
-                                url="pipelines.finish_pipeline"))
+        return render_template("confirm.html",
+                               message="Are you sure you wish to quit the current pipeline?",
+                               oid=oid,
+                               url="pipelines.finish_pipeline")
 
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
@@ -644,9 +652,10 @@ def finish_pipeline(oid="", force=0):
 @login_required("ANY")
 def restart_pipeline(oid="", force=0):
     if force != 1:
-        return redirect(url_for("content.confirm",
-                                message="Are you sure you wish to restart the current pipeline?",
-                                url="pipelines.restart_pipeline"))
+        return render_template("confirm.html",
+                               message="Are you sure you wish to restart the current pipeline?",
+                               oid=oid,
+                               url="pipelines.restart_pipeline")
 
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
@@ -665,4 +674,5 @@ def restart_pipeline(oid="", force=0):
     pipeline_instance.update(current_data_source=None)
 
     flash("The previous pipeline has been removed, follow the instructions below to restart!", "success")
-    return redirect(url_for("pipelines.build_pipeline_instance", pid=pipeline_instance.pipeline.display_key, oid=data_source.display_key, type=data_source.type))
+    return redirect(url_for("pipelines.build_pipeline_instance", pid=pipeline_instance.pipeline.display_key,
+                            oid=data_source.display_key, type=data_source.type))
