@@ -2,8 +2,6 @@
 #$ -S /bin/bash
 #$ -V
 #$ -pe smp 2
-#$ -o $LOGGING_DIRECTORY/fastqc_worker_$SGE_TASK_ID_out.log
-#$ -e $LOGGING_DIRECTORY/fastqc_worker_$SGE_TASK_ID_error.log
 
 # Debug
 echo "Array ID: ${SGE_TASK_ID}"
