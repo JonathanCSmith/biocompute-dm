@@ -220,7 +220,7 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
             return redirect(url_for("index"))
 
         # Type of datasource
-        if runtime_type == "submission":
+        if runtime_type == "Submission":
             data_source = Submission.query.filter_by(display_key=oid).first()
         else:
             data_source = SampleGroup.query.filter_by(display_key=oid).first()
@@ -256,8 +256,10 @@ def build_module_instance(pid="", oid="", index=-1):
         flash("There was an error with your provided information.", "error")
         return redirect(url_for("index"))
 
+    modules = pipeline_instance.pipeline.modules.all()
+
     # We are out of modules
-    if index > pipeline_instance.current_execution_index + 1:
+    if index > len(modules):
         flash("There are no more modules to build!", "warning")
         pipeline_instance.update(current_execution_status="FINISHED")
         return redirect(url_for("pipelines.display_pipeline_instance", pid=pipeline_instance.display_key))
@@ -265,7 +267,6 @@ def build_module_instance(pid="", oid="", index=-1):
     # Display a list of module options to the user depending on the continue building flag
     # Note this is fall through from post so that we can iterate where necessary
     module_instances = pipeline_instance.module_instances.all()
-    modules = pipeline_instance.pipeline.modules.all()
 
     # Find the correct module template
     module = None
@@ -508,7 +509,7 @@ def continue_pipeline(oid=""):
 @pipelines.route("/finish_current_module/<oid>")
 @pipelines.route("/finish_current_module/<oid>|<int:force>")
 @login_required("ANY")
-def force_finish_current_module(oid="", force=0):
+def finish_current_module(oid="", force=0):
     if force != 1:
         return redirect(url_for("content.confirm",
                                 message="Are you sure you wish to finish the current module early?",
