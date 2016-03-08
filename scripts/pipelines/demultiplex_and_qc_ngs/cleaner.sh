@@ -23,14 +23,26 @@ FILE_COUNT=0
 for f in "${DATA_OUTPUT_DIRECTORY}/*.fastq.gz" # We are only interested in demuxed files!
 do
     if [[ ${f} == "*.fastq.qz" || ${f} == "*_fastqc.html" || ${f} == "*_fastqc.zip" ]]; then
+        # Debug
+        echo "Processing ${f}"
+
         # Identify the correct directory name
         IFS="_" read -r ID leftover <<< "${f}"
+        echo "Sample identifier parsed as: ${ID}"
+
+        DIR=""
+        if [[ ${ID} == Undetermined* ]]; then
+            DIR+="${f}"
+        else
+            DIR+="${ID}"
+        fi
 
         # Make the directory if it does not exist yet
-        mkdir "${ID}"
+        echo "Constructing directory: ${DIR}"
+        mkdir "${DIR}"
 
         # Move the file to the directory
-        mv "${DATA_OUTPUT_DIRECTORY}/${f}" "${DATA_OUTPUT_DIRECTORY}/${ID}/${f}"
+        mv "${DATA_OUTPUT_DIRECTORY}/${f}" "${DATA_OUTPUT_DIRECTORY}/${DIR}/${f}"
     fi
 done
 # ==================================================== SAMPLE DATA ====================================================
