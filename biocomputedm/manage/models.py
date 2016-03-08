@@ -144,7 +144,7 @@ def refresh_reference_data_library():
     db.session.commit()
 
     # HPC Side as we need the paths to be correct
-    path = utils.get_path("reference_data", "hpc")
+    path = utils.get_path("reference_data", "webserver")
     directories = os.listdir(path)
     has_new = False
     for directory in directories:
