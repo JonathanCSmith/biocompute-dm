@@ -26,9 +26,9 @@ do
         echo "Processing ${f}"
         NAME="${f##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%.*}"
-        NAME_WITHOUT_EXTENSION="${NAME%.*}"
-        NAME_WITHOUT_EXTENSION="${NAME%_*}"
-        NAME_WITHOUT_EXTENSION="${NAME%_*}"
+        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%.*}"
+        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
+        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
 
         # Identify the correct directory name
         IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
@@ -46,15 +46,15 @@ do
         mkdir "${DIR}"
 
         # Move the file to the directory
-        mv "${DATA_OUTPUT_DIRECTORY}/${f}" "${DATA_OUTPUT_DIRECTORY}/${DIR}/${f}"
+        mv "${DATA_OUTPUT_DIRECTORY}/${f}" "${DIR}/${f}"
 
     elif [[ ${f} == *_fastqc.html || ${f} == *_fastqc.zip ]]; then
         echo "Processing ${f}"
         NAME="${f##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%.*}"
-        NAME_WITHOUT_EXTENSION="${NAME%_fastqc}"
-        NAME_WITHOUT_EXTENSION="${NAME%_*}"
-        NAME_WITHOUT_EXTENSION="${NAME%_*}"
+        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_fastqc}"
+        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
+        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
 
         # Identify the correct directory name
         IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
