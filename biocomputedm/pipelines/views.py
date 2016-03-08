@@ -530,16 +530,17 @@ def module_instance(oid="", data_file=""):
 
     filepaths = next(os.walk(data_path))
     datasets = []
-    for file in filepaths[2]:
-        try:
-            item = {
-                "name": file,
-                "path": os.path.join(data_path, file)
-            }
-            datasets.append(item)
+    if os.path.isdir(filepaths):
+        for file in filepaths[2]:
+            try:
+                item = {
+                    "name": file,
+                    "path": os.path.join(data_path, file)
+                }
+                datasets.append(item)
 
-        except:
-            pass
+            except:
+                pass
 
     if len(datasets) == 0:
         datasets = None
