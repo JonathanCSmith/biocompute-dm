@@ -528,9 +528,9 @@ def module_instance(oid="", data_file=""):
                     "modules_output"),
             m_instance.module.name)
 
-    filepaths = next(os.walk(data_path))
     datasets = []
-    if os.path.isdir(filepaths):
+    if os.path.isdir(data_path):
+        filepaths = next(os.walk(data_path))
         for file in filepaths[2]:
             try:
                 item = {
