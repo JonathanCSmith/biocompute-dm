@@ -20,7 +20,7 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # Traverse the output path to generate a csv series of file paths
 FILE_LIST=""
 FILE_COUNT=0
-for f in ${DATA_OUTPUT_DIRECTORY}; # We are only interested in demuxed files!
+for f in ${DATA_OUTPUT_DIRECTORY}/*; # We are only interested in demuxed files!
 do
     if [[ ${f} == *.fastq.qz || ${f} == *_fastqc.html || ${f} == *_fastqc.zip ]]; then
         # Debug
