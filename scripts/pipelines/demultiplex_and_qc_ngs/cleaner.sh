@@ -33,7 +33,7 @@ do
         echo "Sample identifier parsed as: ${ID}"
 
         DIR="${DATA_OUTPUT_DIRECTORY}"
-        if [[ ${ID} == Undetermined* ]]; then
+        if [[ ${ID} == Undetermine* ]]; then
             DIR+="/${NAME_WITHOUT_EXTENSION}"
         else
             DIR+="/${ID}"
@@ -58,7 +58,7 @@ do
         echo "Sample identifier parsed as: ${ID}"
 
         DIR="${DATA_OUTPUT_DIRECTORY}"
-        if [[ ${ID} == Undetermined* ]]; then
+        if [[ ${ID} == Undetermine* ]]; then
             DIR+="/${NAME_WITHOUT_EXTENSION}"
         else
             DIR+="/${ID}"

@@ -14,7 +14,8 @@ read -a FILE_PATHS <<< "${FILE_LIST}"
 IFS="${OLFIFS}"
 echo "File Paths: ${FILE_PATHS}"
 
-FILE_PATH=${FILE_PATHS[${SGE_TASK_ID}]}
+INDEX=$((${SGE_TASK_ID}-1))
+FILE_PATH=${FILE_PATHS[${INDEX}]}
 echo "Working on file: ${FILE_PATH}"
 
 # Run FastQC on our specific file
