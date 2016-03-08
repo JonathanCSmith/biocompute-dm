@@ -26,6 +26,7 @@ do
         echo "Processing ${f}"
         NAME="${f##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%%.*}"
+        NAME_WITHOUT_EXTENSION="${NAME%%_*}"
 
         # Identify the correct directory name
         IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
@@ -49,6 +50,8 @@ do
         echo "Processing ${f}"
         NAME="${f##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%.*}"
+        NAME_WITHOUT_EXTENSION="${NAME%_fastqc}"
+        NAME_WITHOUT_EXTENSION="${NAME%%_*}"
 
         # Identify the correct directory name
         IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
