@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Beginning job cleanup"
+echo "Begging job cleanup"
+
+USERNAME=
+HPC_IP=
+TICKET=
+JOBID=
 
 ssh ${USERNAME}@${HPC_IP} << EOF
     # Begin calculating stats whilst on a node and inform the webserver
