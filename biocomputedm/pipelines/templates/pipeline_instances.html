@@ -1,5 +1,5 @@
-{% extends "administrate_view_items.html" %}
-{% block administrate_view %}
+{% extends "table.html" %}
+{% block table %}
 <h3>Pipelines</h3>
 <table class="content">
     <tr>
@@ -14,7 +14,7 @@
 
     {% for pipeline_instance in obs.items %}
     <tr>
-        <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=pipeline.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
+        <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=pipeline_instance.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
         <td>{{ pipeline_instance.pipeline.description }}</td>
         <td>{{ pipeline_instance.pipeline.author }}</td>
         <td>{{ pipeline_instance.pipeline.version }}</td>

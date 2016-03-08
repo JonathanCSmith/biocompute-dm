@@ -58,8 +58,7 @@
                             <li><a href="{{ url_for('manage.samples') }}">Samples</a></li>
                             <li><a href="{{ url_for('manage.sample_groups') }}">Sample Groups</a></li>
                             <li><a href="{{ url_for('manage.projects') }}">Projects</a></li>
-
-                            {#<li><a href="{{ url_for('investigations') }}">My Investigations</a></li>#}
+                            <li><a href="{{ url_for('pipelines.display_pipeline_instances') }}">Runs</a></li>
 
                             {% if g.user.get_role() == "Site Admin" %}
                             <li><a href="{{ url_for('admin.administrate') }}">My Admin</a></li>

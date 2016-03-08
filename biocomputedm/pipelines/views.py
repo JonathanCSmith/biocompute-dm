@@ -167,7 +167,7 @@ def display_pipeline(pid=""):
 @pipelines.route("/display_pipeline_instances")
 @login_required("ANY")
 def display_pipeline_instances(page=1):
-    obs = current_user.group.pipeline_instances.query.paginate(page=page, per_page=20)
+    obs = current_user.group.pipeline_instances.paginate(page=page, per_page=20)
     return render_template("pipeline_instances.html", title="Pipeline Instances", page=page, obs=obs)
 
 
