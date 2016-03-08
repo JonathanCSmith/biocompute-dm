@@ -11,16 +11,17 @@ TICKET="NOT_VALID-NO_REPORTING_ALLOWED" # UUID of the module ticket - allows rep
 
 MODULE="" # Module name
 MODULE_OUTPUT_DIRECTORY="" # Module root
+PIPELINE_OUTPUT_DIRECTORY="" # Pipeline outputs
 WORKING_DIRECTORY="" # Pipeline root
 PIPELINE_SOURCE_DIRECTORY="" # Pipeline sh files
-INPUTS_STRING="" # Location of the csv file
+SAMPLES_CSV="" # Location of the csv file
 SCRIPT_STRING="" # Location of the script to execute
 USERNAME="" # Username on the hpc
 HPC_IP="" # IP of the hpc as accessible from compute nodes
 SERVER="" # IP of the webserver as accessible from head nodes
 CLEANUP_SCRIPT="" # Location of the cleanup script
 
-VARS="USERNAME=${USERNAME},HPC_IP=${HPC_IP},TICKET=${TICKET},PIPELINE_SOURCE=${PIPELINE_SOURCE_DIRECTORY},samples=${INPUTS_STRING},MODULE_OUTPUT_DIRECTORY=${MODULE_OUTPUT_DIRECTORY}"
+VARS="USERNAME=${USERNAME},HPC_IP=${HPC_IP},TICKET=${TICKET},PIPELINE_SOURCE=${PIPELINE_SOURCE_DIRECTORY},SAMPLES_CSV=${SAMPLES_CSV},MODULE_OUTPUT_DIRECTORY=${MODULE_OUTPUT_DIRECTORY},PIPELINE_OUTPUT_DIRECTORY=${PIPELINE_OUTPUT_DIRECTORY}"
 
 # =============================================== ADDITIONAL VARS =====================================================
 ADDITIONAL_VARS=""
