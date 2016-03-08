@@ -46,7 +46,7 @@ do
         mkdir "${DIR}"
 
         # Move the file to the directory
-        mv "${DATA_OUTPUT_DIRECTORY}/${f}" "${DIR}/${f}"
+        mv "${f}" "${DIR}/${NAME}"
 
     elif [[ ${f} == *_fastqc.html || ${f} == *_fastqc.zip ]]; then
         echo "Processing ${f}"
@@ -72,7 +72,7 @@ do
         mkdir "${DIR}"
 
         # Move the file to the directory
-        mv "${DATA_OUTPUT_DIRECTORY}/${f}" "${DATA_OUTPUT_DIRECTORY}/${DIR}/${f}"
+        mv "${f}" "${DIR}/${NAME}"
     fi
 done
 # ==================================================== SAMPLE DATA ====================================================
