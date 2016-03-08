@@ -333,7 +333,7 @@ def get_path(target, environment):
     elif environment == "hpc":
         environment_path = current_app.config["HPC_ROOT_PATH"]
     elif environment == "serve":
-        return os.path.join("serve", target_path.split[-1])
+        return os.path.join("serve", target_path.split()[-1])
     else:
         raise ValueError("environment must either be: served, webserver or hpc")
 
