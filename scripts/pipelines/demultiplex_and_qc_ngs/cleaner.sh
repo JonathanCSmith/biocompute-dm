@@ -22,19 +22,43 @@ FILE_LIST=""
 FILE_COUNT=0
 for f in ${DATA_OUTPUT_DIRECTORY}/*; # We are only interested in demuxed files!
 do
-    if [[ ${f} == *.fastq.qz || ${f} == *_fastqc.html || ${f} == *_fastqc.zip ]]; then
-        # Debug
+    if [[ ${f} == *.fastq.gz ]]; then
         echo "Processing ${f}"
+        NAME="${f##*/}"
+        NAME_WITHOUT_EXTENSION="${NAME%%.*}"
 
         # Identify the correct directory name
-        IFS="_" read -r ID leftover <<< "${f}"
+        IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
         echo "Sample identifier parsed as: ${ID}"
 
-        DIR=""
+        DIR="${DATA_OUTPUT_DIRECTORY}"
         if [[ ${ID} == Undetermined* ]]; then
-            DIR+="${f}"
+            DIR+="/${NAME_WITHOUT_EXTENSION}"
         else
-            DIR+="${ID}"
+            DIR+="/${ID}"
+        fi
+
+        # Make the directory if it does not exist yet
+        echo "Constructing directory: ${DIR}"
+        mkdir "${DIR}"
+
+        # Move the file to the directory
+        mv "${DATA_OUTPUT_DIRECTORY}/${f}" "${DATA_OUTPUT_DIRECTORY}/${DIR}/${f}"
+
+    elif [[ ${f} == *_fastqc.html || ${f} == *_fastqc.zip ]]; then
+        echo "Processing ${f}"
+        NAME="${f##*/}"
+        NAME_WITHOUT_EXTENSION="${NAME%.*}"
+
+        # Identify the correct directory name
+        IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
+        echo "Sample identifier parsed as: ${ID}"
+
+        DIR="${DATA_OUTPUT_DIRECTORY}"
+        if [[ ${ID} == Undetermined* ]]; then
+            DIR+="/${NAME_WITHOUT_EXTENSION}"
+        else
+            DIR+="/${ID}"
         fi
 
         # Make the directory if it does not exist yet
