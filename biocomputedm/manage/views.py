@@ -62,6 +62,82 @@ def user_profile():
     return redirect(url_for("empty"))
 
 
+@manage.route("/display_data/<data_source_type>|<data_source>|<name>")
+@manage.route("/display_data/<data_source_type>|<data_source>|<name>|<data_file>")
+@login_required("ANY")
+def display_data(data_source_type="", data_source="", name="", data_file=""):
+    if data_source_type == "" or data_source == "" or name == "":
+        flash("Could not identify the provided data set", "warning")
+        return redirect(url_for("empty"))
+
+    if data_source_type == "pipeline_output":
+        pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=data_source).first()
+        if pipeline_instance is None:
+            flash("Could not identify the provided data set", "warning")
+            return redirect(url_for("empty"))
+
+        data_path = os.path.join(os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), pipeline_instance.display_key), "pipeline_output"), name)
+
+        return render_template("data_viewer.html", data_path=data_path, return_path="pipelines.display_pipeline_instance", oid=pipeline_instance.display_key, data_file="")
+
+    elif data_source_type == "module_output":
+        pipeline_instances = current_user.group.pipeline_instances.all()
+        p_instance = None
+        m_instance = None
+        for pipeline_instance in pipeline_instances:
+            module_instances = pipeline_instance.module_instances.all()
+            for module_instance in module_instances:
+                if module_instance.display_key == data_source:
+                    p_instance = pipeline_instance
+                    m_instance = module_instance
+                    break
+
+            if m_instance is not None:
+                break
+
+        if m_instance is None:
+            flash("Could not locate the provided module instance", "warning")
+            return redirect(url_for("empty"))
+
+        data_path = os.path.join(
+            os.path.join(
+                os.path.join(
+                    os.path.join(
+                        utils.get_path("pipeline_data", "serve"),
+                        p_instance.display_key
+                    ),
+                    "modules_output"
+                ),
+                m_instance.module.name),
+            name
+        )
+
+        return render_template("data_viewer.html", data_path=data_path, return_path="pipelines.module_instance", oid=m_instance.display_key, data_file="")
+
+    elif data_source_type == "sample_data":
+        sample = current_user.group.samples.filter_by(display_key=data_source).first()
+        if sample is None:
+            flash("Could not identify the provided data set", "warning")
+            return redirect(url_for("empty"))
+
+        data_path = os.path.join(
+            os.path.join(
+                os.path.join(
+                    utils.get_path("sample_data", "serve"),
+                    sample.display_key
+                ),
+                data_file
+            ),
+            name
+        )
+
+        return render_template("data_viewer.html", data_path=data_path, return_path="manage.sample_data", oid=sample.display_key, data_file=data_file)
+
+    else:
+        flash("Could not identify the provided data set", "warning")
+        return redirect(url_for("empty"))
+
+
 # Move data from external into landing_zone
 @manage.route("/upload_data/f:<file_uploaded>")
 @manage.route("/upload_data/<int:page>")
@@ -316,9 +392,79 @@ def samples(page=1):
 
 
 @manage.route("/sample/<oid>")
+@manage.route("/sample/<oid>|<data_file>")
 @login_required("ANY")
-def sample(oid=""):
-    return abort(404)
+def sample(oid="", data_file=""):
+    sample = current_user.group.samples.filter_by(display_key=oid).first()
+    if sample is None:
+        flash("Could not locate the provided sample", "warning")
+        return redirect(url_for("empty"))
+
+    data_path = os.path.join(utils.get_path("sample_data", "webserver"), sample.display_key)
+    filepaths = next(os.walk(data_path))
+    datasets = []
+    for file in filepaths[1]:
+        try:
+            pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=file).first()
+            if pipeline_instance is None:
+                continue
+
+            item = {
+                "name": file,
+                "pipeline": pipeline_instance
+            }
+            datasets.append(item)
+
+        except:
+            pass
+
+    if len(datasets) == 0:
+        datasets = None
+
+    return render_template("sample.html",
+                           title="Sample " + sample.name,
+                           sample=sample,
+                           data_source_type="sample_pipelines",
+                           oid=sample.display_key,
+                           datasets=datasets)
+
+
+@manage.route("/sample_data/<oid>|<data_file>")
+@login_required("ANY")
+def sample_data(oid="", data_file=""):
+    if oid == "" or data_file == "":
+        flash("Could not locate the provided sample group", "warning")
+        return redirect(url_for("empty"))
+
+    sample = current_user.group.samples.filter_by(display_key=oid).first()
+    if sample is None:
+        flash("Could not locate the provided sample", "warning")
+        return redirect(url_for("empty"))
+
+    data_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), sample.display_key), data_file)
+    filepaths = next(os.walk(data_path))
+    datasets = []
+    for file in filepaths[2]:
+        try:
+            item = {
+                "name": file,
+                "path": os.path.join(data_path, file)
+            }
+            datasets.append(item)
+
+        except:
+            pass
+
+    if len(datasets) == 0:
+        datasets = None
+
+    return render_template("sample_data.html",
+                           title="Sample Data " + sample.name,
+                           sample=sample,
+                           data_source_type="sample_data",
+                           oid=sample.display_key,
+                           datasets=datasets,
+                           data_file=data_file)
 
 
 @manage.route("/sample_groups/<int:page>")

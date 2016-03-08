@@ -9,8 +9,24 @@
         <h3>Sample Information</h3>
     </div>
 
+    <div class="spacer"></div>
+
     <div class="action exempt">
         <h3>Sample Datasets</h3>
+
+        {% if datasets %}
+        <h3>Outputs:</h3>
+        <table class="small_content">
+            {% for data in datasets %}
+            <tr>
+                <td><a href="{{ url_for('manage.sample_data', oid=oid, data_file=data['name']) }}">{{ data['name'] }}</a></td>
+                <td>{{ data['pipeline'].pipeline.name }} </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <h3>No output information available for this pipeline instance.</h3>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

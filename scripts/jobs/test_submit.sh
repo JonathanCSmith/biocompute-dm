@@ -31,7 +31,7 @@ VARS+="${ADDITIONAL_VARS}"
 # Submit the job and its monitor
 ssh ${USERNAME}@${HPC_IP} << EOF
     source /etc/profile;
-    JOBID=\$(qsub -V -N job-${TICKET} -o ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_q_submission_output.log -e ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_q_submission_error.log -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -N job-${TICKET} -o ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_q_submission_output.txt -e ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_q_submission_error.txt -wd ${WORKING_DIRECTORY} -v ${VARS} ${SCRIPT_STRING} | cut -d ' ' -f 3);
     echo Job Id: \$JOBID
-    qsub -V -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_module_cleanup.log -e ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_module_cleanup.log -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
+    qsub -V -hold_jid \$JOBID -N cleanup-${TICKET} -o ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_module_cleanup.txt -e ${MODULE_OUTPUT_DIRECTORY}//${MODULE}_module_cleanup.txt -v USERNAME=${USERNAME},HPC_IP=${HPC_IP},SERVER=${SERVER},TICKET=${TICKET},JOBID=\$JOBID ${CLEANUP_SCRIPT}
 EOF

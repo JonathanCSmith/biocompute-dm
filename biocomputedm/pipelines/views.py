@@ -160,7 +160,7 @@ def display_pipeline(pid=""):
         flash("There was an error finding your pipeline", "error")
         return redirect(url_for("index"))
 
-    return render_template("pipeline.html", pipeline=p)
+    return render_template("pipeline.html", title="Pipeline: " + p.name, pipeline=p)
 
 
 @pipelines.route("/display_pipeline_instances/<int:page>")
@@ -171,15 +171,39 @@ def display_pipeline_instances(page=1):
     return render_template("pipeline_instances.html", title="Pipeline Instances", page=page, obs=obs)
 
 
-@pipelines.route("/display_pipeline_instance/<pid>")
+@pipelines.route("/display_pipeline_instance/<oid>")
+@pipelines.route("/display_pipeline_instance/<oid>|<data_file>")
 @login_required("ANY")
-def display_pipeline_instance(pid=""):
-    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=pid).first()
+def display_pipeline_instance(oid="", data_file=""):
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
     if pipeline_instance is None:
-        flash("Could not locate the provided pipeline instance", "error")
+        flash("Could not locate the provided pipeline instance", "warning")
         return redirect(url_for("empty"))
 
-    return render_template("pipeline_instance.html", title="Pipeline Instance", pipeline_instance=pipeline_instance)
+    data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key), "pipeline_output")
+    filepaths = next(os.walk(data_path))
+    datasets = []
+    for file in filepaths[2]:
+        try:
+            item = {
+                "name": file,
+                "path": os.path.join(data_path, file)
+            }
+            datasets.append(item)
+
+        except:
+            pass
+
+    if len(datasets) == 0:
+        datasets = None
+
+    return render_template("pipeline_instance.html",
+                           title="Pipeline Instance",
+                           pipeline_instance=pipeline_instance,
+                           data_source_type="pipeline_output",
+                           oid=pipeline_instance.display_key,
+                           datasets=datasets,
+                           data_file="")
 
 
 @pipelines.route("/build_pipeline_instance/<oid>|<pid>|<runtime_type>", methods=["GET", "POST"])
@@ -268,7 +292,7 @@ def build_module_instance(pid="", oid="", index=-1):
     if index >= len(modules):
         flash("There are no more modules to build!", "warning")
         pipeline_instance.update(current_execution_status="FINISHED")
-        return redirect(url_for("pipelines.display_pipeline_instance", pid=pipeline_instance.display_key))
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=pipeline_instance.display_key))
 
     # Display a list of module options to the user depending on the continue building flag
     # Note this is fall through from post so that we can iterate where necessary
@@ -340,7 +364,7 @@ def build_module_instance(pid="", oid="", index=-1):
             execute_module_instance(current_app._get_current_object(), pid, oid)
             flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
                   "warning")
-            return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))
+            return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
         # Continue assigning information
         else:
@@ -457,7 +481,7 @@ def build_module_instance(pid="", oid="", index=-1):
                 execute_module_instance(current_app._get_current_object(), pid, oid)
                 flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
                       "warning")
-                return redirect(url_for("pipelines.display_pipeline_instance", pid=pid))
+                return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
             # Continue assigning information
             else:
@@ -471,9 +495,62 @@ def build_module_instance(pid="", oid="", index=-1):
 
 
 @pipelines.route("/module_instance/<oid>")
+@pipelines.route("/module_instance/<oid>|<data_file>")
 @login_required("ANY")
-def module_instance(oid=""):
-    return abort(404)
+def module_instance(oid="", data_file=""):
+    if oid == "":
+        flash("No instance identifiers were provided!", "warning")
+        return redirect(url_for("empty"))
+
+    pipeline_instances = current_user.group.pipeline_instances.all()
+    p_instance = None
+    m_instance = None
+    for pipeline_instance in pipeline_instances:
+        module_instances = pipeline_instance.module_instances.all()
+        for module_instance in module_instances:
+            if module_instance.display_key == oid:
+                m_instance = module_instance
+                p_instance = pipeline_instance
+                break
+
+        if m_instance is not None:
+            break
+
+    if m_instance is None:
+        flash("Could not locate the provided module instance", "warning")
+        return redirect(url_for("empty"))
+
+    data_path = os.path.join(
+            os.path.join(
+                    os.path.join(
+                            utils.get_path("pipeline_data", "webserver"),
+                            p_instance.display_key),
+                    "modules_output"),
+            m_instance.module.name)
+
+    filepaths = next(os.walk(data_path))
+    datasets = []
+    for file in filepaths[2]:
+        try:
+            item = {
+                "name": file,
+                "path": os.path.join(data_path, file)
+            }
+            datasets.append(item)
+
+        except:
+            pass
+
+    if len(datasets) == 0:
+        datasets = None
+
+    return render_template("module_instance.html",
+                           title="Module Instance",
+                           module_instance=m_instance,
+                           data_source_type="module_output",
+                           oid=m_instance.display_key,
+                           datasets=datasets,
+                           data_file="")
 
 
 @pipelines.route("/continue_pipeline_instance/<oid>")
@@ -503,7 +580,7 @@ def continue_pipeline(oid=""):
                                 pipeline_instance.current_data_source.display_key)
 
         flash("Submitting the next module for execution!", "success")
-        return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     # Need to obtain the options
     else:
@@ -546,7 +623,7 @@ def finish_current_module(oid="", force=0):
                                 pipeline_instance.current_data_source.display_key)
 
         flash("Submitting the next module for execution!", "success")
-        return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     # Need to obtain the options
     else:
@@ -590,8 +667,10 @@ def restart_module(oid="", force=0):
             break
 
     if module.module.execution_index == len(module_instances) - 1:
-        flash("It is currently not possible to restart the last module as information about the data source has been lost.", "warning")
-        return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
+        flash(
+            "It is currently not possible to restart the last module as information about the data source has been lost.",
+            "warning")
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     # Clean the module directory
     subprocess.Popen(
@@ -615,7 +694,7 @@ def restart_module(oid="", force=0):
                             pipeline_instance.current_data_source.display_key)
 
     flash("Resubmitting the module for execution!", "success")
-    return redirect(url_for("pipelines.display_pipeline_instance", pid=oid))
+    return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
 
 @pipelines.route("/finish_pipeline/<oid>")

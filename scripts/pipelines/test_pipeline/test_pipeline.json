@@ -32,7 +32,7 @@
           "display_name": "Library Field!",
           "parameter_name": "l",
           "default_value": "Def",
-          "user_interaction_type": "library",
+          "user_interaction_type": "reference",
           "necessary": false,
           "description": "this is a library field"
         },
@@ -75,7 +75,7 @@
           "display_name": "Library Field!",
           "parameter_name": "L",
           "default_value": "Def",
-          "user_interaction_type": "library",
+          "user_interaction_type": "reference",
           "necessary": false,
           "description": "this is a library field"
         }

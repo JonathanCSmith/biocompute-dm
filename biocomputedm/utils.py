@@ -1,5 +1,6 @@
 from biocomputedm.models import *
 from flask import flash
+from flask import url_for
 
 __author__ = 'jon'
 
@@ -311,13 +312,6 @@ __author__ = 'jon'
 
 # Function to retrieve a path variable based on the target and the environment
 def get_path(target, environment):
-    if environment == "webserver":
-        environment_path = current_app.config["WEBSERVER_ROOT_PATH"]
-    elif environment == "hpc":
-        environment_path = current_app.config["HPC_ROOT_PATH"]
-    else:
-        raise ValueError("environment must either be: webserver or hpc")
-
     if target == "scripts":
         target_path = current_app.config["MANAGEMENT_SCRIPTS_PATH_AFTER_RELATIVE_ROOT"]
     elif target == "pipeline_data":
@@ -333,6 +327,15 @@ def get_path(target, environment):
     else:
         raise ValueError(
                 "Valid inputs for target are: scripts, pipeline_data, submission_data, sample_data, project_data and reference data")
+
+    if environment == "webserver":
+        environment_path = current_app.config["WEBSERVER_ROOT_PATH"]
+    elif environment == "hpc":
+        environment_path = current_app.config["HPC_ROOT_PATH"]
+    elif environment == "serve":
+        return os.path.join("serve", target_path)
+    else:
+        raise ValueError("environment must either be: served, webserver or hpc")
 
     return os.path.join(environment_path, target_path)
 

@@ -20,8 +20,7 @@ case ${i} in
 esac
 done
 
-# We want to move all files within the source directory (doesn't catch . files) into the destination directory
-echo "Moving: ${SOURCE} to ${TARGET}"
-mv -v "${SOURCE}"/{.,}* "${TARGET}"
-rm -rf "${SOURCE}"
+# Link dir for static file serving
+echo "Linking: ${SOURCE} to ${TARGET}"
+ln -s "${SOURCE}" "${TARGET}"
 exit

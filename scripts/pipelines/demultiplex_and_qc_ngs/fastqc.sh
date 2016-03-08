@@ -39,6 +39,7 @@ echo "File List ${FILE_LIST}"
 ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
     qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e ${MODULE_OUTPUT_DIRECTORY} "${PIPELINE_SOURCE}//fastqc_worker.sh"
+    # TODO hold a cleanup job to rename the log files
 END
 
 # Safe exit so we don't trip our error code below

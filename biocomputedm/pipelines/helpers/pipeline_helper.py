@@ -277,9 +277,9 @@ def execute_module_instance(app, pid="", oid=""):
                                             pipeline_instance.pipeline.name)
             pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
             with open(os.path.join(local_module_directory,
-                                   current_module_instance.module.name + "_hpc_submission_out.log"), "wb") as out, \
+                                   current_module_instance.module.name + "_hpc_submission_out.txt"), "wb") as out, \
                     open(os.path.join(local_module_directory,
-                                      current_module_instance.module.name + "_hpc_submission_error.log"), "wb") as err:
+                                      current_module_instance.module.name + "_hpc_submission_error.txt"), "wb") as err:
                 subprocess.Popen(
                         [
                             shell_path,
@@ -371,12 +371,12 @@ def finish_pipeline_instance(app, pid="", oid=""):
                             [
                                 "sudo",
                                 script_path,
-                                "-s" + source,
-                                "-t" + data_path
+                                "-s=" + source,
+                                "-t=" + data_path
                             ],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE
-                    )
+                    ).wait()
 
                 except Exception as e:
                     print("There was an exception when executing the current pipeline: " + str(e))

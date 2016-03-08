@@ -168,6 +168,48 @@ def clean(key):
             ]
     ).wait()
 
+    # Serve the directories
+    serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
+    link_path = os.path.dirname(os.path.realpath(__file__))
+    subprocess.Popen(
+        [
+            "sudo",
+            serve_script,
+            "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+            "-t=" + link_path + "/biocomputedm/static/serve/" + app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+        ]
+    ).wait()
+
+    serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
+    subprocess.Popen(
+            [
+                "sudo",
+                serve_script,
+                "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+                "-t=" + link_path + "/biocomputedm/static/serve/" + app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+            ]
+    ).wait()
+
+    serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
+    subprocess.Popen(
+            [
+                "sudo",
+                serve_script,
+                "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+                "-t=" + link_path + "/biocomputedm/static/serve/" + app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+            ]
+    ).wait()
+
+    serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
+    subprocess.Popen(
+            [
+                "sudo",
+                serve_script,
+                "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"], app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+                "-t=" +link_path + "/biocomputedm/static/serve/" + app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+            ]
+    ).wait()
+
     initdb()
 
 if __name__ == "__main__":

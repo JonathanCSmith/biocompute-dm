@@ -9,10 +9,12 @@
         <h3>Sample Data Information</h3>
     </div>
 
-    <div class="action exempt">
-        <h3>Sample Data</h3>
+    <div class="spacer"></div>
 
-        {% include "data_viewer.html" %}
+    <div class="action exempt">
+        <h3>Sample Data for Pipeline: <a href="{{ url_for('pipelines.display_pipeline_instance', oid=data_file) }}">{{ data_file }}</a></h3>
+
+        {% include "data_lister.html" %}
     </div>
 </div>
 {% endblock %}

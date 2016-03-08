@@ -14,7 +14,7 @@
 
     {% for pipeline_instance in obs.items %}
     <tr>
-        <td><a href="{{ url_for('pipelines.display_pipeline_instance', pid=pipeline.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
+        <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=pipeline.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
         <td>{{ pipeline_instance.pipeline.description }}</td>
         <td>{{ pipeline_instance.pipeline.author }}</td>
         <td>{{ pipeline_instance.pipeline.version }}</td>

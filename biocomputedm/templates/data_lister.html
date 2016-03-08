@@ -1,0 +1,15 @@
+
+{% if datasets %}
+<h3>Outputs:</h3>
+<table class="small_content">
+    {% for data in datasets %}
+    {% if data_file %}
+    <tr><td><a href="{{ url_for('manage.display_data', data_source_type=data_source_type, data_source=oid, data_file=data_file, name=data['name']) }}">{{ data['name'] }}</a></td></tr>
+    {% else %}
+    <tr><td><a href="{{ url_for('manage.display_data', data_source_type=data_source_type, data_source=oid, name=data['name']) }}">{{ data['name'] }}</a></td></tr>
+    {% endif %}
+    {% endfor %}
+</table>
+{% else %}
+<h3>No output information available for this pipeline instance.</h3>
+{% endif %}

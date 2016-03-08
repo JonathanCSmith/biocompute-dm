@@ -1,0 +1,1 @@
+This folder must remain empty in order to generate the links for file serving!
