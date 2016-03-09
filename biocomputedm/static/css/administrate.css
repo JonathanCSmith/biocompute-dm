@@ -88,6 +88,11 @@ div.content table.pagenator {
 
 .input-table .input {
     width: auto;
+    display: inline-block;
+}
+
+.input-table .input.fixed {
+    width: auto;
     display: block;
 }
 

@@ -9,13 +9,14 @@ function addResizeBehaviours() {
 function resize() {
     var size =$(".resize").width();
     if (size > 200) {
-
         $(".resize").height(200);
         $(".resize").width(200);
+        $(".resize_header").width(200);
     }
 
     else {
         $(".resize").height(size);
+        $(".resize_header").width(size);
     }
 }
 

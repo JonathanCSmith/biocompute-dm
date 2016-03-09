@@ -56,7 +56,6 @@
                 <td><a href="{{ url_for('sample_group', gid=grouping.display_key, type=grouping.type) }}">{{ grouping.name }}</a></td>
 
                 {% if grouping.current_pipeline %}
-                <td><a href="{{ url_for('pipeline', pid=grouping.current_pipeline.pipeline.display_key) }}">{{ grouping.current_pipeline.pipeline.name }}</a></td>
                 {% else %}
                 <td>No running pipeline</td>
                 {% endif %}

@@ -1,0 +1,39 @@
+{% extends "information_panel.html" %}
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+
+        {% block main_panel_view %}
+        {% endblock %}
+        <br>
+        <table class="pagenator">
+            <tr>
+                <td></td>
+                <td>&lt;&lt;</td>
+                <td>
+                    {% if obs.has_prev %}
+                    <a href="{{ url_for('submissions', page=posts.prev_num) }}">Previous</a>
+                    {% else %}
+                    Previous
+                    {% endif %}
+                </td>
+                <td>|</td>
+                <td>
+                    {% if obs.has_next %}
+                    <a href="{{ url_for('submissions', page=posts.next_num) }}">Next</a>
+                    {% else %}
+                    Next
+                    {% endif %}
+                </td>
+                <td>&gt;&gt;</td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

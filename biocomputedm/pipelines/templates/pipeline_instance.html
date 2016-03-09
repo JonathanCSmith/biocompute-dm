@@ -7,6 +7,18 @@
 {% block content %}
 <div class="input-table clear">
     <div class="action exempt">
+        <h3>Information</h3>
+        <ul>
+            <li>Below is the associated information for your pipeline run.</li>
+            <li>It contains details on the the pipeline steps and links to their available information.</li>
+            <li>The current status of the overall pipeline execution is indicated in the 'pipe' diagram below.</li>
+            <li>Finally any pipeline specific (as opposed to step specific) outputs are linked in the final panel.</li>
+        </ul>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="action exempt">
         <h3>Pipeline Properties</h3>
 
         <table class="content2">
@@ -15,16 +27,16 @@
                 <th>Pipeline Description</th>
                 <th>Pipeline Author</th>
                 <th>Pipeline Version</th>
+                <th>Current Step</th>
                 <th>Current Status</th>
-                <th>Current Execution Index</th>
             </tr>
             <tr>
                 <td>{{ pipeline_instance.pipeline.name }}</td>
                 <td>{{ pipeline_instance.pipeline.description }}</td>
                 <td>{{ pipeline_instance.pipeline.author }}</td>
                 <td>{{ pipeline_instance.pipeline.version }}</td>
+                <td>{{ pipeline_instance.current_execution_index  + 1}}</td>
                 <td>{{ pipeline_instance.current_execution_status }}</td>
-                <td>{{ pipeline_instance.current_execution_index }}</td>
             </tr>
         </table>
     </div>
@@ -37,7 +49,7 @@
         <table>
             <tr>
                 {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td><a href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
+                <td><a class="input" href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
                 {% endif %}
 
                 <td><a class="input" href="{{ url_for('pipelines.restart_module', oid=pipeline_instance.display_key) }}">Restart Current Module</a></td>
@@ -52,9 +64,22 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Module Information - Select a Module for More Information.</h3>
+        <h3>Pipeline Steps - Select a Step for More Information.</h3>
 
-        <table class="table-resize">
+        <table>
+
+            <tr>
+                <th></th>
+                {% for module_instance in pipeline_instance.module_instances %}
+                <th class="resize_header">{{ "Step " ~ loop.index }}</th>
+                {% endfor %}
+                <th></th>
+            </tr>
+
+        </table>
+
+        <table>
+
             <tr>
                 <td></td>
 
@@ -113,7 +138,7 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Generated Sample Data - Select a Sample for More Information</h3>
+        <h3>Generated Sample Data - Select for More Information</h3>
     </div>
     {% endif %}
 </div>

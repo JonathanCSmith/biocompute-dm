@@ -101,6 +101,7 @@ class PipelineInstance(SurrogatePK, Model):
 
     user = relationship("User", uselist=False)
     module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic")
+    data_consigner = relationship("DataSource", uselist=False, foreign_keys=[data_source_id])
 
     __tablename__ = "PipelineInstance"
 
@@ -116,7 +117,8 @@ class PipelineInstance(SurrogatePK, Model):
 
 def create_pipeline_instance(user, pipeline, data_source, execution_type, options_type):
     pipeline_instance = PipelineInstance(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=user)
-    data_source.update(current_pipeline=pipeline_instance)
+    data_source.update(currently_running_pipeline=pipeline_instance)
+    pipeline_instance.update(data_consigner=data_source)
     return pipeline_instance
 
 

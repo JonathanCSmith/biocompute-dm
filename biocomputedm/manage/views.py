@@ -494,7 +494,11 @@ def sample_group(oid=""):
 @manage.route("/projects")
 @login_required("ANY")
 def projects(page=1):
-    return abort(404)
+    items = current_user.group.projects
+    if items is not None:
+        items = items.paginate(page=page, per_page=20)
+
+    return render_template("projects.html", title="Projects", page=page, obs=items)
 
 
 @manage.route("/new_project")

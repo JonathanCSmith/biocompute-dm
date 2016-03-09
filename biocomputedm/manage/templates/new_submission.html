@@ -1,19 +1,30 @@
-{% extends "base.html" %}
+{% extends "information_panel.html" %}
 {% block custom_css %}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{{ super() }}
 {% endblock %}
 
-{% block content %}
+{% block info_panel %}
+<h3>Info</h3>
+
+<ul>
+    <li><h4>In order to run a pipeline on a set of data, it must first be submitted.</h4></li>
+    <li><h4>This submission form allows you to assign the data.</h4></li>
+    <li><h4>Please use the panel to the right to select the data and properties of your submission.</h4></li>
+</ul>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Submission Properties</h3>
         <form action="{{ url_for('manage.new_submission') }}"  method=post>
             {{ form.hidden_tag() }}
 
-            <div class="action exempt">
-                <h3>Currently Staged Files - Select those to be included in your submission.</h3>
+            <h3>Currently Staged Files - Select those to be included in your submission.</h3>
 
-                <table class="content">
+            <div class="input-table clear">
+                <table class="content3">
                     <tr>
                         <th>File Name</th>
                         <th>File Size (bytes)</th>
@@ -32,36 +43,37 @@
                 </table>
             </div>
 
-            <div class="spacer"></div>
+            <br>
 
-            <table class="small_content">
-                <tr>
-                    <td>
-                        {{ form.hidden_tag() }}
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.submission_name.label }}</td>
-                                <td>{{ form.submission_name }}</td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.submission_description.label }}</td>
-                                <td>{{ form.submission_description }}</td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{ form.submit(class_="input") }}
-                    </td>
-                </tr>
-            </table>
+            <div class="input-table clear">
+                <table class="small_content">
+                    <tr>
+                        <td>
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.submission_name.label }}</td>
+                                    <td>{{ form.submission_name }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.submission_description.label }}</td>
+                                    <td>{{ form.submission_description }}</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{ form.submit(class_="input") }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </form>
     </div>
 </div>

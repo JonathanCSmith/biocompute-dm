@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired
 
 
 class PipelinePropertiesForm(Form):
-    execution_field = SelectField("Execution Type:", choices=[("Continuous", "Continuous"), ("Per Module", "Per Module")])
+    execution_field = SelectField("Execution Type:", choices=[("Continuous", "Continuous"), ("Per Module", "Stepwise")])
     options_field = SelectField("Options Choices:", choices=[("Default", "Default"), ("Custom", "Custom")])
     submit_field = SubmitField("Submit")
 

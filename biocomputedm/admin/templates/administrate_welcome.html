@@ -1,6 +1,15 @@
-{% extends "administrate.html" %}
-{% block administrate %}
-<h3>Welcome</h3>
-<p>Welcome to the site administration panel</p>
-<p>From here you should be able to manage the site to your hearts content</p>
+{% extends "information_panel.html" %}
+
+{% block info_panel %}
+{% include "administrate_navigation.html" %}
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Welcome</h3>
+        <p>Welcome to the site administration panel</p>
+        <p>From here you should be able to manage the site to your hearts content</p>
+    </div>
+</div>
 {% endblock %}

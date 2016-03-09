@@ -71,7 +71,7 @@ def message(oid=""):
                 from biocomputedm.pipelines.helpers.pipeline_helper import finish_pipeline_instance
                 finish_pipeline_instance(current_app._get_current_object(),
                                          module_instance.pipeline_instance.display_key,
-                                         module_instance.pipeline_instance.current_data_source.display_key)
+                                         module_instance.pipeline_instance.data_consigner.display_key)
 
             # If we need to wait for options
             elif pipeline_instance.execution_type == "Per Module":
@@ -86,7 +86,7 @@ def message(oid=""):
                 from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
                 execute_module_instance(current_app._get_current_object(),
                                         module_instance.pipeline_instance.display_key,
-                                        module_instance.pipeline_instance.current_data_source.display_key)
+                                        module_instance.pipeline_instance.data_consigner.display_key)
 
         # Module has error
         elif event == "module_error":
@@ -354,16 +354,14 @@ def build_module_instance(pid="", oid="", index=-1):
             module_instance.option_values.append(option_value)
             module_instance.save()
 
-        index += 1
-
         # If we are out of modules to assign or we do not want to assign more information just yet
-        if len(modules) == index or pipeline_instance.execution_type == "Per Module":
-            pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
+        if len(modules) == index + 1 or pipeline_instance.execution_type == "Per Module":
+            pipeline_instance.update(current_execution_index=index)
 
             from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
             execute_module_instance(current_app._get_current_object(), pid, oid)
-            flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
-                  "warning")
+            flash("The next pipeline step is queued for submission. It may take time before it is registered as running.",
+                  "success")
             return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
         # Continue assigning information
@@ -479,8 +477,8 @@ def build_module_instance(pid="", oid="", index=-1):
 
                 from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
                 execute_module_instance(current_app._get_current_object(), pid, oid)
-                flash("Your pipeline is queued for submission. It may take time before it is registered as running.",
-                      "warning")
+                flash("The next pipeline step is queued for submission. It may take time before it is registered as running.",
+                      "success")
                 return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
             # Continue assigning information
@@ -571,23 +569,24 @@ def continue_pipeline(oid=""):
         flash("Could not resume the current pipeline as it is in a false state", "error")
         return redirect(url_for("empty"))
 
-    pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
-
     # We have the options already - from a state perspective I am not sure how this will arise but its best to handle
     if pipeline_instance.execution_type == "Continuous":
+        pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
+
         from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
         execute_module_instance(current_app._get_current_object(),
                                 pipeline_instance.display_key,
-                                pipeline_instance.current_data_source.display_key)
+                                pipeline_instance.data_consigner.display_key)
 
         flash("Submitting the next module for execution!", "success")
         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     # Need to obtain the options
     else:
-        flash("Please enter the options for this module.", "success")
-        return redirect(url_for("pipelines.build_module_instance", pid=oid, oid=pipeline_instance.data_source_id,
-                                index=pipeline_instance.current_execution_index))
+        return redirect(url_for("pipelines.build_module_instance",
+                                pid=oid,
+                                oid=pipeline_instance.data_source_id,
+                                index=pipeline_instance.current_execution_index + 1))
 
 
 @pipelines.route("/finish_current_module/<oid>")
@@ -621,7 +620,7 @@ def finish_current_module(oid="", force=0):
         from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
         execute_module_instance(current_app._get_current_object(),
                                 pipeline_instance.display_key,
-                                pipeline_instance.current_data_source.display_key)
+                                pipeline_instance.data_consigner.display_key)
 
         flash("Submitting the next module for execution!", "success")
         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
@@ -692,7 +691,7 @@ def restart_module(oid="", force=0):
     from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
     execute_module_instance(current_app._get_current_object(),
                             pipeline_instance.display_key,
-                            pipeline_instance.current_data_source.display_key)
+                            pipeline_instance.data_consigner.display_key)
 
     flash("Resubmitting the module for execution!", "success")
     return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
@@ -721,10 +720,11 @@ def finish_pipeline(oid="", force=0):
 
     # TODO - If module is running parse for job id and kill all
 
-    pipeline_instance.update(current_data_source=None)
+    current_data_source = pipeline_instance.data_consigner
+    current_data_source.update(currently_running_pipeline=None)
 
     flash("The pipeline was stopped and disassociated with your parent data set", "success")
-    return redirect(url_for("activity"))
+    return redirect(url_for("index"))
 
 
 @pipelines.route("/restart_pipeline/<oid>")
@@ -750,9 +750,11 @@ def restart_pipeline(oid="", force=0):
 
     # TODO - If module is running parse for job id and kill all
 
-    data_source = pipeline_instance.current_data_source
-    pipeline_instance.update(current_data_source=None)
+    data_source = pipeline_instance.data_consigner
+    data_source.update(currently_running_pipeline=None)
 
     flash("The previous pipeline has been removed, follow the instructions below to restart!", "success")
-    return redirect(url_for("pipelines.build_pipeline_instance", pid=pipeline_instance.pipeline.display_key,
-                            oid=data_source.display_key, type=data_source.type))
+    return redirect(url_for("pipelines.build_pipeline_instance",
+                            pid=pipeline_instance.pipeline.display_key,
+                            oid=data_source.display_key,
+                            type=data_source.type))

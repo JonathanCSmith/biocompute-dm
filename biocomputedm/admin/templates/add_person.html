@@ -1,49 +1,59 @@
-{% extends "administrate.html" %}
-{% block administrate %}
-{% if type == "User" %}
-<h3>Add User to Current Group</h3>
-<form action="{{ url_for('admin.add_user') }}" method=post>
-{% else %}
-<h3>Add Customer to Current Group</h3>
-<form action="{{ url_for('admin.add_customer') }}" method=post>
-{% endif %}
-    <table class="small_content">
-        <tr>
-            <td>
-                {{ form.hidden_tag() }}
-                <table class="internal">
-                    <tr>
-                        <td>{{ form.login_name.label }}</td>
-                        <td>{{ form.login_name }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table class="internal">
-                    <tr>
-                        <td>{{ form.login_password.label }}</td>
-                        <td>{{ form.login_password }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table class="internal">
-                    <tr>
-                        <td>{{ form.login_email.label }}</td>
-                        <td>{{ form.login_email }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form.submit(class_="input") }}
-            </td>
-        </tr>
-    </table>
-</form>
+{% extends "information_panel.html" %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>Use the form to the right to add a person to your installation.</h4>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        {% if type == "User" %}
+        <h3>Add User to Current Group</h3>
+        <div action="{{ url_for('admin.add_user') }}" method=post>
+        {% else %}
+        <h3>Add Customer to Current Group</h3>
+        <form action="{{ url_for('admin.add_customer') }}" method=post>
+        {% endif %}
+            <table class="small_content">
+                <tr>
+                    <td>
+                        {{ form.hidden_tag() }}
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.login_name.label }}</td>
+                                <td>{{ form.login_name }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.login_password.label }}</td>
+                                <td>{{ form.login_password }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.login_email.label }}</td>
+                                <td>{{ form.login_email }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ form.submit(class_="input") }}
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
 {% endblock %}

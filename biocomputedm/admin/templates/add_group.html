@@ -1,55 +1,64 @@
-{% extends "administrate.html" %}
+{% extends "information_panel.html" %}
 
-{% block administrate %}
-<h3>Add Group and Respective Administrator</h3>
-<form action="{{ url_for('admin.add_group') }}" method=post>
-    <table class="small_content">
-        <tr>
-            <th>
-                {{ form.hidden_tag() }}
-                <table class="internal">
-                    <tr>
-                        <td>{{ form.group_name.label }}</td>
-                        <td>{{ form.group_name }}</td>
-                    </tr>
-                </table>
-            </th>
-        </tr>
-        <tr>
-            <td>
-                <table class="internal">
-                    <tr>
-                        <td>{{ form.admin_login.label }}</td>
-                        <td>{{ form.admin_login }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table class="internal">
-                    <tr>
-                        <td>{{ form.admin_password.label }}</td>
-                        <td>{{ form.admin_password }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table class="internal">
-                    <tr>
-                        <td>{{ form.admin_email.label }}</td>
-                        <td>{{ form.admin_email }}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form.submit(class_="input") }}
-            </td>
-        </tr>
-    </table>
-</form>
+{% block info_panel %}
+<h3>Info</h3>
+<h4>Use the form to the right to add a group to your installation.</h4>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Add Group and Respective Administrator</h3>
+        <form action="{{ url_for('admin.add_group') }}" method=post>
+            <table class="small_content">
+                <tr>
+                    <th>
+                        {{ form.hidden_tag() }}
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.group_name.label }}</td>
+                                <td>{{ form.group_name }}</td>
+                            </tr>
+                        </table>
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.admin_login.label }}</td>
+                                <td>{{ form.admin_login }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.admin_password.label }}</td>
+                                <td>{{ form.admin_password }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>{{ form.admin_email.label }}</td>
+                                <td>{{ form.admin_email }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="display: inline-block;">
+                        {{ form.submit(class_="input") }}
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
 {% endblock %}

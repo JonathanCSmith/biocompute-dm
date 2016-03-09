@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<link rel="stylesheet" type="text/css" href="/static/css/administrate.css?v=9">
+{% endblock %}
+
+{% block content %}
+<table>
+    <tr>
+        <td class="left administrate">
+            <div class="input-table clear">
+                <div class="action exempt">
+                    {% block info_panel %}
+                    {% endblock %}
+                </div>
+            </div>
+        </td>
+        <td class="administrate right">
+            {% block main_panel %}
+            {% endblock %}
+        </td>
+    </tr>
+</table>
+{% endblock %}

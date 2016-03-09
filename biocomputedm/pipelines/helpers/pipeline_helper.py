@@ -383,7 +383,8 @@ def finish_pipeline_instance(app, pid="", oid=""):
                     pass
 
             # Fix up the pipeline status
-            pipeline_instance.update(current_data_source=None)
+            data_source = pipeline_instance.data_consigner
+            data_source.update(currently_running_pipeline=None)
 
     except Exception as e:
         print("There was an exception when executing the current pipeline: " + str(e))

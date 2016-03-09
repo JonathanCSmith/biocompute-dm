@@ -1,5 +1,11 @@
-{% extends "table.html" %}
-{% block table %}
+{% extends "paginated_information_panel.html" %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panel to the right shows the groups of samples that have been created by you, your group members or by pipelines after they have finished execution.</h4>
+{% endblock %}
+
+{% block main_panel_view %}
 <h3>Samples</h3>
 <table class="content">
     <tr>

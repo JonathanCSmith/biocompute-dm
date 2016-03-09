@@ -42,6 +42,8 @@ ssh ${USERNAME}@${HPC_IP} << END
     # TODO hold a cleanup job to rename the log files
 END
 
+# Wait loop for the above array jobs - this ensures we get correct reporting of times etc and no preemptive job triggering!
+
 # Safe exit so we don't trip our error code below
 exit
 fi

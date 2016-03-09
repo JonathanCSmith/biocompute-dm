@@ -1,5 +1,12 @@
-{% extends "table.html" %}
-{% block table %}
+{% extends "paginated_information_panel.html" %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panel to your right shows all the submissions created by you and your group.</h4>
+<h4>Submissions are required in order to begin a pipeline's execution.</h4>
+{% endblock %}
+
+{% block main_panel_view %}
 <h3>Submissions</h3>
 <table class="content">
     <tr>

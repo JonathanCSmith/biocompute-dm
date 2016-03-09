@@ -1,7 +1,13 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "information_panel.html" %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>Please log in using the credentials provided to you by your system / group administrator.</h4>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
-    <div class="action">
+    <div class="action exempt">
         <h3>Login</h3>
         <form action="{{ url_for('admin.login') }}" method=post>
             <table class="small_content">
@@ -28,7 +34,7 @@
                 </tr>
                 <tr>
                     <td>
-                        {{ form.submit }}
+                        {{ form.submit(class_="input") }}
                     </td>
                 </tr>
             </table>

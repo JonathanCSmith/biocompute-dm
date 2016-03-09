@@ -14,9 +14,9 @@ class Group(SurrogatePK, Model):
     pipeline_instances = relationship("PipelineInstance", lazy="dynamic", backref="pipelines")
     samples = relationship("Sample", lazy="dynamic", backref="group")
     sample_groups = relationship("SampleGroup", lazy="dynamic", backref="group")
+    projects = relationship("Project", lazy="dynamic", backref="group")
 
     # # TODO: CHANGE
-    # investigation = db.RelationshipProperty("Investigation", backref="group", lazy="dynamic")
     # document = db.RelationshipProperty("Document", backref="group", lazy="dynamic")
 
     __tablename__ = "Group"
@@ -44,7 +44,7 @@ class Group(SurrogatePK, Model):
 
 def create_group(group_name, admin_name, admin_password, admin_email):
     group = Group.create(name=group_name)
-    user = User.create(name=admin_name, email=admin_email, password=admin_password, group=group)
+    user = User.create(username=admin_name, email=admin_email, password=admin_password, group=group)
     group.set_administrator(user)
     return group
 
@@ -93,7 +93,7 @@ class Person(UserMixin, SurrogatePK, Model):
         return self.role
 
     def set_role(self, role):
-        self.role = role
+        self.update(role=role)
 
 
 # User - someone who can submit jobs to the software

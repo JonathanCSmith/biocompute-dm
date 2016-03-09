@@ -12,5 +12,6 @@ function addSelectionGroupBehaviours() {
 }
 
 $(document).ready(function() {
-   addSelectionGroupBehaviours();
+    addSelectionGroupBehaviours();
+    $('.selection').val("None")
 });

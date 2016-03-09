@@ -1,0 +1,29 @@
+{% extends "paginated_information_panel.html" %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panel to the right shows the projects that have been created by you or your group members.</h4>
+<h4>Projects are groupings of outputs from a pipeline. These can either be by sample or by sample group.</h4>
+{% endblock %}
+
+{% block main_panel_view %}
+<h3>Samples</h3>
+<table class="content">
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Creator</th>
+    </tr>
+
+    {% if obs %}
+    {% for item in obs.items %}
+    <tr>
+        <td><a href="{{ url_for('manage.project', oid=item.display_key) }}">{{ item.name }}</a></td>
+        <td>{{ item.description }}</td>
+        <td>{{ item.creator.username }}</td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+
+</table>
+{% endblock %}

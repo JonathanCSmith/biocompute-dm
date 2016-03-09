@@ -1,52 +1,52 @@
-{% extends "base.html" %}
-{% block custom_css %}
-<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% extends "information_panel.html" %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panels on the right list your uploaded files as well as your files prepared for download.</h4>
 {% endblock %}
 
-{% block content %}
-<div class="input-table clear">
-    <div class="action exempt">
-        <h3>Currently Staged Files</h3>
+{% block main_panel %}
+<h3>Currently Staged Files</h3>
 
-        <table class="content">
-            <tr>
-                <th>File Name</th>
-                <th>File Size (bytes)</th>
-                <th>File Creation Date</th>
-            </tr>
+<table class="content">
+    <tr>
+        <th>File Name</th>
+        <th>File Size (bytes)</th>
+        <th>File Creation Date</th>
+    </tr>
 
-            {% for file in files %}
-            <tr>
-                <td>{{ file["name"] }}</td>
-                <td>{{ file["size"] }}</td>
-                <td>{{ file["date"] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+    {% for file in files %}
+    <tr>
+        <td>{{ file["name"] }}</td>
+        <td>{{ file["size"] }}</td>
+        <td>{{ file["date"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
 
-        <table class="pagenator">
-            <tr>
-                <td></td>
-                <td>&lt;&lt;</td>
-                <td>
-                    {% if has_prev %}
-                    <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
-                    {% else %}
-                    Previous
-                    {% endif %}
-                </td>
-                <td>|</td>
-                <td>
-                    {% if has_next %}
-                    <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
-                    {% else %}
-                    Next
-                    {% endif %}
-                </td>
-                <td>&gt;&gt;</td>
-                <td></td>
-            </tr>
-        </table>
-    </div>
-</div>
+<br>
+
+<table class="pagenator">
+    <tr>
+        <td></td>
+        <td>&lt;&lt;</td>
+        <td>
+            {% if has_prev %}
+            <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
+            {% else %}
+            Previous
+            {% endif %}
+        </td>
+        <td>|</td>
+        <td>
+            {% if has_next %}
+            <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
+            {% else %}
+            Next
+            {% endif %}
+        </td>
+        <td>&gt;&gt;</td>
+        <td></td>
+    </tr>
+</table>
 {% endblock %}

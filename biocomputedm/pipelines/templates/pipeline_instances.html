@@ -1,5 +1,11 @@
-{% extends "table.html" %}
-{% block table %}
+{% extends "paginated_information_panel.html" %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panel to the right shows the pipelines that have been run by you or your group members.</h4>
+{% endblock %}
+
+{% block main_panel_view %}
 <h3>Pipelines</h3>
 <table class="content">
     <tr>
