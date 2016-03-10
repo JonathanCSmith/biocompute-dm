@@ -100,7 +100,7 @@ class PipelineInstance(SurrogatePK, Model):
     data_source_id = reference_col("DataSource", nullable=True)
 
     user = relationship("User", uselist=False)
-    module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic")
+    module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic", cascade="all, delete-orphan")
     data_consigner = relationship("DataSource", uselist=False, foreign_keys=[data_source_id])
 
     __tablename__ = "PipelineInstance"
@@ -128,7 +128,7 @@ class PipelineModuleInstance(SurrogatePK, Model):
 
     module = relationship("PipelineModule", uselist=False)
     instance = relationship("PipelineInstance", uselist=False)
-    option_values = relationship("PipelineModuleOptionValue", backref="module", lazy="dynamic")
+    option_values = relationship("PipelineModuleOptionValue", backref="module", lazy="dynamic", cascade="all, delete-orphan")
 
     __tablename__ = "PipelineModuleInstance"
 

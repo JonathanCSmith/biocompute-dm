@@ -15,6 +15,8 @@ IFS="${OLFIFS}"
 echo "File Paths: ${FILE_PATHS}"
 
 INDEX=$((${SGE_TASK_ID}-1))
+echo "File worker index: ${INDEX}"
+
 FILE_PATH=${FILE_PATHS[${INDEX}]}
 echo "Working on file: ${FILE_PATH}"
 

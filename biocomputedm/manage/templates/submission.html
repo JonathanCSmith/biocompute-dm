@@ -18,9 +18,7 @@
     <div class="action exempt">
         <h3>Submission: {{ submission.name }}</h3>
 
-        <ul>
-            <li><h4>{{ submission.description }}</h4></li>
-        </ul>
+        <h4>{{ submission.description }}</h4>
 
         <table class="content">
             <tr>
@@ -37,6 +35,8 @@
             </tr>
             {% endfor %}
         </table>
+
+        <div class="spacer"></div>
 
         <table class="pagenator">
             <tr>
@@ -63,7 +63,7 @@
         </table>
     </div>
 
-    <br>
+    <div class="spacer"></div>
 
     <div class="action exempt">
         {% if submission.currently_running_pipeline %}
@@ -84,9 +84,11 @@
         </table>
 
         <div class="spacer"></div>
+        <div class="spacer"></div>
 
         <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=submission.currently_running_pipeline.display_key) }}">View Pipeline Instance</a>
 
+        <div class="spacer"></div>
         <div class="spacer"></div>
 
         <div class="input-table clear">
@@ -145,8 +147,7 @@
             {% endfor %}
         </select>
 
-        <br>
-        <br>
+        <div class="spacer"></div>
 
         {% for pipeline in pipelines %}
         <div id="{{ pipeline.name ~ ': ' ~ pipeline.version }}" class="description" style="display: none">
@@ -165,7 +166,7 @@
                 </tr>
             </table>
 
-            <br>
+            <div class="spacer"></div>
 
             <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>
         </div>

@@ -75,7 +75,8 @@ def message(oid=""):
 
             # If we need to wait for options
             elif pipeline_instance.execution_type == "Per Module":
-                pipeline_instance.update(current_execution_status="WAITING")
+                pipeline_instance.update(current_execution_index=pipeline_instance.current_execution_index + 1,
+                                         current_execution_status="WAITING")
 
                 # TODO: Email notification
 
@@ -180,7 +181,8 @@ def display_pipeline_instance(oid="", data_file=""):
         flash("Could not locate the provided pipeline instance", "warning")
         return redirect(url_for("empty"))
 
-    data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key), "pipeline_output")
+    data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
+                             "pipeline_output")
     filepaths = next(os.walk(data_path))
     datasets = []
     for file in filepaths[2]:
@@ -259,6 +261,13 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
             flash("The pipeline information provided was invalid", "error")
             return redirect(url_for("index"))
 
+        # Check data source
+        if data_source.currently_running_pipeline is not None:
+            flash(
+                "The provided data source is already attached to a pipeline. Please ensure it finishes or you quit the original pipeline before proceeding",
+                "warning")
+            return redirect(url_for("index"))
+
         # Instance creation and assignment
         pipeline_instance = create_pipeline_instance(current_user, pipeline, data_source, execution_type,
                                                      options_type)
@@ -268,8 +277,18 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
         pipeline_directory = os.path.join(pipeline_directory, pipeline_instance.display_key)
         utils.make_directory(pipeline_directory)
         utils.make_directory(os.path.join(pipeline_directory, "samples_output"))
-        utils.make_directory(os.path.join(pipeline_directory, "modules_output"))
+        modules_directory = os.path.join(pipeline_directory, "modules_output")
+        utils.make_directory(modules_directory)
         utils.make_directory(os.path.join(pipeline_directory, "pipeline_output"))
+
+        # Make the module instances and their directories
+        for module in pipeline.modules:
+            module_instance = PipelineModuleInstance.create(module=module, instance=pipeline_instance)
+            pipeline_instance.module_instances.append(module_instance)
+            pipeline_instance.save()
+            utils.make_directory(os.path.join(modules_directory, module.name))
+
+        pipeline_instance.update(current_execution_status="WAITING", current_execution_index=0)
 
         return redirect(url_for("pipelines.build_module_instance", pid=pipeline_instance.display_key, oid=oid, index=0))
 
@@ -286,54 +305,37 @@ def build_module_instance(pid="", oid="", index=-1):
         flash("There was an error with your provided information.", "error")
         return redirect(url_for("index"))
 
-    modules = pipeline_instance.pipeline.modules.all()
-
     # We are out of modules
-    if index >= len(modules):
+    module_instances = pipeline_instance.module_instances.all()
+    if index >= len(module_instances):
         flash("There are no more modules to build!", "warning")
         pipeline_instance.update(current_execution_status="FINISHED")
         return redirect(url_for("pipelines.display_pipeline_instance", oid=pipeline_instance.display_key))
 
-    # Display a list of module options to the user depending on the continue building flag
-    # Note this is fall through from post so that we can iterate where necessary
-    module_instances = pipeline_instance.module_instances.all()
-
     # Find the correct module template
-    module = None
-    for mod in modules:
-        if mod.execution_index == index:
-            module = mod
+    module_instance = None
+    for mod in module_instances:
+        if mod.module.execution_index == index:
+            module_instance = mod
             break
 
     # Check that we haven't been provided with a faulty index
-    if module is None:
+    if module_instance is None:
         flash("There was an error building the next pipeline module", "error")
         return redirect(url_for("index"))
 
-    # Check whether we need to create a module instance for this
-    if len(module_instances) == index:
-        module_instance = PipelineModuleInstance.create(module=module, instance=pipeline_instance)
-        pipeline_instance.module_instances.append(module_instance)
-        pipeline_instance.save()
-
-    # This is likely to occur during a page refresh
-    elif len(module_instances) == index + 1:
-        module_instance = PipelineModuleInstance.query.filter_by(module=module).first()
-        if module_instance is None:
-            flash("There was an error building the next pipeline module", "error")
-            return redirect(url_for("index"))
-
-    # Bad request
-    else:
-        flash("There was an error building the next pipeline module", "error")
-        return redirect(url_for("index"))
+    # Delete any existing options for this module
+    values = module_instance.option_values
+    for value in values:
+        module_instance.option_values.remove(value)
+        value.delete()
 
     # We only want to assign values for the module we are about to generate that are absolutely necessary
     options = []
     default_options = []
     if pipeline_instance.options_type == "Default":
         # Retrieve the module options
-        possible_options = module.options.all()
+        possible_options = module_instance.module.options.all()
         for option in possible_options:
             if option.necessary:
                 options.append(option)
@@ -343,7 +345,7 @@ def build_module_instance(pid="", oid="", index=-1):
     # We want to assign all values for the module we are about to generate
     else:
         # Retrieve the module options
-        options = module.options.all()
+        options = module_instance.module.options.all()
 
     # Handle the case where there are no options to assign to this module
     if len(options) == 0:
@@ -355,18 +357,17 @@ def build_module_instance(pid="", oid="", index=-1):
             module_instance.save()
 
         # If we are out of modules to assign or we do not want to assign more information just yet
-        if len(modules) == index + 1 or pipeline_instance.execution_type == "Per Module":
-            pipeline_instance.update(current_execution_index=index)
-
+        if len(module_instances) == index + 1 or pipeline_instance.execution_type == "Per Module":
             from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
             execute_module_instance(current_app._get_current_object(), pid, oid)
-            flash("The next pipeline step is queued for submission. It may take time before it is registered as running.",
-                  "success")
+            flash(
+                "The next pipeline step is queued for submission. It may take time before it is registered as running.",
+                "success")
             return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
         # Continue assigning information
         else:
-            return redirect(url_for("pipelines.build_module_instance", pid=pid, oid=oid, index=index))
+            return redirect(url_for("pipelines.build_module_instance", pid=pid, oid=oid, index=index + 1))
 
     # Build a form containing all of the options
     form = build_options_form(options, request.form)
@@ -376,11 +377,6 @@ def build_module_instance(pid="", oid="", index=-1):
 
     # Parse the options and inject them into our pipeline information
     if request.method == "POST":
-        # We need to handle page refreshes
-        values = module_instance.option_values.all()
-        for value in values:
-            value.delete()
-
         # We need to handle the case where a template has been requested
         # (i.e. a button other than the form submit button)
         file_options = []
@@ -401,6 +397,15 @@ def build_module_instance(pid="", oid="", index=-1):
 
         # Validate the form properties
         if form.validate_on_submit():
+            # Add in any default fields?
+            if pipeline_instance.options_type == "Default":
+                for option in default_options:
+                    # Append the default option set
+                    option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
+                    option_value.update(value=option.default_value)
+                    module_instance.option_values.append(option_value)
+                    module_instance.save()
+
             for option in options:
                 if option.user_interaction_type == "file":
                     field = getattr(form, option.display_key + "_upload")
@@ -460,30 +465,18 @@ def build_module_instance(pid="", oid="", index=-1):
                 else:
                     continue
 
-            # Add in any default fields?
-            if pipeline_instance.options_type == "Default":
-                for option in default_options:
-                    # Append the default option set
-                    option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
-                    option_value.update(value=option.default_value)
-                    module_instance.option_values.append(option_value)
-                    module_instance.save()
-
-            index += 1
-
             # If we are out of modules to assign or we do not want to assign more information just yet
-            if len(modules) == index or pipeline_instance.execution_type == "Per Module":
-                pipeline_instance.update(current_execution_status="NOT_STARTED", current_execution_index=0)
-
+            if len(module_instances) == index + 1 or pipeline_instance.execution_type == "Per Module":
                 from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
                 execute_module_instance(current_app._get_current_object(), pid, oid)
-                flash("The next pipeline step is queued for submission. It may take time before it is registered as running.",
-                      "success")
+                flash(
+                    "The next pipeline step is queued for submission. It may take time before it is registered as running.",
+                    "success")
                 return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
             # Continue assigning information
             else:
-                return redirect(url_for("pipelines.build_module_instance", pid=pid, oid=oid, index=index))
+                return redirect(url_for("pipelines.build_module_instance", pid=pid, oid=oid, index=index + 1))
 
         else:
             utils.flash_errors(form)
@@ -571,8 +564,6 @@ def continue_pipeline(oid=""):
 
     # We have the options already - from a state perspective I am not sure how this will arise but its best to handle
     if pipeline_instance.execution_type == "Continuous":
-        pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1))
-
         from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
         execute_module_instance(current_app._get_current_object(),
                                 pipeline_instance.display_key,
@@ -585,8 +576,8 @@ def continue_pipeline(oid=""):
     else:
         return redirect(url_for("pipelines.build_module_instance",
                                 pid=oid,
-                                oid=pipeline_instance.data_source_id,
-                                index=pipeline_instance.current_execution_index + 1))
+                                oid=pipeline_instance.data_consigner.display_key,
+                                index=pipeline_instance.current_execution_index))
 
 
 @pipelines.route("/finish_current_module/<oid>")
@@ -612,6 +603,13 @@ def finish_current_module(oid="", force=0):
 
     # TODO - If module is running parse for job id and kill all
 
+    # We are out of modules
+    module_instances = pipeline_instance.module_instances.all()
+    if pipeline_instance.current_execution_index >= len(module_instances) - 1:
+        flash("There are no more modules to run!", "warning")
+        pipeline_instance.update(current_execution_status="FINISHED")
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=pipeline_instance.display_key))
+
     pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1),
                              current_execution_status="RUNNING")
 
@@ -628,8 +626,11 @@ def finish_current_module(oid="", force=0):
     # Need to obtain the options
     else:
         flash("Please enter the options for this module.", "success")
-        return redirect(url_for("pipelines.build_module_instance", pid=oid, oid=pipeline_instance.data_source_id,
-                                index=pipeline_instance.current_execution_index))
+        return redirect(
+            url_for("pipelines.build_module_instance",
+                    pid=oid,
+                    oid=pipeline_instance.data_consigner.display_key,
+                    index=pipeline_instance.current_execution_index))
 
 
 @pipelines.route("/restart_module/<oid>")
@@ -651,12 +652,8 @@ def restart_module(oid="", force=0):
         flash("Could not load the provided pipeline instance", "error")
         return redirect(url_for("empty"))
 
-    pipeline_instance.update(current_execution_status="STOPPED")
-
     # TODO - If module is running parse for job id and kill all
 
-    # Display a list of module options to the user depending on the continue building flag
-    # Note this is fall through from post so that we can iterate where necessary
     module_instances = pipeline_instance.module_instances.all()
 
     # Find the correct module template
@@ -666,11 +663,13 @@ def restart_module(oid="", force=0):
             module = mod
             break
 
-    if module.module.execution_index == len(module_instances) - 1:
-        flash(
-            "It is currently not possible to restart the last module as information about the data source has been lost.",
-            "warning")
-        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+    # if module.module.execution_index == len(module_instances) - 1:
+    #     flash(
+    #         "It is currently not possible to restart the last module as information about the data source has been lost.",
+    #         "warning")
+    #     return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+
+    pipeline_instance.update(current_execution_status="STOPPED")
 
     # Clean the module directory
     subprocess.Popen(
@@ -688,13 +687,23 @@ def restart_module(oid="", force=0):
     ).wait()
 
     # We have the options already
-    from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
-    execute_module_instance(current_app._get_current_object(),
-                            pipeline_instance.display_key,
-                            pipeline_instance.data_consigner.display_key)
+    if pipeline_instance.execution_type == "Continuous":
+        from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+        execute_module_instance(current_app._get_current_object(),
+                                pipeline_instance.display_key,
+                                pipeline_instance.data_consigner.display_key)
 
-    flash("Resubmitting the module for execution!", "success")
-    return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+        flash("Submitting the next module for execution!", "success")
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+
+    # Need to obtain the options
+    else:
+        flash("Please enter the options for this module.", "success")
+        return redirect(
+                url_for("pipelines.build_module_instance",
+                        pid=oid,
+                        oid=pipeline_instance.data_consigner.display_key,
+                        index=pipeline_instance.current_execution_index))
 
 
 @pipelines.route("/finish_pipeline/<oid>")
@@ -757,4 +766,4 @@ def restart_pipeline(oid="", force=0):
     return redirect(url_for("pipelines.build_pipeline_instance",
                             pid=pipeline_instance.pipeline.display_key,
                             oid=data_source.display_key,
-                            type=data_source.type))
+                            runtime_type=data_source.type))

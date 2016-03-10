@@ -268,7 +268,6 @@ def execute_module_instance(app, pid="", oid=""):
 
             local_modules_output_directory = os.path.join(local_pipeline_directory, "modules_output")
             local_module_directory = os.path.join(local_modules_output_directory, current_module_instance.module.name)
-            utils.make_directory(local_module_directory)
 
             remote_modules_output_directory = os.path.join(remote_pipeline_directory, "modules_output")
             remote_module_directory = os.path.join(remote_modules_output_directory, current_module_instance.module.name)
@@ -363,6 +362,7 @@ def finish_pipeline_instance(app, pid="", oid=""):
                                              pipeline_instance.display_key)
                     utils.make_directory(data_path)
                     s.pipeline_runs.append(pipeline_instance)
+                    s.save()
 
                     # Transfer the data using an sh
                     script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")

@@ -48,11 +48,14 @@ def build_options_form(options, post_data):
                                                     description=option.description))
             synthetics.append(option.display_key)
 
-        elif option.user_interaction_type == "refernce":
+        elif option.user_interaction_type == "reference":
             choices = []
             choice_options = ReferenceData.query.filter_by(current=True).all()
             for choice_option in choice_options:
-                choices.append(choice_option.name + " (" + choice_option.version + "): " + choice_option.description)
+                choices.append((choice_option.display_key, choice_option.name + " (" + choice_option.version + "): " + choice_option.description))
+
+            if len(choices) == 0:
+                choices.append(("NO", "No libraries found..."))
 
             clazz = clazz.append_field(option.display_key,
                                        SelectField(option.display_name,

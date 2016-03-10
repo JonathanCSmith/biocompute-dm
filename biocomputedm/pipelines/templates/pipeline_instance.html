@@ -1,23 +1,22 @@
-{% extends "base.html" %}
+{% extends "information_panel.html" %}
+
 {% block custom_css %}
+{{ super() }}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 <link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
 {% endblock %}
 
-{% block content %}
+{% block info_panel %}
+<h3>Info</h3>
+<h4>To the right is all of the information associated with your pipeline run.</h4>
+<h4>It contains details on the the pipeline steps and links to their available information.</h4>
+<h4>The current status of the overall pipeline execution is indicated in the 'pipe'.</h4>
+<h4>Pipeline specific (as opposed to step specific) outputs are listed in a dedicated section when necessary.</h4>
+<h4>Samples generated when the pipeline finishes are also detailed in a separate section.</h4>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
-    <div class="action exempt">
-        <h3>Information</h3>
-        <ul>
-            <li>Below is the associated information for your pipeline run.</li>
-            <li>It contains details on the the pipeline steps and links to their available information.</li>
-            <li>The current status of the overall pipeline execution is indicated in the 'pipe' diagram below.</li>
-            <li>Finally any pipeline specific (as opposed to step specific) outputs are linked in the final panel.</li>
-        </ul>
-    </div>
-
-    <div class="spacer"></div>
-
     <div class="action exempt">
         <h3>Pipeline Properties</h3>
 
@@ -37,26 +36,6 @@
                 <td>{{ pipeline_instance.pipeline.version }}</td>
                 <td>{{ pipeline_instance.current_execution_index  + 1}}</td>
                 <td>{{ pipeline_instance.current_execution_status }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="spacer"></div>
-
-    <div class="action exempt">
-        <h3>Pipeline Controls</h3>
-
-        <table>
-            <tr>
-                {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td><a class="input" href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
-                {% endif %}
-
-                <td><a class="input" href="{{ url_for('pipelines.restart_module', oid=pipeline_instance.display_key) }}">Restart Current Module</a></td>
-                <td><a class="input" href="{{ url_for('pipelines.finish_current_module', oid=pipeline_instance.display_key) }}">Force Next Module</a></td>
-
-                <td><a class="input" href="{{ url_for('pipelines.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>
-                <td><a class="input" href="{{ url_for('pipelines.finish_pipeline', oid=pipeline_instance.display_key) }}">Quit and Remove Pipeline</a></td>
             </tr>
         </table>
     </div>
@@ -124,6 +103,26 @@
         </table>
     </div>
 
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Pipeline Controls</h3>
+
+        <table>
+            <tr>
+                {% if pipeline_instance.current_execution_status == "WAITING" %}
+                <td><a class="input" href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
+                {% endif %}
+
+                <td><a class="input" href="{{ url_for('pipelines.restart_module', oid=pipeline_instance.display_key) }}">Restart Current Module</a></td>
+                <td><a class="input" href="{{ url_for('pipelines.finish_current_module', oid=pipeline_instance.display_key) }}">Force Next Module</a></td>
+
+                <td><a class="input" href="{{ url_for('pipelines.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>
+                <td><a class="input" href="{{ url_for('pipelines.finish_pipeline', oid=pipeline_instance.display_key) }}">Quit and Remove Pipeline</a></td>
+            </tr>
+        </table>
+    </div>
+
     {% if pipeline_instance.current_execution_status != "NOT_STARTED" %}
     <div class="spacer"></div>
 
@@ -139,6 +138,14 @@
 
     <div class="action exempt">
         <h3>Generated Sample Data - Select for More Information</h3>
+
+        <table>
+            <tr><th>Sample Name</th></tr>
+            {% for sample in pipeline_instance.samples %}
+            <tr><td><a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a></td></tr>
+            {% endfor %}
+            <tr><td></td></tr>
+        </table>
     </div>
     {% endif %}
 </div>

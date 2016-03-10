@@ -22,5 +22,6 @@ done
 
 # Link dir for static file serving
 echo "Linking: ${SOURCE} to ${TARGET}"
-ln -s "${SOURCE}" "${TARGET}"
+rm -rf "${TARGET}"
+ln -s "${SOURCE}/" "${TARGET}"
 exit

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #$ -S /bin/bash
-# -V
+#$ -V
 
 OLDIFS="${IFS}"
 
@@ -16,44 +16,117 @@ echo "Extra: ${EXTRA}"
 echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # ========================================== FINISHED BUILDING OUR IO VALUES ==========================================
 
-# ================================================== SUBMISSION DATA ==================================================
+# ============================================== SUBMISSION PROPERTIES=================================================
 # Traverse the output path to generate a csv series of file paths
 FILE_LIST=""
 FILE_COUNT=0
 for f in ${DATA_OUTPUT_DIRECTORY}/*.fastq.gz # We are only interested in demuxed files!
 do
-    FILE_LIST+="${f},"
     FILE_COUNT=$((FILE_COUNT+1))
+    FILE_LIST+="${f},"
 done
 
 echo "File Count ${FILE_COUNT}"
+# ============================================== SUBMISSION PROPERTIES=================================================
 
-# Error catching for no files (logic is inverted here because my IDE was playing havoc with the heredoc below)
-if [ ${FILE_COUNT} -ne 0 ]; then
-
-# Get rid of the extra comma
-FILE_LIST=${FILE_LIST%?}
-echo "File List ${FILE_LIST}"
-
-# Pass to an array job to handle
-ssh ${USERNAME}@${HPC_IP} << END
-    source /etc/profile;
-    qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e ${MODULE_OUTPUT_DIRECTORY} "${PIPELINE_SOURCE}//fastqc_worker.sh"
-    # TODO hold a cleanup job to rename the log files
-END
-
-# Wait loop for the above array jobs - this ensures we get correct reporting of times etc and no preemptive job triggering!
-
-# Safe exit so we don't trip our error code below
-exit
-fi
 # ================================================== SUBMISSION DATA ==================================================
+if [ ${FILE_COUNT} -le 0 ]; then
 
-# =================================================== ERROR HANDLING ==================================================
->&2 echo "The provided directory did not contain any fastq.gz files - this indicates that the demux process did not run properly"
-# Ping back our info to the webserver - TODO: Silence it?
+    # There are no files identified
+    >&2 echo "The provided directory did not contain any fastq.gz files - this indicates that the demux process did not run properly"
+
+# Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
     curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
+
+else
+
+    # Get rid of the extra comma
+    FILE_LIST=${FILE_LIST%?}
+    echo "File List ${FILE_LIST}"
+
+    # Only 1 file present - array job is not suitable
+    if [ ${FILE_COUNT} -eq 1 ]; then
+
+# Don't call as an array job
+JOBID=$(ssh ${USERNAME}@${HPC_IP} <<- END
+    source /etc/profile;
+    JOBID=\$(qsub -V -v "FILE_LIST=\'${FILE_LIST}\',SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    echo \$JOBID
+END
+2>&1)
+
+        while [ ${HAS_RUNNING} ]
+        do
+            # Don't poll too often
+            sleep 100
+
+# Poll the job id
+RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
+    source /etc/profile;
+    RESULT=\$(qacct -j ${JOBID})
+END
+2>&1)
+
+            # If our job was not present in qacct
+            if [[ ${RESULT} == error: job id* ]]; then
+                continue
+            else
+                HAS_RUNNING=false
+            fi
+        done
+
+    # More than one file - use an array job
+    else
+
+# Pass to an array job to handle
+JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
+    source /etc/profile;
+    JOBID=\$(qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e ${MODULE_OUTPUT_DIRECTORY} "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    echo \$JOBID
+END
+2>&1)
+
+        # Poll job ids and wait for completion
+        HAS_RUNNING=true
+        while [ ${HAS_RUNNING} ]
+        do
+
+            # Don't poll too often
+            sleep 100
+
+            # Poll each job id
+            NOT_PRESENT=false
+            for i in $(seq 1 ${FILE_COUNT})
+            do
+
+RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
+    source /etc/profile;
+    RESULT=\$(qacct -j ${JOBID} -t ${i})
+END
+2>&1)
+
+                # If our job was not present in qacct
+                if [[ ${RESULT} == error: Job-array tasks* ]]; then
+                    NOT_PRESENT=true
+                    break;
+                fi
+            done
+
+            # Evaluate the outcome of the for loop
+            if [ "${NOT_PRESENT}" = false ]; then
+                HAS_RUNNING=false
+            fi
+        done
+
+        # Rename logs and exit
+        for i in $(seq 1 ${FILE_COUNT})
+        do
+            mv "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker.sh.o${JOBID}.${i}" "{MODULE_OUTPUT_DIRECTORY}//fastqc_worker_arrayid_${i}_out.txt"
+            mv "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker.sh.po${JOBID}.${i}" "{MODULE_OUTPUT_DIRECTORY}//fastqc_worker_arrayid_${i}_error.txt"
+        done
+    fi
+fi
+# ================================================== SUBMISSION DATA ==================================================
 IFS="${OLDIFS}"
-# =================================================== ERROR HANDLING ==================================================
