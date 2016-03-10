@@ -303,6 +303,7 @@ def execute_module_instance(app, pid="", oid=""):
 
             pipeline_instance.update(current_execution_status="RUNNING")
             return
+
     except Exception as e:
         print("There was an exception when executing the current pipeline: " + str(e))
         return

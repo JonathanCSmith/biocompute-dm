@@ -103,6 +103,7 @@
         </table>
     </div>
 
+    {% if pipeline_instance.data_consigner.currently_running_pipeline %}
     <div class="spacer"></div>
 
     <div class="action exempt">
@@ -111,17 +112,25 @@
         <table>
             <tr>
                 {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td><a class="input" href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
+                <td><a class="input fixed" href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
                 {% endif %}
 
-                <td><a class="input" href="{{ url_for('pipelines.restart_module', oid=pipeline_instance.display_key) }}">Restart Current Module</a></td>
-                <td><a class="input" href="{{ url_for('pipelines.finish_current_module', oid=pipeline_instance.display_key) }}">Force Next Module</a></td>
+                {% if pipeline_instance.current_execution_status != 0 %}
+                <td><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='back') }}">Redo Previous Step</a></td>
+                {% endif %}
 
-                <td><a class="input" href="{{ url_for('pipelines.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>
-                <td><a class="input" href="{{ url_for('pipelines.finish_pipeline', oid=pipeline_instance.display_key) }}">Quit and Remove Pipeline</a></td>
+                <td><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='current') }}">Restart Current Step</a></td>
+
+                {% if pipeline_instance.current_execution_index != pipeline_instance.module_instances.all()|length %}
+                <td><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='next') }}">Force Next Step</a></td>
+                {% endif %}
+
+                <td><a class="input fixed" href="{{ url_for('pipelines.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>
+                <td><a class="input fixed" href="{{ url_for('pipelines.finish_pipeline', oid=pipeline_instance.display_key) }}">Quit and Remove Pipeline</a></td>
             </tr>
         </table>
     </div>
+    {% endif %}
 
     {% if pipeline_instance.current_execution_status != "NOT_STARTED" %}
     <div class="spacer"></div>

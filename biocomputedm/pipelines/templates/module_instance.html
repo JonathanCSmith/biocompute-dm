@@ -6,7 +6,7 @@
 {% block content %}
 <div class="input-table clear">
     <div class="action exempt">
-        <h3>Module Information</h3>
+        <h3>Step Information</h3>
 
         <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=module_instance.pipeline_instance.display_key) }}">Return</a>
     </div>
@@ -14,19 +14,19 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Module Options</h3>
+        <h3>Step Options</h3>
     </div>
 
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Module Status</h3>
+        <h3>Step Status</h3>
     </div>
 
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Module Outputs</h3>
+        <h3>Step Outputs</h3>
 
         {% include "data_lister.html" %}
     </div>

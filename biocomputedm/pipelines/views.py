@@ -580,63 +580,10 @@ def continue_pipeline(oid=""):
                                 index=pipeline_instance.current_execution_index))
 
 
-@pipelines.route("/finish_current_module/<oid>")
-@pipelines.route("/finish_current_module/<oid>|<int:force>")
+@pipelines.route("/change_module/<oid>|<change_type>")
+@pipelines.route("/change_module/<oid>|<change_type>|<int:force>")
 @login_required("ANY")
-def finish_current_module(oid="", force=0):
-    if force != 1:
-        return render_template("confirm.html",
-                               message="Are you sure you wish to finish the current module early?",
-                               oid=oid,
-                               url="pipelines.finish_current_module")
-
-    if oid == "":
-        flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("empty"))
-
-    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
-    if pipeline_instance is None:
-        flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("empty"))
-
-    pipeline_instance.update(current_execution_status="STOPPED")
-
-    # TODO - If module is running parse for job id and kill all
-
-    # We are out of modules
-    module_instances = pipeline_instance.module_instances.all()
-    if pipeline_instance.current_execution_index >= len(module_instances) - 1:
-        flash("There are no more modules to run!", "warning")
-        pipeline_instance.update(current_execution_status="FINISHED")
-        return redirect(url_for("pipelines.display_pipeline_instance", oid=pipeline_instance.display_key))
-
-    pipeline_instance.update(current_execution_index=(pipeline_instance.current_execution_index + 1),
-                             current_execution_status="RUNNING")
-
-    # We have the options already
-    if pipeline_instance.execution_type == "Continuous":
-        from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
-        execute_module_instance(current_app._get_current_object(),
-                                pipeline_instance.display_key,
-                                pipeline_instance.data_consigner.display_key)
-
-        flash("Submitting the next module for execution!", "success")
-        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
-
-    # Need to obtain the options
-    else:
-        flash("Please enter the options for this module.", "success")
-        return redirect(
-            url_for("pipelines.build_module_instance",
-                    pid=oid,
-                    oid=pipeline_instance.data_consigner.display_key,
-                    index=pipeline_instance.current_execution_index))
-
-
-@pipelines.route("/restart_module/<oid>")
-@pipelines.route("/restart_module/<oid>|<int:force>")
-@login_required("ANY")
-def restart_module(oid="", force=0):
+def change_module(oid="", change_type="", force=0):
     if force != 1:
         return render_template("confirm.html",
                                message="Are you sure you wish to restart the current module?",
@@ -645,31 +592,74 @@ def restart_module(oid="", force=0):
 
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("empty"))
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
     if pipeline_instance is None:
         flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("empty"))
+        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     # TODO - If module is running parse for job id and kill all
 
-    module_instances = pipeline_instance.module_instances.all()
+    if change_type == "back":
+        if pipeline_instance.current_execution_index == 0:
+            flash("Cannot go back a step when there are no previous steps!", "error")
+            return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+
+        pipeline_instance.update(current_execution_status="STOPPED")
+
+        # Find the correct module template
+        module_instances = pipeline_instance.module_instances.all()
+        module = None
+        for mod in module_instances:
+            if mod.module.execution_index == pipeline_instance.current_execution_index:
+                module = mod
+                break
+
+        # Clean the current module directory
+        subprocess.Popen(
+                [
+                    "sudo",
+                    os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "cleanup"), "wipe_directory.sh"),
+                    "-p=" + os.path.join(
+                            os.path.join(
+                                    os.path.join(
+                                            utils.get_path("pipeline_data", "webserver"),
+                                            pipeline_instance.display_key),
+                                    "modules_output"),
+                            module.module.name)
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+        )
+
+        target_index = pipeline_instance.current_execution_index - 1
+
+    elif change_type == "current":
+        pipeline_instance.update(current_execution_status="STOPPED")
+
+        target_index = pipeline_instance.current_execution_index
+
+    elif change_type == "next":
+        if pipeline_instance.current_execution_index >= len(pipeline_instance.module_instances) - 1:
+            flash("Cannot proceed to the next step when there are no more steps!", "error")
+            return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+
+        pipeline_instance.update(current_execution_status="STOPPED")
+
+        target_index = pipeline_instance.current_execution_index + 1
+
+    else:
+        flash("Could not modify the provided pipeline instance", "error")
+        return redirect(url_for("index"))
 
     # Find the correct module template
+    module_instances = pipeline_instance.module_instances.all()
     module = None
     for mod in module_instances:
-        if mod.module.execution_index == pipeline_instance.current_execution_index:
+        if mod.module.execution_index == target_index:
             module = mod
             break
-
-    # if module.module.execution_index == len(module_instances) - 1:
-    #     flash(
-    #         "It is currently not possible to restart the last module as information about the data source has been lost.",
-    #         "warning")
-    #     return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
-
-    pipeline_instance.update(current_execution_status="STOPPED")
 
     # Clean the module directory
     subprocess.Popen(
@@ -683,8 +673,13 @@ def restart_module(oid="", force=0):
                                         pipeline_instance.display_key),
                                 "modules_output"),
                         module.module.name)
-            ]
-    ).wait()
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+    )
+
+    # Change the current execution index
+    pipeline_instance.update(current_execution_index=target_index)
 
     # We have the options already
     if pipeline_instance.execution_type == "Continuous":
