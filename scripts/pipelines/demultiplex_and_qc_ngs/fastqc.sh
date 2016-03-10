@@ -66,6 +66,7 @@ END
 RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
     RESULT=\$(qacct -j ${JOBID})
+    echo \$RESULT
 END
 2>&1)
 
@@ -104,6 +105,7 @@ END
 RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
     RESULT=\$(qacct -j ${JOBID} -t ${i})
+    echo \$RESULT
 END
 2>&1)
 
