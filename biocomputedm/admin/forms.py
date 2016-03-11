@@ -1,4 +1,4 @@
-from biocomputedm.admin.models import User, Group
+from biocomputedm.admin.models import User, Group, Person
 from flask import flash
 from flask.ext.wtf import Form
 from wtforms import PasswordField, SubmitField
@@ -16,7 +16,7 @@ class LoginForm(Form):
             flash("There was an error in your submission", "error")
             return False
 
-        user = User.query.filter_by(username=str(self.username.data)).first()
+        user = Person.query.filter_by(username=str(self.username.data)).first()
         if user:
             if user.check_password(str(self.password.data)):
                 return True
@@ -78,3 +78,6 @@ class CreatePerson(Form):
 
         return True
 
+
+class UpdateCustomerLinkForm(Form):
+    submit = SubmitField("Submit")

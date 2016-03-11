@@ -10,20 +10,20 @@
     <li><a class="input fixed" href="{{ url_for('admin.add_user') }}">Add User</a></li>
     {% endif %}
 
-    {# TODO:!!!!
-    <li><a class="input fixed" href="{{ url_for('show_customers') }}">Show Customers</a></li>
+    {% if g.user.type == "User" %}
+    <li><a class="input fixed" href="{{ url_for('admin.show_customers') }}">Show Consignor</a></li>
     {% if g.user.get_role() == "Group Admin" %}
-    <li><a class="input fixed" href="{{ url_for('add_customer') }}">Add Customer</a></li>
+    <li><a class="input fixed" href="{{ url_for('admin.add_customer_group') }}">Add Consignor</a></li>
     {% endif %}
-    #}
 
     <li><a class="input fixed" href="{{ url_for('pipelines.display_pipelines') }}">Show Pipelines</a></li>
     {% if g.user.get_role() == "Site Admin" %}
     <li><a class="input fixed" href="{{ url_for('pipelines.refresh_pipelines') }}">Refresh Pipelines</a></li>
     {% endif %}
 
-    <li><a class="input fixed" href="{{ url_for('manage.display_reference_data') }}">Show Reference Datasets</a></li>
+    <li><a class="input fixed" href="{{ url_for('admin.display_reference_data') }}">Show Reference Datasets</a></li>
     {% if g.user.get_role() == "Site Admin" %}
-    <li><a class="input fixed" href="{{ url_for('manage.refresh_reference_data') }}">Refresh Reference Data</a></li>
+    <li><a class="input fixed" href="{{ url_for('admin.refresh_reference_data') }}">Refresh Reference Data</a></li>
+    {% endif %}
     {% endif %}
 </ul>

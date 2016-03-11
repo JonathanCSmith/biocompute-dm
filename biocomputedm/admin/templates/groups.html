@@ -5,7 +5,11 @@
 {% endblock %}
 
 {% block main_panel_view %}
+{% if title == "Consignor" %}
+<h3>Consignors</h3>
+{% else %}
 <h3>Groups</h3>
+{% endif %}
 <table class="content">
     <tr>
         <th>Group Name</th>

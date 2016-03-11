@@ -1,8 +1,9 @@
-from biocomputedm.admin.models import User, Group
-from biocomputedm.manage.models import refresh_reference_data_library
+from biocomputedm.admin.models import User, Group, Person
+from biocomputedm.admin.models import refresh_reference_data_library
 from biocomputedm.pipelines.models import refresh_pipelines
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
+from flask.ext.login import current_user
 from .extensions import db, mail, login_manager
 
 __author__ = "jon"
@@ -90,7 +91,7 @@ def setup_hooks(app):
 
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.filter_by(display_key=user_id).first()
+        return Person.query.filter_by(display_key=user_id).first()
 
 
 def setup_modules(app):
@@ -106,7 +107,7 @@ def setup_modules(app):
 
 
 def setup_default_routes(app):
-    from flask import render_template, redirect, url_for, g
+    from flask import render_template, redirect, url_for
 
     @app.errorhandler(403)
     def forbidden_page(error):
@@ -123,7 +124,7 @@ def setup_default_routes(app):
     @app.route("/")
     @app.route("/index")
     def index():
-        if g.user is not None and g.user.is_authenticated:
+        if current_user is not None and current_user.is_authenticated:
             return redirect(url_for("content.activity"))
 
         else:

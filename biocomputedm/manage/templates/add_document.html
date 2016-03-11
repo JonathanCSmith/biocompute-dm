@@ -1,9 +1,21 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
+{% endblock %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panels on the right allow you to upload documents to your project.</h4>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
     <div class="action">
         <h3>Add a document</h3>
-        <form action="{{ url_for('add_document', iid=iid) }}" method=post enctype="multipart/form-data">
+        <form action="{{ url_for('manage.add_document', oid=oid) }}" method=post enctype="multipart/form-data">
             <table class="small_content">
                 <tr>
                     <td>
@@ -13,9 +25,6 @@
                                 <td>{{ form.description.label }}</td>
                                 <td>{{ form.description }}</td>
                             </tr>
-                            {% for message in form.description.errors %}
-                            <tr class="flash"><td>{{ message }}</td></tr>
-                            {% endfor %}
                         </table>
                     </td>
                 </tr>
@@ -26,9 +35,6 @@
                                 <td>{{ form.file_upload.label }}</td>
                                 <td>{{ form.file_upload }}</td>
                             </tr>
-                            {% for message in form.file_upload.errors %}
-                            <tr class="flash"><td>{{ message }}</td></tr>
-                            {% endfor %}
                         </table>
                     </td>
                 </tr>

@@ -28,5 +28,19 @@
         <h3>No output information available for this pipeline instance.</h3>
         {% endif %}
     </div>
+
+    {% if g.user.type == "User" %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Manage</h3>
+
+        <table>
+            <tr>
+                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=project.display_key, origin='sample') }}">Link to Consignor</a></td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

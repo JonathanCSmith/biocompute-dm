@@ -1,4 +1,4 @@
-from biocomputedm.manage.models import ReferenceData
+from biocomputedm.admin.models import ReferenceData
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import FileField, FileRequired
 from wtforms import StringField, BooleanField, SelectField, SubmitField

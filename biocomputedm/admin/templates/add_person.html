@@ -8,13 +8,8 @@
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
-        {% if type == "User" %}
         <h3>Add User to Current Group</h3>
         <div action="{{ url_for('admin.add_user') }}" method=post>
-        {% else %}
-        <h3>Add Customer to Current Group</h3>
-        <form action="{{ url_for('admin.add_customer') }}" method=post>
-        {% endif %}
             <table class="small_content">
                 <tr>
                     <td>

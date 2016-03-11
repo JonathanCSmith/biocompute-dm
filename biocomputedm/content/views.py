@@ -1,7 +1,7 @@
 from biocomputedm.decorators import login_required
-from biocomputedm.pipelines.views import pipelines
 from flask import Blueprint, render_template, g
 from flask import abort
+from flask.ext.login import current_user
 
 content = Blueprint("content", __name__, static_folder="static", template_folder="templates")
 
@@ -14,7 +14,11 @@ def welcome():
 @content.route("/activity")
 @login_required("ANY")
 def activity():
-    return render_template("activity.html", title="Task Panel")
+    if current_user.type == "User":
+        return render_template("activity.html", title="Task Panel")
+
+    else:
+        return render_template("welcome.html", title="Welcome", user=current_user)
 
 
 @content.route("/about")

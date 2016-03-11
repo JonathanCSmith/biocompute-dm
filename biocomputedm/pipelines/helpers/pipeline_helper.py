@@ -6,7 +6,7 @@ import subprocess
 import jsonschema
 from biocomputedm import utils
 from biocomputedm.decorators import async
-from biocomputedm.manage.models import Submission, SampleGroup, Sample, ReferenceData
+from biocomputedm.manage.models import Submission, SampleGroup, Sample
 from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption, PipelineInstance
 from flask import current_app
 from flask import flash

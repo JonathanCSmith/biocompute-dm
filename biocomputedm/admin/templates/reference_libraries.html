@@ -1,5 +1,10 @@
-{% extends "administrate_view_items.html" %}
-{% block administrate_view %}
+{% extends "paginated_information_panel.html" %}
+
+{% block info_panel %}
+{% include "administrate_navigation.html" %}
+{% endblock %}
+
+{% block main_panel_view %}
 <h3>Reference Data Libraries</h3>
 <table class="content">
     <tr>

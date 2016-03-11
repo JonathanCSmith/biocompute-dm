@@ -1,0 +1,43 @@
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
+{% endblock %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>Use the panel on the right to select which consignors you wish to share this data with.</h4>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Potential Consignors</h3>
+
+        <form action="{{ url_for('admin.link_to_customer', oid=obj.display_key, origin=origin) }}" method=post >
+
+            <table class="content">
+                <tr>
+                    <th>Consignor</th>
+                    <th>Link?</th>
+                </tr>
+
+                {% for consignor in customers %}
+                <tr>
+                    <td>{{ consignor.name }}</td>
+                    <td><input type="checkbox" name="do_select" value="{{ consignor.display_key }}"></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {{ form.submit(class_="input") }}
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/selectContent.js"></script>
+{% endblock %}

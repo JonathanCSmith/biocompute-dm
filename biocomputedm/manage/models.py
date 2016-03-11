@@ -23,51 +23,6 @@ project_sample_grouping_association_table = Table("ProjectSampleGrouping",
                                                   Column("project_id", Integer, ForeignKey("Project.id")))
 
 
-# Reference data set
-class ReferenceData(SurrogatePK, Model):
-    name = Column(String(50), nullable=False)
-    description = Column(db.String(500), nullable=False)
-    version = Column(String(50), nullable=False)
-    current = Column(Boolean(), default=False)
-
-    __tablename__ = "ReferenceData"
-    __table_args__ = (db.UniqueConstraint("name", "description", "version", name="_unique"),)
-
-    def __init__(self, name, description, version):
-        db.Model.__init__(self, name=name, description=description, version=version)
-
-    def __repr__(self):
-        return "<Reference Data with name: %s, description; %s and version: %s" % (
-            self.name, self.description, self.version)
-
-
-def refresh_reference_data_library():
-    # Mark all as legacy on refresh then re-add
-    db.session.execute(update(ReferenceData, values={ReferenceData.current: False}))
-    db.session.commit()
-
-    # HPC Side as we need the paths to be correct
-    path = utils.get_path("reference_data", "webserver")
-    directories = os.listdir(path)
-    has_new = False
-    for directory in directories:
-        directory_path = os.path.join(path, directory)
-        if not os.path.isdir(directory_path):
-            continue
-
-        file = os.path.join(directory_path, directory + ".json")
-        if not os.path.isfile(file):
-            continue
-
-        from biocomputedm.manage.helpers import resource_helper as template_helper
-        if not template_helper.validate(file):
-            continue
-
-        has_new |= template_helper.build(file)
-
-    return has_new
-
-
 class Sample(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
 
@@ -195,7 +150,7 @@ class Project(SurrogatePK, Model):
 
     def __init__(self, name, description, creator):
         today = datetime.date.today()
-        db.Model.__init__(self, name=name, description=description, creator=creator,
+        db.Model.__init__(self, name=name, description=description, creator=creator, group=creator.group,
                           open_date=str(today.year) + "-" + str(today.month) + "-" + str(today.day))
 
     def __repr__(self):

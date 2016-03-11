@@ -18,7 +18,7 @@
     <div class="action">
         <h3>New Project</h3>
 
-        <form action="{{ url_for('new_project') }}" method=post>
+        <form action="{{ url_for('manage.new_project') }}" method=post>
             <table class="small_content">
                 <tr>
                     <td>
@@ -35,8 +35,8 @@
                     <td>
                         <table class="internal">
                             <tr>
-                                <td>{{ form.description.label }}</td>
-                                <td>{{ form.description }}</td>
+                                <td>{{ form.investigation_description.label }}</td>
+                                <td>{{ form.investigation_description }}</td>
                             </tr>
                         </table>
                     </td>

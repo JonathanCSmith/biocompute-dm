@@ -1,7 +1,6 @@
 from biocomputedm.pipelines.models import Pipeline
 from flask import flash
 from flask.ext.wtf import Form
-from flask.ext.wtf.file import FileRequired
 from wtforms import StringField, SubmitField, SelectField, FileField
 from wtforms.validators import DataRequired
 
@@ -43,7 +42,7 @@ class NewProjectForm(Form):
 
 class AddDocumentForm(Form):
     description = StringField("Document Desription", validators=[DataRequired()])
-    file_upload = FileField("Upload File", validators=[FileRequired()])
+    file_upload = FileField("Upload File")
     submit = SubmitField("Upload")
 
 

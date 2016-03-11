@@ -1,7 +1,7 @@
 import codecs
 import json
 import jsonschema
-from biocomputedm.manage.models import ReferenceData
+from biocomputedm.admin.models import ReferenceData
 
 from flask import flash
 

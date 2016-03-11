@@ -1,13 +1,31 @@
+import os
+
+from biocomputedm import utils
 from biocomputedm.admin.helpers import admin_helper
-from biocomputedm.database import SurrogatePK, Model, reference_col, relationship, String, Column
+from biocomputedm.database import *
 from biocomputedm.extensions import db
 from flask.ext.login import UserMixin
+from sqlalchemy import update
 from werkzeug.security import generate_password_hash, check_password_hash
+
+sample_customer_table = Table("SampleToCustomer",
+                              Column("sample_id", Integer, ForeignKey("Sample.id")),
+                              Column("customer_id", Integer, ForeignKey("Customer.id")))
+
+sample_group_customer_table = Table("SampleGroupToCustomer",
+                                    Column("sample_group_id", Integer, ForeignKey("SampleGroup.id")),
+                                    Column("customer_id", Integer, ForeignKey("Customer.id")))
+
+project_customer_table = Table("ProjectToCustomer",
+                               Column("project_id", Integer, ForeignKey("Project.id")),
+                               Column("customer_id", Integer, ForeignKey("Customer.id")))
 
 
 # Permissions wrapper & environment contextualiser
 class Group(SurrogatePK, Model):
     name = Column(String(50), unique=True, nullable=False)
+
+    parent_id = reference_col("Group", nullable=True)
 
     members = relationship("Person", backref="group", lazy="dynamic")
     submissions = relationship("Submission", lazy="dynamic", backref="group")
@@ -42,6 +60,13 @@ class Group(SurrogatePK, Model):
 def create_group(group_name, admin_name, admin_password, admin_email):
     group = Group.create(name=group_name)
     user = User.create(username=admin_name, email=admin_email, password=admin_password, group=group)
+    group.set_administrator(user)
+    return group
+
+
+def create_customer_group(group_name, admin_name, admin_password, admin_email):
+    group = Group.create(name=group_name)
+    user = Customer.create(username=admin_name, email=admin_email, password=admin_password, group=group)
     group.set_administrator(user)
     return group
 
@@ -114,6 +139,10 @@ class User(Person):
 class Customer(Person):
     id = reference_col("Person", primary_key=True)
 
+    samples = relationship("Sample", secondary=sample_customer_table, lazy="dynamic")
+    sample_groups = relationship("SampleGroup", secondary=sample_group_customer_table, lazy="dynamic")
+    projects = relationship("Project", secondary=project_customer_table, lazy="dynamic")
+
     __tablename__ = "Customer"
     __mapper_args__ = {"polymorphic_identity": "Customer", "inherit_condition": (id == Person.id)}
 
@@ -122,3 +151,48 @@ class Customer(Person):
 
     def __repr__(self):
         return "<Customer %r %r>" % (self.login_name, self.email)
+
+
+# Reference data set
+class ReferenceData(SurrogatePK, Model):
+    name = Column(String(50), nullable=False)
+    description = Column(db.String(500), nullable=False)
+    version = Column(String(50), nullable=False)
+    current = Column(Boolean(), default=False)
+
+    __tablename__ = "ReferenceData"
+    __table_args__ = (db.UniqueConstraint("name", "description", "version", name="_unique"),)
+
+    def __init__(self, name, description, version):
+        db.Model.__init__(self, name=name, description=description, version=version)
+
+    def __repr__(self):
+        return "<Reference Data with name: %s, description; %s and version: %s" % (
+            self.name, self.description, self.version)
+
+
+def refresh_reference_data_library():
+    # Mark all as legacy on refresh then re-add
+    db.session.execute(update(ReferenceData, values={ReferenceData.current: False}))
+    db.session.commit()
+
+    # HPC Side as we need the paths to be correct
+    path = utils.get_path("reference_data", "webserver")
+    directories = os.listdir(path)
+    has_new = False
+    for directory in directories:
+        directory_path = os.path.join(path, directory)
+        if not os.path.isdir(directory_path):
+            continue
+
+        file = os.path.join(directory_path, directory + ".json")
+        if not os.path.isfile(file):
+            continue
+
+        from biocomputedm.admin.helpers import resource_helper as template_helper
+        if not template_helper.validate(file):
+            continue
+
+        has_new |= template_helper.build(file)
+
+    return has_new
