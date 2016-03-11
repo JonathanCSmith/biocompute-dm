@@ -1,5 +1,7 @@
 import os
 
+import datetime
+
 from biocomputedm import utils
 from biocomputedm.admin.models import User
 from biocomputedm.database import *
@@ -15,6 +17,10 @@ pipeline_instance_association_table = Table("PipelineGrouping",
 sample_grouping_association_table = Table("SampleGrouping",
                                           Column("sample_group_id", Integer, ForeignKey("SampleGroup.id")),
                                           Column("sample_id", Integer, ForeignKey("Sample.id")))
+
+project_sample_grouping_association_table = Table("ProjectSampleGrouping",
+                                                  Column("sample_group_id", Integer, ForeignKey("SampleGroup.id")),
+                                                  Column("project_id", Integer, ForeignKey("Project.id")))
 
 
 # Reference data set
@@ -142,16 +148,22 @@ def get_submissions_query_by_user():
 
 class SampleGroup(DataSource):
     id = reference_col("DataSource", primary_key=True)
+
     name = Column(String(50), nullable=False)
+    modifiable = Column(Boolean, default=True)
 
     creator_id = reference_col("User", nullable=True)
     group_id = reference_col("Group", nullable=True)
+    pipeline_type_id = reference_col("Pipeline", nullable=True)
+
+    pipeline = relationship("Pipeline", uselist=False, foreign_keys=[pipeline_type_id])
 
     __tablename__ = "SampleGroup"
     __mapper_args__ = {"polymorphic_identity": "SampleGroup", "inherit_condition": (id == DataSource.id)}
 
-    def __init__(self, name, creator, group):
+    def __init__(self, name, creator, group, pipeline):
         DataSource.__init__(self, name=name)
+        self.update(pipeline=pipeline)
         creator.sample_groups.append(self)
         creator.update()
         group.sample_groups.append(self)
@@ -171,16 +183,35 @@ def get_sample_groups_query_by_user():
 class Project(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
     description = Column(Text, nullable=False)
+    open_date = Column(db.Date, nullable=False)
 
     group_id = reference_col("Group")
     creator_id = reference_col("User")
 
-    creator = relationship(User, uselist=False)
+    documents = relationship("Document", backref="project")
+    sample_groups = relationship("SampleGroup", secondary=project_sample_grouping_association_table, lazy="dynamic", backref=backref("projects", lazy="dynamic"))
 
     __tablename__ = "Project"
 
     def __init__(self, name, description, creator):
-        db.Model.__init__(self, name=name, description=description, creator=creator)
+        today = datetime.date.today()
+        db.Model.__init__(self, name=name, description=description, creator=creator,
+                          open_date=str(today.year) + "-" + str(today.month) + "-" + str(today.day))
 
     def __repr__(self):
         return "<Project: %s, %s>" % (self.name, self.description)
+
+
+class Document(SurrogatePK, Model):
+    name = Column(String(50), nullable=False)
+    description = Column(Text)
+
+    project_identifier = reference_col("Project", nullable=True)
+
+    __tablename__ = "Document"
+
+    def __init__(self, name, description):
+        db.Model.__init__(self, name=name, description=description)
+
+    def __repr__(self):
+        return "<Project document %r>" % (self.description)

@@ -35,42 +35,27 @@
                 </div>
             </td>
 
-
-
-            {#
             <td>
                 <div class="action">
-                    <h3>Add an Investigation</h3>
-                    <a class="input" href="{{ url_for('new_investigation') }}">Add a new investigation.</a>
+                    <h3>Create a Sample Group</h3>
+                    <a class="input" href="{{ url_for('manage.new_sample_group') }}">Add a New Sample Group</a>
                     <ul>
-                        <li>Create a parent investigation that can hold multiple samples and sample groupings</li>
-                        <li></li>
+                        <li>Use this option to create a custom grouping of samples.</li>
+                        <li>Please note that all of the samples grouped together must have come from the same pipeline type</li>
                     </ul>
                 </div>
             </td>
 
             <td>
                 <div class="action">
-                    <h3>Add a Sequencing Submission</h3>
-                    <a class="input" href="{{ url_for('input_sequencing_submission') }}">Add a new sequencing submission.</a>
+                    <h3>Create a Project</h3>
+                    <a class="input" href="{{ url_for('manage.new_project') }}">Add a New Project</a>
                     <ul>
-                        <li>Add your sequencing run to the system to begin the deconvolution process.</li>
-                        <li></li>
+                        <li>Use this option to create a new project.</li>
+                        <li>Projects can be used to group samples, sample groups and documents.</li>
                     </ul>
                 </div>
             </td>
-
-            <td>
-                <div class="action">
-                    <h3>Add a Flow Cytometry Submission</h3>
-                    <a class="input" href="{{ url_for('input_flow_cytometry_submission') }}">Add a new flow cytometry submission.</a>
-                    <ul>
-                        <li>Add your flow cytometry run to the system to begin the deconvolution process.</li>
-                        <li></li>
-                    </ul>
-                </div>
-            </td>
-            #}
         </tr>
     </table>
 </div>

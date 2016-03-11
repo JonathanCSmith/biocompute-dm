@@ -1,0 +1,196 @@
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
+{% endblock %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panels on the right show the current details of your sample group.</h4>
+<h4>This includes information on the pipelines type currently associated with the sample group.</h4>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Sample Group: {{ sample_group.name }}</h3>
+
+        <table class="content">
+            <tr>
+                <th>Sample Name</th>
+            </tr>
+
+            {% for sample in samples %}
+            <tr>
+                <td>{{ sample.name }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="spacer"></div>
+
+        <table class="pagenator">
+            <tr>
+                <td></td>
+                <td>&lt;&lt;</td>
+                <td>
+                    {% if has_prev %}
+                    <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
+                    {% else %}
+                    Previous
+                    {% endif %}
+                </td>
+                <td>|</td>
+                <td>
+                    {% if has_next %}
+                    <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
+                    {% else %}
+                    Next
+                    {% endif %}
+                </td>
+                <td>&gt;&gt;</td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+
+    {% if sample_group.modifiable %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Potential Samples</h3>
+
+        <form action="{{ url_for('manage.sample_group', oid=sample_group.display_key) }}" method=post >
+
+            <table class="content2">
+                {% for sample in potential_samples %}
+                <tr>
+                    <td>{{ sample.name }}</td>
+                    <td><input type="checkbox" name="do_select" value="{{ sample.display_key }}"></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {{ form.submit(class_="input") }}
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        {% if sample_group.currently_running_pipeline %}
+        <table class="content2">
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Pipeline Description</th>
+                <th>Pipeline Author</th>
+                <th>Pipeline Version</th>
+            </tr>
+            <tr>
+                <td>{{ sample_group.currently_running_pipeline.pipeline.name }}</td>
+                <td>{{ sample_group.currently_running_pipeline.pipeline.description }}</td>
+                <td>{{ sample_group.currently_running_pipeline.pipeline.author }}</td>
+                <td>{{ sample_group.currently_running_pipeline.pipeline.version }}</td>
+            </tr>
+        </table>
+
+        <div class="spacer"></div>
+        <div class="spacer"></div>
+
+        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=sample_group.currently_running_pipeline.display_key) }}">View Pipeline Instance</a>
+
+        <div class="spacer"></div>
+        <div class="spacer"></div>
+
+        <div class="input-table clear">
+            <table class="table-resize">
+                <tr>
+                    <td></td>
+
+                    {% for module_instance in sample_group.currently_running_pipeline.module_instances %}
+                    {% if loop.index0 == sample_group.currently_running_pipeline.current_execution_index %}
+                    {% if sample_group.currently_running_pipeline.current_execution_status == "WAITING" %}
+                    <td class="resize img1 bg3">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "RUNNING" %}
+                    <td class="resize img1 bg1">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "FINISHED" %}
+                    <td class="resize img2 bg2">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "ERROR" %}
+                    <td class="resize img1 bg4">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "NOT_STARTED" %}
+                    <td class="resize img1 bg5">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "STOPPED" %}
+                    <td class="resize img1 bg6">
+                        {% endif %}
+                        {% elif loop.index0 < sample_group.currently_running_pipeline.current_execution_index %}
+                        {% if sample_group.currently_running_pipeline.current_execution_status == "WAITING" %}
+                    <td class="resize img2 bg3">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "RUNNING" %}
+                    <td class="resize img2 bg1">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "FINISHED" %}
+                    <td class="resize img2 bg2">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "ERROR" %}
+                    <td class="resize img2 bg4">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "NOT_STARTED" %}
+                    <td class="resize img2 bg5">
+                        {% elif sample_group.currently_running_pipeline.current_execution_status == "STOPPED" %}
+                    <td class="resize img2 bg6">
+                        {% endif %}
+                        {% else %}
+                    <td class="resize img2 bg5">
+                        {% endif %}
+
+                        <a style="display: block;" href="{{ url_for('pipelines.module_instance', oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
+                    </td>
+                    {% endfor %}
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        {% else %}
+        <h3>Select a Pipeline to Run</h3>
+        <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
+        <select class="selection">
+            <option selected value="None">None</option>
+            {% for pipeline in pipelines %}
+            <option value="{{ pipeline.name ~ ': ' ~ pipeline.version }}">{{ pipeline.name ~ ': ' ~ pipeline.version }}</option>
+            {% endfor %}
+        </select>
+
+        <div class="spacer"></div>
+
+        {% for pipeline in pipelines %}
+        <div id="{{ pipeline.name ~ ': ' ~ pipeline.version }}" class="description" style="display: none">
+            <table class="content2">
+                <tr>
+                    <th>Pipeline Name</th>
+                    <th>Pipeline Description</th>
+                    <th>Pipeline Author</th>
+                    <th>Pipeline Version</th>
+                </tr>
+                <tr>
+                    <td>{{ pipeline.name }}</td>
+                    <td>{{ pipeline.description }}</td>
+                    <td>{{ pipeline.author }}</td>
+                    <td>{{ pipeline.version }}</td>
+                </tr>
+            </table>
+
+            <div class="spacer"></div>
+
+            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=sample_group.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script src="/static/js/selectContent.js"></script>
+<script src="/static/js/resizeTable.js"></script>
+{% endblock %}

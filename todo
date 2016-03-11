@@ -8,103 +8,34 @@ Content:
 	long description handling
 	titles on all pages
 	pipeline / module stats display
-Test pipeline:
-	physical outputs + sample generation
-	output display
-Permissions:
-	validate existing
-	generate common pathways for ensuring permissions
-Pipelines:
-	refresh or resume handling
-	logic for sample data generation
-Config:
 DB:
 	modules to store stats
-Tests:
-	Test Pipeline
 Feature:
-	Library:
-		Submission form
-		Directory
-		DB Entry
-		List generation in pipeline forms
 	Emails
 	Message Logging for Admins
 		messages to be stored in db
 		views for messages in admin console
 
 ================================================================================
-Steps
-	* Cycle DEMUX PIPELINE until working incl. cleanup
-	* Pipeline controls
-	* Sample + Sample Group Displays
-	* Customer
-	* Projects
-	* Downloading
+Thursday:
+	* Cycle DEMUX PIPELINE until working incl. log files rename and fastqc polling
+	* Project infrastructure
+	* Skeleton info panel on all relevant pages
 ================================================================================
 
-* Finish views as sketched
-	1) Module instance - if waiting, build options! (redirect not embed)
-	2) Pipeline controls
-	3) Sample
-	4) Sample Datasets
-	5) Pipeline Group
-	6) Group Samples
-	7) Group Pipelines
-	8) Create Group (unique pipeline)
-	9) Downloads
-	10) Customer
-	11) All data displays (sample, pipeline, module)
-	12) Sample Group
-	13) New Sample Group
-	299) Redo task pane (rename activity to tasks)
-
-* Demux points:
-	9) TEST
-
-* FastQC:
-	3) Test (HOW?!)
-
-* Possible Cleanup Module
-	4) Test (AS ABOVE!)
-
-* Sample Data Entry:
-	2) Display
-
-* Output Display:
-	2) Generic data displayer
-	3) Constructor (routes) for output container for all relevant data sets
-	4) Mixed methods for displaying different outputs
-	5) Test using output from demux pipeline
-
-* Sample Group Creation
-	1) GUI
-	2) DB
-	3) Query Options
-
-* Pipeline flow control
-	* Pipelines not in continuous are waiting for input!
-	* Pipelines will need to be restarted when tabbed out / quit too quick otherwise they get stuck!
-	* Mark pipeline as complete? (Forces update for stuck pipelines?)
-
-* Customer Infrastructure
-
-* Download Paths
-
-* Project structure
-	1) Sample group association
-	2) Customer association
-	3) Document association
+================================================================================
+Friday:
+	* Pipelines 2 & 3 execution
+	* Customer infrastructure
+	* Download infrastructure
+	* Addtional display content
+================================================================================
 
 * Stat blocks
 	1) DB Saving
 	2) Display
 	3) Padding
 
-* Shift pipeline execution index up 1 so we can display things more logically
-
 * Re-introduce some history checking for sample groups
 
 * Additional data metrics in fields (creation data of samples/groups/submission etc)
-
-* Ensure all backrefs are lazy loaded too!

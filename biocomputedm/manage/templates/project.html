@@ -1,0 +1,86 @@
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
+{% endblock %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>The panels on the right show the current details of your project.</h4>
+<h4>From these panels you can find the ability to add sample groups and documents.</h4>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Project Properties</h3>
+        <ul>
+            <li>Project Name: {{ project.name }}</li>
+            <li>Project Description: {{ project.description }}</li>
+            <li>Start Date: {{ project.open_date }}</li>
+        </ul>
+    </div>
+
+    <div class="action exempt">
+        <h3>Project Sample Groupings</h3>
+
+        <table class="content">
+            <tr>
+                <th>Sample Grouping Name</th>
+            </tr>
+
+            {% for group in project.sample_groups %}
+            <tr>
+                <td><a href="{{ url_for('manage.sample_group', oid=group.display_key) }}">{{ group.name }}</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Potential Sample Groupings</h3>
+
+        <form action="{{ url_for('manage.investigation', oid=project.display_key) }}" method=post >
+
+            <table class="content2">
+                {% for sample_groups in potential_samples_groups %}
+                <tr>
+                    <td>{{ sample_group.name }}</td>
+                    <td><input type="checkbox" name="do_select" value="{{ sample.display_key }}"></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {{ form.submit(class_="input") }}
+        </form>
+    </div>
+
+    <div class="action exempt">
+        <h3>Project Documents</h3>
+        <ul>
+            <li><a class="input" href="{{ url_for('manage.add_document', oid=project.display_key) }}">Add a document</a></li>
+            <li></li>
+        </ul>
+
+        <table class="content">
+            <tr>
+                <th>Document Name</th>
+                <th>Document Description</th>
+                <th>Remove?</th>
+            </tr>
+            {% for document in project.documents %}
+            <tr>
+                <td>{{ document.name }}</td>
+                <td>{{ document.description }}</td>
+                <td><a href="{{ url_for('remove_document', oid=project.display_key, did=document.display_key)}}">Remove</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

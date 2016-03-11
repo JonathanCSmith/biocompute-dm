@@ -4,10 +4,9 @@ import time
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
-from biocomputedm.manage import forms
 from biocomputedm.manage import models
 from biocomputedm.manage.models import Submission, get_submissions_query_by_user, get_samples_query_by_user, \
-    get_sample_groups_query_by_user, ReferenceData
+    get_sample_groups_query_by_user, ReferenceData, SampleGroup, Project, Document
 from biocomputedm.pipelines.models import Pipeline
 from flask import Blueprint, render_template, redirect, url_for
 from flask import abort
@@ -76,9 +75,13 @@ def display_data(data_source_type="", data_source="", name="", data_file=""):
             flash("Could not identify the provided data set", "warning")
             return redirect(url_for("empty"))
 
-        data_path = os.path.join(os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), pipeline_instance.display_key), "pipeline_output"), name)
+        data_path = os.path.join(
+                os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), pipeline_instance.display_key),
+                             "pipeline_output"), name)
 
-        return render_template("data_viewer.html", data_path=data_path, return_path="pipelines.display_pipeline_instance", oid=pipeline_instance.display_key, data_file="")
+        return render_template("data_viewer.html", data_path=data_path,
+                               return_path="pipelines.display_pipeline_instance", oid=pipeline_instance.display_key,
+                               data_file="")
 
     elif data_source_type == "module_output":
         pipeline_instances = current_user.group.pipeline_instances.all()
@@ -100,19 +103,20 @@ def display_data(data_source_type="", data_source="", name="", data_file=""):
             return redirect(url_for("empty"))
 
         data_path = os.path.join(
-            os.path.join(
                 os.path.join(
-                    os.path.join(
-                        utils.get_path("pipeline_data", "serve"),
-                        p_instance.display_key
-                    ),
-                    "modules_output"
-                ),
-                m_instance.module.name),
-            name
+                        os.path.join(
+                                os.path.join(
+                                        utils.get_path("pipeline_data", "serve"),
+                                        p_instance.display_key
+                                ),
+                                "modules_output"
+                        ),
+                        m_instance.module.name),
+                name
         )
 
-        return render_template("data_viewer.html", data_path=data_path, return_path="pipelines.module_instance", oid=m_instance.display_key, data_file="")
+        return render_template("data_viewer.html", data_path=data_path, return_path="pipelines.module_instance",
+                               oid=m_instance.display_key, data_file="")
 
     elif data_source_type == "sample_data":
         sample = current_user.group.samples.filter_by(display_key=data_source).first()
@@ -121,17 +125,18 @@ def display_data(data_source_type="", data_source="", name="", data_file=""):
             return redirect(url_for("empty"))
 
         data_path = os.path.join(
-            os.path.join(
                 os.path.join(
-                    utils.get_path("sample_data", "serve"),
-                    sample.display_key
+                        os.path.join(
+                                utils.get_path("sample_data", "serve"),
+                                sample.display_key
+                        ),
+                        data_file
                 ),
-                data_file
-            ),
-            name
+                name
         )
 
-        return render_template("data_viewer.html", data_path=data_path, return_path="manage.sample_data", oid=sample.display_key, data_file=data_file)
+        return render_template("data_viewer.html", data_path=data_path, return_path="manage.sample_data",
+                               oid=sample.display_key, data_file=data_file)
 
     else:
         flash("Could not identify the provided data set", "warning")
@@ -248,6 +253,7 @@ def submissions(page=1):
 @login_required("ANY")
 def new_submission():
     # Build the submission form
+    from biocomputedm.manage import forms
     form = forms.NewSubmissionForm()
 
     # Current user information
@@ -478,16 +484,76 @@ def sample_groups(page=1):
     return render_template("sample_groups.html", title="Sample Groups", page=page, obs=items)
 
 
-@manage.route("/new_sample_group")
+@manage.route("/new_sample_group", methods=["GET", "POST"])
 @login_required("ANY")
 def new_sample_group():
-    return abort(404)
+    from biocomputedm.manage import forms
+    form = forms.NewSampleGroupForm()
+
+    if request.method == "GET":
+        return render_template("new_sample_group.html", title="New Sample Group", form=form)
+
+    else:
+        if form.validate_on_submit():
+            pipeline = Pipeline.query.filter_by(display_key=str(form.pipeline.data)).first()
+            if pipeline is None:
+                flash("Could not locate the selected pipeline", "error")
+                return redirect(url_for("index"))
+
+            sample_group = SampleGroup.create(name=str(form.name.data),
+                                              creator=current_user,
+                                              group=current_user.group,
+                                              pipeline=pipeline)
+
+            return redirect(url_for("manage.sample_group", oid=sample_group.display_key))
+
+        else:
+            utils.flash_errors(form)
+            return render_template("new_sample_group.html", title="New Sample Group", form=form)
 
 
-@manage.route("/sample_group/<oid>")
+@manage.route("/sample_group/<oid>", methods=["GET", "POST"])
 @login_required("ANY")
 def sample_group(oid=""):
-    return abort(404)
+    if oid == "":
+        flash("Could not locate the provided sample group", "error")
+        return redirect(url_for("index"))
+
+    sample_group = current_user.group.sample_groups.filter_by(display_key=oid).first()
+    if sample_group is None:
+        flash("Could not locate the provided sample group", "error")
+        return redirect(url_for("index"))
+
+    from biocomputedm.manage import forms
+    form = forms.UpdateSampleGroupForm()
+    if request.method == "POST":
+        # Check to see that at least 1 upload was selected - empty submissions have no use
+        ids = request.form.getlist("do_select")
+        if ids is not None and len(ids) != 0:
+            for key in ids:
+                new_sample = current_user.group.samples.filter_by(display_key=key).first()
+                if new_sample is not None:
+                    sample_group.samples.append(new_sample)
+                    sample_group.save()
+
+            flash("Sample Group was successfully updated", "success")
+
+        else:
+            flash("No samples were selected.", "warning")
+
+    samples = current_user.group.samples.all()
+    current_samples = sample_group.samples
+    potential_samples = []
+    if sample_group.modifiable:
+        for sample in samples:
+            if sample.pipeline_source.pipeline == sample_group.pipeline and sample not in current_samples:
+                potential_samples.append(sample)
+
+    # list of the available type I pipelines
+    pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
+
+    return render_template("sample_group.html", sample_group=sample_group, samples=current_samples,
+                           potential_samples=potential_samples, form=form, pipelines=pipelines)
 
 
 @manage.route("/projects/<int:page>")
@@ -501,13 +567,127 @@ def projects(page=1):
     return render_template("projects.html", title="Projects", page=page, obs=items)
 
 
-@manage.route("/new_project")
+@manage.route("/new_project", methods=["GET", "POST"])
 @login_required("ANY")
 def new_project():
-    return abort(404)
+    from biocomputedm.manage import forms
+    form = forms.NewProjectForm()
+    if request.method == "GET":
+        return render_template("new_project.html", title="New Project", form=form)
+
+    else:
+        if form.validate_on_submit():
+            project = Project.create(name=str(form.investigation_name.data),
+                                     description=str(form.investigation_description.data), creator=current_user)
+            utils.make_directory(os.path.join(utils.get_path("project_data", "webserver"), project.display_key))
+            flash("Investigation successfully registered!", "info")
+            return redirect(url_for("investigations"))
+
+        return render_template("new_project.html", title="New Project", form=form)
 
 
-@manage.route("/project/<oid>")
+@manage.route("/project/<oid>", methods=["GET", "POST"])
 @login_required("ANY")
 def project(oid=""):
-    return abort(404)
+    if oid == "":
+        flash("Could not identify the provided project.", "error")
+        return redirect(url_for("index"))
+
+    project = current_user.group.projects.filter_by(display_key=oid).first()
+    if project is None:
+        flash("Could not identify the provided project.", "error")
+        return redirect(url_for("index"))
+
+    from biocomputedm.manage import forms
+    form = forms.UpdateProjectForm()
+    if request.method == "POST":
+        ids = request.form.getlst("do_select")
+        if ids is not None and len(ids) != 0:
+            for key in ids:
+                new_sample_group = current_user.group.sample_groups.filter_by(display_key=key).first()
+                if new_sample_group is not None:
+                    project.sample_groups.append(new_sample_group)
+                    project.save()
+
+            flash("Project was successfully updated", "success")
+
+        else:
+            flash("No sample groups were selected", "warning")
+
+    sample_groups = current_user.group.sample_groups.all()
+    current_sample_groups = project.sample_groups
+    potential_sample_groups = []
+    for sample_group in sample_groups:
+        if sample_group not in current_sample_groups:
+            potential_sample_groups.append(sample_group)
+
+    return render_template("project.html", title="Project", project=project, potential_sample_groups=potential_sample_groups, form=form)
+
+
+@manage.route("/add_document/<oid>", methods=["GET", "POST"])
+@login_required("ANY")
+def add_document(oid=""):
+    if oid == "":
+        flash("Incorrect arguments for query provided", "error")
+        return redirect(url_for("index"))
+
+    project = current_user.group.projects.filter_by(display_key=oid).first()
+    if project is None:
+        flash("Could not identify the provided project.", "error")
+        return redirect(url_for("index"))
+
+    from biocomputedm.manage import forms
+    form = forms.AddDocumentForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            # Handle maliciously named files (i.e. ../..)
+            from werkzeug.utils import secure_filename
+            filename = secure_filename(form.file_upload.data.filename)
+            filepath = os.path.join(os.path.join(utils.get_path("project_data", "webserver"), project.display_key), filename)
+
+            # Handle a document already existing
+            if os.path.exists(filepath):
+                flash("A document with this location (i.e. filename) already exists", "error")
+                return redirect(url_for("investigations"))
+
+            # Save the file to the given path
+            form.file_upload.data.save(filepath)
+
+            # Save the document to the db
+            document = Document.create(name=str(form.file_upload.data.filename), description=str(form.description.data))
+            project.documents.append(document)
+            project.save()
+
+            # Inform and redirect
+            flash("Document uploaded successfully", "success")
+            return redirect(url_for("manage.project", oid=oid))
+
+    # Fail scenario
+    return render_template("add_document.html", title="Add Document", form=form, oid=oid)
+
+
+@manage.route("/remove_document/<oid>|<did>")
+@login_required("ANY")
+def remove_document(oid="", did=""):
+    if oid == "" or did == "":
+        flash("Incorrect arguments for query provided", "error")
+        return redirect(url_for("index"))
+
+    doc = None
+    projects = current_user.groups.projects.all()
+    for project in projects:
+        documents = project.documents
+        for document in documents:
+            if document.display_key == did:
+                doc = document;
+
+    if doc is None:
+        flash("Incorrect arguments for query provided", "error")
+        return redirect(url_for("index"))
+
+    path = doc.location
+    if os.path.exists(path):
+        os.remove(path)
+
+    doc.delete()
+    return redirect(url_for("manage.project", oid=oid))

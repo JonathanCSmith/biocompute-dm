@@ -326,7 +326,8 @@ def finish_pipeline_instance(app, pid="", oid=""):
             # Create a sample group
             group = SampleGroup.create(name="Sample Group from Pipeline: " + pipeline_instance.pipeline.name,
                                        creator=pipeline_instance.user,
-                                       group=pipeline_instance.user.group)
+                                       group=pipeline_instance.user.group,
+                                       pipeline=pipeline_instance.pipeline)
 
             # Get the submission if relevant
             submission = None
@@ -382,6 +383,9 @@ def finish_pipeline_instance(app, pid="", oid=""):
                 except Exception as e:
                     print("There was an exception when executing the current pipeline: " + str(e))
                     pass
+
+            # Prevent modification for record keeping
+            group.update(modifiable=False)
 
             # Fix up the pipeline status
             data_source = pipeline_instance.data_consigner

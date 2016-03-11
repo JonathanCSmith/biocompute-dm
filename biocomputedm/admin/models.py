@@ -16,9 +16,6 @@ class Group(SurrogatePK, Model):
     sample_groups = relationship("SampleGroup", lazy="dynamic", backref="group")
     projects = relationship("Project", lazy="dynamic", backref="group")
 
-    # # TODO: CHANGE
-    # document = db.RelationshipProperty("Document", backref="group", lazy="dynamic")
-
     __tablename__ = "Group"
 
     def __init__(self, name):
@@ -57,10 +54,6 @@ class Person(UserMixin, SurrogatePK, Model):
     type = Column(String(50), nullable=False)
 
     group_id = reference_col("Group")
-
-    # TODO: CHANGE
-    # investigation = db.RelationshipProperty("Investigation", backref="submitter", lazy="dynamic")
-    # document = db.RelationshipProperty("Document", backref="submitter", lazy="dynamic")
 
     _password = Column(String(160))
 
@@ -101,8 +94,10 @@ class User(Person):
     id = reference_col("Person", primary_key=True)
 
     submissions = relationship("Submission", backref="submitter", lazy="dynamic")
+
     samples = relationship("Sample", backref="creator", lazy="dynamic")
     sample_groups = relationship("SampleGroup", backref="creator", lazy="dynamic")
+    projects = relationship("Project", backref="creator", lazy="dynamic")
 
     __tablename__ = "User"
     __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Person.id)}

@@ -10,17 +10,7 @@ from wtforms.validators import DataRequired, Email
 
 
 
-class NewInvestigationForm(Form):
-    investigation_name = StringField("Investigation Name", validators=[DataRequired()])
-    investigation_lead = StringField("Investigation Lead", validators=[DataRequired()])
-    submit = SubmitField("Submit")
 
-    def validate(self):
-        if not Form.validate(self):
-            flash("There was an error in your submission", "error")
-            return False
-
-        return True
 
 
 

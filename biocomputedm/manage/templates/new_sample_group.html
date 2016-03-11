@@ -1,0 +1,51 @@
+{% extends "information_panel.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{{ super() }}
+{% endblock %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<ul>
+    <li><h4>A sample group allows a custom aggregation of samples to be supplied to a pipeline.</h4></li>
+    <li><h4>In order to create a custom sample group please select the pipeline type where the data will come from.</h4></li>
+    <li><h4>From there you may select from all of the relevant samples and add them..</h4></li>
+</ul>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        {% if sample_group %}
+
+        {% else %}
+        <h3>Sample Group Pipeline Source</h3>
+        <h4>Please select the source pipeline for the samples that will be contained in this sample group.</h4>
+
+        <form action="{{ url_for('manage.new_sample_group') }}" method=post enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <table class="small_content">
+                {% for field in form %}
+                {% if (field.label.text != "Submit") and (field.label.text != "Csrf Token") %}
+                <tr>
+                    {% if field.type != "FileField" %}
+                    <td>{{ field.label(title=field.description) }}</td>
+                    <td colspan="2">{{ field(title=field.description) }}</td>
+                    {% else %}
+                    <td>{{ field.label(title=field.description) }}</td>
+                    <td colspan="2">{{ field(size=50, title=field.description) }}</td>
+                    {% endif %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="3">
+                        {{ form.submit_field(class_="input") }}
+                    </td>
+                </tr>
+            </table>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
