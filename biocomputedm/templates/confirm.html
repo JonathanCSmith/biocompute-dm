@@ -15,8 +15,13 @@
 
         <table class="small_content">
             <tr>
+                {% if type %}
+                <td><a class="input" href="{{ url_for(url, oid=oid, force=1, change_type=type) }}">Confirm</a></td>
+                <td><a class="input" href="{{ url_for(url, oid=oid, force=0, change_type=type) }}">Cancel</a></td>
+                {% else %}
                 <td><a class="input" href="{{ url_for(url, oid=oid, force=1) }}">Confirm</a></td>
                 <td><a class="input" href="{{ url_for(url, oid=oid, force=0) }}">Cancel</a></td>
+                {% endif %}
             </tr>
         </table>
     </div>

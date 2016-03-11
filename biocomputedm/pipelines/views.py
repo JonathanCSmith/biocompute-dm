@@ -588,7 +588,8 @@ def change_module(oid="", change_type="", force=0):
         return render_template("confirm.html",
                                message="Are you sure you wish to restart the current module?",
                                oid=oid,
-                               url="pipelines.restart_module")
+                               url="pipelines.change_module",
+                               type=change_type)
 
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
