@@ -3,11 +3,12 @@
  */
 
 function addSelectionGroupBehaviours() {
-    $('.selection').change(function(){
+    $('.selection').change(function() {
         var selected = $(this).find(':selected').text();
         $(".description").hide();
         $("[id='" + selected + "'").show();
         selected == "None" ? $('#toggle').show() : $('#toggle').hide();
+        window.dispatchEvent(new Event('resize'));
     });
 }
 

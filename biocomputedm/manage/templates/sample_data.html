@@ -1,18 +1,37 @@
-{% extends "base.html" %}
+{% extends "information_panel.html" %}
+
 {% block custom_css %}
+{{ super() }}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 {% endblock %}
 
-{% block content %}
+{% block info_panel %}
+<h3>Info</h3>
+<h4>To the right is any information pertaining to the current sample dataset</h4>
+<h4>Sample datasets are direct, sample specific, outputs from pipelines</h4>
+<h4>Sample datasets can contain multiple files</h4>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Sample Data Information</h3>
+
+        <table class="small_content">
+            <tr>
+                <th>Sample Dataset Source</th>
+                <th>Sample Dataset Creation Date</th>
+            </tr>
+            <tr>
+                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=data_file) }}">{{ data_file }}</a></td>
+            </tr>
+        </table>
     </div>
 
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Sample Data for Pipeline: <a href="{{ url_for('pipelines.display_pipeline_instance', oid=data_file) }}">{{ data_file }}</a></h3>
+        <h3>Sample Datasets</h3>
 
         {% include "data_lister.html" %}
     </div>

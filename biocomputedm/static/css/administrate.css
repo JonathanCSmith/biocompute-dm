@@ -21,7 +21,10 @@ div.content table {
     color: #333;
 
     text-align: center;
-    border: 1px solid #F6F6F6;
+}
+
+div.content table .left h4 {
+    text-align: left;
 }
 
 div.content table.content th, div.content table.content td {

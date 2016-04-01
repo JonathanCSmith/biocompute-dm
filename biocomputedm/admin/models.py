@@ -132,7 +132,7 @@ class User(Person):
         admin_helper.create_user_directory(self, password)
 
     def __repr__(self):
-        return "<User %r %r>" % (self.login_name, self.email)
+        return "<User %r %r>" % (self.username, self.email)
 
 
 # Customer table

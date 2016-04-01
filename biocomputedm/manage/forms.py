@@ -1,13 +1,13 @@
 from biocomputedm.pipelines.models import Pipeline
 from flask import flash
 from flask.ext.wtf import Form
-from wtforms import StringField, SubmitField, SelectField, FileField
+from wtforms import StringField, SubmitField, SelectField, FileField, TextAreaField
 from wtforms.validators import DataRequired
 
 
 class NewSubmissionForm(Form):
     submission_name = StringField("Submission Name", validators=[DataRequired()])
-    submission_description = StringField("Submission Description", validators=[DataRequired()])
+    submission_description = TextAreaField("Submission Description", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 

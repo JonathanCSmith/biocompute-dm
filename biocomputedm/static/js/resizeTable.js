@@ -3,10 +3,10 @@
  */
 
 function addResizeBehaviours() {
-    $(window).on("resize", resize());
+    $(window).on("resize", resizer);
 }
 
-function resize() {
+function resizer() {
     var size =$(".resize").width();
     if (size > 200) {
         $(".resize").height(200);
@@ -21,6 +21,6 @@ function resize() {
 }
 
 $(document).ready(function() {
-    resize();
+    resizer();
     addResizeBehaviours();
 });

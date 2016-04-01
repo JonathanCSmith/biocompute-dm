@@ -1,9 +1,18 @@
-{% extends "base.html" %}
+{% extends "information_panel.html" %}
+
 {% block custom_css %}
+{{ super() }}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 {% endblock %}
 
-{% block content %}
+{% block info_panel %}
+<h3>Info</h3>
+<h4>To the right is any information available about this sample</h4>
+<h4>This includes any available data sets (pipeline outputs)</h4>
+<h4>Also available are a some management tools, the options here are dependant on your privileges</h4>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Sample Information</h3>
@@ -15,8 +24,11 @@
         <h3>Sample Datasets</h3>
 
         {% if datasets %}
-        <h3>Outputs:</h3>
         <table class="small_content">
+            <tr>
+                <th>Dataset ID</th>
+                <th>Pipeline Source</th>
+            </tr>
             {% for data in datasets %}
             <tr>
                 <td><a href="{{ url_for('manage.sample_data', oid=oid, data_file=data['name']) }}">{{ data['name'] }}</a></td>
@@ -37,7 +49,7 @@
 
         <table>
             <tr>
-                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=project.display_key, origin='sample') }}">Link to Consignor</a></td>
+                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=sample.display_key, origin='sample') }}">Link to Consignor</a></td>
             </tr>
         </table>
     </div>

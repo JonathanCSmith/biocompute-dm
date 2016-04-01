@@ -18,7 +18,32 @@
     <div class="action exempt">
         <h3>Submission: {{ submission.name }}</h3>
 
-        <h4>{{ submission.description }}</h4>
+        <div class="input-table clear">
+            <table class="small_content">
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>Submitted by:</td>
+                                <td colspan="2"><div class="cell_content">{{ submission.submitter.username }}</div></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="internal">
+                            <tr>
+                                <td>Description:</td>
+                                <td colspan="2"><div class="cell_content">{{ submission.description }}</div></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="spacer"></div>
 
         <table class="content">
             <tr>
@@ -147,10 +172,10 @@
             {% endfor %}
         </select>
 
-        <div class="spacer"></div>
-
         {% for pipeline in pipelines %}
         <div id="{{ pipeline.name ~ ': ' ~ pipeline.version }}" class="description" style="display: none">
+            <div class="spacer"></div>
+
             <table class="content2">
                 <tr>
                     <th>Pipeline Name</th>
@@ -165,6 +190,20 @@
                     <td>{{ pipeline.version }}</td>
                 </tr>
             </table>
+
+            <div class="spacer"></div>
+
+            <div class="input-table clear">
+                <table class="table-resize">
+                    <tr>
+                        <td></td>
+                        {% for stage in pipeline.modules %}
+                        <td class="resize img1 bg5">{{ stage.name }}</td>
+                        {% endfor %}
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
 
             <div class="spacer"></div>
 

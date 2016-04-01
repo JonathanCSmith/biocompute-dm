@@ -17,11 +17,41 @@
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
-        <h3>Submission Properties</h3>
+        <h3>New Submission Information</h3>
+
+        <h4>The information below must be input in order to generate a new submission</h4>
+
+        <div class="spacer"></div>
+
         <form action="{{ url_for('manage.new_submission') }}"  method=post>
             {{ form.hidden_tag() }}
 
-            <h3>Currently Staged Files - Select those to be included in your submission.</h3>
+            <div class="input-table clear">
+                <table class="small_content">
+                    <tr>
+                        <td>
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.submission_name.label }}</td>
+                                    <td colspan="2"><div class="cell_content">{{ form.submission_name }}</div></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.submission_description.label }}</td>
+                                    <td colspan="2"><div class="cell_content">{{ form.submission_description }}</div></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="spacer"></div>
 
             <div class="input-table clear">
                 <table class="content3">
@@ -45,35 +75,7 @@
 
             <div class="spacer"></div>
 
-            <div class="input-table clear">
-                <table class="small_content">
-                    <tr>
-                        <td>
-                            <table class="internal">
-                                <tr>
-                                    <td>{{ form.submission_name.label }}</td>
-                                    <td>{{ form.submission_name }}</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table class="internal">
-                                <tr>
-                                    <td>{{ form.submission_description.label }}</td>
-                                    <td>{{ form.submission_description }}</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {{ form.submit(class_="input") }}
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            {{ form.submit(class_="input") }}
         </form>
     </div>
 </div>

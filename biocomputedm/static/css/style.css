@@ -443,12 +443,35 @@ div.spacer {
     height: 5px;
 }
 
+div.action div.spacer {
+    display: block;
+    border: 0;
+    height: 1px;
+    border-bottom: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
 div.content div.action table td {
     vertical-align: middle;
 }
 
 div.content div.action.exempt table td {
     vertical-align: middle;
+}
+
+table td div.cell_content {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+table td div.cell_content textarea {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 table.small_content {

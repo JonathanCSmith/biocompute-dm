@@ -1,12 +1,39 @@
-{% extends "base.html" %}
+{% extends "information_panel.html" %}
+
 {% block custom_css %}
+{{ super() }}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 {% endblock %}
 
-{% block content %}
+{% block info_panel %}
+<h3>Info</h3>
+<h4>To the right is the step information for your selected pipeline instance</h4>
+<h4>This information set includes any outputs and performance statistics associated with the step</h4>
+<h4>Also included is a summary of any options that were applied to the module</h4>
+<h4>Much of this information does not become available until after the module is finished</h4>
+{% endblock %}
+
+
+{% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Step Information</h3>
+
+        <table class="content">
+            <tr>
+                <th>Step Name</th>
+                <th>Containing Pipeline</th>
+                <th>Step Description</th>
+            </tr>
+
+            <tr>
+                <td>{{ module_instance.module.name }}</td>
+                <td>{{ module_instance.instance.pipeline.name }}</td>
+                <td>{{ module_instance.module.description }}</td>
+            </tr>
+        </table>
+
+        <div class="spacer"></div>
 
         <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=module_instance.pipeline_instance.display_key) }}">Return</a>
     </div>

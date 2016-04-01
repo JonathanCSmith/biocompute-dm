@@ -62,5 +62,5 @@ def message(type="", oid=""):
         return alt_message(oid=oid)
 
     else:
-        return "<html>t = " + type + " v = " + oid + "</html>"
+        #return "<html>t = " + type + " v = " + oid + "</html>"
         return abort(404)

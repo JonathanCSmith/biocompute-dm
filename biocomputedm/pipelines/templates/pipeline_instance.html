@@ -112,21 +112,21 @@
         <table>
             <tr>
                 {% if pipeline_instance.current_execution_status == "WAITING" %}
-                <td><a class="input fixed" href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
+                <td style="border-width: 2px 0 2px 0"><a class="input fixed" href="{{ url_for('pipelines.continue_pipeline', oid=pipeline_instance.display_key) }}">Resume Pipeline Execution</a></td>
                 {% endif %}
 
                 {% if pipeline_instance.current_execution_status != 0 %}
-                <td><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='back') }}">Redo Previous Step</a></td>
+                <td style="border-width: 2px 0 2px 0"><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='back') }}">Redo Previous Step</a></td>
                 {% endif %}
 
-                <td><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='current') }}">Restart Current Step</a></td>
+                <td style="border-width: 2px 0 2px 0"><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='current') }}">Restart Current Step</a></td>
 
                 {% if pipeline_instance.current_execution_index != pipeline_instance.module_instances.all()|length %}
-                <td><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='next') }}">Force Next Step</a></td>
+                <td style="border-width: 2px 0 2px 0"><a class="input fixed" href="{{ url_for('pipelines.change_module', oid=pipeline_instance.display_key, change_type='next') }}">Force Next Step</a></td>
                 {% endif %}
 
-                <td><a class="input fixed" href="{{ url_for('pipelines.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>
-                <td><a class="input fixed" href="{{ url_for('pipelines.finish_pipeline', oid=pipeline_instance.display_key) }}">Quit and Remove Pipeline</a></td>
+                <td style="border-width: 2px 0 2px 0"><a class="input fixed" href="{{ url_for('pipelines.restart_pipeline', oid=pipeline_instance.display_key) }}">Restart Pipeline</a></td>
+                <td style="border-width: 2px 0 2px 0"><a class="input fixed" href="{{ url_for('pipelines.finish_pipeline', oid=pipeline_instance.display_key) }}">Quit and Remove Pipeline</a></td>
             </tr>
         </table>
     </div>
@@ -148,13 +148,19 @@
     <div class="action exempt">
         <h3>Generated Sample Data - Select for More Information</h3>
 
-        <table>
-            <tr><th>Sample Name</th></tr>
-            {% for sample in pipeline_instance.samples %}
-            <tr><td><a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a></td></tr>
-            {% endfor %}
-            <tr><td></td></tr>
-        </table>
+        {% for data_group in pipeline_instance.samples  | batch(4, 'empty') %}
+        <div class="container-fluid">
+            <div class="row">
+                {% for sample in data_group %}
+                {% if data != "empty" %}
+                <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                    <a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
     </div>
     {% endif %}
 </div>

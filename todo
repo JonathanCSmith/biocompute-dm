@@ -16,26 +16,16 @@ Feature:
 		messages to be stored in db
 		views for messages in admin console
 
-================================================================================
-Thursday:
-	* Cycle DEMUX PIPELINE until working incl. log files rename and fastqc polling
-	* Project infrastructure
-	* Skeleton info panel on all relevant pages
-================================================================================
+Unordered TODO list:
+	* Cycle demux pipeline until I am sure it is working
+		* Attempt demux pipeline with a real world example
+	* Download infrastructrue
+	* SFTP infrastructure
+	* Stats for module and pipeline execution
+	* Additional data metrics / information in db entries and how to propagate from submissions
+	* Permissions for all data manipulations / access
+	* Sample Groups should be able to access history of pipelines processed and trace the specific sample data groups
+	* Data management (group admin or submitter)
+	* Further test customer infrastructure
+	* Email infrastructure
 
-================================================================================
-Friday:
-	* Pipelines 2 & 3 execution
-	* Customer infrastructure
-	* Download infrastructure
-	* Addtional display content
-================================================================================
-
-* Stat blocks
-	1) DB Saving
-	2) Display
-	3) Padding
-
-* Re-introduce some history checking for sample groups
-
-* Additional data metrics in fields (creation data of samples/groups/submission etc)
