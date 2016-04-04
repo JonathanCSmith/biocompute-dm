@@ -18,7 +18,7 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 
 # ============================================== SUBMISSION PROPERTIES=================================================
 # Traverse the output path to generate a csv series of file paths
-FILE_LIST=""
+FILE_LIST="\'"
 FILE_COUNT=0
 for f in ${DATA_OUTPUT_DIRECTORY}/*.fastq.gz # We are only interested in demuxed files!
 do
@@ -27,6 +27,10 @@ do
 done
 
 echo "File Count ${FILE_COUNT}"
+
+# Get rid of the extra comma
+FILE_LIST="${FILE_LIST%?}\'"
+echo "File List ${FILE_LIST}"
 # ============================================== SUBMISSION PROPERTIES=================================================
 
 # ================================================== SUBMISSION DATA ==================================================
@@ -42,17 +46,13 @@ EOF
 
 else
 
-    # Get rid of the extra comma
-    FILE_LIST=${FILE_LIST%?}
-    echo "File List ${FILE_LIST}"
-
     # Only 1 file present - array job is not suitable
     if [ ${FILE_COUNT} -eq 1 ]; then
 
 # Don't call as an array job
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -V -v "FILE_LIST=\'${FILE_LIST}\',SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -v "FILE_LIST=${FILE_LIST},SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )
@@ -87,6 +87,7 @@ END
     else
 
 # Pass to an array job to handle
+echo "Confirmed file count: ${FILE_COUNT}"
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
     JOBID=\$(qsub -V -t 1-${FILE_COUNT} -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
