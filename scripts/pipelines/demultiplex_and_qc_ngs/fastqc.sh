@@ -5,7 +5,7 @@
 OLDIFS="${IFS}"
 
 # ================================================= BUILD OUR IO VALUES ===============================================
-echo "Beginning demultiplexing module"
+echo "Beginning fastqc module"
 
 # Note we are only interested in the first line as we are only expecting 1 folder!
 IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${SAMPLE_CSV}")
