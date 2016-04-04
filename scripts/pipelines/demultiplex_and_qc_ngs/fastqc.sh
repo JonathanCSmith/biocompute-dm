@@ -57,7 +57,7 @@ JOBID=$(ssh ${USERNAME}@${HPC_IP} <<- END
 END
 2>&1)
 
-        echo "Retrieved JOBID: ${JOBID}"
+        echo "Retrieved Job Id: ${JOBID}"
 
         while [ ${HAS_RUNNING} ]
         do
@@ -81,18 +81,20 @@ END
             fi
         done
 
+        echo "Successfully waited for the job to finish."
+
     # More than one file - use an array job
     else
 
 # Pass to an array job to handle
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -V -t 0-${FILE_COUNT}:1 -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 2>&1)
 
-        echo "Retrieved JOBID: ${JOBID}"
+        echo "Retrieved Job Id: ${JOBID}"
 
         # Poll job ids and wait for completion
         HAS_RUNNING=true
@@ -127,6 +129,8 @@ END
                 HAS_RUNNING=false
             fi
         done
+
+        echo "Successfully waited for all array jobs to finish, beginning log move."
 
         # Rename logs and exit
         for i in $(seq 1 ${FILE_COUNT})
