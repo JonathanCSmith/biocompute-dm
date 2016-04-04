@@ -50,12 +50,12 @@ else
     if [ ${FILE_COUNT} -eq 1 ]; then
 
 # Don't call as an array job
-JOBID=$(ssh ${USERNAME}@${HPC_IP} <<- END
+JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -V -v "FILE_LIST=\'${FILE_LIST}\',SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -v "FILE_LIST=${FILE_LIST},SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
-2>&1)
+)
 
         echo "Retrieved Job Id: ${JOBID}"
 
@@ -70,7 +70,7 @@ RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
     RESULT=\$(qacct -j ${JOBID})
     echo \$RESULT
 END
-2>&1)
+)
 
             # If our job was not present in qacct
             REGEX="error: job id*"
@@ -89,10 +89,10 @@ END
 # Pass to an array job to handle
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -V -t 1-${FILE_COUNT}:1 -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -t 1-${FILE_COUNT} -v "FILE_LIST=${FILE_LIST}" -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
-2>&1)
+)
 
         echo "Retrieved Job Id: ${JOBID}"
 
@@ -114,7 +114,7 @@ RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
     RESULT=\$(qacct -j ${JOBID} -t ${i})
     echo \$RESULT
 END
-2>&1)
+)
 
                 # If our job was not present in qacct
                 REGEX="error: Job-array tasks*"
