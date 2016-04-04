@@ -52,7 +52,7 @@ else
 # Don't call as an array job
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -V -v "FILE_LIST=${FILE_LIST},SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -v "FILE_LIST="${FILE_LIST}",SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )
@@ -90,7 +90,7 @@ END
 echo "Confirmed file count: ${FILE_COUNT}"
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -V -t 1-${FILE_COUNT} -v "FILE_LIST=\'${FILE_LIST}\'" -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -V -t 1-${FILE_COUNT} -v "FILE_LIST="${FILE_LIST} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )
