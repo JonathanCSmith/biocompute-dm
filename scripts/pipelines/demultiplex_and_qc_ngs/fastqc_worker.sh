@@ -7,6 +7,10 @@
 echo "Array ID: ${SGE_TASK_ID}"
 echo "File List: ${FILE_LIST}"
 
+# Dump the pesky string ticks
+FILE_LIST=${FILE_LIST#?}
+FILE_LIST=${FILE_LIST%?}
+
 # Parse the file path
 OLFIFS="${IFS}"
 IFS=","
