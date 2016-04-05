@@ -64,7 +64,9 @@ def get_samples_query_by_user():
 class DataSource(SurrogatePK, Model):
     pipeline_id = reference_col("PipelineInstance", nullable=True)
 
-    currently_running_pipeline = relationship(PipelineInstance, uselist=False, foreign_keys=[pipeline_id])
+    currently_running_pipeline = relationship(PipelineInstance, uselist=False, backref="data_consigner", foreign_keys=[pipeline_id])
+    run_pipelines = relationship(PipelineInstance, foreign_keys=[pipeline_id])
+
     type = Column(String(50), nullable=False)
 
     __tablename__ = "DataSource"
@@ -79,7 +81,7 @@ class Submission(DataSource):
 
     name = Column(String(50), nullable=False)
     description = Column(String(500), nullable=False)
-    validated = Column(db.Boolean, default=False, nullable=False)
+    validated = Column(SmallInteger, default=False, nullable=False)
 
     group_id = reference_col("Group")
     submitter_id = reference_col("User")
@@ -105,7 +107,7 @@ class SampleGroup(DataSource):
     id = reference_col("DataSource", primary_key=True)
 
     name = Column(String(50), nullable=False)
-    modifiable = Column(Boolean, default=True)
+    modifiable = Column(SmallInteger, default=True)
 
     creator_id = reference_col("User", nullable=True)
     group_id = reference_col("Group", nullable=True)

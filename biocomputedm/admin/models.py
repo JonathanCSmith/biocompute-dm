@@ -158,7 +158,7 @@ class ReferenceData(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
     description = Column(db.String(500), nullable=False)
     version = Column(String(50), nullable=False)
-    current = Column(Boolean(), default=False)
+    current = Column(SmallInteger(), default=False)
 
     __tablename__ = "ReferenceData"
     __table_args__ = (db.UniqueConstraint("name", "description", "version", name="_unique"),)

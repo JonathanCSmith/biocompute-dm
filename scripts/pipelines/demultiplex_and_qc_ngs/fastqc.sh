@@ -97,6 +97,8 @@ END
 )
 
         echo "Retrieved Job Id: ${JOBID}"
+        IFS='.' read -r JOBID leftover <<< "${JOBID}"
+        echo "Parsed Job Id: ${JOBID}"
 
         # Poll job ids and wait for completion
         HAS_RUNNING=1

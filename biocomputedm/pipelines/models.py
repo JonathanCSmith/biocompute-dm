@@ -12,7 +12,7 @@ class Pipeline(SurrogatePK, Model):
     author = Column(String(50), nullable=False)
     version = Column(String(50), nullable=False)
     type = Column(Enum("I", "II", "III"), nullable=False)
-    executable = Column(Boolean(), default=False)
+    executable = Column(SmallInteger(), default=False)
 
     modules = relationship("PipelineModule", backref="pipeline", lazy="dynamic")
     instances = relationship("PipelineInstance", backref="pipeline", lazy="dynamic")
@@ -61,7 +61,7 @@ class PipelineModuleOption(SurrogatePK, Model):
     parameter_name = Column(String(50), nullable=False)
     user_interaction_type = Column(Enum("file", "string", "boolean", "reference", "enum"), nullable=False)
     default_value = Column(String(100), nullable=False)
-    necessary = Column(Boolean, default=False)
+    necessary = Column(SmallInteger, default=False)
 
     module_id = reference_col("PipelineModule")
 
@@ -97,11 +97,9 @@ class PipelineInstance(SurrogatePK, Model):
     pipeline_id = reference_col("Pipeline")
     user_id = reference_col("User", nullable=True)
     group_id = reference_col("Group", nullable=True)
-    data_source_id = reference_col("DataSource", nullable=True)
 
     user = relationship("User", uselist=False)
     module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic", cascade="all, delete-orphan")
-    data_consigner = relationship("DataSource", uselist=False, foreign_keys=[data_source_id])
 
     __tablename__ = "PipelineInstance"
 

@@ -24,8 +24,10 @@
 - Then install flask packages using the following commands:
 
         - flask/bin/pip install flask
+        - flask/bin/pip install Flask-Script
         - flask/bin/pip install flask-sqlalchemy
-        - flask/bin/pip install sqlalchemy-migrate
+        - flask/bin/pip install alembic
+        - flask/bin/pip install flask-migrate
         - flask/bin/pip install flask-login
         - flask/bin/pip install flask-mail
         - flask/bin/pip install flask-whooshalchemy
@@ -40,7 +42,6 @@
         - flask/bin/pip install flask-pyexcel-xlsx
         - flask/bin/pip install flask-bootstrap
         - flask/bin/pip install jsonschema
-        - flask/bin/pip install Flask-Script
         
 - Install the following applications:
   * 7z : sudo apt-get install p7zip-full

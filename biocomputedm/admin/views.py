@@ -27,7 +27,9 @@ def login():
             user = Person.query.filter_by(username=str(form.username.data)).first()
             flash("Successfully logged in!", "success")
             login_user(user)
-            return redirect(url_for("index"))
+
+            next = request.args.get('next')
+            return redirect(next or url_for('index'))
 
 
 @admin.route("/logout")

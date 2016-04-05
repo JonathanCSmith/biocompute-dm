@@ -13,7 +13,6 @@ to_remove/cgi-bin/mypol.te
 /biocomputedm/static/serve/projects
 /biocomputedm/static/serve/samples
 /biocomputedm/static/serve/submissions
-/db_repository
 
 # Local files
 /pipelines
