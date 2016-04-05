@@ -59,7 +59,8 @@ END
 
         echo "Retrieved Job Id: ${JOBID}"
 
-        while [ ${HAS_RUNNING} ]
+        HAS_RUNNING=1
+        while [ ${HAS_RUNNING} -eq 1 ]
         do
             # Don't poll too often
             sleep 100
@@ -74,10 +75,10 @@ END
 
             # If our job was not present in qacct
             REGEX="error: job id*"
-            if [[ ${RESULT}" == "${REGEX} ]]; then
+            if [[ ${RESULT} =~ ${REGEX} ]]; then
                 continue
             else
-                HAS_RUNNING=false
+                HAS_RUNNING=0
             fi
         done
 
