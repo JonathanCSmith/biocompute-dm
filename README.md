@@ -25,6 +25,7 @@
 
         - flask/bin/pip install flask
         - flask/bin/pip install Flask-Script
+        - flask/bin/pip install PyMySQL
         - flask/bin/pip install flask-sqlalchemy
         - flask/bin/pip install alembic
         - flask/bin/pip install flask-migrate
@@ -36,10 +37,9 @@
         - flask/bin/pip install guess_language
         - flask/bin/pip install flipflop
         - flask/bin/pip install coverage
-        - flask/bin/pip install PyMySQL
         - flask/bin/pip install flask-excel
-        - flask/bin/pip install flask-pyexcel-xls
-        - flask/bin/pip install flask-pyexcel-xlsx
+        - flask/bin/pip install pyexcel-xls
+        - flask/bin/pip install pyexcel-xlsx
         - flask/bin/pip install flask-bootstrap
         - flask/bin/pip install jsonschema
         

@@ -64,7 +64,7 @@ def get_samples_query_by_user():
 class DataSource(SurrogatePK, Model):
     pipeline_id = reference_col("PipelineInstance", nullable=True)
 
-    currently_running_pipeline = relationship(PipelineInstance, uselist=False, backref="data_consigner", foreign_keys=[pipeline_id])
+    currently_running_pipeline = relationship(PipelineInstance, uselist=False, backref=backref("data_consigner", uselist=False), foreign_keys=[pipeline_id])
     run_pipelines = relationship(PipelineInstance, foreign_keys=[pipeline_id])
 
     type = Column(String(50), nullable=False)

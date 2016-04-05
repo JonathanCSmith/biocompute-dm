@@ -58,6 +58,12 @@ def initdb():
 
 
 @manager.command
+def update():
+    migrate()
+    upgrade()
+
+
+@manager.command
 def clean(key):
     if key != "FORCE":
         return
