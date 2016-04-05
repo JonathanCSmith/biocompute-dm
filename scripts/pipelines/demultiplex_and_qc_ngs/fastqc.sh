@@ -98,17 +98,19 @@ END
         echo "Retrieved Job Id: ${JOBID}"
 
         # Poll job ids and wait for completion
-        HAS_RUNNING=true
-        while [ ${HAS_RUNNING} ]
+        HAS_RUNNING=1
+        while [ ${HAS_RUNNING} -eq 1 ]
         do
 
             # Don't poll too often
             sleep 100
 
             # Poll each job id
-            NOT_PRESENT=false
+            NOT_PRESENT=0
             for i in $(seq 1 ${FILE_COUNT})
             do
+
+                echo "Searching for job: ${i}."
 
 RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
@@ -120,14 +122,14 @@ END
                 # If our job was not present in qacct
                 REGEX="error: Job-array tasks*"
                 if [[ ${RESULT} =~ ${REGEX} ]]; then
-                    NOT_PRESENT=true
+                    NOT_PRESENT=1
                     break;
                 fi
             done
 
             # Evaluate the outcome of the for loop
-            if [ "${NOT_PRESENT}" = false ]; then
-                HAS_RUNNING=false
+            if [ ${NOT_PRESENT} -eq 0 ]; then
+                HAS_RUNNING=0
             fi
         done
 
