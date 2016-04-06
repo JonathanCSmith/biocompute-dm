@@ -17,14 +17,14 @@
     <div class="action exempt">
         <h3>Sample Group: {{ sample_group.name }}</h3>
 
-        <table class="content">
+        <table class="small_content">
             <tr>
                 <th>Sample Name</th>
             </tr>
 
             {% for sample in samples %}
             <tr>
-                <td>{{ sample.name }}</td>
+                <td><a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a></td>
             </tr>
             {% endfor %}
         </table>
@@ -198,7 +198,7 @@
 
         <table>
             <tr>
-                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=project.display_key, origin='sample_group') }}">Link to Consignor</a></td>
+                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=sample_group.display_key, origin='sample_group') }}">Link to Consignor</a></td>
             </tr>
         </table>
     </div>
