@@ -1,14 +1,9 @@
-import os
-
 import datetime
 
-from biocomputedm import utils
-from biocomputedm.admin.models import User
 from biocomputedm.database import *
 from biocomputedm.extensions import db
 from biocomputedm.pipelines.models import PipelineInstance
 from flask.ext.login import current_user
-from sqlalchemy import update
 
 pipeline_instance_association_table = Table("PipelineGrouping",
                                             Column("pipeline_instance_id", Integer, ForeignKey("PipelineInstance.id")),
@@ -62,10 +57,12 @@ def get_samples_query_by_user():
 
 
 class DataSource(SurrogatePK, Model):
-    pipeline_id = reference_col("PipelineInstance", nullable=True)
+    source_pipeline_id = reference_col("PipelineInstance", nullable=True)
+    running_pipeline_id = reference_col("PipelineInstance", nullable=True)
 
-    currently_running_pipeline = relationship(PipelineInstance, uselist=False, backref=backref("data_consigner", uselist=False), foreign_keys=[pipeline_id])
-    run_pipelines = relationship(PipelineInstance, foreign_keys=[pipeline_id])
+    source_pipeline = relationship(PipelineInstance, foreign_keys=[source_pipeline_id], uselist=False)
+    running_pipeline = relationship(PipelineInstance, foreign_keys=[running_pipeline_id], uselist=False)
+    run_pipelines = relationship(PipelineInstance, foreign_keys=[PipelineInstance.data_consigner_id], backref=backref("data_consigner", uselist=False))
 
     type = Column(String(50), nullable=False)
 
@@ -111,16 +108,13 @@ class SampleGroup(DataSource):
 
     creator_id = reference_col("User", nullable=True)
     group_id = reference_col("Group", nullable=True)
-    pipeline_type_id = reference_col("Pipeline", nullable=True)
-
-    pipeline = relationship("Pipeline", uselist=False, foreign_keys=[pipeline_type_id])
 
     __tablename__ = "SampleGroup"
     __mapper_args__ = {"polymorphic_identity": "SampleGroup", "inherit_condition": (id == DataSource.id)}
 
     def __init__(self, name, creator, group, pipeline):
         DataSource.__init__(self, name=name)
-        self.update(pipeline=pipeline)
+        self.update(source_pipeline=pipeline)
         creator.sample_groups.append(self)
         creator.update()
         group.sample_groups.append(self)
@@ -146,7 +140,8 @@ class Project(SurrogatePK, Model):
     creator_id = reference_col("User")
 
     documents = relationship("Document", backref="project")
-    sample_groups = relationship("SampleGroup", secondary=project_sample_grouping_association_table, lazy="dynamic", backref=backref("projects", lazy="dynamic"))
+    sample_groups = relationship("SampleGroup", secondary=project_sample_grouping_association_table, lazy="dynamic",
+                                 backref=backref("projects", lazy="dynamic"))
 
     __tablename__ = "Project"
 

@@ -21,7 +21,11 @@
         <td><a href="{{ url_for('manage.sample_group', oid=item.display_key) }}">{{ item.name }}</a></td>
         <td>{{ item.group.name }}</td>
         <td>{{ item.samples.all()|length }}</td>
+        {% if item.source_pipeline %}
+        <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=item.source_pipeline.display_key) }}">{{ item.source_pipeline.pipeline.name }}</a></td>
+        {% else %}
         <td>{{ item.creator.username }}</td>
+        {% endif %}
     </tr>
     {% endfor %}
     {% endif %}

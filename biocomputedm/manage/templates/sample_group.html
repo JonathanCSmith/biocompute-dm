@@ -15,45 +15,85 @@
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
-        <h3>Sample Group: {{ sample_group.name }}</h3>
+        <h3>Sample Group Properties</h3>
 
         <table class="small_content">
             <tr>
+                <th>Name</th>
+                <td>{{ sample_group.name }}</td>
+            </tr>
+            <tr>
+                <th>Group</th>
+                <td>{{ sample_group.group.name }}</td>
+            </td>
+            <tr>
+                <th>Number of Samples</th>
+                <td>{{ sample_group.samples.all()|length }}</td>
+            </tr>
+            <tr>
+                <th>Source</th>
+                {% if sample_group.source_pipeline %}
+                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=sample_group.source_pipeline.display_key) }}">{{ sample_group.source_pipeline.pipeline.name }}</a></td>
+                {% else %}
+                <td>{{ sample_group.creator.username }}</td>
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Samples in this Sample Group</h3>
+
+        <table class="content">
+            <tr>
                 <th>Sample Name</th>
+                <th>Number of Data Sets</th>
+                <th>Submission Source</th>
+                <th>Pipeline Source</th>
             </tr>
 
-            {% for sample in samples %}
+            {% if samples %}
+            {% for item in samples %}
             <tr>
-                <td><a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a></td>
+                <td><a href="{{ url_for('manage.sample', oid=item.display_key) }}">{{ item.name }}</a></td>
+                <td>{{ item.pipeline_runs.all()|length }}</td>
+                <td>{{ item.submission_source.name }}</td>
+                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=item.pipeline_source.display_key) }}">{{ item.pipeline_source.pipeline.name }}</a></td>
             </tr>
             {% endfor %}
+            {% endif %}
+
         </table>
 
-        <div class="spacer"></div>
-
-        <table class="pagenator">
-            <tr>
-                <td></td>
-                <td>&lt;&lt;</td>
-                <td>
-                    {% if has_prev %}
-                    <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
-                    {% else %}
-                    Previous
-                    {% endif %}
-                </td>
-                <td>|</td>
-                <td>
-                    {% if has_next %}
-                    <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
-                    {% else %}
-                    Next
-                    {% endif %}
-                </td>
-                <td>&gt;&gt;</td>
-                <td></td>
-            </tr>
-        </table>
+        {#
+        <div class="action exempt">
+            <table class="pagenator">
+                <tr>
+                    <td></td>
+                    <td>&lt;&lt;</td>
+                    <td>
+                        {% if has_prev %}
+                        <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
+                        {% else %}
+                        Previous
+                        {% endif %}
+                    </td>
+                    <td>|</td>
+                    <td>
+                        {% if has_next %}
+                        <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
+                        {% else %}
+                        Next
+                        {% endif %}
+                    </td>
+                    <td>&gt;&gt;</td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        #}
     </div>
 
     {% if g.user.type == "User" %}
@@ -82,7 +122,7 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        {% if sample_group.currently_running_pipeline %}
+        {% if sample_group.running_pipeline %}
         <table class="content2">
             <tr>
                 <th>Pipeline Name</th>
@@ -91,17 +131,17 @@
                 <th>Pipeline Version</th>
             </tr>
             <tr>
-                <td>{{ sample_group.currently_running_pipeline.pipeline.name }}</td>
-                <td>{{ sample_group.currently_running_pipeline.pipeline.description }}</td>
-                <td>{{ sample_group.currently_running_pipeline.pipeline.author }}</td>
-                <td>{{ sample_group.currently_running_pipeline.pipeline.version }}</td>
+                <td>{{ sample_group.running_pipeline.pipeline.name }}</td>
+                <td>{{ sample_group.running_pipeline.pipeline.description }}</td>
+                <td>{{ sample_group.running_pipeline.pipeline.author }}</td>
+                <td>{{ sample_group.running_pipeline.pipeline.version }}</td>
             </tr>
         </table>
 
         <div class="spacer"></div>
         <div class="spacer"></div>
 
-        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=sample_group.currently_running_pipeline.display_key) }}">View Pipeline Instance</a>
+        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=sample_group.running_pipeline.display_key) }}">View Pipeline Instance</a>
 
         <div class="spacer"></div>
         <div class="spacer"></div>
@@ -111,33 +151,33 @@
                 <tr>
                     <td></td>
 
-                    {% for module_instance in sample_group.currently_running_pipeline.module_instances %}
-                    {% if loop.index0 == sample_group.currently_running_pipeline.current_execution_index %}
-                    {% if sample_group.currently_running_pipeline.current_execution_status == "WAITING" %}
+                    {% for module_instance in sample_group.running_pipeline.module_instances %}
+                    {% if loop.index0 == sample_group.running_pipeline.current_execution_index %}
+                    {% if sample_group.running_pipeline.current_execution_status == "WAITING" %}
                     <td class="resize img1 bg3">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "RUNNING" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "RUNNING" %}
                     <td class="resize img1 bg1">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "FINISHED" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "FINISHED" %}
                     <td class="resize img2 bg2">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "ERROR" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "ERROR" %}
                     <td class="resize img1 bg4">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "NOT_STARTED" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "NOT_STARTED" %}
                     <td class="resize img1 bg5">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "STOPPED" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "STOPPED" %}
                     <td class="resize img1 bg6">
                         {% endif %}
-                        {% elif loop.index0 < sample_group.currently_running_pipeline.current_execution_index %}
-                        {% if sample_group.currently_running_pipeline.current_execution_status == "WAITING" %}
+                        {% elif loop.index0 < sample_group.running_pipeline.current_execution_index %}
+                        {% if sample_group.running_pipeline.current_execution_status == "WAITING" %}
                     <td class="resize img2 bg3">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "RUNNING" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "RUNNING" %}
                     <td class="resize img2 bg1">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "FINISHED" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "FINISHED" %}
                     <td class="resize img2 bg2">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "ERROR" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "ERROR" %}
                     <td class="resize img2 bg4">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "NOT_STARTED" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "NOT_STARTED" %}
                     <td class="resize img2 bg5">
-                        {% elif sample_group.currently_running_pipeline.current_execution_status == "STOPPED" %}
+                        {% elif sample_group.running_pipeline.current_execution_status == "STOPPED" %}
                     <td class="resize img2 bg6">
                         {% endif %}
                         {% else %}
@@ -153,7 +193,7 @@
         </div>
 
         {% else %}
-        <h3>Select a Pipeline to Run</h3>
+        <h3>Select a Pipeline to Run on this Sample Group</h3>
         <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
         <select class="selection">
             <option selected value="None">None</option>
@@ -194,7 +234,7 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Manage</h3>
+        <h3>Manage this Sample Group</h3>
 
         <table>
             <tr>

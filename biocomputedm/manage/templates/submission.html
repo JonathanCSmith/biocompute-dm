@@ -91,7 +91,7 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        {% if submission.currently_running_pipeline %}
+        {% if submission.running_pipeline %}
         <h3>Currently Running Pipeline</h3>
         <table class="content2">
             <tr>
@@ -101,16 +101,16 @@
                 <th>Pipeline Version</th>
             </tr>
             <tr>
-                <td>{{ submission.currently_running_pipeline.pipeline.name }}</td>
-                <td>{{ submission.currently_running_pipeline.pipeline.description }}</td>
-                <td>{{ submission.currently_running_pipeline.pipeline.author }}</td>
-                <td>{{ submission.currently_running_pipeline.pipeline.version }}</td>
+                <td>{{ submission.running_pipeline.pipeline.name }}</td>
+                <td>{{ submission.running_pipeline.pipeline.description }}</td>
+                <td>{{ submission.running_pipeline.pipeline.author }}</td>
+                <td>{{ submission.running_pipeline.pipeline.version }}</td>
             </tr>
         </table>
 
         <div class="spacer"></div>
 
-        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=submission.currently_running_pipeline.display_key) }}">View Pipeline Instance</a>
+        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=submission.running_pipeline.display_key) }}">View Pipeline Instance</a>
 
         <div class="spacer"></div>
 
@@ -119,33 +119,33 @@
                 <tr>
                     <td></td>
 
-                    {% for module_instance in submission.currently_running_pipeline.module_instances %}
-                        {% if loop.index0 == submission.currently_running_pipeline.current_execution_index %}
-                            {% if submission.currently_running_pipeline.current_execution_status == "WAITING" %}
+                    {% for module_instance in submission.running_pipeline.module_instances %}
+                        {% if loop.index0 == submission.running_pipeline.current_execution_index %}
+                            {% if submission.running_pipeline.current_execution_status == "WAITING" %}
                             <td class="resize img1 bg3">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "RUNNING" %}
+                            {% elif submission.running_pipeline.current_execution_status == "RUNNING" %}
                             <td class="resize img1 bg1">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "FINISHED" %}
+                            {% elif submission.running_pipeline.current_execution_status == "FINISHED" %}
                             <td class="resize img2 bg2">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "ERROR" %}
+                            {% elif submission.running_pipeline.current_execution_status == "ERROR" %}
                             <td class="resize img1 bg4">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "NOT_STARTED" %}
+                            {% elif submission.running_pipeline.current_execution_status == "NOT_STARTED" %}
                             <td class="resize img1 bg5">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "STOPPED" %}
+                            {% elif submission.running_pipeline.current_execution_status == "STOPPED" %}
                             <td class="resize img1 bg6">
                             {% endif %}
-                        {% elif loop.index0 < submission.currently_running_pipeline.current_execution_index %}
-                            {% if submission.currently_running_pipeline.current_execution_status == "WAITING" %}
+                        {% elif loop.index0 < submission.running_pipeline.current_execution_index %}
+                            {% if submission.running_pipeline.current_execution_status == "WAITING" %}
                             <td class="resize img2 bg3">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "RUNNING" %}
+                            {% elif submission.running_pipeline.current_execution_status == "RUNNING" %}
                             <td class="resize img2 bg1">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "FINISHED" %}
+                            {% elif submission.running_pipeline.current_execution_status == "FINISHED" %}
                             <td class="resize img2 bg2">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "ERROR" %}
+                            {% elif submission.running_pipeline.current_execution_status == "ERROR" %}
                             <td class="resize img2 bg4">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "NOT_STARTED" %}
+                            {% elif submission.running_pipeline.current_execution_status == "NOT_STARTED" %}
                             <td class="resize img2 bg5">
-                            {% elif submission.currently_running_pipeline.current_execution_status == "STOPPED" %}
+                            {% elif submission.running_pipeline.current_execution_status == "STOPPED" %}
                             <td class="resize img2 bg6">
                             {% endif %}
                         {% else %}

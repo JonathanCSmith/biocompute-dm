@@ -39,7 +39,7 @@
             {% for data in datasets %}
             <tr>
                 <td><a href="{{ url_for('manage.sample_data', oid=oid, data_file=data['name']) }}">{{ data['name'] }}</a></td>
-                <td>{{ data['pipeline'].pipeline.name }} </td>
+                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=data['pipeline'].display_key) }}">{{ data['pipeline'].pipeline.name }}</a></td>
             </tr>
             {% endfor %}
         </table>

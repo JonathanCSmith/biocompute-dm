@@ -474,17 +474,26 @@ table td div.cell_content textarea {
     box-sizing: border-box;
 }
 
-table.small_content {
+div.content table.small_content {
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
+    text-align: left;
 }
 
-table.small_content input {
+div.content table.small_content input {
     width: 100%;
     box-sizing: border-box;
     -webkit-box-sizing:border-box;
     -moz-box-sizing: border-box;
+}
+
+div.content table.small_content * {
+    text-align: left;
+}
+
+div.content table.small_content td {
+    padding-bottom: 1em;
 }
 
 div.content img {

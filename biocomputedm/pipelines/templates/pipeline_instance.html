@@ -103,7 +103,7 @@
         </table>
     </div>
 
-    {% if pipeline_instance.data_consigner.currently_running_pipeline %}
+    {% if pipeline_instance.current_execution_status != "FINISHED" %}
     <div class="spacer"></div>
 
     <div class="action exempt">

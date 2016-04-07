@@ -95,7 +95,8 @@ class PipelineInstance(SurrogatePK, Model):
     options_type = Column(Enum("Custom", "Default"), default="Default")
 
     pipeline_id = reference_col("Pipeline")
-    user_id = reference_col("User", nullable=True)
+    data_consigner_id = Column(ForeignKey("DataSource.id", use_alter=True))
+    user_id = Column(ForeignKey("User.id", use_alter=True), nullable=True)
     group_id = reference_col("Group", nullable=True)
 
     user = relationship("User", uselist=False)
@@ -106,6 +107,7 @@ class PipelineInstance(SurrogatePK, Model):
     def __init__(self, pipeline, execution_type, options_type, user):
         db.Model.__init__(self, pipeline=pipeline, execution_type=execution_type, options_type=options_type)
         self.user = user
+        self.save()
         user.group.pipeline_instances.append(self)
         user.group.save()
 
@@ -115,7 +117,7 @@ class PipelineInstance(SurrogatePK, Model):
 
 def create_pipeline_instance(user, pipeline, data_source, execution_type, options_type):
     pipeline_instance = PipelineInstance(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=user)
-    data_source.update(currently_running_pipeline=pipeline_instance)
+    data_source.update(running_pipeline=pipeline_instance)
     pipeline_instance.update(data_consigner=data_source)
     return pipeline_instance
 

@@ -262,7 +262,7 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
             return redirect(url_for("index"))
 
         # Check data source
-        if data_source.currently_running_pipeline is not None:
+        if data_source.running_pipeline is not None:
             flash(
                 "The provided data source is already attached to a pipeline. Please ensure it finishes or you quit the original pipeline before proceeding",
                 "warning")
@@ -726,6 +726,7 @@ def finish_pipeline(oid="", force=0):
     # TODO - If module is running parse for job id and kill all
 
     current_data_source = pipeline_instance.data_consigner
+    current_data_source.run_pipelines.append(pipeline_instance)
     current_data_source.update(currently_running_pipeline=None)
 
     flash("The pipeline was stopped and disassociated with your parent data set", "success")
@@ -756,7 +757,8 @@ def restart_pipeline(oid="", force=0):
     # TODO - If module is running parse for job id and kill all
 
     data_source = pipeline_instance.data_consigner
-    data_source.update(currently_running_pipeline=None)
+    data_source.run_pipelines.append(pipeline_instance)
+    data_source.update(running_pipeline=None)
 
     flash("The previous pipeline has been removed, follow the instructions below to restart!", "success")
     return redirect(url_for("pipelines.build_pipeline_instance",

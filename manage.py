@@ -29,7 +29,7 @@ def run():
 
 
 @manager.command
-def initdb():
+def initialize_master_database_and_clean_versioning():
     # Cleanup folder
     cleanup_directory = utils.get_path("scripts", "webserver")
     cleanup_directory = os.path.join(cleanup_directory, "cleanup")
@@ -58,8 +58,13 @@ def initdb():
 
 
 @manager.command
-def update():
+def generate_migration():
     migrate()
+    upgrade()
+
+
+@manager.command
+def update():
     upgrade()
 
 

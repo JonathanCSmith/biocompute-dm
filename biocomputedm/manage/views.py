@@ -491,6 +491,7 @@ def new_sample_group():
             return render_template("new_sample_group.html", title="New Sample Group", form=form)
 
 
+# TODO: Pagination of samples?
 @manage.route("/sample_group/<oid>", methods=["GET", "POST"])
 @login_required("ANY")
 def sample_group(oid=""):
