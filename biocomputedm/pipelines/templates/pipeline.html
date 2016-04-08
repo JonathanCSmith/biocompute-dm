@@ -1,10 +1,19 @@
-{% extends "base.html" %}
+{% extends "information_panel.html" %}
+
 {% block custom_css %}
+{{ super() }}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 <link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
 {% endblock %}
 
-{% block content %}
+{% block info_panel %}
+<h3>Info</h3>
+<h4>To the right, in the first panel, you can find basic information about this pipeline, including a description of its purpose.</h4>
+<h4>The second panel contains a schematic representation of any of the steps involved within the pipeline.</h4>
+<h4>The final panel offers any information about data prerequisites for pipeline execution and links to any available documentation.</h4>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Pipeline Properties</h3>
@@ -23,24 +32,35 @@
                 <td>{{ pipeline.version }}</td>
             </tr>
         </table>
+    </div>
+</div>
 
-        <div class="spacer"></div>
+<div class="spacer"></div>
 
-        <div class="input-table clear">
-            <table class="table-resize">
-                <tr>
-                    <td></td>
-                    {% for stage in pipeline.modules %}
-                    <td class="resize img1 bg5">{{ stage.name }}</td>
-                    {% endfor %}
-                    <td></td>
-                </tr>
-            </table>
-        </div>
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Pipeline Steps</h3>
+
+        <table class="table-resize">
+            <tr>
+                <td></td>
+                {% for stage in pipeline.modules %}
+                <td class="resize img1 bg5">{{ stage.name }}</td>
+                {% endfor %}
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Pipeline Execution Details</h3>
     </div>
 </div>
 {% endblock %}
 
 {% block custom_scripts %}
+{{ super() }}
 <script src="/static/js/resizeTable.js"></script>
 {% endblock %}

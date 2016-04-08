@@ -154,7 +154,7 @@
                 {% for sample in data_group %}
                 {% if data != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
-                    <a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a>
+                    <a href="{{ url_for('manage.sample_data', oid=sample.display_key, data_file=pipeline_instance.display_key) }}">{{ sample.name }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
@@ -167,5 +167,6 @@
 {% endblock %}
 
 {% block custom_scripts %}
+{{ super() }}
 <script src="/static/js/resizeTable.js"></script>
 {% endblock %}

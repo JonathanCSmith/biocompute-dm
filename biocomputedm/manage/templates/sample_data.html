@@ -17,15 +17,17 @@
     <div class="action exempt">
         <h3>Sample Data Information</h3>
 
-        <table class="small_content">
-            <tr>
-                <th>Sample Dataset Source</th>
-                <th>Sample Dataset Creation Date</th>
-            </tr>
-            <tr>
-                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=data_file) }}">{{ data_file }}</a></td>
-            </tr>
-        </table>
+        <div style="width: 100%">
+            <table class="small_content">
+                <tr>
+                    <th>Sample Dataset Source</th>
+                    <th>Sample Dataset Creation Date</th>
+                </tr>
+                <tr>
+                    <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=data_file) }}">{{ data_file }}</a></td>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <div class="spacer"></div>

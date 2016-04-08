@@ -25,7 +25,7 @@
             <tr>
                 <th>Group</th>
                 <td>{{ sample_group.group.name }}</td>
-            </td>
+            </tr>
             <tr>
                 <th>Number of Samples</th>
                 <td>{{ sample_group.samples.all()|length }}</td>
@@ -247,6 +247,8 @@
 {% endblock %}
 
 {% block custom_scripts %}
+{{ super() }}
+
 <script src="/static/js/selectContent.js"></script>
 <script src="/static/js/resizeTable.js"></script>
 {% endblock %}

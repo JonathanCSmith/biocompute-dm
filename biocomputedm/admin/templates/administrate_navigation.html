@@ -16,7 +16,7 @@
     <li><a class="input fixed" href="{{ url_for('admin.add_customer_group') }}">Add Consignor</a></li>
     {% endif %}
 
-    <li><a class="input fixed" href="{{ url_for('pipelines.display_pipelines') }}">Show Pipelines</a></li>
+    <li><a class="input fixed" href="{{ url_for('pipelines.display_pipelines', display=1) }}">Show Pipelines</a></li>
     {% if g.user.get_role() == "Site Admin" %}
     <li><a class="input fixed" href="{{ url_for('pipelines.refresh_pipelines') }}">Refresh Pipelines</a></li>
     {% endif %}

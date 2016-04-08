@@ -1,9 +1,18 @@
-{% extends "base.html" %}
+{% extends "information_panel.html" %}
 {% block custom_css %}
+{{ super() }}
 <link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 {% endblock %}
 
-{% block content %}
+{% block info_panel %}
+<h3>Info</h3>
+<h4>To the right is a form for uploading files to Biocompute-DM. If the form does not display correctly please use the SFTP details provided to you in your sign up email.</h4>
+<h4>Files must be either .zip or .gz</h4>
+<h4>Files will be placed in a quarantined zone.</h4>
+<h4>The data are unzipped when you have selected your files to send to a pipeline (and not before!).</h4>
+{% endblock %}
+
+{% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
         <h3>SFTP Client</h3>

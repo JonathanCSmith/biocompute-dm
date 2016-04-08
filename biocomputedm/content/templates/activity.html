@@ -5,42 +5,55 @@
 
 {% block content %}
 <div class="input-table clear">
+    <div class="action exempt">
+        <h3>Biocompute-DM Activity Window</h3>
+        <h4>Here you can find a list of activities available for you to perform.</h4>
+        <h4>In the toolbar above you can find summaries for your activities.</h4>
+        <h4>In the toolbar below you can find site, and user, specific information.</h4>
+    </div>
+</div>
+
+<div class="spacer"></div>
+
+<div class="input-table clear">
     <table>
         <tr>
+            <td>
+                <div class="action">
+                    <h3>View Available Pipelines</h3>
+                    <a class="input" href="{{ url_for('pipelines.display_pipelines') }}">View Pipelines</a>
+                    <ul>
+                        <li>Use the link above to view the pipelines available to you as well as any specific requirements they have for data. All pipelines come with a documentation booklet that may be of interest to you.</li>
+                    </ul>
+                </div>
+            </td>
+
             <td>
                 <div class="action">
                     <h3>Upload Data</h3>
                     <a class="input" href="{{ url_for('manage.upload_data') }}">Upload a new dataset</a>
                     <ul>
-                        <li>Allows you to upload data to Biocompute-DM's file system</li>
-                        <li>Files must be either .zip or .gz</li>
-                        <li>Files will be placed in a quarantined zone.</li>
-                        <li>Uploaded data can be added to Biocompute-DM's management framework by choosing the submit data option.</li>
-                        <li>The data are unzipped when you add them to a submission.</li>
+                        <li>Allows you to upload zipped data to a personal storage area within Biocompute-DM. Uploaded zips then become available to send to pipelines.</li>
                     </ul>
                 </div>
             </td>
 
             <td>
                 <div class="action">
-                    <h3>Submit Data</h3>
-                    <a class="input" href="{{ url_for('manage.new_submission') }}">Submit a new dataset</a>
+                    <h3>Select Data to Submit to a Pipeline</h3>
+                    <a class="input" href="{{ url_for('manage.new_submission') }}">Select Data for Submission!</a>
                     <ul>
-                        <li>Submit a dataset from your uploaded files or from your group's directory</li>
-                        <li>Submitted data must be directly below its containing folder (e.g. /upload1/data_file_1)</li>
-                        <li>Submitted data (from your upload directory) becomes visible to your group once added</li>
-                        <li>Submitted data can then be deconvoluted using available plugins to  generate per sample information</li>
+                        <li>Select the data (from your uploads) that you wish to submit to a pipeline. Please note, some pipelines expect files in a very specific format, so please refer to the pipelines of interest before submitting!</li>
                     </ul>
                 </div>
             </td>
 
             <td>
                 <div class="action">
-                    <h3>Create a Sample Group</h3>
+                    <h3>Create a Custom Sample Group</h3>
                     <a class="input" href="{{ url_for('manage.new_sample_group') }}">Add a New Sample Group</a>
                     <ul>
-                        <li>Use this option to create a custom grouping of samples.</li>
-                        <li>Please note that all of the samples grouped together must have come from the same pipeline type</li>
+                        <li>Use this option to create a custom grouping of samples, samples are created by pipelines (not manually). Please note that all of the samples grouped together must have come from the same pipeline type</li>
                     </ul>
                 </div>
             </td>
@@ -50,8 +63,7 @@
                     <h3>Create a Project</h3>
                     <a class="input" href="{{ url_for('manage.new_project') }}">Add a New Project</a>
                     <ul>
-                        <li>Use this option to create a new project.</li>
-                        <li>Projects can be used to group samples, sample groups and documents.</li>
+                        <li>Use this option to create a new project. Projects can be used to group samples, sample groups and documents.</li>
                     </ul>
                 </div>
             </td>

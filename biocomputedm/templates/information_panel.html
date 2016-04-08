@@ -1,23 +1,49 @@
 {% extends "base.html" %}
+
 {% block custom_css %}
 <link rel="stylesheet" type="text/css" href="/static/css/administrate.css?v=9">
 {% endblock %}
 
 {% block content %}
-<table>
+<table class="divider">
     <tr>
         <td class="left administrate">
             <div class="input-table clear">
+                {% if not admin_flag %}
+                <script>
+                    $(".divider").hide()
+                </script>
+                {% endif %}
+
+                {% if admin_flag %}
                 <div class="action exempt">
+                {% else %}
+                <div class="action exempt info_panel">
+                {% endif %}
+
                     {% block info_panel %}
                     {% endblock %}
+
+                {% if not admin_flag %}
+                    <button id="min"></button>
+                {% endif %}
+
                 </div>
             </div>
         </td>
+
         <td class="administrate right">
             {% block main_panel %}
             {% endblock %}
+            <button id="max"></button>
         </td>
     </tr>
 </table>
+{% endblock %}
+
+{% block custom_scripts %}
+{{ super() }}
+{% if not admin_flag %}
+<script src="/static/js/infoPanel.js"></script>
+{% endif %}
 {% endblock %}

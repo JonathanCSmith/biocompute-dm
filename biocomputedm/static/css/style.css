@@ -37,9 +37,25 @@ footer {
 }
 
 /* Branding Header */
+
+/*.brand {*/
+    /*!** Header image properties set **!*/
+    /*background: #000000 url('/static/images/header_2.png') no-repeat center center;*/
+    /*-webkit-background-size: cover;*/
+    /*-moz-background-size: cover;*/
+    /*-o-background-size: cover;*/
+    /*background-size: cover;*/
+
+    /*!* Text properties *!*/
+    /*text-align: center;*/
+    /*color: #a6a6a6;*/
+/*}*/
+
+
+
 .brand {
     /** Header image properties set **/
-    background: #000000 url(http://10.200.100.69/images/RosalindBanner.jpg) no-repeat center center;
+    background: #000000 url('/static/images/header_3.png') no-repeat center center;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -47,7 +63,8 @@ footer {
 
     /* Text properties */
     text-align: center;
-    color: #f9f9f9;
+    color: #fff;
+    text-shadow: 2px 2px #a6a6a6;
 }
 
 .brand h1 {
@@ -93,11 +110,19 @@ footer {
 }
 
 /* Bootstrap Navbar display properties */
+/*.navbar {*/
+    /*margin-bottom: 0;*/
+    /*background-color: #000000;*/
+    /*text-align:center;*/
+    /*border: none;*/
+/*}*/
+
 .navbar {
     margin-bottom: 0;
-    background-color: #000000;
+    background-color: #505050;
     text-align:center;
     border: none;
+    width: 100%;
 }
 
 .navbar-brand {
@@ -129,16 +154,29 @@ footer {
     transition: background .5s;
 }
 
+/*.navbar-default .navbar-nav > li > a:hover {*/
+    /*color: #f9f9f9;*/
+    /*background: #117bff;*/
+    /*cursor: pointer;*/
+    /*transition: background .5s;*/
+/*}*/
+
+/*.navbar-default .navbar-nav > li > a:focus {*/
+    /*color: #117bff;*/
+    /*background: #000000;*/
+    /*transition: color 1s;*/
+/*}*/
+
 .navbar-default .navbar-nav > li > a:hover {
     color: #f9f9f9;
-    background: #117bff;
+    background: #46d2d2;
     cursor: pointer;
     transition: background .5s;
 }
 
 .navbar-default .navbar-nav > li > a:focus {
-    color: #117bff;
-    background: #000000;
+    color: #46d2d2;
+    background: #505050;
     transition: color 1s;
 }
 
@@ -484,6 +522,7 @@ div.content table.small_content {
 div.content table.small_content input {
     width: 100%;
     box-sizing: border-box;
+    text-align: center;
     -webkit-box-sizing:border-box;
     -moz-box-sizing: border-box;
 }
@@ -498,6 +537,26 @@ div.content table.small_content td {
 
 div.content img {
     width: 100%;
+}
+
+/* unvisited link */
+a:link {
+    color: #2db9b9;
+}
+
+/* visited link */
+a:visited {
+    color: #2db9b9;
+}
+
+/* mouse over link */
+a:hover {
+    color: #239090;
+}
+
+/* selected link */
+a:active {
+    color: #32cdcd;
 }
 
 .internal {

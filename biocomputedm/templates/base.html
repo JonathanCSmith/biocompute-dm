@@ -8,7 +8,6 @@
         <link rel=stylesheet type="text/css" href="/static/css/style.css?v=40">
         {% block custom_css %}
         {% endblock %}
-
         {% endblock %}
 
         {% block scripts %}
@@ -63,21 +62,7 @@
                             <li><a href="{{ url_for('pipelines.display_pipeline_instances') }}">Runs</a></li>
                             {% endif %}
 
-                            {% if g.user.get_role() == "Site Admin" %}
-                            <li><a href="{{ url_for('admin.administrate') }}">My Admin</a></li>
-                            {% elif g.user.get_role() == "Group Admin" %}
-                            <li><a href="{{ url_for('admin.administrate') }}">My Admin</a></li>
                             {% endif %}
-
-                            {% endif %}
-
-                            <li>
-                                {% if g.user.is_authenticated %}
-                                <a href="{{ url_for('admin.logout') }}">Logout</a>
-                                {% else %}
-                                <a href="{{ url_for('admin.login') }}">Login</a>
-                                {% endif %}
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -121,13 +106,26 @@
                         <ul class="nav navbar-nav">
                             {% if g.user.is_authenticated %}
                             <li><a href="{{ url_for('manage.user_profile') }}">Profile</a></li>
-                            {% endif %}
-
-                            {% if g.user.is_authenticated %}
                             <li><a href="{{ url_for('content.about') }}">About Biocompute-DM</a></li>
                             {% endif %}
 
                             <li><a href="{{ url_for('content.terms_and_conditions') }}">Terms & Conditions</a></li>
+
+                            {% if g.user.is_authenticated %}
+                            {% if g.user.get_role() == "Site Admin" %}
+                            <li><a href="{{ url_for('admin.administrate') }}">My Admin</a></li>
+                            {% elif g.user.get_role() == "Group Admin" %}
+                            <li><a href="{{ url_for('admin.administrate') }}">My Admin</a></li>
+                            {% endif %}
+                            {% endif %}
+
+                            <li>
+                                {% if g.user.is_authenticated %}
+                                <a href="{{ url_for('admin.logout') }}">Logout</a>
+                                {% else %}
+                                <a href="{{ url_for('admin.login') }}">Login</a>
+                                {% endif %}
+                            </li>
                         </ul>
                     </div>
                 </div>

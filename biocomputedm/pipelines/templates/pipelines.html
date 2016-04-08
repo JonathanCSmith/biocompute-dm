@@ -1,7 +1,17 @@
+{% if display == 1 %}
+{% set admin_flag = True %}
+{% endif %}
+
 {% extends "paginated_information_panel.html" %}
 
 {% block info_panel %}
+{% if display == 1 %}
 {% include "administrate_navigation.html" %}
+{% else %}
+<h3>Info</h3>
+<h4>The panel on the right shows all of the plugins available to you.</h4>
+<h4>Within each of the pipelines you can find details about the pipeline's data prerequisites as well as a link to any documentation</h4>
+{% endif %}
 {% endblock %}
 
 {% block main_panel_view %}

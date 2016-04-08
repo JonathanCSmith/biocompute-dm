@@ -1,10 +1,9 @@
 {% extends "index.html" %}
 {% block main %}
-<h3>Welcome to Biocompute-DM - A Genomics and Translational Bioinformatics Core Collaboration</h3>
+<h3>Welcome to Biocompute-DM - An Interactive Tool for the Execution of Bioinformatics Pipelines</h3>
 {% if user.is_authenticated %}
-<ul>
-    <li>Find out about Biocompute-DM below:</li>
-</ul>
+<h4>Welcome to Biocompute-DM, a tool designed to ease the execution of complex, and often times computationally expensive, bioinformatics pipelines.</h4>
+<h4>Biocompute-DM offers several key features to its users (listed below) and is enhanced using custom bioinformatics pipelines, details on which can be found in the available plugins tab.</h4>
 {% else %}
 <a class="input" href="{{ url_for('admin.login') }}">Login</a>
 <ul>

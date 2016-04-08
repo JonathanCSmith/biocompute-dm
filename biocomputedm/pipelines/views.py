@@ -145,12 +145,14 @@ def refresh_pipelines():
     return redirect(url_for("admin.administrate"))
 
 
-@pipelines.route("/display_pipelines")
+@pipelines.route("/display_pipelines/")
 @pipelines.route("/display_pipelines/<int:page>")
+@pipelines.route("/display_pipelines/<int:display>")
+@pipelines.route("/display_pipelines/<int:page>|<int:display>")
 @login_required("ANY")
-def display_pipelines(page=1):
+def display_pipelines(display=0, page=1):
     p = Pipeline.query.paginate(page=page, per_page=20)
-    return render_template("pipelines.html", title="Pipelines", page=page, obs=p)
+    return render_template("pipelines.html", title="Pipelines", page=page, obs=p, display=display)
 
 
 @pipelines.route("/display_pipeline/<pid>")
