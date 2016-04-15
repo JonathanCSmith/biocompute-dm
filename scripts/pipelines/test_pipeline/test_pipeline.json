@@ -4,6 +4,8 @@
   "pipeline_type": "I",
   "author": "Jonathan Smith",
   "version": "0.0.3",
+  "file_regex": ".*",
+  "documentation_file_name": "test.txt",
   "modules": [
     {
       "name": "test",

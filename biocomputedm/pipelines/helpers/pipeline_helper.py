@@ -1,6 +1,7 @@
 import codecs
 import json
 import os
+import re
 import subprocess
 
 import jsonschema
@@ -29,6 +30,12 @@ pipeline = \
           "type": "string"
         },
         "version": {
+          "type": "string"
+        },
+        "file_regex": {
+          "type": "string"
+        },
+        "documentation_file_name": {
           "type": "string"
         },
         "modules": {
@@ -98,17 +105,43 @@ pipeline = \
         "pipeline_type",
         "author",
         "version",
+        "file_regex",
+        "documentation_file_name",
         "modules"
       ]
     }
     '''
 
 
+# Validate whether a file provided can be used as a valid pipeline
 def validate(file):
     json_instance = json.loads(codecs.open(file, mode="r", encoding="utf-8").read())
 
     try:
         jsonschema.validate(json_instance, json.loads(pipeline))
+
+        # Validate documentation presence
+        documentation = json_instance.get("documentation_file_name")
+        if documentation is None or documentation == "":
+            flash("File: " + file + " did not provide a valid documentation link", "error")
+            return False
+
+        pipeline_directory = os.path.dirname(file)
+        if not os.path.isfile(os.path.join(pipeline_directory, documentation)):
+            flash("File: " + file + " did not provide a valid documentation link", "error")
+            return False
+
+        # Validate regex presence
+        rx = json_instance.get("file_regex")
+        if rx is None or rx == "":
+            flash("File: " + file + " did not provide a valid file regex", "error")
+            return False
+
+        try:
+            re.compile(rx)
+        except re.error:
+            flash("File: " + file + " did not provide a valid file regex", "error")
+            return False
 
     except jsonschema.ValidationError as e:
         flash(e.message + " for file: " + file, "error")
@@ -132,13 +165,15 @@ def build(file):
     author = json_instance.get("author")
     version = json_instance.get("version")
     type = json_instance.get("pipeline_type")
+    rx = json_instance.get("file_regex")
+    documentation = json_instance.get("documentation_file_name")
     pipeline = Pipeline.query.filter_by(name=name, description=description, author=author, version=version,
-                                        type=type).first()
+                                        type=type, regex=rx, documentation=documentation).first()
     if pipeline is not None:
         pipeline.update(executable=True)
         return False
 
-    pipeline = Pipeline.create(name=name, description=description, author=author, version=version, type=type)
+    pipeline = Pipeline.create(name=name, description=description, author=author, version=version, type=type, regex=rx, documentation=documentation)
     pipeline.update(executable=True)
     count = -1
     for module in json_instance.get("modules"):
@@ -353,6 +388,8 @@ def finish_pipeline_instance(app, pid="", oid=""):
                         s = Sample.query.filter_by(display_key=file).first()
                         if s is None:
                             continue
+
+                        output_directory = os.path.join(output_directory, s.display_key)
 
                     # Update the sample group
                     group.samples.append(s)

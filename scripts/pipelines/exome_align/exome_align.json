@@ -1,0 +1,26 @@
+{
+  "name": "exome_align",
+  "description": "aligns demultiplexed files for exome sequencing and produces metrics data for the aligment",
+  "pipeline_type": "II",
+  "author": "Venu Pullabhatla, Jonathan Smith",
+  "version": "0.0.1",
+  "file_regex": ".*\\.fastq",
+  "documentation_file_name": "exome_align_documentation.txt",
+  "modules": [
+    {
+      "name": "aligner",
+      "description": "align exome sequencing",
+      "executor": "align.sh",
+      "options": [
+        {
+          "display_name": "Reference Genome Index File",
+          "parameter_name": "ref",
+          "default_value": "",
+          "user_interaction_type": "reference",
+          "necessary": true,
+          "description": "This field requires you to specify one of the reference genome indexes."
+        }
+      ]
+    }
+  ]
+}

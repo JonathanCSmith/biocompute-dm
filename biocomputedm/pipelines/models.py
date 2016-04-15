@@ -12,6 +12,8 @@ class Pipeline(SurrogatePK, Model):
     author = Column(String(50), nullable=False)
     version = Column(String(50), nullable=False)
     type = Column(Enum("I", "II", "III"), nullable=False)
+    regex = Column(String(100), nullable=False)
+    documentation = Column(String(50), nullable=False)
     executable = Column(SmallInteger(), default=False)
 
     modules = relationship("PipelineModule", backref="pipeline", lazy="dynamic")
@@ -20,8 +22,8 @@ class Pipeline(SurrogatePK, Model):
     __tablename__ = "Pipeline"
     __table_args__ = (db.UniqueConstraint("name", "description", "author", "version", name="_unique"),)
 
-    def __init__(self, name, description, author, version, type):
-        db.Model.__init__(self, name=name, description=description, author=author, version=version, type=type)
+    def __init__(self, name, description, author, version, type, regex, documentation):
+        db.Model.__init__(self, name=name, description=description, author=author, version=version, type=type, regex=regex, documentation=documentation)
 
     def __repr__(self):
         return "<Pipeline: %s, description: %s, author: %s, version: %s>" % (

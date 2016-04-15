@@ -1,0 +1,17 @@
+{
+  "name": "fake_load_fastq",
+  "description": "loads already demultiplexed files into samples",
+  "pipeline_type": "I",
+  "author": "Jonathan Smith",
+  "version": "0.0.1",
+  "file_regex": ".*\\.fastq",
+  "documentation_file_name": "fake_load_fastq_documentation.txt",
+  "modules": [
+    {
+      "name": "loader",
+      "description": "loader for files into samples",
+      "executor": "load.sh",
+      "options": []
+    }
+  ]
+}

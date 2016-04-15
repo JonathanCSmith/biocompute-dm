@@ -156,12 +156,17 @@ def display_pipelines(display=0, page=1):
 
 
 @pipelines.route("/display_pipeline/<pid>")
+@pipelines.route("/display_pipeline/<pid>|<int:download>")
 @login_required("ANY")
-def display_pipeline(pid=""):
+def display_pipeline(pid="", download=0):
     p = Pipeline.query.filter_by(display_key=pid).first()
     if p is None:
         flash("There was an error finding your pipeline", "error")
         return redirect(url_for("index"))
+
+    if download == 1:
+        directory = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "pipelines"), p.name)
+        return send_from_directory(directory, p.documentation, as_attachment=True)
 
     return render_template("pipeline.html", title="Pipeline: " + p.name, pipeline=p)
 
@@ -216,8 +221,6 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
     if oid == "" or pid == "" or type == "":
         flash("The pipeline information provided was invalid", "error")
         return redirect(url_for("index"))
-
-    # TODO validate data source isnt bound
 
     # Retrieve our db records
     pipeline = Pipeline.query.filter_by(display_key=pid).first()
