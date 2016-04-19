@@ -17,15 +17,12 @@ Feature:
 		views for messages in admin console
 
 Ordered TODO list:
-	* Finish Post Align QC
-
-	* Streamline outputs display to just hide when not available
+    * Fix display of pipelines not working initially when attempting to run against a submission
 
 	* Sample Groups should be able to access history of pipelines processed and trace the specific sample data groups
 	* Pipeline Instance -> Data Source
 	* Pipeline Instances -> Data Source
 
-	* Store pipeline regex type & full list of regexs!
 	* Pipeline Regex check (see if files contain the type that we need to run it)
 	* File checking in current pipelines
 

@@ -18,7 +18,7 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # ========================================== FINISHED BUILDING OUR IO VALUES ==========================================
 
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
-for f in "${DATA_INPUT_DIRECTORY}/*_R1.fastq" # We are only interested in demuxed files!
+for f in "${DATA_INPUT_DIRECTORY}"/*_R1.fastq # We are only interested in demuxed files!
 do
     NAME="${f##*/}"
     NAME_WITHOUT_EXTENSION="${NAME%_R1.*}"
@@ -32,7 +32,7 @@ do
     mv "${f}" "${SAMPLE_DIR}/${NAME}"
 done
 
-for f in "${DATA_INPUT_DIRECTORY}/*_R2.fastq"
+for f in "${DATA_INPUT_DIRECTORY}"/*_R2.fastq
 do
     NAME="${f##*/}"
     NAME_WITHOUT_EXTENSION="${NAME%_R1.*}"
