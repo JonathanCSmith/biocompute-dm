@@ -4,7 +4,8 @@
   "pipeline_type": "II",
   "author": "Venu Pullabhatla, Jonathan Smith",
   "version": "0.0.1",
-  "file_regex": ".*\\.fastq",
+  "regex_type": "AND",
+  "file_regex": [".*\\.fastq$"],
   "documentation_file_name": "exome_align_documentation.txt",
   "modules": [
     {

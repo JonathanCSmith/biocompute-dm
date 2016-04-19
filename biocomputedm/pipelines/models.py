@@ -12,6 +12,7 @@ class Pipeline(SurrogatePK, Model):
     author = Column(String(50), nullable=False)
     version = Column(String(50), nullable=False)
     type = Column(Enum("I", "II", "III"), nullable=False)
+    regex_type = Column(Enum("AND", "OR"), nullable=False)
     regex = Column(String(100), nullable=False)
     documentation = Column(String(50), nullable=False)
     executable = Column(SmallInteger(), default=False)
@@ -20,14 +21,29 @@ class Pipeline(SurrogatePK, Model):
     instances = relationship("PipelineInstance", backref="pipeline", lazy="dynamic")
 
     __tablename__ = "Pipeline"
-    __table_args__ = (db.UniqueConstraint("name", "description", "author", "version", name="_unique"),)
+    __table_args__ = (db.UniqueConstraint("name", "author", "version", name="_unique"),)
 
-    def __init__(self, name, description, author, version, type, regex, documentation):
-        db.Model.__init__(self, name=name, description=description, author=author, version=version, type=type, regex=regex, documentation=documentation)
+    def __init__(self, name, description, author, version, type, regex_type, regex, documentation):
+        db.Model.__init__(
+            self,
+            name=name,
+            description=description,
+            author=author,
+            version=version,
+            type=type,
+            regex_type=regex_type,
+            regex=regex,
+            documentation=documentation
+        )
 
     def __repr__(self):
-        return "<Pipeline: %s, description: %s, author: %s, version: %s>" % (
-            self.name, self.description, self.author, self.version)
+        return "<Pipeline: %s, author: %s, version: %s>" % (self.name, self.author, self.version)
+
+    def generate_unique(self):
+        return self.name + " " + self.author + " " + self.version
+
+    def generate_display(self):
+        return self.name + "<br/>" + self.author + "<br/>" + self.version
 
 
 class PipelineModule(SurrogatePK, Model):
@@ -98,7 +114,8 @@ class PipelineInstance(SurrogatePK, Model):
 
     pipeline_id = reference_col("Pipeline")
     data_consigner_id = Column(ForeignKey("DataSource.id", use_alter=True))
-    user_id = Column(ForeignKey("User.id", use_alter=True), nullable=True)
+    # user_id = Column(ForeignKey("User.id", use_alter=True), nullable=True)
+    user_id = reference_col("User")
     group_id = reference_col("Group", nullable=True)
 
     user = relationship("User", uselist=False)

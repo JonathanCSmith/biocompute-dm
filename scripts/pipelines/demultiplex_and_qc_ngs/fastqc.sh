@@ -74,7 +74,7 @@ END
 )
 
             # If our job was not present in qacct
-            REGEX="error: job id*"
+            REGEX="error*"
             if [[ ${RESULT} =~ ${REGEX} ]]; then
                 continue
             else
@@ -123,7 +123,8 @@ END
 )
 
                 # If our job was not present in qacct
-                REGEX="error: Job-array tasks*"
+                echo "Job Query returned: ${RESULT}"
+                REGEX="error*"
                 if [[ ${RESULT} =~ ${REGEX} ]]; then
                     NOT_PRESENT=1
                     break;

@@ -1,51 +1,67 @@
 {% extends "information_panel.html" %}
+
 {% block custom_css %}
-<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 {{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
 {% endblock %}
 
 {% block info_panel %}
 <h3>Info</h3>
-<ul>
-    <li><h4>A sample group allows a custom aggregation of samples to be supplied to a pipeline.</h4></li>
-    <li><h4>In order to create a custom sample group please select the pipeline type where the data will come from.</h4></li>
-    <li><h4>From there you may select from all of the relevant samples and add them..</h4></li>
-</ul>
+<h4>A sample group allows a custom aggregation of samples to be supplied to a pipeline.</h4>
+<h4>In order to create a custom sample group please select the pipeline type where the data will come from.</h4>
+<h4>From there you may select from all of the relevant samples and add them..</h4>
 {% endblock %}
 
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
-        {% if sample_group %}
+        <h3>New Sample Group Information</h3>
 
-        {% else %}
-        <h3>Sample Group Pipeline Source</h3>
-        <h4>Please select the source pipeline for the samples that will be contained in this sample group.</h4>
-
-        <form action="{{ url_for('manage.new_sample_group') }}" method=post enctype="multipart/form-data">
+        <form action="{{ url_for('manage.new_sample_group') }}" method="post">
             {{ form.hidden_tag() }}
-            <table class="small_content">
-                {% for field in form %}
-                {% if (field.label.text != "Submit") and (field.label.text != "Csrf Token") %}
-                <tr>
-                    {% if field.type != "FileField" %}
-                    <td>{{ field.label(title=field.description) }}</td>
-                    <td colspan="2">{{ field(title=field.description) }}</td>
-                    {% else %}
-                    <td>{{ field.label(title=field.description) }}</td>
-                    <td colspan="2">{{ field(size=50, title=field.description) }}</td>
-                    {% endif %}
-                </tr>
-                {% endif %}
-                {% endfor %}
-                <tr>
-                    <td colspan="3">
-                        {{ form.submit_field(class_="input") }}
-                    </td>
-                </tr>
-            </table>
+            {{ form.hidden_tag() }}
+
+            <div class="input-table clear">
+                <table class="small_content">
+                    <tr>
+                        <td>
+                            <table class="internal">
+                                <tr>
+                                    <td>{{ form.name.label }}</td>
+                                    <td colspan="2"><div class="cell_content">{{ form.submission_name }}</div></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="input-table clear">
+                <table class="content3">
+                    <tr>
+                        <th>Sample Name</th>
+                        <th>Sample Source</th>
+                        <th>Sample Creation Date</th>
+                        <th>Select?</th>
+                    </tr>
+
+                    {% for sample in samples %}
+                    <tr>
+                        <td>{{ sample.name }}</td>
+                        <td>{{ sample.pipeline_source.name }}</td>
+                        <td>TODO</td>
+                        <td><input type="checkbox" name="do_select" value="{{ sample.display_key }}"></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="spacer"></div>
+
+            {{ form.submit(class_="input") }}
         </form>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

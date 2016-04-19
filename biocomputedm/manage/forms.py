@@ -1,4 +1,3 @@
-from biocomputedm.pipelines.models import Pipeline
 from flask import flash
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, SelectField, FileField, TextAreaField
@@ -13,18 +12,16 @@ class NewSubmissionForm(Form):
 
 class NewSampleGroupForm(Form):
     name = StringField("Sample Group Name", validators=[DataRequired()])
-
-    choices = [("NO", "None")]
-    pipelines = Pipeline.query.all()
-    for pipeline in pipelines:
-        choices.append((pipeline.display_key, pipeline.name + " (" + pipeline.version + ")"))
-
-    pipeline = SelectField("Pipeline Source", default=choices[0], choices=choices, validators=[DataRequired()])
     submit_field = SubmitField("Submit")
 
 
 class UpdateSampleGroupForm(Form):
+    source_type = SelectField("Data Source (Pipeline)")
     submit = SubmitField("Submit")
+
+    def fill(self, source_pipelines):
+        self.source_type.choices=[(s, s) for s in source_pipelines]
+        return
 
 
 class NewProjectForm(Form):

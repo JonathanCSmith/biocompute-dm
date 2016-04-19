@@ -1,0 +1,24 @@
+{
+  "name": "exome_post_align_qc",
+  "description": "Performs standardised post alignment QC on exome alignments",
+  "pipeline_type": "III",
+  "author": "Venu Pullabhatla, Jonathan Smith",
+  "version": "0.0.1",
+  "regex_type": "AND",
+  "file_regex": [".*\\_alignment_metrics", ".*\\_duplicate_metrics", ".*\\_coverage_metrics"],
+  "documentation_file_name": "exome_post_align_qc_documentation.txt",
+  "modules": [
+    {
+      "name": "colater",
+      "description": "colate exome alignment results into a single file",
+      "executor": "colater.sh",
+      "options": []
+    },
+    {
+      "name": "plotter",
+      "description": "plot the colated results from the post alignment QC",
+      "executor": "plotter.sh",
+      "options": []
+    }
+  ]
+}

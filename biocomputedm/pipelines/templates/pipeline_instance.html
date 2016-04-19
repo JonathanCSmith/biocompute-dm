@@ -132,7 +132,7 @@
     </div>
     {% endif %}
 
-    {% if pipeline_instance.current_execution_status != "NOT_STARTED" %}
+    {% if pipeline_instance.current_execution_status != "NOT_STARTED"  and datasets %}
     <div class="spacer"></div>
 
     <div class="action exempt">
@@ -142,7 +142,7 @@
     </div>
     {% endif %}
 
-    {% if pipeline_instance.current_execution_status == "FINISHED" %}
+    {% if pipeline_instance.current_execution_status == "FINISHED" and pipeline_instance.samples.all()|length != 0 %}
     <div class="spacer"></div>
 
     <div class="action exempt">

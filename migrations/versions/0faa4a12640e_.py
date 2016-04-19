@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: 488abd944134
+Revision ID: 0faa4a12640e
 Revises: None
-Create Date: 2016-04-05 13:30:54.329614
+Create Date: 2016-04-19 12:49:01.095035
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '488abd944134'
+revision = '0faa4a12640e'
 down_revision = None
 
 from alembic import op
@@ -34,10 +34,13 @@ def upgrade():
     sa.Column('author', sa.String(length=50), nullable=False),
     sa.Column('version', sa.String(length=50), nullable=False),
     sa.Column('type', sa.Enum('I', 'II', 'III'), nullable=False),
+    sa.Column('regex_type', sa.Enum('AND', 'OR'), nullable=False),
+    sa.Column('regex', sa.String(length=100), nullable=False),
+    sa.Column('documentation', sa.String(length=50), nullable=False),
     sa.Column('executable', sa.SmallInteger(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key'),
-    sa.UniqueConstraint('name', 'description', 'author', 'version', name='_unique')
+    sa.UniqueConstraint('name', 'author', 'version', name='_unique')
     )
     op.create_table('ReferenceData',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -110,8 +113,10 @@ def upgrade():
     sa.Column('execution_type', sa.Enum('Per Module', 'Continuous'), nullable=True),
     sa.Column('options_type', sa.Enum('Custom', 'Default'), nullable=True),
     sa.Column('pipeline_id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('data_consigner_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('group_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['data_consigner_id'], ['DataSource.id'], use_alter=True),
     sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
     sa.ForeignKeyConstraint(['pipeline_id'], ['Pipeline.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['User.id'], ),
@@ -134,9 +139,11 @@ def upgrade():
     op.create_table('DataSource',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('display_key', sa.String(length=32), nullable=True),
-    sa.Column('pipeline_id', sa.Integer(), nullable=True),
+    sa.Column('source_pipeline_id', sa.Integer(), nullable=True),
+    sa.Column('running_pipeline_id', sa.Integer(), nullable=True),
     sa.Column('type', sa.String(length=50), nullable=False),
-    sa.ForeignKeyConstraint(['pipeline_id'], ['PipelineInstance.id'], ),
+    sa.ForeignKeyConstraint(['running_pipeline_id'], ['PipelineInstance.id'], ),
+    sa.ForeignKeyConstraint(['source_pipeline_id'], ['PipelineInstance.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key')
     )
@@ -183,11 +190,9 @@ def upgrade():
     sa.Column('modifiable', sa.SmallInteger(), nullable=True),
     sa.Column('creator_id', sa.Integer(), nullable=True),
     sa.Column('group_id', sa.Integer(), nullable=True),
-    sa.Column('pipeline_type_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['creator_id'], ['User.id'], ),
     sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
     sa.ForeignKeyConstraint(['id'], ['DataSource.id'], ),
-    sa.ForeignKeyConstraint(['pipeline_type_id'], ['Pipeline.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('Submission',

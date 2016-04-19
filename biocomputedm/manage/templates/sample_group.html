@@ -51,7 +51,7 @@
                 <th>Sample Name</th>
                 <th>Number of Data Sets</th>
                 <th>Submission Source</th>
-                <th>Pipeline Source</th>
+                <th>Sample Source</th>
             </tr>
 
             {% if samples %}
@@ -97,6 +97,8 @@
     </div>
 
     {% if g.user.type == "User" %}
+
+    {# Removed
     {% if sample_group.modifiable %}
     <div class="spacer"></div>
 
@@ -118,6 +120,7 @@
         </form>
     </div>
     {% endif %}
+    #}
 
     <div class="spacer"></div>
 
@@ -155,34 +158,34 @@
                     {% if loop.index0 == sample_group.running_pipeline.current_execution_index %}
                     {% if sample_group.running_pipeline.current_execution_status == "WAITING" %}
                     <td class="resize img1 bg3">
-                        {% elif sample_group.running_pipeline.current_execution_status == "RUNNING" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "RUNNING" %}
                     <td class="resize img1 bg1">
-                        {% elif sample_group.running_pipeline.current_execution_status == "FINISHED" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "FINISHED" %}
                     <td class="resize img2 bg2">
-                        {% elif sample_group.running_pipeline.current_execution_status == "ERROR" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "ERROR" %}
                     <td class="resize img1 bg4">
-                        {% elif sample_group.running_pipeline.current_execution_status == "NOT_STARTED" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "NOT_STARTED" %}
                     <td class="resize img1 bg5">
-                        {% elif sample_group.running_pipeline.current_execution_status == "STOPPED" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "STOPPED" %}
                     <td class="resize img1 bg6">
-                        {% endif %}
-                        {% elif loop.index0 < sample_group.running_pipeline.current_execution_index %}
-                        {% if sample_group.running_pipeline.current_execution_status == "WAITING" %}
+                    {% endif %}
+                    {% elif loop.index0 < sample_group.running_pipeline.current_execution_index %}
+                    {% if sample_group.running_pipeline.current_execution_status == "WAITING" %}
                     <td class="resize img2 bg3">
-                        {% elif sample_group.running_pipeline.current_execution_status == "RUNNING" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "RUNNING" %}
                     <td class="resize img2 bg1">
-                        {% elif sample_group.running_pipeline.current_execution_status == "FINISHED" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "FINISHED" %}
                     <td class="resize img2 bg2">
-                        {% elif sample_group.running_pipeline.current_execution_status == "ERROR" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "ERROR" %}
                     <td class="resize img2 bg4">
-                        {% elif sample_group.running_pipeline.current_execution_status == "NOT_STARTED" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "NOT_STARTED" %}
                     <td class="resize img2 bg5">
-                        {% elif sample_group.running_pipeline.current_execution_status == "STOPPED" %}
+                    {% elif sample_group.running_pipeline.current_execution_status == "STOPPED" %}
                     <td class="resize img2 bg6">
-                        {% endif %}
-                        {% else %}
+                    {% endif %}
+                    {% else %}
                     <td class="resize img2 bg5">
-                        {% endif %}
+                    {% endif %}
 
                         <a style="display: block;" href="{{ url_for('pipelines.module_instance', oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
                     </td>
@@ -191,6 +194,10 @@
                 </tr>
             </table>
         </div>
+
+        {% elif not pipelines %}
+
+        <h3>The samples associated with this sample group do not have a common data set that is produced by the same pipeline. Unfortunately this means a pipeline cannot be run on this sample group.</h3>
 
         {% else %}
         <h3>Select a Pipeline to Run on this Sample Group</h3>
@@ -223,7 +230,23 @@
 
             <div class="spacer"></div>
 
-            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=sample_group.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>
+            <div class="input-table clear">
+                <table class="table-resize">
+                    <tr>
+                        <td></td>
+                        {% for stage in pipeline.modules %}
+                        <td class="resize img1 bg5">{{ stage.name }}</td>
+                        {% endfor %}
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="spacer"></div>
+
+            {#<a class="input" href="{{ url_for('manage.gather_data, oid=submission.display_key, pid=pipeline.display_key, runtime_type='SampleGroup') }}">Select</a>#}
+
+            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=sample_group.display_key, pid=pipeline.display_key, runtime_type='SampleGroup') }}">Select</a>
         </div>
         {% endfor %}
         {% endif %}

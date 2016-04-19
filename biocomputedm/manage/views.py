@@ -5,8 +5,8 @@ import time
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
 from biocomputedm.manage.models import Submission, get_submissions_query_by_user, get_samples_query_by_user, \
-    get_sample_groups_query_by_user, SampleGroup, Project, Document
-from biocomputedm.pipelines.models import Pipeline
+    get_sample_groups_query_by_user, SampleGroup, Project, Document, Sample
+from biocomputedm.pipelines.models import Pipeline, PipelineInstance
 from flask import Blueprint, render_template, redirect, url_for
 from flask import abort
 from flask import current_app
@@ -208,12 +208,35 @@ def uploads(page=1):
     return render_template("uploads.html", tile="My Uploads", files=files, page=page, has_prev=p, has_next=n)
 
 
-# Move data from external into landing_zone
-# TODO: Can this be user specific sftp zones?
+# TODO Move data from external into landing_zone
 @manage.route("/download")
 @login_required("ANY")
 def download():
     return redirect(url_for("empty"))
+
+
+# @manage.route("/gather_data/<oid>|<pid>|<runtime_type>", methods=["GET", "POST"])
+# @login_required("ANY")
+# def gather_data(oid="", pid="", runtime_type=""):
+#     if oid == "" or pid == "" or (runtime_type != "Submission" and runtime_type != "SampleGroup"):
+#         flash("Invalid request", "warning")
+#         return redirect(url_for("index"))
+#
+#     # Submissions require a single data pointer to be created
+#     if runtime_type == "Submission":
+#
+#         return redirect(url_for("pipelines.build_pipeline_instance"))
+#
+#     # Sample groups require us to select which sample data we wish to use
+#     else:
+#
+#         if request.method == "GET":
+#
+#             return render_template("gather_data.html", oid=oid, pid=pid, runtime_type=runtime_type)
+#
+#         else:
+#
+#             return redirect(url_for("pipelines.build_pipeline_instance"))
 
 
 @manage.route("/submissions/<int:page>")
@@ -306,7 +329,7 @@ def new_submission():
                         stderr=subprocess.PIPE
                 )  # We are allowing this to execute on it's own - no need to monitor
 
-                # Meanwhile, here we will inform the user and display confirmation
+                # In the meantime we will inform the user and display confirmation
                 flash("Submission Successful.", "success")
                 return render_template("submission_complete.html", title="Successful Job Submission")
 
@@ -449,7 +472,8 @@ def sample_data(oid="", data_file=""):
                            data_source_type="sample_data",
                            oid=sample.display_key,
                            datasets=datasets,
-                           data_file=data_file)
+                           data_file=data_file,
+                           pipeline=PipelineInstance.query.filter_by(display_key=data_file).first())
 
 
 @manage.route("/sample_groups/<int:page>")
@@ -469,26 +493,37 @@ def new_sample_group():
     from biocomputedm.manage import forms
     form = forms.NewSampleGroupForm()
 
+    samples = current_user.group.samples.all()
+
     if request.method == "GET":
-        return render_template("new_sample_group.html", title="New Sample Group", form=form)
+        return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
 
     else:
         if form.validate_on_submit():
-            pipeline = Pipeline.query.filter_by(display_key=str(form.pipeline.data)).first()
-            if pipeline is None:
-                flash("Could not locate the selected pipeline", "error")
-                return redirect(url_for("index"))
+            # Check that at least one sample was selected
+            ids = request.form.getlist("do_select")
+            if ids is None or len(ids) == 0:
+                flash("No samples were selected to add to the group", "warning")
+                return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
 
-            sample_group = SampleGroup.create(name=str(form.name.data),
-                                              creator=current_user,
-                                              group=current_user.group,
-                                              pipeline=pipeline)
+            else:
+                sample_group = SampleGroup(
+                        name=str(form.name.data),
+                        creator=current_user,
+                        group=current_user.group,
+                        pipeline=None
+                )
 
-            return redirect(url_for("manage.sample_group", oid=sample_group.display_key))
+                for i in ids:
+                    sample = Sample.query.filter_by(display_key=i).first()
+                    sample_group.samples.append(sample)
+
+                flash("Sample Group creation was successful", "success")
+                return redirect(url_for("manage.sample_group", oid=sample_group.display_key))
 
         else:
             utils.flash_errors(form)
-            return render_template("new_sample_group.html", title="New Sample Group", form=form)
+            return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
 
 
 # TODO: Pagination of samples?
@@ -504,36 +539,60 @@ def sample_group(oid=""):
         flash("Could not locate the provided sample group", "error")
         return redirect(url_for("index"))
 
-    from biocomputedm.manage import forms
-    form = forms.UpdateSampleGroupForm()
-    if request.method == "POST":
-        # Check to see that at least 1 upload was selected - empty submissions have no use
-        ids = request.form.getlist("do_select")
-        if ids is not None and len(ids) != 0:
-            for key in ids:
-                new_sample = current_user.group.samples.filter_by(display_key=key).first()
-                if new_sample is not None:
-                    sample_group.samples.append(new_sample)
-                    sample_group.save()
+    # if request.method == "POST":
+    #     # Check to see that at least 1 upload was selected - empty submissions have no use
+    #     ids = request.form.getlist("do_select")
+    #     if ids is not None and len(ids) != 0:
+    #         for key in ids:
+    #             new_sample = current_user.group.samples.filter_by(display_key=key).first()
+    #             if new_sample is not None:
+    #                 sample_group.samples.append(new_sample)
+    #                 sample_group.save()
+    #
+    #         flash("Sample Group was successfully updated", "success")
+    #
+    #     else:
+    #         flash("No samples were selected.", "warning")
 
-            flash("Sample Group was successfully updated", "success")
+    # samples = current_user.group.samples.all()
+    # potential_samples = []
+    # if sample_group.modifiable:
+    #     for sample in samples:
+    #         if sample.pipeline_source.pipeline == sample_group.pipeline and sample not in current_samples:
+    #             potential_samples.append(sample)
+
+    # Check for common data source amongst samples
+    current_samples = sample_group.samples
+    initial = True
+    source_set = []
+    for s in current_samples:
+        if initial:
+            initial = False
+            for p in s.pipeline_runs:
+                source_set.append(p.pipeline.generate_unique())
+            continue
 
         else:
-            flash("No samples were selected.", "warning")
+            sample_sources = []
+            for p in s.pipeline_runs:
+                sample_sources.append(p.pipeline.generate_unique())
 
-    samples = current_user.group.samples.all()
-    current_samples = sample_group.samples
-    potential_samples = []
-    if sample_group.modifiable:
-        for sample in samples:
-            if sample.pipeline_source.pipeline == sample_group.pipeline and sample not in current_samples:
-                potential_samples.append(sample)
+            source_set[:] = [x for x in source_set if x in sample_sources]
 
-    # list of the available type I pipelines
-    pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
+    # Check if our source set has some common attributes, if so build a list of pipelines
+    if source_set:
+        pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
+        source_pipelines = [x for x in pipelines if x.generate_unique() in source_set]
 
-    return render_template("sample_group.html", sample_group=sample_group, samples=current_samples,
-                           potential_samples=potential_samples, form=form, pipelines=pipelines)
+    else:
+        pipelines = None
+        source_pipelines = None
+
+    from biocomputedm.manage import forms
+    form = forms.UpdateSampleGroupForm()
+    form.fill(source_pipelines)
+
+    return render_template("sample_group.html", sample_group=sample_group, samples=current_samples, form=form, pipelines=pipelines, source_pipelines=source_pipelines)
 
 
 @manage.route("/projects/<int:page>")
@@ -636,7 +695,8 @@ def add_document(oid=""):
             form.file_upload.data.save(filepath)
 
             # Save the document to the db
-            document = Document.create(name=str(form.file_upload.data.filename), description=str(form.description.data))
+            document = Document.create(name=str(form.file_upload.data.filename),
+                                       description=str(form.description.data))
             project.documents.append(document)
             project.save()
 

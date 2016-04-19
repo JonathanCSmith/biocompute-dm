@@ -32,8 +32,16 @@ pipeline = \
         "version": {
           "type": "string"
         },
+        "regex_type": {
+          "enum": ["AND", "OR"]
+        },
         "file_regex": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
         },
         "documentation_file_name": {
           "type": "string"
@@ -105,6 +113,7 @@ pipeline = \
         "pipeline_type",
         "author",
         "version",
+        "regex_type",
         "file_regex",
         "documentation_file_name",
         "modules"
@@ -132,16 +141,17 @@ def validate(file):
             return False
 
         # Validate regex presence
-        rx = json_instance.get("file_regex")
-        if rx is None or rx == "":
-            flash("File: " + file + " did not provide a valid file regex", "error")
-            return False
+        rxs = json_instance.get("file_regex")
+        for rx in rxs:
+            if rx is None or rx == "":
+                flash("File: " + file + " did not provide a valid file regex", "error")
+                return False
 
-        try:
-            re.compile(rx)
-        except re.error:
-            flash("File: " + file + " did not provide a valid file regex", "error")
-            return False
+            try:
+                re.compile(rx)
+            except re.error:
+                flash("File: " + file + " did not provide a valid file regex", "error")
+                return False
 
     except jsonschema.ValidationError as e:
         flash(e.message + " for file: " + file, "error")
@@ -165,33 +175,64 @@ def build(file):
     author = json_instance.get("author")
     version = json_instance.get("version")
     type = json_instance.get("pipeline_type")
-    rx = json_instance.get("file_regex")
+    rx_type = json_instance.get("regex_type")
+    rxs = json_instance.get("file_regex")
     documentation = json_instance.get("documentation_file_name")
-    pipeline = Pipeline.query.filter_by(name=name, description=description, author=author, version=version,
-                                        type=type, regex=rx, documentation=documentation).first()
+
+    regex = ""
+    for rx in rxs:
+        regex += rx
+        regex += "$$$"
+    regex = regex[:-3]  # Remove that pesky additional marker!
+
+    pipeline = Pipeline.query.filter_by(
+        name=name,
+        description=description,
+        author=author,
+        version=version,
+        type=type,
+        regex=regex,
+        regex_type=rx_type,
+        documentation=documentation
+    ).first()
+
     if pipeline is not None:
         pipeline.update(executable=True)
         return False
 
-    pipeline = Pipeline.create(name=name, description=description, author=author, version=version, type=type, regex=rx, documentation=documentation)
+    pipeline = Pipeline.create(
+        name=name,
+        description=description,
+        author=author,
+        version=version,
+        type=type,
+        regex=regex,
+        regex_type=rx_type,
+        documentation=documentation
+    )
+
     pipeline.update(executable=True)
     count = -1
     for module in json_instance.get("modules"):
         count += 1
-        mod = PipelineModule.create(name=module.get("name"),
-                                    description=module.get("description"),
-                                    executor=module.get("executor"),
-                                    execution_index=count,
-                                    pipeline=pipeline)
+        mod = PipelineModule.create(
+            name=module.get("name"),
+            description=module.get("description"),
+            executor=module.get("executor"),
+            execution_index=count,
+            pipeline=pipeline
+        )
 
         for option in module.get("options"):
-            opt = PipelineModuleOption.create(display_name=option.get("display_name"),
-                                              description=option.get("description"),
-                                              parameter_name=option.get("parameter_name"),
-                                              default_value=option.get("default_value"),
-                                              user_interaction_type=option.get("user_interaction_type"),
-                                              necessary=option.get("necessary"),
-                                              module=mod)
+            opt = PipelineModuleOption.create(
+                display_name=option.get("display_name"),
+                description=option.get("description"),
+                parameter_name=option.get("parameter_name"),
+                default_value=option.get("default_value"),
+                user_interaction_type=option.get("user_interaction_type"),
+                necessary=option.get("necessary"),
+                module=mod
+            )
 
     return True
 
@@ -239,24 +280,24 @@ def execute_module_instance(app, pid="", oid=""):
                         for file in filepaths[1]:
                             try:
                                 writer.writerow(
-                                        [
-                                            oid,
-                                            os.path.join(remote_input_path, file),
-                                            samples_output_directory,
-                                            "EMPTY INFORMATION"
-                                        ])
+                                    [
+                                        oid,
+                                        os.path.join(remote_input_path, file),
+                                        samples_output_directory,
+                                        "EMPTY INFORMATION"
+                                    ])
                             except:
                                 pass
 
                         for file in filepaths[2]:
                             try:
                                 writer.writerow(
-                                        [
-                                            oid,
-                                            os.path.join(remote_input_path, file),
-                                            samples_output_directory,
-                                            "EMPTY INFORMATION"
-                                        ])
+                                    [
+                                        oid,
+                                        os.path.join(remote_input_path, file),
+                                        samples_output_directory,
+                                        "EMPTY INFORMATION"
+                                    ])
                             except:
                                 pass
 
@@ -273,12 +314,12 @@ def execute_module_instance(app, pid="", oid=""):
                             utils.make_directory(sample_output_directory)
 
                             writer.writerow(
-                                    [
-                                        sample.display_key,
-                                        os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                                        sample_output_directory,
-                                        "EMPTY INFORMATION"
-                                    ]
+                                [
+                                    sample.display_key,
+                                    os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
+                                    sample_output_directory,
+                                    "EMPTY INFORMATION"
+                                ]
                             )
 
             # Build variables string
@@ -315,25 +356,25 @@ def execute_module_instance(app, pid="", oid=""):
                     open(os.path.join(local_module_directory,
                                       current_module_instance.module.name + "_hpc_submission_error.txt"), "wb") as err:
                 subprocess.Popen(
-                        [
-                            shell_path,
-                            "-u=" + current_app.config["HPC_USERNAME"],
-                            "-h=" + current_app.config["NETWORK_PATH_TO_HPC_FROM_WEBSERVER"],
-                            "-m=" + current_module_instance.module.name,
-                            "-t=" + current_module_instance.display_key,
-                            "-e=" + current_module_instance.module.executor,
-                            "-l=" + local_module_directory,
-                            "-p=" + pipeline_scripts,
-                            "-w=" + remote_pipeline_directory,
-                            "-mo=" + remote_module_directory,
-                            "-po=" + pipeline_output_directory,
-                            "-i=" + csv_path,
-                            "-v=" + vstring,
-                            "-c=" + cleanup_script_path,
-                            "-s=" + server
-                        ],
-                        stdout=out,
-                        stderr=err
+                    [
+                        shell_path,
+                        "-u=" + current_app.config["HPC_USERNAME"],
+                        "-h=" + current_app.config["NETWORK_PATH_TO_HPC_FROM_WEBSERVER"],
+                        "-m=" + current_module_instance.module.name,
+                        "-t=" + current_module_instance.display_key,
+                        "-e=" + current_module_instance.module.executor,
+                        "-l=" + local_module_directory,
+                        "-p=" + pipeline_scripts,
+                        "-w=" + remote_pipeline_directory,
+                        "-mo=" + remote_module_directory,
+                        "-po=" + pipeline_output_directory,
+                        "-i=" + csv_path,
+                        "-v=" + vstring,
+                        "-c=" + cleanup_script_path,
+                        "-s=" + server
+                    ],
+                    stdout=out,
+                    stderr=err
                 )
 
             pipeline_instance.update(current_execution_status="RUNNING")
@@ -355,8 +396,8 @@ def finish_pipeline_instance(app, pid="", oid=""):
 
             # Build the output directory path
             output_directory = os.path.join(
-                    os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
-                    "samples_output")
+                os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
+                "samples_output")
 
             # Create a sample group
             group = SampleGroup.create(name="Sample Group from Pipeline: " + pipeline_instance.pipeline.name,
@@ -370,7 +411,7 @@ def finish_pipeline_instance(app, pid="", oid=""):
                 submission = Submission.query.filter_by(display_key=oid).first()
                 if submission is None:
                     print(
-                            "Could not locate the submission for this pipeline. The pipeline outcome will not be submitted.")
+                        "Could not locate the submission for this pipeline. The pipeline outcome will not be submitted.")
 
             # Look in the output directory for folders - these will be our sample names
             filepaths = next(os.walk(output_directory))
@@ -382,7 +423,7 @@ def finish_pipeline_instance(app, pid="", oid=""):
 
                         # Make the directory
                         utils.make_directory(
-                                os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+                            os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
                     else:
                         # Find the sample
                         s = Sample.query.filter_by(display_key=file).first()
@@ -407,14 +448,14 @@ def finish_pipeline_instance(app, pid="", oid=""):
                     script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
                     script_path = os.path.join(script_path, "move.sh")
                     subprocess.Popen(
-                            [
-                                "sudo",
-                                script_path,
-                                "-s=" + source,
-                                "-t=" + data_path
-                            ],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE
+                        [
+                            "sudo",
+                            script_path,
+                            "-s=" + source,
+                            "-t=" + data_path
+                        ],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
                     ).wait()
 
                 except Exception as e:

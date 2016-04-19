@@ -5,6 +5,12 @@ from wtforms import StringField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired
 
 
+# class RunPipelineForm(Form):
+#
+#
+# class SelectDataForPipelineForm(Form):
+
+
 class PipelinePropertiesForm(Form):
     execution_field = SelectField("Execution Type:", choices=[("Continuous", "Continuous"), ("Per Module", "Stepwise")])
     options_field = SelectField("Options Choices:", choices=[("Default", "Default"), ("Custom", "Custom")])

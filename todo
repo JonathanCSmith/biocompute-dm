@@ -16,16 +16,38 @@ Feature:
 		messages to be stored in db
 		views for messages in admin console
 
-Unordered TODO list:
+Ordered TODO list:
+	* Finish Post Align QC
+
+	* Streamline outputs display to just hide when not available
+
+	* Sample Groups should be able to access history of pipelines processed and trace the specific sample data groups
+	* Pipeline Instance -> Data Source
+	* Pipeline Instances -> Data Source
+
+	* Store pipeline regex type & full list of regexs!
+	* Pipeline Regex check (see if files contain the type that we need to run it)
+	* File checking in current pipelines
+
 	* Cycle demux pipeline until I am sure it is working
 		* Attempt demux pipeline with a real world example
+	* Cycle exome pipeline until I am sure it is working
+		* Attempt align pipeline with a real world example
+
+	* Build Pipeline Instance needs a source pipeline arg that can be null in the case of submissions
+
 	* Download infrastructrue
-	* SFTP infrastructure
-	* Stats for module and pipeline execution
-	* Additional data metrics / information in db entries and how to propagate from submissions
+		* SFTP infrastructure
+
 	* Permissions for all data manipulations / access
-	* Sample Groups should be able to access history of pipelines processed and trace the specific sample data groups
-	* Data management (group admin or submitter)
+
 	* Further test customer infrastructure
 	* Email infrastructure
 
+	* Pipeline Documentation text, documentation file
+	* Harmonize data sources?
+		
+	* Stats for module and pipeline execution
+		* Additional data metrics / information in db entries and how to propagate from submissions
+	* Data management (group admin or submitter)
+	* Quotas / Don't Delete - May not be correct anymore, reeval later

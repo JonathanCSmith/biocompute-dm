@@ -21,24 +21,13 @@
         <div class="input-table clear">
             <table class="small_content">
                 <tr>
-                    <td>
-                        <table class="internal">
-                            <tr>
-                                <td>Submitted by:</td>
-                                <td colspan="2"><div class="cell_content">{{ submission.submitter.username }}</div></td>
-                            </tr>
-                        </table>
-                    </td>
+                    <th>Submitted by:</th>
+                    <td>{{ submission.submitter.username }}</td>
                 </tr>
+
                 <tr>
-                    <td>
-                        <table class="internal">
-                            <tr>
-                                <td>Description:</td>
-                                <td colspan="2"><div class="cell_content">{{ submission.description }}</div></td>
-                            </tr>
-                        </table>
-                    </td>
+                    <th>Description:</th>
+                    <td>{{ submission.description }}</td>
                 </tr>
             </table>
         </div>
@@ -204,6 +193,8 @@
             </div>
 
             <div class="spacer"></div>
+
+            {#<a class="input" href="{{ url_for('manage.gather_data, oid=submission.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>#}
 
             <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>
         </div>

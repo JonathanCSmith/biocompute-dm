@@ -215,6 +215,49 @@ def display_pipeline_instance(oid="", data_file=""):
                            data_file="")
 
 
+# @pipelines.route("/run_pipeline", methods=["GET", "POST"])
+# @login_required("ANY")
+# def run_pipeline():
+#     form = RunPipelineForm()
+#     if request.method == "GET":
+#         return render_template("run_pipeline.html", form=form)
+#
+#     else:
+#         form2 = SelectDataForPipelineForm()
+#         # Build a list of uploaded files and display them for selection
+#         if form.validate_on_submit() and form.submit.data:
+#
+#             # Build a list of uploaded files and display them for selection
+#             if str(form.runtime_type.data) == "Upload":
+#                 # Current user information
+#                 folder = current_user.display_key
+#
+#                 # Build path to the users sftp dir
+#                 directory_path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], folder)
+#                 directory_path = os.path.join(directory_path, "landing_zone")
+#
+#                 # list of the available files
+#                 filepaths = next(os.walk(directory_path))[2]
+#                 files = []
+#                 for file in filepaths:
+#                     s = os.stat(os.path.join(directory_path, file))
+#                     files.append({
+#                         "name": file,
+#                         "size": s.st_size,
+#                         "date": time.ctime(s.st_ctime)
+#                     })
+#
+#             # Build a list of data sources and display them for selection
+#             else:
+#                 items = current_user.group.data_source.all()
+#
+#             return render_template("run_pipeline.html", form=form, form2=form2, items=items)
+#
+#         elif form2.validate_on_submit() and form2.submit.data:
+#
+
+
+
 @pipelines.route("/build_pipeline_instance/<oid>|<pid>|<runtime_type>", methods=["GET", "POST"])
 @login_required("ANY")
 def build_pipeline_instance(oid="", pid="", runtime_type=""):
@@ -269,8 +312,8 @@ def build_pipeline_instance(oid="", pid="", runtime_type=""):
         # Check data source
         if data_source.running_pipeline is not None:
             flash(
-                "The provided data source is already attached to a pipeline. Please ensure it finishes or you quit the original pipeline before proceeding",
-                "warning")
+                    "The provided data source is already attached to a pipeline. Please ensure it finishes or you quit the original pipeline before proceeding",
+                    "warning")
             return redirect(url_for("index"))
 
         # Instance creation and assignment
@@ -366,8 +409,8 @@ def build_module_instance(pid="", oid="", index=-1):
             from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
             execute_module_instance(current_app._get_current_object(), pid, oid)
             flash(
-                "The next pipeline step is queued for submission. It may take time before it is registered as running.",
-                "success")
+                    "The next pipeline step is queued for submission. It may take time before it is registered as running.",
+                    "success")
             return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
         # Continue assigning information
@@ -475,8 +518,8 @@ def build_module_instance(pid="", oid="", index=-1):
                 from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
                 execute_module_instance(current_app._get_current_object(), pid, oid)
                 flash(
-                    "The next pipeline step is queued for submission. It may take time before it is registered as running.",
-                    "success")
+                        "The next pipeline step is queued for submission. It may take time before it is registered as running.",
+                        "success")
                 return redirect(url_for("pipelines.display_pipeline_instance", oid=pid))
 
             # Continue assigning information
@@ -647,7 +690,7 @@ def change_module(oid="", change_type="", force=0):
         target_index = pipeline_instance.current_execution_index
 
     elif change_type == "next":
-        if pipeline_instance.current_execution_index >= len(pipeline_instance.module_instances) - 1:
+        if pipeline_instance.current_execution_index >= len(pipeline_instance.module_instances.all()) - 1:
             flash("Cannot proceed to the next step when there are no more steps!", "error")
             return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 

@@ -4,7 +4,8 @@
   "pipeline_type": "I",
   "author": "Jonathan Smith",
   "version": "0.0.1",
-  "file_regex": ".*\\.fastq",
+  "regex_type": "AND",
+  "file_regex": [".*\\.fastq$"],
   "documentation_file_name": "fake_load_fastq_documentation.txt",
   "modules": [
     {

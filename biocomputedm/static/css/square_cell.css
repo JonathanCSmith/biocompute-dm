@@ -15,7 +15,7 @@ div.content div.action.exempt table.table-resize td {
 
 .resize {
     background: no-repeat center center;
-    background-size: cover; /* you change this to "contain" if you don't want the images to be cropped */
+    background-size: contain; /* you change this to "contain" if you don't want the images to be cropped */
 }
 
 .img1 {

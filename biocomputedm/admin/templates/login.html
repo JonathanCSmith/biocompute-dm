@@ -11,31 +11,21 @@
         <h3>Login</h3>
         <form action="{{ url_for('admin.login') }}" method=post>
             <table class="small_content">
+                {{ form.hidden_tag() }}
                 <tr>
-                    <td>
-                        {{ form.hidden_tag() }}
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.username.label }}</td>
-                                <td>{{ form.username }}</td>
-                            </tr>
-                        </table>
-                    </td>
+                    <th>{{ form.username.label }}</th>
+                    <td colspan="2">{{ form.username }}</td>
                 </tr>
+
                 <tr>
-                    <td>
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.password.label }}</td>
-                                <td>{{ form.password }}</td>
-                            </tr>
-                        </table>
-                    </td>
+                    <th>{{ form.password.label }}</th>
+                    <td colspan="2">{{ form.password }}</td>
                 </tr>
+
                 <tr>
-                    <td>
-                        {{ form.submit(class_="input") }}
-                    </td>
+                    <td></td>
+                    <td>{{ form.submit(class_="input") }}</td>
+                    <td></td>
                 </tr>
             </table>
         </form>

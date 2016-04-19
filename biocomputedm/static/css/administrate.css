@@ -19,7 +19,7 @@ div.content {
     position: relative;
 }
 
-div.content table {
+div.content table.divider {
     border-collapse: collapse;
     border-spacing: 0;
     color: #333;
@@ -28,15 +28,15 @@ div.content table {
     text-align: center;
 }
 
-div.content table tr {
+div.content table.divider tr {
     width: 100%;
 }
 
-div.content table tr td.right {
+div.content table.divider tr td.right {
     width: 100%;
 }
 
-div.content table .left h4 {
+div.content table.divider td.left h4 {
     text-align: left;
 }
 

@@ -24,7 +24,9 @@
                     <th>Sample Dataset Creation Date</th>
                 </tr>
                 <tr>
-                    <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=data_file) }}">{{ data_file }}</a></td>
+                    {% autoescape false %}
+                    <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=data_file) }}">{{ pipeline.pipeline.generate_display() }}</a></td>
+                    {% endautoescape %}
                 </tr>
             </table>
         </div>

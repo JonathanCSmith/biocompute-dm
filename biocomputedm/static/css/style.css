@@ -513,10 +513,11 @@ table td div.cell_content textarea {
 }
 
 div.content table.small_content {
-    max-width: 400px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
+    border-spacing: 0.5em;
+    width: auto;
 }
 
 div.content table.small_content input {
@@ -531,9 +532,9 @@ div.content table.small_content * {
     text-align: left;
 }
 
-div.content table.small_content td {
-    padding-bottom: 1em;
-}
+/*div.content table.small_content td {*/
+    /*padding-bottom: 1em;*/
+/*}*/
 
 div.content img {
     width: 100%;
