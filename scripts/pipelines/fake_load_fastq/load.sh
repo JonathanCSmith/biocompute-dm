@@ -20,12 +20,14 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
 for f in "${DATA_INPUT_DIRECTORY}"/*_R1.fastq # We are only interested in demuxed files!
 do
+    echo "Processing File: ${f}"
+
     NAME="${f##*/}"
     NAME_WITHOUT_EXTENSION="${NAME%_R1.*}"
     SAMPLE_DIR="${DATA_OUTPUT_DIRECTORY}/${NAME_WITHOUT_EXTENSION}"
 
     # Make the directory if it does not exist yet
-    echo "Constructing directory: ${SAMPLE_DIR}"
+    echo "Constructing directory: ${SAMPLE_DIR} for ${NAME}"
     mkdir "${SAMPLE_DIR}"
 
     # Move the file to the directory
@@ -34,12 +36,14 @@ done
 
 for f in "${DATA_INPUT_DIRECTORY}"/*_R2.fastq
 do
+    echo "Processing File: ${f}"
+
     NAME="${f##*/}"
     NAME_WITHOUT_EXTENSION="${NAME%_R1.*}"
     SAMPLE_DIR="${DATA_OUTPUT_DIRECTORY}/${NAME_WITHOUT_EXTENSION}"
 
     # Make the directory if it does not exist yet
-    echo "Constructing directory: ${SAMPLE_DIR}"
+    echo "Constructing directory: ${SAMPLE_DIR} for ${NAME}"
     mkdir "${SAMPLE_DIR}"
 
     # Move the file to the directory
