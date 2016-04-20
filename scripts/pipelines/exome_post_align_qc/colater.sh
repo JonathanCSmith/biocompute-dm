@@ -22,6 +22,7 @@ else
 
     # Loop through samples
     echo "Beginning loop for samples"
+    IFS=","
     while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
     do
 
