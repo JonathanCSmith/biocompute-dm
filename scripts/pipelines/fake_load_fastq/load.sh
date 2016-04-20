@@ -18,7 +18,9 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # ========================================== FINISHED BUILDING OUR IO VALUES ==========================================
 
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
-for f in "${DATA_INPUT_DIRECTORY}"/*_R1.fastq # We are only interested in demuxed files!
+echo "================== Processing read 1s ==================="
+
+for f in ${DATA_INPUT_DIRECTORY}/*_R1.fastq # We are only interested in demuxed files!
 do
     echo "Processing File: ${f}"
 
@@ -33,13 +35,14 @@ do
     # Move the file to the directory
     mv "${f}" "${SAMPLE_DIR}/${NAME}"
 done
+echo "================== Processing read 2s ==================="
 
-for f in "${DATA_INPUT_DIRECTORY}"/*_R2.fastq
+for f in ${DATA_INPUT_DIRECTORY}/*_R2.fastq
 do
     echo "Processing File: ${f}"
 
     NAME="${f##*/}"
-    NAME_WITHOUT_EXTENSION="${NAME%_R1.*}"
+    NAME_WITHOUT_EXTENSION="${NAME%_R2.*}"
     SAMPLE_DIR="${DATA_OUTPUT_DIRECTORY}/${NAME_WITHOUT_EXTENSION}"
 
     # Make the directory if it does not exist yet
