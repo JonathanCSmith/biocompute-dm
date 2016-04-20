@@ -20,7 +20,7 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
 echo "================== Processing read 1s ==================="
 
-for f in ${DATA_INPUT_DIRECTORY}/*_R1.fastq # We are only interested in demuxed files!
+for f in "${DATA_INPUT_DIRECTORY}"/*_R1.fastq # We are only interested in demuxed files!
 do
     echo "Processing File: ${f}"
 
@@ -37,7 +37,7 @@ do
 done
 echo "================== Processing read 2s ==================="
 
-for f in ${DATA_INPUT_DIRECTORY}/*_R2.fastq
+for f in "${DATA_INPUT_DIRECTORY}"/*_R2.fastq
 do
     echo "Processing File: ${f}"
 
