@@ -7,7 +7,9 @@ from biocomputedm.extensions import db
 from biocomputedm.extensions import migrate as migrator
 from flask.ext.migrate import MigrateCommand, init, migrate, upgrade
 from flask.ext.script import Manager
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, Table, ForeignKeyConstraint
+from sqlalchemy.engine import reflection
+from sqlalchemy.sql.ddl import DropConstraint, DropTable
 
 __author__ = "jon"
 
@@ -38,14 +40,14 @@ def initialize_master_database_and_clean_versioning():
     db.session.close()
     db.session.bind.dispose()
     subprocess.Popen(
-            [
-                "sudo",
-                os.path.join(cleanup_directory, "wipe_database.sh"),
-                "-u=" + app.config["DATABASE_USERNAME"],
-                "-p=" + app.config["DATABASE_PASSWORD"],
-                "-l=" + app.config["DATABASE_LOCATION"],
-                "-n=" + app.config["DATABASE_NAME"]
-            ]
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_database.sh"),
+            "-u=" + app.config["DATABASE_USERNAME"],
+            "-p=" + app.config["DATABASE_PASSWORD"],
+            "-l=" + app.config["DATABASE_LOCATION"],
+            "-n=" + app.config["DATABASE_NAME"]
+        ]
     ).wait()
 
     # Migrate setup
@@ -82,11 +84,11 @@ def clean(key):
     # Dump sftp users
     for user in users:
         subprocess.Popen(
-                [
-                    "sudo",
-                    os.path.join(cleanup_directory, "wipe_user.sh"),
-                    "-u=" + user
-                ]
+            [
+                "sudo",
+                os.path.join(cleanup_directory, "wipe_user.sh"),
+                "-u=" + user
+            ]
         ).wait()
 
     con = db.engine.connect()
@@ -104,101 +106,101 @@ def clean(key):
 
     # Clean directories
     subprocess.Popen(
-            [
-                "sudo",
-                os.path.join(cleanup_directory, "wipe_directory.sh"),
-                "-p=" + app.config["SFTP_USER_ROOT_PATH"]
-            ]
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_directory.sh"),
+            "-p=" + app.config["SFTP_USER_ROOT_PATH"]
+        ]
     ).wait()
 
     # Clean directories
     subprocess.Popen(
-            [
-                "sudo",
-                os.path.join(cleanup_directory, "wipe_directory.sh"),
-                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"])
-            ]
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_directory.sh"),
+            "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"])
+        ]
     ).wait()
 
     # Clean directories
     subprocess.Popen(
-            [
-                "sudo",
-                os.path.join(cleanup_directory, "wipe_directory.sh"),
-                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"])
-            ]
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_directory.sh"),
+            "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"])
+        ]
     ).wait()
 
     # Clean directories
     subprocess.Popen(
-            [
-                "sudo",
-                os.path.join(cleanup_directory, "wipe_directory.sh"),
-                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"])
-            ]
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_directory.sh"),
+            "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"])
+        ]
     ).wait()
 
     # Clean directories
     subprocess.Popen(
-            [
-                "sudo",
-                os.path.join(cleanup_directory, "wipe_directory.sh"),
-                "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"])
-            ]
+        [
+            "sudo",
+            os.path.join(cleanup_directory, "wipe_directory.sh"),
+            "-p=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"])
+        ]
     ).wait()
 
     # Serve the directories
     serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
     link_path = os.path.dirname(os.path.realpath(__file__))
     subprocess.Popen(
-            [
-                "sudo",
-                serve_script,
-                "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"]),
-                "-t=" + link_path + "/biocomputedm/static/serve/" +
-                app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
-            ]
+        [
+            "sudo",
+            serve_script,
+            "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+            "-t=" + link_path + "/biocomputedm/static/serve/" +
+            app.config["PIPELINE_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+        ]
     ).wait()
 
     serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
     subprocess.Popen(
-            [
-                "sudo",
-                serve_script,
-                "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"]),
-                "-t=" + link_path + "/biocomputedm/static/serve/" +
-                app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
-            ]
+        [
+            "sudo",
+            serve_script,
+            "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+            "-t=" + link_path + "/biocomputedm/static/serve/" +
+            app.config["SUBMISSION_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+        ]
     ).wait()
 
     serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
     subprocess.Popen(
-            [
-                "sudo",
-                serve_script,
-                "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"]),
-                "-t=" + link_path + "/biocomputedm/static/serve/" +
-                app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
-            ]
+        [
+            "sudo",
+            serve_script,
+            "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+            "-t=" + link_path + "/biocomputedm/static/serve/" +
+            app.config["SAMPLE_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+        ]
     ).wait()
 
     serve_script = os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "serve.sh")
     subprocess.Popen(
-            [
-                "sudo",
-                serve_script,
-                "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
-                                     app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"]),
-                "-t=" + link_path + "/biocomputedm/static/serve/" +
-                app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
-            ]
+        [
+            "sudo",
+            serve_script,
+            "-s=" + os.path.join(app.config["WEBSERVER_ROOT_PATH"],
+                                 app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"]),
+            "-t=" + link_path + "/biocomputedm/static/serve/" +
+            app.config["PROJECT_DATA_PATH_AFTER_RELATIVE_ROOT"].split("/")[-1]
+        ]
     ).wait()
 
     # Load the minimum information into the app

@@ -7,17 +7,19 @@ function addResizeBehaviours() {
 }
 
 function resizer() {
-    var size =$(".resize").width();
+    var size =$(".resize:visible").width();
     if (size > 200) {
-        $(".resize").height(200);
-        $(".resize").width(200);
-        $(".resize_header").width(200);
+        $(".resize:visible").height(200);
+        $(".resize:visible").width(200);
+        $(".resize_header:visible").width(200);
     }
 
     else {
-        $(".resize").height(size);
-        $(".resize_header").width(size);
+        $(".resize:visible").height(size);
+        $(".resize_header:visible").width(size);
     }
+
+    return;
 }
 
 $(document).ready(function() {

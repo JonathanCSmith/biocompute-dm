@@ -9,6 +9,7 @@ function addSelectionGroupBehaviours() {
         $("[id='" + selected + "'").show();
         selected == "None" ? $('#toggle').show() : $('#toggle').hide();
         window.dispatchEvent(new Event('resize'));
+        $(window).trigger('resize');
     });
 }
 

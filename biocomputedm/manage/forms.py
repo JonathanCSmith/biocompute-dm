@@ -20,7 +20,11 @@ class UpdateSampleGroupForm(Form):
     submit = SubmitField("Submit")
 
     def fill(self, source_pipelines):
-        self.source_type.choices=[(s, s) for s in source_pipelines]
+        if source_pipelines is None:
+            self.source_type.choices = [("NA", "No Common Source Data")]
+        else:
+            self.source_type.choices = [(s, s) for s in source_pipelines]
+
         return
 
 

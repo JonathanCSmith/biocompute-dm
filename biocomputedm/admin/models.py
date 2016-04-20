@@ -156,12 +156,13 @@ class Customer(Person):
 # Reference data set
 class ReferenceData(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
+    path = Column(String(50), nullable=False)
     description = Column(db.String(500), nullable=False)
     version = Column(String(50), nullable=False)
     current = Column(SmallInteger(), default=False)
 
     __tablename__ = "ReferenceData"
-    __table_args__ = (db.UniqueConstraint("name", "description", "version", name="_unique"),)
+    __table_args__ = (db.UniqueConstraint("name", "path", "description", "version", name="_unique"),)
 
     def __init__(self, name, description, version):
         db.Model.__init__(self, name=name, description=description, version=version)

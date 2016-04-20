@@ -114,7 +114,6 @@ class PipelineInstance(SurrogatePK, Model):
 
     pipeline_id = reference_col("Pipeline")
     data_consigner_id = Column(ForeignKey("DataSource.id", use_alter=True))
-    # user_id = Column(ForeignKey("User.id", use_alter=True), nullable=True)
     user_id = reference_col("User")
     group_id = reference_col("Group", nullable=True)
 

@@ -42,7 +42,9 @@ Ordered TODO list:
 	* Email infrastructure
 
 	* Pipeline Documentation text, documentation file
+
 	* Harmonize data sources?
+	* SampleGroup can be empty of samples, which is functionally correct but not semantically - Therefore data group? Samples can own data, Data Groups can be associated with samples, pipeline data is associated with data groups
 		
 	* Stats for module and pipeline execution
 		* Additional data metrics / information in db entries and how to propagate from submissions

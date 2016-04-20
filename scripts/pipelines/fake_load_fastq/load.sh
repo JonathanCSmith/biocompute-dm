@@ -9,6 +9,8 @@ RX_1=".*_R1\.fastq"
 RX_2=".*_R2\.fastq"
 
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
+echo "Data CSV at: ${SAMPLE_CSV}"
+
 IFS=","
 while read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA; do
     if [[ "${DATA_INPUT_DIRECTORY}" =~ ${RX_1} ]]; then
@@ -29,8 +31,8 @@ while read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA; do
     echo "Constructing directory: ${SAMPLE_DIR} for ${NAME}"
     mkdir "${SAMPLE_DIR}"
 
-    # Move the file to the directory
-    mv "${DATA_INPUT_DIRECTORY}" "${SAMPLE_DIR}/${NAME}"
+    # Copy the file to the directory
+    cp "${DATA_INPUT_DIRECTORY}" "${SAMPLE_DIR}/${NAME}"
 done < "${SAMPLE_CSV}"
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
 

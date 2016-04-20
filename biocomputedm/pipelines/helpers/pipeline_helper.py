@@ -309,7 +309,7 @@ def execute_module_instance(app, pid="", oid=""):
                     # Build the csv
                     with open(local_csv_path, "a", newline="") as csvfile:
                         writer = csv.writer(csvfile)
-                        for sample in o.samples.query.all():
+                        for sample in o.samples.all():
                             sample_output_directory = os.path.join(samples_output_directory, sample.display_key)
                             utils.make_directory(sample_output_directory)
 

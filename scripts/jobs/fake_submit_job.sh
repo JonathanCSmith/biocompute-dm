@@ -31,7 +31,7 @@ case ${i} in
 
     # Pipeline files directory
     -p=*)
-    PIPELINE_SOURCE_DIRECTORY="${i#*=}"
+    PIPELINE_SOURCE="${i#*=}"
     shift
     ;;
 
@@ -43,7 +43,7 @@ case ${i} in
 
     # Specific argument for the inputs file
     -i=*|--inputs=*)
-    INPUTS_STRING="${i#*=}"
+    SAMPLE_CSV="${i#*=}"
     shift
     ;;
 
@@ -66,7 +66,7 @@ esac
 done
 
 # Combine the strings in a meaningful manner
-VARS="USERNAME=${USERNAME},HPC_IP=${HPC_IP},TICKET=${TICKET},PIPELINE_SOURCE=${PIPELINE_SOURCE_DIRECTORY},SAMPLE_CSV=${INPUTS_STRING},PIPELINE_OUTPUT_DIRECTORY=${PIPELINE_OUTPUT_DIRECTORY},MODULE_OUTPUT_DIRECTORY=${MODULE_OUTPUT_DIRECTORY}"
+VARS="USERNAME=${USERNAME},HPC_IP=${HPC_IP},TICKET=${TICKET},PIPELINE_SOURCE=${PIPELINE_SOURCE},SAMPLE_CSV=${SAMPLE_CSV},PIPELINE_OUTPUT_DIRECTORY=${PIPELINE_OUTPUT_DIRECTORY},MODULE_OUTPUT_DIRECTORY=${MODULE_OUTPUT_DIRECTORY}"
 if [ "${VARIABLES_STRING}" ]; then
     VARS="${VARS},${VARIABLES_STRING}"
 fi
@@ -82,6 +82,6 @@ echo "Script: ${SCRIPT_STRING}"
 echo "Beginning SSH"
 
 # Pingback for status - TODO: Silence it?
-bash ${SCRIPT_STRING} "${INPUTS_STRING}"
+source ${SCRIPT_STRING}  # Run locally - use the current env variables
 curl --form event="module_end" --form sub="${SUB_TIME}" --form stat="${START_TIME}" --form end="${END_TIME}" 127.0.0.1:${SERVER}/"message/pipelines|${TICKET}"
 echo "Job submission complete"

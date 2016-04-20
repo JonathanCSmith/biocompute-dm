@@ -3,6 +3,7 @@ import subprocess
 from datetime import datetime
 
 from biocomputedm import utils
+from biocomputedm.admin.models import ReferenceData
 from biocomputedm.decorators import login_required
 from biocomputedm.manage.models import Submission, SampleGroup
 from biocomputedm.pipelines import models
@@ -502,7 +503,8 @@ def build_module_instance(pid="", oid="", index=-1):
                     name = value.split(" (")[0]
 
                     # Lookup
-                    path = os.path.join(utils.get_path("reference_data", "hpc"), name)
+                    reference_data = ReferenceData.query.filter_by(display_key=name).first()
+                    path = os.path.join(os.path.join(utils.get_path("reference_data", "hpc"), reference_data.path), reference_data.name)
 
                     # Update the db
                     option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
