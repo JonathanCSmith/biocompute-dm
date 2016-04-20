@@ -75,7 +75,7 @@ END
 
             # If our job was not present in qacct
             REGEX="error*"
-            if [[ ${RESULT} =~ ${REGEX} ]]; then
+            if [[ "${RESULT}" =~ ${REGEX} ]]; then
                 continue
             else
                 HAS_RUNNING=0
@@ -125,7 +125,7 @@ END
                 # If our job was not present in qacct
                 echo "Job Query returned: ${RESULT}"
                 REGEX="error*"
-                if [[ ${RESULT} =~ ${REGEX} ]]; then
+                if [[ "${RESULT}" =~ ${REGEX} ]]; then
                     NOT_PRESENT=1
                     break;
                 fi

@@ -5,17 +5,17 @@
 
 OLDIFS="${IFS}"
 echo "Beginning load module"
-RX_1="*_R1.fastq"
-RX_2="*_R2.fastq"
+RX_1=".*_R1\.fastq"
+RX_2=".*_R2\.fastq"
 
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
 IFS=","
 while read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA; do
-    if [[ ${DATA_INPUT_DIRECTORY} =~ ${RX_1} ]]; then
+    if [[ "${DATA_INPUT_DIRECTORY}" =~ ${RX_1} ]]; then
         NAME="${DATA_INPUT_DIRECTORY##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%_R1.*}"
 
-    elif [[ ${DATA_INPUT_DIRECTORY} =~ ${RX_2} ]]; then
+    elif [[ "${DATA_INPUT_DIRECTORY}" =~ ${RX_2} ]]; then
         NAME="${DATA_INPUT_DIRECTORY##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%_R2.*}"
 
