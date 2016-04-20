@@ -9,11 +9,11 @@ echo "Beginning load module"
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
 IFS=","
 while read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA; do
-    if [ "${DATA_INPUT_DIRECTORY}" ~= "*_R1.fastq" ]; then
+    if [[ ${DATA_INPUT_DIRECTORY} ~= "*_R1.fastq" ]]; then
         NAME="${DATA_INPUT_DIRECTORY##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%_R1.*}"
 
-    elif [ "${DATA_INPUT_DIRECTORY}" ~= "*_R2.fastq" ]; then
+    elif [[ ${DATA_INPUT_DIRECTORY} ~= "*_R2.fastq" ]]; then
         NAME="${DATA_INPUT_DIRECTORY##*/}"
         NAME_WITHOUT_EXTENSION="${NAME%_R2.*}"
 
