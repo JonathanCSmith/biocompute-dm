@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #$ -j y
-#$ -pe threaded 8
+#$ -pe smp 8
 
 module load novoalign
 module load bioinformatics/samtools/0.1.19
