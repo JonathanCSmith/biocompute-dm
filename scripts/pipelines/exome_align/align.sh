@@ -73,8 +73,8 @@ END
     # Rename logs and exit
     for i in $(seq 1 ${FILE_COUNT})
     do
-        mv "${MODULE_OUTPUT_DIRECTORY}//align_worker.sh.o${JOBID}.${i}" "{MODULE_OUTPUT_DIRECTORY}//align_worker_arrayid_${i}_out.txt"
-        mv "${MODULE_OUTPUT_DIRECTORY}//align_worker.sh.po${JOBID}.${i}" "{MODULE_OUTPUT_DIRECTORY}//align_worker_arrayid_${i}_error.txt"
+        mv "${MODULE_OUTPUT_DIRECTORY}//align_worker.sh.o${JOBID}.${i}" "${MODULE_OUTPUT_DIRECTORY}//align_worker_arrayid_${i}_out.txt"
+        mv "${MODULE_OUTPUT_DIRECTORY}//align_worker.sh.po${JOBID}.${i}" "${MODULE_OUTPUT_DIRECTORY}//align_worker_arrayid_${i}_error.txt"
     done
 fi
 

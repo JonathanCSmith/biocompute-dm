@@ -2,10 +2,10 @@
 #$ -j y
 #$ -pe smp 8
 
-module load novoalign
+module load novoalign/3.01.2
 module load bioinformatics/samtools/0.1.19
-module load bioinformatics/picard-tools
-module load bioinformatics/bedtools
+module load picard-tools/2.2.2
+module load bedtools/2.25.0
 
 OLDIFS="${IFS}"
 date=`date`
@@ -21,8 +21,9 @@ REFERENCE=""
 echo "reference_genome = ${ref}"
 if [ "${ref}" != "" ]; then
 
-    cp "${ref}" "${TMPDIR}"
+    cp "${ref}" "${TMPDIR}/${ref##*/}"
     REFERENCE="${TMPDIR}/${ref##*/}"
+    echo "New reference location: ${REFERENCE}"
 
 else
     echo "Could not continue as no reference was provided"
@@ -184,7 +185,7 @@ EOF
     rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed"
     rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_coverage.hist"
 
-done < `awk "NR==${SGE_TASK_ID}" "${DATA_FILE}"`
+done < `awk 'NR==${SGE_TASK_ID}' ${DATA_FILE}`
 # ================================================== CORE SAMPLE LOOP =================================================
 
 rm "${TMPDR}/${ref##*/}"
