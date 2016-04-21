@@ -383,8 +383,8 @@ def execute_module_instance(app, pid="", oid=""):
             return
 
     except Exception as e:
-        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
         app.logger.error(traceback.print_exc())
+        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
         return
 
 
@@ -462,8 +462,8 @@ def finish_pipeline_instance(app, pid="", oid=""):
                     ).wait()
 
                 except Exception as e:
-                    app.logger.error("There was an exception when executing the current pipeline: " + str(e))
                     app.logger.error(traceback.print_exc())
+                    app.logger.error("There was an exception when executing the current pipeline: " + str(e))
                     pass
 
             # Prevent modification for record keeping
@@ -474,6 +474,6 @@ def finish_pipeline_instance(app, pid="", oid=""):
             data_source.update(running_pipeline=None)
 
     except Exception as e:
-        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
         app.logger.error(traceback.print_exc())
+        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
         return
