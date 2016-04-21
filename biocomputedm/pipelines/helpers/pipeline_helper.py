@@ -250,6 +250,7 @@ def execute_module_instance(app, pid="", oid=""):
             from biocomputedm.pipelines.models import get_current_module_instance
             current_module_instance = get_current_module_instance(pipeline_instance)
             if current_module_instance is None:
+                print("Could not identify the current module instance.")
                 return
 
             # Directories
@@ -268,6 +269,7 @@ def execute_module_instance(app, pid="", oid=""):
                 if pipeline_instance.pipeline.type == "I":
                     o = Submission.query.filter_by(display_key=oid).first()
                     if o is None:
+                        print("Could not identify submission group: " + oid)
                         return
 
                     # Build the csv
@@ -304,6 +306,7 @@ def execute_module_instance(app, pid="", oid=""):
                 else:
                     o = SampleGroup.query.filter_by(display_key=oid).first()
                     if o is None:
+                        print("Could not identify sample group: " + oid)
                         return
 
                     # Build the csv
