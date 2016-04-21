@@ -17,6 +17,9 @@ Feature:
 		views for messages in admin console
 
 Ordered TODO list:
+	* Fix silent erroring of execute & finish pipeline -> failures here should be caught and reflected in the pipeline status
+	* Fix pipeline restart controlls not working
+
 	* Sample Groups should be able to access history of pipelines processed and trace the specific sample data groups
 	* Pipeline Instance -> Data Source
 	* Pipeline Instances -> Data Source

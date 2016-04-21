@@ -3,7 +3,6 @@ import json
 import os
 import re
 import subprocess
-import traceback
 
 import jsonschema
 from biocomputedm import utils
@@ -255,15 +254,15 @@ def execute_module_instance(app, pid="", oid=""):
                 return
 
             # Directories
-            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
-            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
+            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"),
+                                                    pipeline_instance.display_key)
+            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"),
+                                                     pipeline_instance.display_key)
             local_csv_path = os.path.join(local_pipeline_directory, "data_map.csv")
             csv_path = os.path.join(remote_pipeline_directory, "data_map.csv")
 
             # Get the object and build it's data path file - only on first module, this stays constant otherwise
             if pipeline_instance.current_execution_index == 0:
-                samples_output_directory = os.path.join(remote_pipeline_directory, "samples_output")
-
                 import csv
                 if pipeline_instance.pipeline.type == "I":
                     o = Submission.query.filter_by(display_key=oid).first()
@@ -273,6 +272,7 @@ def execute_module_instance(app, pid="", oid=""):
 
                     # Build the csv
                     with open(local_csv_path, "a", newline="") as csvfile:
+                        remote_samples_output_directory = os.path.join(remote_pipeline_directory, "samples_output")
                         remote_input_path = os.path.join(utils.get_path("submission_data", "hpc"), oid)
                         local_input_path = os.path.join(utils.get_path("submission_data", "webserver"), oid)
 
@@ -284,7 +284,7 @@ def execute_module_instance(app, pid="", oid=""):
                                     [
                                         oid,
                                         os.path.join(remote_input_path, file),
-                                        samples_output_directory,
+                                        remote_samples_output_directory,
                                         "EMPTY INFORMATION"
                                     ])
                             except:
@@ -296,7 +296,7 @@ def execute_module_instance(app, pid="", oid=""):
                                     [
                                         oid,
                                         os.path.join(remote_input_path, file),
-                                        samples_output_directory,
+                                        remote_samples_output_directory,
                                         "EMPTY INFORMATION"
                                     ])
                             except:
@@ -312,14 +312,17 @@ def execute_module_instance(app, pid="", oid=""):
                     with open(local_csv_path, "a", newline="") as csvfile:
                         writer = csv.writer(csvfile)
                         for sample in o.samples.all():
-                            sample_output_directory = os.path.join(samples_output_directory, sample.display_key)
-                            utils.make_directory(sample_output_directory)
+                            remote_sample_output_directory = os.path.join(
+                                os.path.join(remote_pipeline_directory, "samples_output"), sample.display_key)
+                            local_samples_output_directory = os.path.join(
+                                os.path.join(local_pipeline_directory, "samples_output"), sample.display_key)
+                            utils.make_directory(local_samples_output_directory)
 
                             writer.writerow(
                                 [
                                     sample.display_key,
                                     os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                                    sample_output_directory,
+                                    remote_sample_output_directory,
                                     "EMPTY INFORMATION"
                                 ]
                             )
@@ -383,7 +386,6 @@ def execute_module_instance(app, pid="", oid=""):
             return
 
     except Exception as e:
-        app.logger.error(traceback.print_exc())
         app.logger.error("There was an exception when executing the current pipeline: " + str(e))
         return
 
@@ -462,7 +464,6 @@ def finish_pipeline_instance(app, pid="", oid=""):
                     ).wait()
 
                 except Exception as e:
-                    app.logger.error(traceback.print_exc())
                     app.logger.error("There was an exception when executing the current pipeline: " + str(e))
                     pass
 
@@ -474,6 +475,5 @@ def finish_pipeline_instance(app, pid="", oid=""):
             data_source.update(running_pipeline=None)
 
     except Exception as e:
-        app.logger.error(traceback.print_exc())
         app.logger.error("There was an exception when executing the current pipeline: " + str(e))
         return
