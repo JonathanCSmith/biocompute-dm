@@ -2,9 +2,9 @@
 #$ -j y
 #$ -pe threaded 8
 
-module load bioinformatics/novalign
+module load novoalign
 module load bioinformatics/samtools/0.1.19
-module load bioinformatics/picardtools
+module load bioinformatics/picard-tools
 module load bioinformatics/bedtools
 
 OLDIFS="${IFS}"
@@ -109,13 +109,13 @@ EOF
 
     ############################# SORTING THE BAM FILE  #####################################################
     printf "Started sorting the BAM file on $date\n\n"
-    java -Xmx30g -jar picard.jar SortSam INPUT="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam" OUTPUT="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" SORT_ORDER=coordinate VALIDATION_STRINGENCY=SILENT
+    java -Xmx30g -jar ${PICARD}/picard.jar SortSam INPUT="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam" OUTPUT="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" SORT_ORDER=coordinate VALIDATION_STRINGENCY=SILENT
     printf "Finished sorting the BAM file on $date\n\n"
     #########################################################################################################
 
     ############################# REMOVE PCR DUPLICATES  ####################################################
     printf "Started removing PCR duplicates on $date\n\n"
-    java -Xmx30g -jar picard.jar MarkDuplicates I="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam" O="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" M="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_duplicate_metrics" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT
+    java -Xmx30g -jar ${PICARD}/picard.jar MarkDuplicates I="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam" O="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" M="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_duplicate_metrics" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT
     printf "Finished removing PCR duplicates on $date\n\n"
     #########################################################################################################
 

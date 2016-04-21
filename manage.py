@@ -7,9 +7,6 @@ from biocomputedm.extensions import db
 from biocomputedm.extensions import migrate as migrator
 from flask.ext.migrate import MigrateCommand, init, migrate, upgrade
 from flask.ext.script import Manager
-from sqlalchemy import MetaData, Table, ForeignKeyConstraint
-from sqlalchemy.engine import reflection
-from sqlalchemy.sql.ddl import DropConstraint, DropTable
 
 __author__ = "jon"
 
@@ -93,7 +90,7 @@ def clean(key):
 
     con = db.engine.connect()
     trans = con.begin()
-    meta = MetaData(bind=db.engine, reflect=True)
+    meta = db.metadata
     for table in reversed(meta.sorted_tables):
         if table.fullname == "alembic_version":
             continue

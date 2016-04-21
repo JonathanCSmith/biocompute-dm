@@ -164,8 +164,8 @@ class ReferenceData(SurrogatePK, Model):
     __tablename__ = "ReferenceData"
     __table_args__ = (db.UniqueConstraint("name", "path", "description", "version", name="_unique"),)
 
-    def __init__(self, name, description, version):
-        db.Model.__init__(self, name=name, description=description, version=version)
+    def __init__(self, name, path, description, version):
+        db.Model.__init__(self, name=name, path=path, description=description, version=version)
 
     def __repr__(self):
         return "<Reference Data with name: %s, description; %s and version: %s" % (
