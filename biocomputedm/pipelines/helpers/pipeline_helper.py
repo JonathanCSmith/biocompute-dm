@@ -3,6 +3,7 @@ import json
 import os
 import re
 import subprocess
+import traceback
 
 import jsonschema
 from biocomputedm import utils
@@ -250,14 +251,12 @@ def execute_module_instance(app, pid="", oid=""):
             from biocomputedm.pipelines.models import get_current_module_instance
             current_module_instance = get_current_module_instance(pipeline_instance)
             if current_module_instance is None:
-                print("Could not identify the current module instance.")
+                app.logger.error("Could not identify the current module instance.")
                 return
 
             # Directories
-            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"),
-                                                    pipeline_instance.display_key)
-            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"),
-                                                     pipeline_instance.display_key)
+            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
+            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"), pipeline_instance.display_key)
             local_csv_path = os.path.join(local_pipeline_directory, "data_map.csv")
             csv_path = os.path.join(remote_pipeline_directory, "data_map.csv")
 
@@ -269,7 +268,7 @@ def execute_module_instance(app, pid="", oid=""):
                 if pipeline_instance.pipeline.type == "I":
                     o = Submission.query.filter_by(display_key=oid).first()
                     if o is None:
-                        print("Could not identify submission group: " + oid)
+                        app.logger.error("Could not identify submission group: " + oid)
                         return
 
                     # Build the csv
@@ -306,7 +305,7 @@ def execute_module_instance(app, pid="", oid=""):
                 else:
                     o = SampleGroup.query.filter_by(display_key=oid).first()
                     if o is None:
-                        print("Could not identify sample group: " + oid)
+                        app.logger.error("Could not identify sample group: " + oid)
                         return
 
                     # Build the csv
@@ -384,7 +383,8 @@ def execute_module_instance(app, pid="", oid=""):
             return
 
     except Exception as e:
-        print("There was an exception when executing the current pipeline: " + str(e))
+        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
+        app.logger.error(traceback.print_exc())
         return
 
 
@@ -413,7 +413,7 @@ def finish_pipeline_instance(app, pid="", oid=""):
             if pipeline_instance.pipeline.type == "I":
                 submission = Submission.query.filter_by(display_key=oid).first()
                 if submission is None:
-                    print(
+                    app.logger.error(
                         "Could not locate the submission for this pipeline. The pipeline outcome will not be submitted.")
 
             # Look in the output directory for folders - these will be our sample names
@@ -462,7 +462,8 @@ def finish_pipeline_instance(app, pid="", oid=""):
                     ).wait()
 
                 except Exception as e:
-                    print("There was an exception when executing the current pipeline: " + str(e))
+                    app.logger.error("There was an exception when executing the current pipeline: " + str(e))
+                    app.logger.error(traceback.print_exc())
                     pass
 
             # Prevent modification for record keeping
@@ -473,5 +474,6 @@ def finish_pipeline_instance(app, pid="", oid=""):
             data_source.update(running_pipeline=None)
 
     except Exception as e:
-        print("There was an exception when executing the current pipeline: " + str(e))
+        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
+        app.logger.error(traceback.print_exc())
         return

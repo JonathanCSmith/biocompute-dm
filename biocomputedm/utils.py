@@ -31,7 +31,7 @@ def get_path(target, environment):
     elif environment == "serve":
         return os.path.join("serve", target_path.split("/")[-1])
     else:
-        raise ValueError("environment must either be: served, webserver or hpc")
+        raise ValueError("environment must either be: serve, webserver or hpc")
 
     return os.path.join(environment_path, target_path)
 
