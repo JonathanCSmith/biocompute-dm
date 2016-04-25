@@ -116,7 +116,7 @@ printf "Finished sorting the BAM file on $date\n\n"
 
 ############################# REMOVE PCR DUPLICATES  ####################################################
 printf "Started removing PCR duplicates on $date\n\n"
-java -Xmx30g -jar ${PICARD}/picard.jar MarkDuplicates I="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" O="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" M="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_duplicate_metrics" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT
+java -Xmx30g -betjar ${PICARD}/picard.jar MarkDuplicates I="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" O="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" M="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_duplicate_metrics" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT
 printf "Finished removing PCR duplicates on $date\n\n"
 #########################################################################################################
 
@@ -130,9 +130,9 @@ printf "Finished indexing BAM file on $date\n\n"
 
 # coverage calculations
 samtools view -bq 20 -F 1796 "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" | bamToBed -i stdin > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
-coverageBed -hist -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b bed_files/targets.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_targets_cov.bed" &
-coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b bed_files/baits.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits_cov.bed" &
-coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b bed_files/baits_plus_150bp.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed" &
+coverageBed -hist -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b "${PIPELINE_SOURCE}"/bed_files/targets.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_targets_cov.bed" &
+coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b "${PIPELINE_SOURCE}"/bed_files/baits.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits_cov.bed" &
+coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b "${PIPELINE_SOURCE}"/bed_files/baits_plus_150bp.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed" &
 wait
 
 #efficiency of capture
