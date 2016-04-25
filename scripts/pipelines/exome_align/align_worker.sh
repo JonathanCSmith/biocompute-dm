@@ -116,7 +116,7 @@ printf "Finished sorting the BAM file on $date\n\n"
 
 ############################# REMOVE PCR DUPLICATES  ####################################################
 printf "Started removing PCR duplicates on $date\n\n"
-java -Xmx30g -jar ${PICARD}/picard.jar MarkDuplicates I="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam" O="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" M="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_duplicate_metrics" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT
+java -Xmx30g -jar ${PICARD}/picard.jar MarkDuplicates I="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam" O="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" M="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_duplicate_metrics" REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=SILENT
 printf "Finished removing PCR duplicates on $date\n\n"
 #########################################################################################################
 
