@@ -93,9 +93,9 @@ EOF
             # Move to current working directory
             echo "Moving metrics for: ${SAMPLE_NAME} to ./sample_${SAMPLE_NAME}/"
             mkdir "./sample_${SAMPLE_NAME}"
-            cp "${ALIGNMENT}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_alignment_metrics.txt"
-            cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_duplicate_metrics.txt"
-            cp "${COVERAGE}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_coverage_metrics.txt"
+            cp "${ALIGNMENT}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_alignment_metrics.txt"
+            cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_duplicate_metrics.txt"
+            cp "${COVERAGE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_coverage_metrics.txt"
 
         done
     done < "${SAMPLE_CSV}"
