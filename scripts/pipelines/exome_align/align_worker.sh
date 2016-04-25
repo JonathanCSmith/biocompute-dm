@@ -104,7 +104,7 @@ fi
 
 ############################### ALIGNMENT TO THE REFERENCE GENOME #######################################
 printf "Started Alignment on $date\n\n"
-novoalign -F STDFQ -f "${READ_1}" "${READ_2}" -d "${REFERENCE}" -o SAM -o SoftClip --Q2Off -k -a -g 65 -x 7 -c 8 2> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_alignment_metrics" | samtools view -bS - > "${SAMPLE_INPUT_PATH}/${SAMPLE_NAME}.bam"
+novoalign -F STDFQ -f "${READ_1}" "${READ_2}" -d "${REFERENCE}" -o SAM -o SoftClip --Q2Off -k -a -g 65 -x 7 -c 8 2> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_alignment_metrics" | samtools view -bS - > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
 printf "Finished Alignment on $date\n\n"
 #########################################################################################################
 
