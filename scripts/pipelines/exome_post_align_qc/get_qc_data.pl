@@ -15,9 +15,9 @@ foreach $sample (@samples)
 
 	print OUT "$sample_name\t";
 
-	$aln_file = $sample . "_alignment_metrics";
-	$dup_file = $sample . "_duplicate_metrics";
-	$cov_file = $sample . "_coverage_metrics";
+	$aln_file = $sample . "_alignment_metrics.txt";
+	$dup_file = $sample . "_duplicate_metrics.txt";
+	$cov_file = $sample . "_coverage_metrics.txt";
 
 	open ALN, "$sample/$aln_file";
 
