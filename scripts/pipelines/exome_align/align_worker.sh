@@ -3,6 +3,8 @@
 #$ -pe smp 8
 #$ -V
 
+source ${HOME}/.bashrc
+
 module load novoalign/3.01.02
 module load bioinformatics/samtools/0.1.19
 module load picard-tools/2.2.2
@@ -185,4 +187,4 @@ rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed"
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_coverage.hist"
 # ================================================== CORE SAMPLE LOOP =================================================
 
-rm "${TMPDR}/${ref##*/}"
+rm "${TMPDIR}/${ref##*/}"
