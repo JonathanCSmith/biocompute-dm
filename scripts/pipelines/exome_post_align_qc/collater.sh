@@ -2,7 +2,7 @@
 #$ -S /bin/bash
 #$ -V
 
-echo "Beginning colation process"
+echo "Beginning collation process"
 
 OLDIFS="${IFS}"
 
