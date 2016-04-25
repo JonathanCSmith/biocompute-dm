@@ -68,7 +68,7 @@ END
 # Poll the job id
 RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    RESULT=\$(qacct -j ${JOBID})
+    RESULT=\$(qacct -j ${JOBID} 2>&1);
     echo \$RESULT
 END
 )
@@ -117,7 +117,7 @@ END
 
 RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    RESULT=\$(qacct -j ${JOBID} -t ${i})
+    RESULT=\$(qacct -j ${JOBID} -t ${i} 2>&1);
     echo \$RESULT
 END
 )

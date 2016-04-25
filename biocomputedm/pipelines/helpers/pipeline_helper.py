@@ -420,32 +420,34 @@ def finish_pipeline_instance(app, pid="", oid=""):
 
             # Look in the output directory for folders - these will be our sample names
             filepaths = next(os.walk(output_directory))
-            for file in filepaths[1]:
+            for target in filepaths[1]:
                 try:
                     if submission is not None:
-                        # Create the sample
-                        s = Sample.create(name=file, submission=submission, pipeline=pipeline_instance)
+                        # Build the source
+                        source = os.path.join(output_directory, target)
 
-                        # Make the directory
-                        utils.make_directory(
-                            os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+                        # Create the sample
+                        s = Sample.create(name=target, submission=submission, pipeline=pipeline_instance)
+
+                        # Make the sample's directory
+                        utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+
                     else:
                         # Find the sample
-                        s = Sample.query.filter_by(display_key=file).first()
+                        s = Sample.query.filter_by(display_key=target).first()
                         if s is None:
                             continue
 
-                        output_directory = os.path.join(output_directory, s.display_key)
+                        # Build the source
+                        source = os.path.join(output_directory, s.display_key)
 
                     # Update the sample group
                     group.samples.append(s)
                     group.save()
 
                     # Make the data directory and update the sample
-                    source = os.path.join(output_directory, file)
-                    data_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key),
-                                             pipeline_instance.display_key)
-                    utils.make_directory(data_path)
+                    destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key), pipeline_instance.display_key)
+                    utils.make_directory(destination_path)
                     s.pipeline_runs.append(pipeline_instance)
                     s.save()
 
@@ -457,7 +459,56 @@ def finish_pipeline_instance(app, pid="", oid=""):
                             "sudo",
                             script_path,
                             "-s=" + source,
-                            "-t=" + data_path
+                            "-t=" + destination_path
+                        ],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
+                    ).wait()
+
+                except Exception as e:
+                    app.logger.error("There was an exception when executing the current pipeline: " + str(e))
+                    pass
+
+            # Look in the output directory for folders - these will be our sample names
+            filepaths = next(os.walk(output_directory))
+            for target in filepaths[1]:
+                try:
+                    if submission is not None:
+                        # Create the sample
+                        s = Sample.create(name=target, submission=submission, pipeline=pipeline_instance)
+
+                        # Make the directory
+                        utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+
+                    else:
+                        # Find the sample
+                        s = Sample.query.filter_by(display_key=target).first()
+                        if s is None:
+                            continue
+
+                        output_directory = os.path.join(output_directory, s.display_key)
+
+                    # Update the sample group
+                    group.samples.append(s)
+                    group.save()
+
+                    # Make the data directory and update the sample
+                    source = os.path.join(output_directory, target)
+                    destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key),
+                                             pipeline_instance.display_key)
+                    utils.make_directory(destination_path)
+                    s.pipeline_runs.append(pipeline_instance)
+                    s.save()
+
+                    # Transfer the data using an sh
+                    script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
+                    script_path = os.path.join(script_path, "move.sh")
+                    subprocess.Popen(
+                        [
+                            "sudo",
+                            script_path,
+                            "-s=" + source,
+                            "-t=" + destination_path
                         ],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE

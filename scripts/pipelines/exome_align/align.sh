@@ -47,9 +47,9 @@ END
             echo "Searching for job: ${i}."
 
 RESULT=$(ssh ${USERNAME}@${HPC_IP} << END
-source /etc/profile;
-RESULT=\$(qacct -j ${JOBID} -t ${i})
-echo \$RESULT
+    source /etc/profile;
+    RESULT=\$(qacct -j ${JOBID} -t ${i} 2>&1);
+    echo \$RESULT
 END
 )
 
