@@ -45,8 +45,8 @@ EOF
 
                     exit
                 else
-                    echo "Identified aligment file: ${ALIGNMENT}"
                     ALIGNMENT="${f}"
+                    echo "Identified alignment file: ${ALIGNMENT}"
                 fi
             done
 
@@ -62,8 +62,8 @@ EOF
 
                     exit
                 else
-                    echo "Identified aligment file: ${DUPLICATE}"
                     DUPLICATE="${f}"
+                    echo "Identified duplicate file: ${DUPLICATE}"
                 fi
             done
 
@@ -79,8 +79,8 @@ EOF
 
                     exit
                 else
-                    echo "Identified aligment file: ${COVERAGE}"
                     COVERAGE="${f}"
+                    echo "Identified coverage file: ${COVERAGE}"
                 fi
             done
 
@@ -101,7 +101,7 @@ EOF
     done < "${SAMPLE_CSV}"
 
     # Validate cwd is not empty
-    FILE_COUNT=$(wc -l < "./sample_*")
+    FILE_COUNT=$(find ./ -maxdepth 1 -type d -name 'sample_*' | wc -l)
     echo "Identified ${FILE_COUNT} viable metric sets to process"
 
     # Execute perl
@@ -109,7 +109,7 @@ EOF
     "${PIPELINE_SOURCE}"/get_qc_data.pl
 
     # Cleanup cwd
-    for d in "./sample_*/"; do
+    for d in ./sample_*/; do
         echo "Removing directory: ${d}"
         rm -rf "${d}"
     done
