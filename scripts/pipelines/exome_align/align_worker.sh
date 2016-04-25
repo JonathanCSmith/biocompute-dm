@@ -53,7 +53,7 @@ READ_2=""
 for d in "${SAMPLE_INPUT_PATH}/*/"; do
 
     # We are looking for a specific file type
-    for f in d/*_R1.fastq; do
+    for f in ${d}/*_R1.fastq; do
         if [ "${READ_1}" ]; then
             echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -64,13 +64,12 @@ EOF
 
             exit
         else
-
             READ_1="${f}"
         fi
     done
 
     # We are looking for a specific file type
-    for f in d/*_R2.fastq; do
+    for f in ${d}/*_R2.fastq; do
         if [ "${READ_2}" ]; then
             echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
