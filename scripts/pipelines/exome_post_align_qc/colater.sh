@@ -34,7 +34,7 @@ else
         for d in "${SAMPLE_INPUT_PATH}/*/"; do
 
             # We are looking for a specific file type
-            for f in d/*_alignment_metrics.fastq; do
+            for f in ${d}/*_alignment_metrics.txt; do
                 if [ "${ALIGNMENT}" ]; then
                     echo "More that one alignment metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${ALIGNMENT}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -51,7 +51,7 @@ EOF
             done
 
             # We are looking for a specific file type
-            for f in d/*_duplicate_metrics.fastq; do
+            for f in ${d}/*_duplicate_metrics.txt; do
                 if [ "${DUPLICATE}" ]; then
                     echo "More that one duplicate metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${DUPLICATE}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -68,7 +68,7 @@ EOF
             done
 
             # We are looking for a specific file type
-            for f in d/*_coverage_metrics.fastq; do
+            for f in ${d}/*_coverage_metrics.txt; do
                 if [ "${COVERAGE}" ]; then
                     echo "More that one coverage metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${COVERAGE}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -93,9 +93,9 @@ EOF
             # Move to current working directory
             echo "Moving metrics for: ${SAMPLE_NAME} to ./sample_${SAMPLE_NAME}/"
             mkdir "./sample_${SAMPLE_NAME}"
-            cp "${ALIGNMENT}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_alignment_metrics"
-            cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_duplicate_metrics"
-            cp "${COVERAGE}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_coverage_metrics"
+            cp "${ALIGNMENT}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_alignment_metrics.txt"
+            cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_duplicate_metrics.txt"
+            cp "${COVERAGE}" "./sample_${SAMPLE_NAME}/${SAMPLE_NAME}_coverage_metrics.txt"
 
         done
     done < "${SAMPLE_CSV}"
@@ -115,4 +115,4 @@ EOF
     done
 fi
 
-echo "Colation process finished"
+echo "Collation process finished"
