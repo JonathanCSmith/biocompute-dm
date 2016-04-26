@@ -8,7 +8,7 @@ source ${HOME}/.bashrc
 module load novoalign/3.01.02
 module load bioinformatics/samtools/0.1.19
 module load picard-tools/2.2.2
-module load bedtools/2.25.0
+module load bedtools/2.16.2
 
 OLDIFS="${IFS}"
 date=`date`
