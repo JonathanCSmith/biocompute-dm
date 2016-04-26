@@ -25,7 +25,7 @@
         <td>{{ pipeline_instance.pipeline.author }}</td>
         <td>{{ pipeline_instance.pipeline.version }}</td>
         <td>{{ pipeline_instance.pipeline.type }}</td>
-        <td>{{ pipeline_instance.current_execution_status }}</td>
+        <td>{{ pipeline_instance.current_execution_status + 1}}</td>
         <td>{{ pipeline_instance.current_execution_index }}</td>
     </tr>
     {% endfor %}
