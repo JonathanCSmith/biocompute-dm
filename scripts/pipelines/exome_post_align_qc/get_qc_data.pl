@@ -13,7 +13,7 @@ foreach $sample (@samples)
 
 	$sample_name = $1 if $sample =~ /sample_(.+)/;
 
-	print OUT "$sample_name\t";
+	print OUT "$sample_name,";
 
 	$aln_file = $sample . "_alignment_metrics.txt";
 	$dup_file = $sample . "_duplicate_metrics.txt";

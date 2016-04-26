@@ -18,6 +18,8 @@ Feature:
 
 Ordered TODO list:
 	* Fix silent erroring of execute & finish pipeline -> failures here should be caught and reflected in the pipeline status
+	* If cleanup on job errors, we need to wait?!
+
 	* Fix pipeline restart controlls not working
 
 	* Sample Groups should be able to access history of pipelines processed and trace the specific sample data groups
@@ -29,6 +31,7 @@ Ordered TODO list:
 
 	* Cycle demux pipeline until I am sure it is working
 		* Attempt demux pipeline with a real world example
+		* REMOVE 2 IN BCL2FASTQ2
 	* Cycle exome pipeline until I am sure it is working
 		* Attempt align pipeline with a real world example
 
@@ -36,6 +39,8 @@ Ordered TODO list:
 
 	* Download infrastructrue
 		* SFTP infrastructure
+
+	* Possible III access prevented until II?
 
 	* Permissions for all data manipulations / access
 
