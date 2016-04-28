@@ -12,6 +12,7 @@ Integer = db.Integer
 SmallInteger = db.SmallInteger
 Text = db.Text
 ForeignKey = db.ForeignKey
+Date = db.Date
 relationship = db.relationship
 backref = db.backref
 basestring = (str, bytes)

@@ -26,16 +26,17 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Project Sample Groupings</h3>
+        <h3>Project Samples</h3>
 
         <table class="content">
             <tr>
-                <th>Sample Grouping Name</th>
+                <th>Sample Name</th>
+                <th>Sample Description</th>
             </tr>
 
-            {% for group in project.sample_groups %}
+            {% for group in project.samples %}
             <tr>
-                <td><a href="{{ url_for('manage.sample_group', oid=group.display_key) }}">{{ group.name }}</a></td>
+                <td><a href="{{ url_for('manage.data_group', oid=group.display_key) }}">{{ group.name }}</a></td>
             </tr>
             {% endfor %}
         </table>
@@ -45,7 +46,7 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Potential Sample Groupings</h3>
+        <h3>Potential Samples</h3>
 
         <form action="{{ url_for('manage.project', oid=project.display_key) }}" method=post >
 
@@ -55,10 +56,10 @@
                     <th>Add to Project?</th>
                 </tr>
 
-                {% for sample_group in potential_sample_groups %}
+                {% for sample in potential_samples %}
                 <tr>
-                    <td>{{ sample_group.name }}</td>
-                    <td><input type="checkbox" name="do_select" value="{{ sample_group.display_key }}"></td>
+                    <td>{{ sample.name }}</td>
+                    <td><input type="checkbox" name="do_select" value="{{ sample.display_key }}"></td>
                 </tr>
                 {% endfor %}
             </table>

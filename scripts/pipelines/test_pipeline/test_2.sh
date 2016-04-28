@@ -6,7 +6,7 @@ OLDIFS="${IFS}"
 echo "Beginning demultiplexing module"
 
 # Note we are only interested in the first line as we are only expecting 1 folder!
-IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${1}")
+IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${SAMPLE_CSV}")
 
 echo "Submission input directory: ${DATA_INPUT_DIRECTORY}"
 echo "Submission output directory: ${DATA_OUTPUT_DIRECTORY}"

@@ -22,7 +22,7 @@
             <table class="small_content">
                 <tr>
                     <th>Submitted by:</th>
-                    <td>{{ submission.submitter.username }}</td>
+                    <td>{{ submission.user.username }}</td>
                 </tr>
 
                 <tr>
@@ -149,7 +149,7 @@
             </table>
         </div>
 
-        {% else %}
+        {% elif submission.data_group %}
         <h3>Select a Pipeline to Run</h3>
         <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
         <select class="selection">
@@ -194,9 +194,7 @@
 
             <div class="spacer"></div>
 
-            {#<a class="input" href="{{ url_for('manage.gather_data, oid=submission.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>#}
-
-            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.display_key, pid=pipeline.display_key, runtime_type='Submission') }}">Select</a>
+            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.data_group.display_key, pid=pipeline.display_key) }}">Select</a>
         </div>
         {% endfor %}
         {% endif %}

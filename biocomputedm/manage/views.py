@@ -4,8 +4,7 @@ import time
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
-from biocomputedm.manage.models import Submission, get_submissions_query_by_user, get_samples_query_by_user, \
-    get_sample_groups_query_by_user, SampleGroup, Project, Document, Sample
+from biocomputedm.manage.models import Submission, get_samples_query_by_user, Project, Document, Sample, DataGroup, DataItem
 from biocomputedm.pipelines.models import Pipeline, PipelineInstance
 from flask import Blueprint, render_template, redirect, url_for
 from flask import abort
@@ -28,8 +27,34 @@ def message(oid=""):
         if display_key is not None and display_key is not "":
             submission = Submission.query.filter_by(display_key=display_key).first()
             if submission is not None:
-                submission.validated = True
-                submission.update()
+
+                # Build a data group for the submission
+                data_group = DataGroup.create(
+                    name="Data Group submitted by: " + submission.user.username,
+                    user=submission.user,
+                    group=submission.group,
+                    source_pipeline=None
+                )
+
+                # Walk the submission directory to find data sets
+                local_data_path = os.path.join(utils.get_path("submission_data", "webserver"), submission.display_key)
+                paths = next(os.walk(local_data_path))
+                for folder in paths[1]:
+                    data_item = DataItem.create(
+                        name=folder,
+                        unlocalised_path=os.path.join(submission.display_key),
+                        data_group=data_group
+                    )
+
+                for file in paths[2]:
+                    data_item = DataItem.create(
+                        name=file,
+                        unlocalised_path=os.path.join(submission.display_key),
+                        data_group=data_group
+                    )
+
+                # Ensure the submission knows about the data group
+                submission.update(validated=True, data_group=data_group)
 
         return "success"
 
@@ -215,35 +240,11 @@ def download():
     return redirect(url_for("empty"))
 
 
-# @manage.route("/gather_data/<oid>|<pid>|<runtime_type>", methods=["GET", "POST"])
-# @login_required("ANY")
-# def gather_data(oid="", pid="", runtime_type=""):
-#     if oid == "" or pid == "" or (runtime_type != "Submission" and runtime_type != "SampleGroup"):
-#         flash("Invalid request", "warning")
-#         return redirect(url_for("index"))
-#
-#     # Submissions require a single data pointer to be created
-#     if runtime_type == "Submission":
-#
-#         return redirect(url_for("pipelines.build_pipeline_instance"))
-#
-#     # Sample groups require us to select which sample data we wish to use
-#     else:
-#
-#         if request.method == "GET":
-#
-#             return render_template("gather_data.html", oid=oid, pid=pid, runtime_type=runtime_type)
-#
-#         else:
-#
-#             return redirect(url_for("pipelines.build_pipeline_instance"))
-
-
 @manage.route("/submissions/<int:page>")
 @manage.route("/submissions")
 @login_required("ANY")
 def submissions(page=1):
-    items = get_submissions_query_by_user()
+    items = current_user.group.submissions.filter_by(validated=True)
     if items is not None:
         items = items.paginate(page=page, per_page=20)
 
@@ -290,8 +291,7 @@ def new_submission():
 
             else:
                 # Create the submission entry
-                submission = Submission(name=str(form.submission_name.data),
-                                        description=str(form.submission_description.data))
+                submission = Submission(name=str(form.submission_name.data), description=str(form.submission_description.data))
 
                 # Get the user and group
                 group = current_user.group
@@ -302,8 +302,7 @@ def new_submission():
                 group.update()
 
                 # Create the directory to hold the submission
-                output_directory_path = os.path.join(utils.get_path("submission_data", "webserver"),
-                                                     submission.display_key)
+                output_directory_path = os.path.join(utils.get_path("submission_data", "webserver"), submission.display_key)
                 utils.make_directory(output_directory_path)
 
                 # Submit the directory and uploaded file information to our m.u.d. script
@@ -356,7 +355,7 @@ def submission(sid=""):
     # Build path to the users sftp dir
     directory_path = os.path.join(utils.get_path("submission_data", "webserver"), folder)
 
-    # list of the available files
+    # list of the available files TODO: Take this from submission directly?
     filepaths = next(os.walk(directory_path))
     files = []
     for file in filepaths[1]:
@@ -449,6 +448,7 @@ def sample_data(oid="", data_file=""):
         flash("Could not locate the provided sample", "warning")
         return redirect(url_for("empty"))
 
+    # TODO: Take this from data items
     data_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), sample.display_key), data_file)
     filepaths = next(os.walk(data_path))
     datasets = []
@@ -476,66 +476,66 @@ def sample_data(oid="", data_file=""):
                            pipeline=PipelineInstance.query.filter_by(display_key=data_file).first())
 
 
-@manage.route("/sample_groups/<int:page>")
-@manage.route("/sample_groups")
+@manage.route("/data_groups/<int:page>")
+@manage.route("/data_groups")
 @login_required("ANY")
-def sample_groups(page=1):
-    items = get_sample_groups_query_by_user()
+def data_groups(page=1):
+    items = current_user.group.data_groups
     if items is not None:
         items = items.paginate(page=page, per_page=20)
 
-    return render_template("sample_groups.html", title="Sample Groups", page=page, obs=items)
+    return render_template("data_groups.html", title="Data Groups", page=page, obs=items)
 
 
-@manage.route("/new_sample_group", methods=["GET", "POST"])
-@login_required("ANY")
-def new_sample_group():
-    from biocomputedm.manage import forms
-    form = forms.NewSampleGroupForm()
-
-    samples = current_user.group.samples.all()
-
-    if request.method == "GET":
-        return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
-
-    else:
-        if form.validate_on_submit():
-            # Check that at least one sample was selected
-            ids = request.form.getlist("do_select")
-            if ids is None or len(ids) == 0:
-                flash("No samples were selected to add to the group", "warning")
-                return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
-
-            else:
-                sample_group = SampleGroup(
-                        name=str(form.name.data),
-                        creator=current_user,
-                        group=current_user.group,
-                        pipeline=None
-                )
-
-                for i in ids:
-                    sample = Sample.query.filter_by(display_key=i).first()
-                    sample_group.samples.append(sample)
-
-                flash("Sample Group creation was successful", "success")
-                return redirect(url_for("manage.sample_group", oid=sample_group.display_key))
-
-        else:
-            utils.flash_errors(form)
-            return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
+# @manage.route("/new_sample_group", methods=["GET", "POST"])
+# @login_required("ANY")
+# def new_sample_group():
+#     from biocomputedm.manage import forms
+#     form = forms.NewSampleGroupForm()
+#
+#     samples = current_user.group.samples.all()
+#
+#     if request.method == "GET":
+#         return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
+#
+#     else:
+#         if form.validate_on_submit():
+#             # Check that at least one sample was selected
+#             ids = request.form.getlist("do_select")
+#             if ids is None or len(ids) == 0:
+#                 flash("No samples were selected to add to the group", "warning")
+#                 return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
+#
+#             else:
+#                 sample_group = SampleGroup(
+#                         name=str(form.name.data),
+#                         creator=current_user,
+#                         group=current_user.group,
+#                         pipeline=None
+#                 )
+#
+#                 for i in ids:
+#                     sample = Sample.query.filter_by(display_key=i).first()
+#                     sample_group.samples.append(sample)
+#
+#                 flash("Sample Group creation was successful", "success")
+#                 return redirect(url_for("manage.sample_group", oid=sample_group.display_key))
+#
+#         else:
+#             utils.flash_errors(form)
+#             return render_template("new_sample_group.html", title="New Sample Group", form=form, samples=samples)
 
 
 # TODO: Pagination of samples?
-@manage.route("/sample_group/<oid>", methods=["GET", "POST"])
+@manage.route("/data_group/<oid>", methods=["GET", "POST"])
 @login_required("ANY")
-def sample_group(oid=""):
+def data_group(oid=""):
     if oid == "":
-        flash("Could not locate the provided sample group", "error")
+        flash("Could not locate the provided data group", "error")
         return redirect(url_for("index"))
 
-    sample_group = current_user.group.sample_groups.filter_by(display_key=oid).first()
-    if sample_group is None:
+    data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
+    if data_group is None:
         flash("Could not locate the provided sample group", "error")
         return redirect(url_for("index"))
 
@@ -562,37 +562,46 @@ def sample_group(oid=""):
     #             potential_samples.append(sample)
 
     # Check for common data source amongst samples
-    current_samples = sample_group.samples
-    initial = True
-    source_set = []
-    for s in current_samples:
-        if initial:
-            initial = False
-            for p in s.pipeline_runs:
-                source_set.append(p.pipeline.generate_unique())
-            continue
+    # current_data = data_group.data_items
+    # initial = True
+    # source_set = []
+    # for s in current_data:
+    #     if initial:
+    #         initial = False
+    #         for p in s.pipeline_runs:
+    #             source_set.append(p.pipeline.generate_unique())
+    #         continue
+    #
+    #     else:
+    #         sample_sources = []
+    #         for p in s.pipeline_runs:
+    #             sample_sources.append(p.pipeline.generate_unique())
+    #
+    #         source_set[:] = [x for x in source_set if x in sample_sources]
+    #
+    # # Check if our source set has some common attributes, if so build a list of pipelines
+    # if source_set:
+    #     pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
+    #     source_pipelines = [x for x in pipelines if x.generate_unique() in source_set]
+    #
+    # else:
+    #     pipelines = None
+    #     source_pipelines = None
 
-        else:
-            sample_sources = []
-            for p in s.pipeline_runs:
-                sample_sources.append(p.pipeline.generate_unique())
-
-            source_set[:] = [x for x in source_set if x in sample_sources]
-
-    # Check if our source set has some common attributes, if so build a list of pipelines
-    if source_set:
-        pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
-        source_pipelines = [x for x in pipelines if x.generate_unique() in source_set]
-
-    else:
-        pipelines = None
-        source_pipelines = None
+    valid_pipelines = None
+    pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
 
     from biocomputedm.manage import forms
-    form = forms.UpdateSampleGroupForm()
-    form.fill(source_pipelines)
+    form = forms.UpdateDataGroupForm()
+    form.fill(valid_pipelines)
 
-    return render_template("sample_group.html", sample_group=sample_group, samples=current_samples, form=form, pipelines=pipelines, source_pipelines=source_pipelines)
+    running_pipeline = None
+    for run_pipeline in data_group.pipeline_instances:
+        if run_pipeline.current_execution_status == "RUNNING":
+            running_pipeline = run_pipeline
+            break
+
+    return render_template("data_group.html", data_group=data_group, form=form, pipelines=pipelines, running_pipeline=running_pipeline)
 
 
 @manage.route("/projects/<int:page>")
@@ -643,9 +652,9 @@ def project(oid=""):
         ids = request.form.getlist("do_select")
         if ids is not None and len(ids) != 0:
             for key in ids:
-                new_sample_group = current_user.group.sample_groups.filter_by(display_key=key).first()
-                if new_sample_group is not None:
-                    project.sample_groups.append(new_sample_group)
+                sample = current_user.group.samples.filter_by(display_key=key).first()
+                if sample is not None:
+                    project.samples.append(sample)
                     project.save()
 
             flash("Project was successfully updated", "success")
@@ -653,15 +662,13 @@ def project(oid=""):
         else:
             flash("No sample groups were selected", "warning")
 
-    sample_groups = current_user.group.sample_groups.all()
-    current_sample_groups = project.sample_groups
-    potential_sample_groups = []
-    for sample_group in sample_groups:
-        if sample_group not in current_sample_groups:
-            potential_sample_groups.append(sample_group)
+    current_samples = project.samples
+    potential_samples = []
+    for sample in samples:
+        if sample not in current_samples:
+            potential_samples.append(sample)
 
-    return render_template("project.html", title="Project", project=project,
-                           potential_sample_groups=potential_sample_groups, form=form)
+    return render_template("project.html", title="Project", project=project, potential_samples=potential_samples, form=form)
 
 
 @manage.route("/add_document/<oid>", methods=["GET", "POST"])

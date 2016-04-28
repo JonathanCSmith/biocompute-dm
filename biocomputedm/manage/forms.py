@@ -10,12 +10,12 @@ class NewSubmissionForm(Form):
     submit = SubmitField("Submit")
 
 
-class NewSampleGroupForm(Form):
-    name = StringField("Sample Group Name", validators=[DataRequired()])
-    submit_field = SubmitField("Submit")
-
-
-class UpdateSampleGroupForm(Form):
+# class NewDataGroupForm(Form):
+#     name = StringField("Sample Group Name", validators=[DataRequired()])
+#     submit_field = SubmitField("Submit")
+#
+#
+class UpdateDataGroupForm(Form):
     source_type = SelectField("Data Source (Pipeline)")
     submit = SubmitField("Submit")
 

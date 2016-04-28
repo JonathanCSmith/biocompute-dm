@@ -17,43 +17,33 @@ Feature:
 		views for messages in admin console
 
 Ordered TODO list:
-	* Fix silent erroring of execute & finish pipeline -> failures here should be caught and reflected in the pipeline status
-	* If cleanup on job errors, we need to wait?!
+	* Switch instances of filepaths (next(os.walk)) to use the new data items infrastructure
 
-	* Fix pipeline restart controlls not working
-
-	* Sample Groups should be able to access history of pipelines processed and trace the specific sample data groups
-	* Pipeline Instance -> Data Source
-	* Pipeline Instances -> Data Source
-
-	* Pipeline Regex check (see if files contain the type that we need to run it)
-	* File checking in current pipelines
-
-	* Cycle demux pipeline until I am sure it is working
-		* Attempt demux pipeline with a real world example
-		* REMOVE 2 IN BCL2FASTQ2
 	* Cycle exome pipeline until I am sure it is working
 		* Attempt align pipeline with a real world example
 
-	* Build Pipeline Instance needs a source pipeline arg that can be null in the case of submissions
-
 	* Download infrastructrue
 		* SFTP infrastructure
+			* Group creation adds a group sftp - users added to this group including group admin are added to this group
 
-	* Possible III access prevented until II?
+	* Pipeline Regex check (see if files contain the type that we need to run it)
+		* Error checking in current pipelines (valid file checking etc)
+
+	* Email infrastructure
+
+	* Fix pipeline restart controlls not working
+
+====== Release v1
 
 	* Permissions for all data manipulations / access
 
-	* Further test customer infrastructure
-	* Email infrastructure
-
 	* Pipeline Documentation text, documentation file
-	* Document /etc/apache2/envvars change for user (lustre mount permissions)
 
-	* Harmonize data sources?
-	* SampleGroup can be empty of samples, which is functionally correct but not semantically - Therefore data group? Samples can own data, Data Groups can be associated with samples, pipeline data is associated with data groups
+	* Pipeline predicate?
 		
 	* Stats for module and pipeline execution
 		* Additional data metrics / information in db entries and how to propagate from submissions
 	* Data management (group admin or submitter)
+		* Deletion
+		* Merge samples (add from one to another - handle renaming etc)
 	* Quotas / Don't Delete - May not be correct anymore, reeval later

@@ -108,36 +108,33 @@ class PipelineModuleOption(SurrogatePK, Model):
 
 class PipelineInstance(SurrogatePK, Model):
     current_execution_index = Column(Integer, default=-1)
-    current_execution_status = Column(Enum("NOT_STARTED", "RUNNING", "WAITING", "FINISHED", "ERROR", "STOPPED"), default="WAITING")
+    current_execution_status = Column(Enum("NOT_STARTED", "WAITING", "RUNNING", "STOPPED", "FINISHED", "ERROR"), default="NOT_STARTED")
     execution_type = Column(Enum("Per Module", "Continuous"), default="Continuous")
     options_type = Column(Enum("Custom", "Default"), default="Default")
 
     pipeline_id = reference_col("Pipeline")
-    data_consigner_id = Column(ForeignKey("DataSource.id", use_alter=True))
     user_id = reference_col("User")
     group_id = reference_col("Group", nullable=True)
+    consignor_data_group_id = reference_col("DataGroup", nullable=True)
+    output_data_group_id = reference_col("DataGroup", nullable=True)
 
-    user = relationship("User", uselist=False)
+    consignor = relationship("DataGroup", backref="pipeline_instances", foreign_keys=[consignor_data_group_id], uselist=False)
+    output = relationship("DataGroup", backref=backref("pipeline_source", uselist=False), foreign_keys=[output_data_group_id], uselist=False)
+
     module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic", cascade="all, delete-orphan")
 
     __tablename__ = "PipelineInstance"
 
-    def __init__(self, pipeline, execution_type, options_type, user):
+    def __init__(self, pipeline, execution_type, options_type, user, consignor):
         db.Model.__init__(self, pipeline=pipeline, execution_type=execution_type, options_type=options_type)
         self.user = user
+        self.consignor = consignor
         self.save()
         user.group.pipeline_instances.append(self)
         user.group.save()
 
     def __repr__(self):
         return "<Pipeline Instance for %s at module %s>" % (self.pipeline.name, self.current_execution_index)
-
-
-def create_pipeline_instance(user, pipeline, data_source, execution_type, options_type):
-    pipeline_instance = PipelineInstance(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=user)
-    data_source.update(running_pipeline=pipeline_instance)
-    pipeline_instance.update(data_consigner=data_source)
-    return pipeline_instance
 
 
 class PipelineModuleInstance(SurrogatePK, Model):

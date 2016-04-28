@@ -7,7 +7,7 @@ import subprocess
 import jsonschema
 from biocomputedm import utils
 from biocomputedm.decorators import async
-from biocomputedm.manage.models import Submission, SampleGroup, Sample
+from biocomputedm.manage.models import Sample, DataGroup, DataItem
 from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption, PipelineInstance
 from flask import current_app
 from flask import flash
@@ -237,95 +237,113 @@ def build(file):
     return True
 
 
+def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
+    target_pipeline = None
+    try:
+
+        # Pipeline properties
+        if running_pipeline_id == "":
+            flash("Could not identify the running pipeline in order to initialise.", "error")
+            return
+
+        target_pipeline = PipelineInstance.query.filter_by(display_key=running_pipeline_id).first()
+        if target_pipeline is None:
+            flash("Could not identify the running pipeline in order to initialise.", "error")
+            return
+
+        if target_pipeline.current_execution_status != "NOT_STARTED":
+            flash("Could not initialise the pipeline as it is not in the 'NOT_STARTED' phase.", "error")
+            return
+
+        # Source data group properties
+        if source_data_group_id == "":
+            flash("Could not identify the source data for initialising the pipeline.", "error")
+            target_pipeline.update(current_execution_status="ERROR")
+            return
+
+        source_data_group = DataGroup.query.filter_by(display_key=source_data_group_id).first()
+        if source_data_group is None:
+            flash("Could not identify the source data for initialising the pipeline.", "error")
+            return
+
+        # Build the pipeline's data
+        local_pipeline_path = os.path.join(utils.get_path("pipeline_data", "webserver"), target_pipeline.display_key)
+        remote_pipeline_path = os.path.join(utils.get_path("pipeline_data", "hpc"), target_pipeline.display_key)
+        remote_output_path = os.path.join(remote_pipeline_path, "samples_output")
+        local_csv_path = os.path.join(local_pipeline_path, "data_map.csv")
+        import csv
+        with open(local_csv_path, "a", newline="") as csv_file:
+            writer = csv.writer(csv_file)
+            for source_data in source_data_group.data:
+                try:
+                    # Special case I pipelines as they don't have samples yet
+                    if target_pipeline.pipeline.type == "I":
+                        key = source_data.display_key
+                        input = os.path.join(os.path.join(utils.get_path("submission_data", "hpc"), source_data.unlocalised_path), source_data.name)
+                        output = remote_output_path
+
+                    else:
+                        key = source_data.sample.display_key
+                        input = os.path.join(utils.get_path("sample_data", "hpc"), source_data.unlocalised_path)
+                        output = os.path.join(remote_output_path, source_data.unlocalised_path)
+
+                    # Generate a csv row where columns 1 = sample, 2 = data input path, 3 = data output path
+                    writer.writerow(
+                        [
+                            key,
+                            input,
+                            output,
+                            "EMPTY INFORMATION"
+                        ]
+                    )
+
+                except:
+                    flash("Could not write row for: " + source_data.display_key, "error")
+                    pass
+
+        target_pipeline.update(current_execution_status="WAITING", current_execution_index=0)
+        source_data_group.pipeline_instances.append(target_pipeline)
+        source_data_group.save()
+
+    except Exception as e:
+        flash("There was an exception when executing the current pipeline: " + str(e), "error")
+        if target_pipeline is not None:
+            target_pipeline.update(current_execution_status="ERROR")
+
+        return
+
+
 @async
-def execute_module_instance(app, pid="", oid=""):
+def execute_pipeline_module(app, running_pipeline_id=""):
+    running_pipeline = None
     try:
         with app.app_context():
-            # Check that our objects exist
-            pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
-            if pipeline_instance is None:
+
+            # Pipeline properties
+            if running_pipeline_id == "":
+                app.logger.error("Could not identify the running pipeline in order to initialise.")
                 return
 
-            # Check that we have a module to execute
+            running_pipeline = PipelineInstance.query.filter_by(display_key=running_pipeline_id).first()
+            if running_pipeline is None:
+                app.logger.error("Could not identify the running pipeline in order to initialise.")
+                return
+
+            if running_pipeline.current_execution_status != "WAITING":
+                app.logger.error("Could not execute the next pipeline module as it is not in the 'WAITING' phase.")
+                return
+
+            # Module properties
             from biocomputedm.pipelines.models import get_current_module_instance
-            current_module_instance = get_current_module_instance(pipeline_instance)
+            current_module_instance = get_current_module_instance(running_pipeline)
             if current_module_instance is None:
                 app.logger.error("Could not identify the current module instance.")
+                running_pipeline.update(current_execution_status="ERROR")
                 return
 
-            # Directories
-            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"),
-                                                    pipeline_instance.display_key)
-            remote_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "hpc"),
-                                                     pipeline_instance.display_key)
-            local_csv_path = os.path.join(local_pipeline_directory, "data_map.csv")
-            csv_path = os.path.join(remote_pipeline_directory, "data_map.csv")
-
-            # Get the object and build it's data path file - only on first module, this stays constant otherwise
-            if pipeline_instance.current_execution_index == 0:
-                import csv
-                if pipeline_instance.pipeline.type == "I":
-                    o = Submission.query.filter_by(display_key=oid).first()
-                    if o is None:
-                        app.logger.error("Could not identify submission group: " + oid)
-                        return
-
-                    # Build the csv
-                    with open(local_csv_path, "a", newline="") as csvfile:
-                        remote_samples_output_directory = os.path.join(remote_pipeline_directory, "samples_output")
-                        remote_input_path = os.path.join(utils.get_path("submission_data", "hpc"), oid)
-                        local_input_path = os.path.join(utils.get_path("submission_data", "webserver"), oid)
-
-                        writer = csv.writer(csvfile)
-                        filepaths = next(os.walk(local_input_path))
-                        for file in filepaths[1]:
-                            try:
-                                writer.writerow(
-                                    [
-                                        oid,
-                                        os.path.join(remote_input_path, file),
-                                        remote_samples_output_directory,
-                                        "EMPTY INFORMATION"
-                                    ])
-                            except:
-                                pass
-
-                        for file in filepaths[2]:
-                            try:
-                                writer.writerow(
-                                    [
-                                        oid,
-                                        os.path.join(remote_input_path, file),
-                                        remote_samples_output_directory,
-                                        "EMPTY INFORMATION"
-                                    ])
-                            except:
-                                pass
-
-                else:
-                    o = SampleGroup.query.filter_by(display_key=oid).first()
-                    if o is None:
-                        app.logger.error("Could not identify sample group: " + oid)
-                        return
-
-                    # Build the csv
-                    with open(local_csv_path, "a", newline="") as csvfile:
-                        writer = csv.writer(csvfile)
-                        for sample in o.samples.all():
-                            remote_sample_output_directory = os.path.join(
-                                os.path.join(remote_pipeline_directory, "samples_output"), sample.display_key)
-                            local_samples_output_directory = os.path.join(
-                                os.path.join(local_pipeline_directory, "samples_output"), sample.display_key)
-                            utils.make_directory(local_samples_output_directory)
-
-                            writer.writerow(
-                                [
-                                    sample.display_key,
-                                    os.path.join(utils.get_path("sample_data", "hpc"), sample.display_key),
-                                    remote_sample_output_directory,
-                                    "EMPTY INFORMATION"
-                                ]
-                            )
+            # Build the pipeline's data
+            local_pipeline_path = os.path.join(utils.get_path("pipeline_data", "webserver"), running_pipeline.display_key)
+            remote_pipeline_path = os.path.join(utils.get_path("pipeline_data", "hpc"), running_pipeline.display_key)
 
             # Build variables string
             vstring = ""
@@ -347,19 +365,16 @@ def execute_module_instance(app, pid="", oid=""):
                 shell_path = os.path.join(shell_path, "fake_submit_job.sh")
                 server = current_app.config["LOCAL_WEBSERVER_PORT"]
 
-            local_modules_output_directory = os.path.join(local_pipeline_directory, "modules_output")
+            local_modules_output_directory = os.path.join(local_pipeline_path, "modules_output")
             local_module_directory = os.path.join(local_modules_output_directory, current_module_instance.module.name)
 
-            remote_modules_output_directory = os.path.join(remote_pipeline_directory, "modules_output")
+            remote_modules_output_directory = os.path.join(remote_pipeline_path, "modules_output")
             remote_module_directory = os.path.join(remote_modules_output_directory, current_module_instance.module.name)
 
-            pipeline_scripts = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"),
-                                            pipeline_instance.pipeline.name)
-            pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
-            with open(os.path.join(local_module_directory,
-                                   current_module_instance.module.name + "_hpc_submission_out.txt"), "wb") as out, \
-                    open(os.path.join(local_module_directory,
-                                      current_module_instance.module.name + "_hpc_submission_error.txt"), "wb") as err:
+            pipeline_scripts = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"), running_pipeline.pipeline.name)
+            pipeline_output_directory = os.path.join(local_pipeline_path, "pipeline_output")
+            with open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_out.txt"), "wb") as out, \
+                    open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_error.txt"), "wb") as err:
                 subprocess.Popen(
                     [
                         shell_path,
@@ -370,10 +385,10 @@ def execute_module_instance(app, pid="", oid=""):
                         "-e=" + current_module_instance.module.executor,
                         "-l=" + local_module_directory,
                         "-p=" + pipeline_scripts,
-                        "-w=" + remote_pipeline_directory,
+                        "-w=" + remote_pipeline_path,
                         "-mo=" + remote_module_directory,
                         "-po=" + pipeline_output_directory,
-                        "-i=" + csv_path,
+                        "-i=" + os.path.join(remote_pipeline_path, "data_map.csv"),
                         "-v=" + vstring,
                         "-c=" + cleanup_script_path,
                         "-s=" + server
@@ -382,148 +397,88 @@ def execute_module_instance(app, pid="", oid=""):
                     stderr=err
                 )
 
-            pipeline_instance.update(current_execution_status="RUNNING")
-            return
+            running_pipeline.update(current_execution_status="RUNNING")
 
     except Exception as e:
         app.logger.error("There was an exception when executing the current pipeline: " + str(e))
+        if running_pipeline is not None:
+            running_pipeline.update(current_execution_status="ERROR")
+
         return
 
 
 @async
-def finish_pipeline_instance(app, pid="", oid=""):
+def finish_pipeline_instance(app, running_pipeline_id):
     try:
         with app.app_context():
-            # Check that our objects exist
-            pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
-            if pipeline_instance is None:
+
+            # Pipeline properties
+            if running_pipeline_id == "":
+                app.logger.error("Could not identify the running pipeline in order to initialise.")
                 return
 
-            # Build the output directory path
-            output_directory = os.path.join(
-                os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key),
-                "samples_output")
+            running_pipeline = PipelineInstance.query.filter_by(display_key=running_pipeline_id).first()
+            if running_pipeline is None:
+                app.logger.error("Could not identify the running pipeline in order to initialise.")
+                return
 
-            # Create a sample group
-            group = SampleGroup.create(name="Sample Group from Pipeline: " + pipeline_instance.pipeline.name,
-                                       creator=pipeline_instance.user,
-                                       group=pipeline_instance.user.group,
-                                       pipeline=pipeline_instance)
+            if running_pipeline.current_execution_status != "STOPPED":
+                app.logger.error("Could not execute the next pipeline module as it is not in the 'WAITING' phase.")
+                return
 
-            # Get the submission if relevant
-            submission = None
-            if pipeline_instance.pipeline.type == "I":
-                submission = Submission.query.filter_by(display_key=oid).first()
-                if submission is None:
-                    app.logger.error(
-                        "Could not locate the submission for this pipeline. The pipeline outcome will not be submitted.")
+            if running_pipeline.current_execution_index != len(running_pipeline.pipeline.modules.all()) - 1:
+                app.logger.error("Cannot finalise pipeline when it has not finished all of its modules.")
+                return
 
-            # Look in the output directory for folders - these will be our sample names
-            filepaths = next(os.walk(output_directory))
-            for target in filepaths[1]:
-                try:
-                    if submission is not None:
-                        # Build the source
-                        source = os.path.join(output_directory, target)
+            # Create a new data group for the outputs
+            data_group = DataGroup.create(
+                name="Data Group from the " + running_pipeline.pipeline.name + " pipeline",
+                user=running_pipeline.user,
+                group=running_pipeline.group,
+                source_pipeline=running_pipeline
+            )
 
-                        # Create the sample
-                        s = Sample.create(name=target, submission=submission, pipeline=pipeline_instance)
+            # Walk the output directory to find samples
+            local_pipeline_output_directory = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), running_pipeline.display_key), "samples_output")
+            filepaths = next(os.walk(local_pipeline_output_directory))
+            for source in filepaths[1]:
+                # Create new samples
+                if running_pipeline.pipeline.type == "I":
+                    s = Sample.create(name=source, pipeline=running_pipeline)
+                    utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
 
-                        # Make the sample's directory
-                        utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+                # Link new data to old samples
+                else:
+                    s = Sample.query.filter_by(display_key=source).first()
 
-                    else:
-                        # Find the sample
-                        s = Sample.query.filter_by(display_key=target).first()
-                        if s is None:
-                            continue
+                # Transfer the data using an sh
+                destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key), running_pipeline.display_key)
+                utils.make_directory(destination_path)
+                script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
+                script_path = os.path.join(script_path, "move.sh")
+                subprocess.Popen(
+                    [
+                        "sudo",
+                        script_path,
+                        "-s=" + os.path.join(local_pipeline_output_directory, source),
+                        "-t=" + destination_path
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                ).wait()
 
-                        # Build the source
-                        source = os.path.join(output_directory, s.display_key)
+                # Create a new data item and append to sample and data group
+                item = DataItem.create(
+                    name=running_pipeline.display_key,
+                    unlocalised_path=os.path.join(s.display_key, running_pipeline.display_key),
+                    data_group=data_group
+                )
 
-                    # Update the sample group
-                    group.samples.append(s)
-                    group.save()
+                s.data.append(item)
 
-                    # Make the data directory and update the sample
-                    destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key), pipeline_instance.display_key)
-                    utils.make_directory(destination_path)
-                    s.pipeline_runs.append(pipeline_instance)
-                    s.save()
+                # Currently not updating sample's pipeline runs as I think it may work better if this information is stored in data groups. So sample -> data group -> pipeline runs
 
-                    # Transfer the data using an sh
-                    script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
-                    script_path = os.path.join(script_path, "move.sh")
-                    subprocess.Popen(
-                        [
-                            "sudo",
-                            script_path,
-                            "-s=" + source,
-                            "-t=" + destination_path
-                        ],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE
-                    ).wait()
-
-                except Exception as e:
-                    app.logger.error("There was an exception when executing the current pipeline: " + str(e))
-                    pass
-
-            # Look in the output directory for folders - these will be our sample names
-            filepaths = next(os.walk(output_directory))
-            for target in filepaths[1]:
-                try:
-                    if submission is not None:
-                        # Create the sample
-                        s = Sample.create(name=target, submission=submission, pipeline=pipeline_instance)
-
-                        # Make the directory
-                        utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
-
-                    else:
-                        # Find the sample
-                        s = Sample.query.filter_by(display_key=target).first()
-                        if s is None:
-                            continue
-
-                        output_directory = os.path.join(output_directory, s.display_key)
-
-                    # Update the sample group
-                    group.samples.append(s)
-                    group.save()
-
-                    # Make the data directory and update the sample
-                    source = os.path.join(output_directory, target)
-                    destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key),
-                                             pipeline_instance.display_key)
-                    utils.make_directory(destination_path)
-                    s.pipeline_runs.append(pipeline_instance)
-                    s.save()
-
-                    # Transfer the data using an sh
-                    script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
-                    script_path = os.path.join(script_path, "move.sh")
-                    subprocess.Popen(
-                        [
-                            "sudo",
-                            script_path,
-                            "-s=" + source,
-                            "-t=" + destination_path
-                        ],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE
-                    ).wait()
-
-                except Exception as e:
-                    app.logger.error("There was an exception when executing the current pipeline: " + str(e))
-                    pass
-
-            # Prevent modification for record keeping
-            group.update(modifiable=False)
-
-            # Fix up the pipeline status
-            data_source = pipeline_instance.data_consigner
-            data_source.update(running_pipeline=None)
+            running_pipeline.update(current_execution_status="FINISHED")
 
     except Exception as e:
         app.logger.error("There was an exception when executing the current pipeline: " + str(e))

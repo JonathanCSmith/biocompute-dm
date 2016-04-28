@@ -6,8 +6,12 @@
     {% endif %}
 
     <li><a class="input fixed" href="{{ url_for('admin.show_users') }}">Show Users</a></li>
-    {% if g.user.get_role() == "Group Admin" %}
+    {% if g.user.get_role() == "Group Admin"%}
+    {% if g.user.type == "User" %}
     <li><a class="input fixed" href="{{ url_for('admin.add_user') }}">Add User</a></li>
+    {% elif g.user.type == "Customer" %}
+    <li><a class="input fixed" href="{{ url_for('admin.add_customer') }}">Add User</a></li>
+    {% endif %}
     {% endif %}
 
     {% if g.user.type == "User" %}

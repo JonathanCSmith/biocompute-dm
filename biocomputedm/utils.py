@@ -1,5 +1,7 @@
 import os
 
+import datetime
+
 from flask import current_app
 from flask import flash
 
@@ -49,3 +51,7 @@ def flash_errors(form):
 def make_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+
+def get_current_date():
+    return datetime.datetime.now()

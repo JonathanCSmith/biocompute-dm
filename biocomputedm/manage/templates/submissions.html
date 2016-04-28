@@ -12,6 +12,8 @@
     <tr>
         <th>Submission Name</th>
         <th>Submission Description</th>
+        <th>Creation Date</th>
+        <th>Created By</th>
     </tr>
 
     {% if obs %}
@@ -19,6 +21,8 @@
     <tr>
         <td><a href="{{ url_for('manage.submission', sid=submission.display_key) }}">{{ submission.name }}</a></td>
         <td>{{ submission.description }}</td>
+        <td>{{ submission.creation_date }}</td>
+        <td>{{ submission.user.username }}</td>
     </tr>
     {% endfor %}
     {% endif %}

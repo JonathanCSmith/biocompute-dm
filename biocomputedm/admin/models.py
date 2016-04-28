@@ -12,9 +12,9 @@ sample_customer_table = Table("SampleToCustomer",
                               Column("sample_id", Integer, ForeignKey("Sample.id")),
                               Column("customer_id", Integer, ForeignKey("Customer.id")))
 
-sample_group_customer_table = Table("SampleGroupToCustomer",
-                                    Column("sample_group_id", Integer, ForeignKey("SampleGroup.id")),
-                                    Column("customer_id", Integer, ForeignKey("Customer.id")))
+data_group_customer_table = Table("DataGroupToCustomer",
+                                  Column("data_group_id", Integer, ForeignKey("DataGroup.id")),
+                                  Column("customer_id", Integer, ForeignKey("Customer.id")))
 
 project_customer_table = Table("ProjectToCustomer",
                                Column("project_id", Integer, ForeignKey("Project.id")),
@@ -29,9 +29,9 @@ class Group(SurrogatePK, Model):
 
     members = relationship("Person", backref="group", lazy="dynamic")
     submissions = relationship("Submission", lazy="dynamic", backref="group")
-    pipeline_instances = relationship("PipelineInstance", lazy="dynamic", backref="pipelines")
+    pipeline_instances = relationship("PipelineInstance", lazy="dynamic", backref="group")
     samples = relationship("Sample", lazy="dynamic", backref="group")
-    sample_groups = relationship("SampleGroup", lazy="dynamic", backref="group")
+    data_groups = relationship("DataGroup", lazy="dynamic", backref="group")
     projects = relationship("Project", lazy="dynamic", backref="group")
 
     __tablename__ = "Group"
@@ -57,7 +57,7 @@ class Group(SurrogatePK, Model):
         self.members.append(administrator)
 
 
-def create_group(group_name, admin_name, admin_password, admin_email):
+def create_group(group_name, admin_name, admin_password, admin_email, type):
     group = Group.create(name=group_name)
     user = User.create(username=admin_name, email=admin_email, password=admin_password, group=group)
     group.set_administrator(user)
@@ -118,11 +118,11 @@ class Person(UserMixin, SurrogatePK, Model):
 class User(Person):
     id = reference_col("Person", primary_key=True)
 
-    submissions = relationship("Submission", backref="submitter", lazy="dynamic")
-
-    samples = relationship("Sample", backref="creator", lazy="dynamic")
-    sample_groups = relationship("SampleGroup", backref="creator", lazy="dynamic")
-    projects = relationship("Project", backref="creator", lazy="dynamic")
+    submissions = relationship("Submission", backref="user", lazy="dynamic")
+    data_groups = relationship("DataGroup", backref="user", lazy="dynamic")
+    pipelines = relationship("PipelineInstance", backref="user", lazy="dynamic")
+    samples = relationship("Sample", backref="user", lazy="dynamic")
+    projects = relationship("Project", backref="user", lazy="dynamic")
 
     __tablename__ = "User"
     __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Person.id)}
@@ -140,7 +140,6 @@ class Customer(Person):
     id = reference_col("Person", primary_key=True)
 
     samples = relationship("Sample", secondary=sample_customer_table, lazy="dynamic")
-    sample_groups = relationship("SampleGroup", secondary=sample_group_customer_table, lazy="dynamic")
     projects = relationship("Project", secondary=project_customer_table, lazy="dynamic")
 
     __tablename__ = "Customer"

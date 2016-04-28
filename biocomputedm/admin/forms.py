@@ -24,7 +24,6 @@ class LoginForm(Form):
                 return False
 
         else:
-            flash("There was an error in your submission", "error")
             self.password.errors.append("The username or password supplied was incorrect")
             return False
 

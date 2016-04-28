@@ -1,7 +1,7 @@
 from biocomputedm import utils
 from biocomputedm.admin import forms
 from biocomputedm.admin import models
-from biocomputedm.admin.models import User, Group, create_group, ReferenceData, create_customer_group, Person
+from biocomputedm.admin.models import User, Group, create_group, ReferenceData, create_customer_group, Person, Customer
 from biocomputedm.decorators import login_required
 from flask import Blueprint, request, render_template, redirect, url_for, flash, g
 from flask.ext.login import login_user, logout_user, current_user
@@ -80,7 +80,11 @@ def add_group():
 @login_required("Site Admin", "Group Admin")
 def show_users(page=1):
     if current_user.get_role() == "Site Admin":
-        u = User.query.paginate(page=page, per_page=20)
+        u = Person.query.paginate(page=page, per_page=20)
+
+    elif current_user.type == "Customer":
+        g = current_user.group
+        u = Customer.query.filter_by(group_id=g.id).paginate(page=page, per_page=20)
 
     else:
         g = current_user.group
@@ -118,7 +122,7 @@ def show_customers(page=1):
     g = Group.query.filter_by(parent_id=current_user.group.id)
     if g is not None:
         g = g.paginate(page=page, per_page=20)
-    return render_template("groups.html", title="Consigner", page=page, obs=g)
+    return render_template("groups.html", title="Consignors", page=page, obs=g)
 
 
 @admin.route("/add_customer_group", methods=["GET", "POST"])
@@ -147,6 +151,28 @@ def add_customer_group():
             return redirect(url_for("admin.show_customers"))
 
 
+@admin.route("/add_customer", methods=["GET", "POST"])
+@login_required("Group Admin")
+def add_customer():
+    form = forms.CreatePerson()
+    if request.method == "GET":
+        return render_template("add_person.html", title="Add Consignor", type="User", form=form)
+
+    else:
+        if not form.validate():
+            utils.flash_errors(form)
+            return render_template("add_person.html", title="Add Consignor", type="User", form=form)
+
+        else:
+            Customer.create(
+                username=str(form.login_name.data),
+                password=str(form.login_password.data),
+                email=str(form.login_email.data),
+                group=current_user.group
+            )
+            return redirect(url_for("admin.show_users"))
+
+
 @admin.route("/link_to_customer/<oid>|<origin>", methods=["GET", "POST"])
 @login_required("ANY")
 def link_to_customer(oid="", origin=""):
@@ -154,9 +180,7 @@ def link_to_customer(oid="", origin=""):
         flash("Could not locate the provided sample group", "error")
         return redirect(url_for("index"))
 
-    if origin == "sample_group":
-        obj = current_user.group.sample_groups.filter_by(display_key=oid).first()
-    elif origin == "sample":
+    if origin == "sample":
         obj = current_user.group.samples.filter_by(display_key=oid).first()
     elif origin == "project":
         obj = current_user.group.projects.filter_by(display_key=oid).first()
@@ -177,11 +201,7 @@ def link_to_customer(oid="", origin=""):
             for key in ids:
                 group = Group.query.filter_by(display_key=key).first()
                 if group is not None:
-                    if origin == "sample_group":
-                        group.sample_groups.append(obj)
-                        group.save()
-
-                    elif origin == "sample":
+                    if origin == "sample":
                         group.samples.append(obj)
                         group.save()
 
@@ -198,20 +218,7 @@ def link_to_customer(oid="", origin=""):
     potential_consignors = []
     for consignor in consignors:
         skip = False
-        if origin == "sample_group":
-            sample_groups = consignor.sample_groups
-            for sample_group in sample_groups:
-                if sample_group.id == obj.id:
-                    skip = True
-                    break
-
-            if skip:
-                continue
-
-            else:
-                potential_consignors.append(consignor)
-
-        elif origin == "sample":
+        if origin == "sample":
             samples = consignor.samples
             for sample in samples:
                 if sample.id == obj.id:

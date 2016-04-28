@@ -21,7 +21,7 @@ function getCookie(cname) {
 }
 
 function handleInfoPanelState(time) {
-    var state = getCookie('infoPanelState');
+    var state = getCookie('info');
     if (state == "true") {
         $(".left").hide(time);
         $("#min").hide(time);
@@ -36,12 +36,12 @@ function handleInfoPanelState(time) {
 }
 
 function handleInfoPanelMinimize() {
-    setCookie("infoPanelState", "true", 50);
+    setCookie("info", "true", 50);
     handleInfoPanelState(500);
 }
 
 function handleInfoPanelMaximise() {
-    setCookie("infoPanelState", "false", 50);
+    setCookie("info", "false", 50);
     handleInfoPanelState(500);
 }
 

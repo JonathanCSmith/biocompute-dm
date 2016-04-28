@@ -50,6 +50,17 @@
 
             <td>
                 <div class="action">
+                    <h3>Run a Pipeline on a Data Group</h3>
+                    <a class="input" href="{{ url_for('manage.data_groups') }}">Run a Pipeline!</a>
+                    <ul>
+                        <li>Select a data group from those already available (these are produced by pipelines) in order to run a new pipeline on it. In future you will be able to create custom data groups.</li>
+                    </ul>
+                </div>
+            </td>
+
+            {#
+            <td>
+                <div class="action">
                     <h3>Create a Custom Sample Group</h3>
                     <a class="input" href="{{ url_for('manage.new_sample_group') }}">Add a New Sample Group</a>
                     <ul>
@@ -57,6 +68,7 @@
                     </ul>
                 </div>
             </td>
+            #}
 
             <td>
                 <div class="action">

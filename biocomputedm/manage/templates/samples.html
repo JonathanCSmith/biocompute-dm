@@ -19,8 +19,8 @@
     {% for item in obs.items %}
     <tr>
         <td><a href="{{ url_for('manage.sample', oid=item.display_key) }}">{{ item.name }}</a></td>
-        <td>{{ item.pipeline_runs.all()|length }}</td>
-        <td>{{ item.submission_source.name }}</td>
+        <td>{{ item.data.all()|length }}</td>
+        <td>{{ item.pipeline_source.pipeline.name }}</td>
         {% autoescape false %}
         <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=item.pipeline_source.display_key) }}">{{ item.pipeline_source.pipeline.generate_display() }}</a></td>
         {% endautoescape %}

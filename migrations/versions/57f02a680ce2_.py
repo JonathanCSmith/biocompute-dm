@@ -1,13 +1,13 @@
 """empty message
 
-Revision ID: 0faa4a12640e
+Revision ID: 57f02a680ce2
 Revises: None
-Create Date: 2016-04-19 12:49:01.095035
+Create Date: 2016-04-27 15:31:40.135042
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '0faa4a12640e'
+revision = '57f02a680ce2'
 down_revision = None
 
 from alembic import op
@@ -46,12 +46,13 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('display_key', sa.String(length=32), nullable=True),
     sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('path', sa.String(length=50), nullable=False),
     sa.Column('description', sa.String(length=500), nullable=False),
     sa.Column('version', sa.String(length=50), nullable=False),
     sa.Column('current', sa.SmallInteger(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key'),
-    sa.UniqueConstraint('name', 'description', 'version', name='_unique')
+    sa.UniqueConstraint('name', 'path', 'description', 'version', name='_unique')
     )
     op.create_table('Person',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -105,20 +106,16 @@ def upgrade():
     sa.ForeignKeyConstraint(['id'], ['Person.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('PipelineInstance',
+    op.create_table('DataGroup',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('display_key', sa.String(length=32), nullable=True),
-    sa.Column('current_execution_index', sa.Integer(), nullable=True),
-    sa.Column('current_execution_status', sa.Enum('NOT_STARTED', 'RUNNING', 'WAITING', 'FINISHED', 'ERROR', 'STOPPED'), nullable=True),
-    sa.Column('execution_type', sa.Enum('Per Module', 'Continuous'), nullable=True),
-    sa.Column('options_type', sa.Enum('Custom', 'Default'), nullable=True),
-    sa.Column('pipeline_id', sa.Integer(), nullable=False),
-    sa.Column('data_consigner_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('creation_date', sa.Date(), nullable=True),
+    sa.Column('updated_date', sa.Date(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('group_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['data_consigner_id'], ['DataSource.id'], use_alter=True),
     sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
-    sa.ForeignKeyConstraint(['pipeline_id'], ['Pipeline.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['User.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key')
@@ -127,8 +124,9 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('display_key', sa.String(length=32), nullable=True),
     sa.Column('name', sa.String(length=50), nullable=False),
-    sa.Column('description', sa.Text(), nullable=False),
-    sa.Column('open_date', sa.Date(), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('creation_date', sa.Date(), nullable=True),
+    sa.Column('updated_date', sa.Date(), nullable=True),
     sa.Column('group_id', sa.Integer(), nullable=False),
     sa.Column('creator_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['creator_id'], ['User.id'], ),
@@ -136,24 +134,64 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key')
     )
-    op.create_table('DataSource',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('display_key', sa.String(length=32), nullable=True),
-    sa.Column('source_pipeline_id', sa.Integer(), nullable=True),
-    sa.Column('running_pipeline_id', sa.Integer(), nullable=True),
-    sa.Column('type', sa.String(length=50), nullable=False),
-    sa.ForeignKeyConstraint(['running_pipeline_id'], ['PipelineInstance.id'], ),
-    sa.ForeignKeyConstraint(['source_pipeline_id'], ['PipelineInstance.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('display_key')
+    op.create_table('DataGroupToCustomer',
+    sa.Column('data_group_id', sa.Integer(), nullable=True),
+    sa.Column('customer_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['customer_id'], ['Customer.id'], ),
+    sa.ForeignKeyConstraint(['data_group_id'], ['DataGroup.id'], )
     )
     op.create_table('Document',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('display_key', sa.String(length=32), nullable=True),
     sa.Column('name', sa.String(length=50), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('creation_date', sa.Date(), nullable=True),
+    sa.Column('updated_date', sa.Date(), nullable=True),
     sa.Column('project_identifier', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['project_identifier'], ['Project.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('display_key')
+    )
+    op.create_table('PipelineInstance',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('display_key', sa.String(length=32), nullable=True),
+    sa.Column('current_execution_index', sa.Integer(), nullable=True),
+    sa.Column('current_execution_status', sa.Enum('NOT_STARTED', 'WAITING', 'RUNNING', 'STOPPED', 'FINISHED', 'ERROR'), nullable=True),
+    sa.Column('execution_type', sa.Enum('Per Module', 'Continuous'), nullable=True),
+    sa.Column('options_type', sa.Enum('Custom', 'Default'), nullable=True),
+    sa.Column('pipeline_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('group_id', sa.Integer(), nullable=True),
+    sa.Column('consignor_data_group_id', sa.Integer(), nullable=True),
+    sa.Column('output_data_group_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['consignor_data_group_id'], ['DataGroup.id'], ),
+    sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
+    sa.ForeignKeyConstraint(['output_data_group_id'], ['DataGroup.id'], ),
+    sa.ForeignKeyConstraint(['pipeline_id'], ['Pipeline.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['User.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('display_key')
+    )
+    op.create_table('ProjectToCustomer',
+    sa.Column('project_id', sa.Integer(), nullable=True),
+    sa.Column('customer_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['customer_id'], ['Customer.id'], ),
+    sa.ForeignKeyConstraint(['project_id'], ['Project.id'], )
+    )
+    op.create_table('Submission',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('display_key', sa.String(length=32), nullable=True),
+    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('creation_date', sa.Date(), nullable=True),
+    sa.Column('updated_date', sa.Date(), nullable=True),
+    sa.Column('validated', sa.SmallInteger(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('group_id', sa.Integer(), nullable=True),
+    sa.Column('data_group_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['data_group_id'], ['DataGroup.id'], ),
+    sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['User.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key')
     )
@@ -167,11 +205,36 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key')
     )
-    op.create_table('ProjectToCustomer',
-    sa.Column('project_id', sa.Integer(), nullable=True),
-    sa.Column('customer_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['customer_id'], ['Customer.id'], ),
-    sa.ForeignKeyConstraint(['project_id'], ['Project.id'], )
+    op.create_table('Sample',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('display_key', sa.String(length=32), nullable=True),
+    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('creation_date', sa.Date(), nullable=True),
+    sa.Column('updated_date', sa.Date(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('group_id', sa.Integer(), nullable=True),
+    sa.Column('pipeline_source_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
+    sa.ForeignKeyConstraint(['pipeline_source_id'], ['PipelineInstance.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['User.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('display_key')
+    )
+    op.create_table('DataItem',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('display_key', sa.String(length=32), nullable=True),
+    sa.Column('name', sa.String(length=100), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('creation_date', sa.Date(), nullable=True),
+    sa.Column('updated_date', sa.Date(), nullable=True),
+    sa.Column('unlocalised_path', sa.String(length=100), nullable=False),
+    sa.Column('data_group_id', sa.Integer(), nullable=False),
+    sa.Column('sample_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['data_group_id'], ['DataGroup.id'], ),
+    sa.ForeignKeyConstraint(['sample_id'], ['Sample.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('display_key')
     )
     op.create_table('PipelineModuleOptionValue',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -184,66 +247,10 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('display_key')
     )
-    op.create_table('SampleGroup',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=50), nullable=False),
-    sa.Column('modifiable', sa.SmallInteger(), nullable=True),
-    sa.Column('creator_id', sa.Integer(), nullable=True),
-    sa.Column('group_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['creator_id'], ['User.id'], ),
-    sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
-    sa.ForeignKeyConstraint(['id'], ['DataSource.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('Submission',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=50), nullable=False),
-    sa.Column('description', sa.String(length=500), nullable=False),
-    sa.Column('validated', sa.SmallInteger(), nullable=False),
-    sa.Column('group_id', sa.Integer(), nullable=False),
-    sa.Column('submitter_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
-    sa.ForeignKeyConstraint(['id'], ['DataSource.id'], ),
-    sa.ForeignKeyConstraint(['submitter_id'], ['User.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('ProjectSampleGrouping',
-    sa.Column('sample_group_id', sa.Integer(), nullable=True),
+    sa.Column('sample_id', sa.Integer(), nullable=True),
     sa.Column('project_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['project_id'], ['Project.id'], ),
-    sa.ForeignKeyConstraint(['sample_group_id'], ['SampleGroup.id'], )
-    )
-    op.create_table('Sample',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('display_key', sa.String(length=32), nullable=True),
-    sa.Column('name', sa.String(length=50), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('group_id', sa.Integer(), nullable=True),
-    sa.Column('submission_source_id', sa.Integer(), nullable=True),
-    sa.Column('pipeline_source_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['group_id'], ['Group.id'], ),
-    sa.ForeignKeyConstraint(['pipeline_source_id'], ['PipelineInstance.id'], ),
-    sa.ForeignKeyConstraint(['submission_source_id'], ['Submission.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['User.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('display_key')
-    )
-    op.create_table('SampleGroupToCustomer',
-    sa.Column('sample_group_id', sa.Integer(), nullable=True),
-    sa.Column('customer_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['customer_id'], ['Customer.id'], ),
-    sa.ForeignKeyConstraint(['sample_group_id'], ['SampleGroup.id'], )
-    )
-    op.create_table('PipelineGrouping',
-    sa.Column('pipeline_instance_id', sa.Integer(), nullable=True),
-    sa.Column('sample_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['pipeline_instance_id'], ['PipelineInstance.id'], ),
-    sa.ForeignKeyConstraint(['sample_id'], ['Sample.id'], )
-    )
-    op.create_table('SampleGrouping',
-    sa.Column('sample_group_id', sa.Integer(), nullable=True),
-    sa.Column('sample_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['sample_group_id'], ['SampleGroup.id'], ),
     sa.ForeignKeyConstraint(['sample_id'], ['Sample.id'], )
     )
     op.create_table('SampleToCustomer',
@@ -258,20 +265,18 @@ def upgrade():
 def downgrade():
     ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('SampleToCustomer')
-    op.drop_table('SampleGrouping')
-    op.drop_table('PipelineGrouping')
-    op.drop_table('SampleGroupToCustomer')
-    op.drop_table('Sample')
     op.drop_table('ProjectSampleGrouping')
-    op.drop_table('Submission')
-    op.drop_table('SampleGroup')
     op.drop_table('PipelineModuleOptionValue')
-    op.drop_table('ProjectToCustomer')
+    op.drop_table('DataItem')
+    op.drop_table('Sample')
     op.drop_table('PipelineModuleInstance')
-    op.drop_table('Document')
-    op.drop_table('DataSource')
-    op.drop_table('Project')
+    op.drop_table('Submission')
+    op.drop_table('ProjectToCustomer')
     op.drop_table('PipelineInstance')
+    op.drop_table('Document')
+    op.drop_table('DataGroupToCustomer')
+    op.drop_table('Project')
+    op.drop_table('DataGroup')
     op.drop_table('User')
     op.drop_table('PipelineModuleOption')
     op.drop_table('Customer')
