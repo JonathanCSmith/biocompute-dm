@@ -1,13 +1,7 @@
-*.pyc
-*.swp
-*~
-to_remove/cgi-bin/mypol.pp
-to_remove/cgi-bin/mypol.te
-
 # development files
+/biocompute-DM.iml
 /.idea
-/flask
-/html
+/flask_environment
 /config.py
 /biocomputedm/static/serve/pipelines
 /biocomputedm/static/serve/projects

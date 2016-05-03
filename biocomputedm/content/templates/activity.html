@@ -18,6 +18,15 @@
 <div class="input-table clear">
     <table>
         <tr>
+            {% if g.user.get_role() == "Site Admin" %}
+            <td>
+                <div class="action exempt">
+                    <h3>Administrate</h3>
+                    <a class="input" href="{{ url_for('admin.administrate') }}">Administrate</a>
+                </div>
+            </td>
+
+            {% elif g.user.type == "User" %}
             <td>
                 <div class="action">
                     <h3>View Available Pipelines</h3>
@@ -61,8 +70,8 @@
             {#
             <td>
                 <div class="action">
-                    <h3>Create a Custom Sample Group</h3>
-                    <a class="input" href="{{ url_for('manage.new_sample_group') }}">Add a New Sample Group</a>
+                    <h3>Create a Custom Data Group</h3>
+                    <a class="input" href="{{ url_for('manage.new_sample_group') }}">Add a New Data Group</a>
                     <ul>
                         <li>Use this option to create a custom grouping of samples, samples are created by pipelines (not manually). Please note that all of the samples grouped together must have come from the same pipeline type</li>
                     </ul>
@@ -75,10 +84,13 @@
                     <h3>Create a Project</h3>
                     <a class="input" href="{{ url_for('manage.new_project') }}">Add a New Project</a>
                     <ul>
-                        <li>Use this option to create a new project. Projects can be used to group samples, sample groups and documents.</li>
+                        <li>Use this option to create a new project. Projects can be used to group samples, pipeline outputs and documents.</li>
                     </ul>
                 </div>
             </td>
+            {% else %}
+
+            {% endif %}
         </tr>
     </table>
 </div>

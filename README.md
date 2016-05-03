@@ -12,7 +12,7 @@
 
 - Within the repository folder create a virtual environment:
 
-        - python3 -m venv flask
+        - python3 -m venv flask_environment
 
 - OR (if this fails):
 
@@ -31,17 +31,14 @@
         - flask/bin/pip install flask-migrate
         - flask/bin/pip install flask-login
         - flask/bin/pip install flask-mail
-        - flask/bin/pip install flask-whooshalchemy
         - flask/bin/pip install flask-wtf
-        - flask/bin/pip install flask-babel
-        - flask/bin/pip install guess_language
-        - flask/bin/pip install flipflop
-        - flask/bin/pip install coverage
+        - flask/bin/pip install flask-bootstrap
+        - flask/bin/pip install jsonschema
+
+        (old for reference:)
         - flask/bin/pip install flask-excel
         - flask/bin/pip install pyexcel-xls
         - flask/bin/pip install pyexcel-xlsx
-        - flask/bin/pip install flask-bootstrap
-        - flask/bin/pip install jsonschema
         
 - Install the following applications:
   * 7z : sudo apt-get install p7zip-full

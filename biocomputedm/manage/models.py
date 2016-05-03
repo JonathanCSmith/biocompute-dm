@@ -1,12 +1,13 @@
-import datetime
-
 from biocomputedm import utils
 from biocomputedm.database import *
 from biocomputedm.extensions import db
-from flask.ext.login import current_user
 
 project_sample_association_table = Table("ProjectSampleGrouping",
                                          Column("sample_id", Integer, ForeignKey("Sample.id")),
+                                         Column("project_id", Integer, ForeignKey("Project.id")))
+
+project_data_group_association_table = Table("ProjectDataGroupGrouping",
+                                         Column("data_group_id", Integer, ForeignKey("DataGroup.id")),
                                          Column("project_id", Integer, ForeignKey("Project.id")))
 
 
@@ -30,7 +31,7 @@ class Submission(SurrogatePK, Model):
 
 
 class Sample(SurrogatePK, Model):
-    name = Column(String(50), nullable=False)
+    name = Column(String(100), nullable=False)
     description = Column(Text)
     creation_date = Column(Date, default=utils.get_current_date())
     updated_date = Column(Date, onupdate=utils.get_current_date())
@@ -39,7 +40,7 @@ class Sample(SurrogatePK, Model):
     group_id = reference_col("Group", nullable=True)
     pipeline_source_id = reference_col("PipelineInstance", nullable=True)
 
-    pipeline_source = relationship("PipelineInstance", uselist=False, backref="samples")
+    pipeline_source = relationship("PipelineInstance", uselist=False, backref=backref("samples", uselist=True))
     data = relationship("DataItem", backref="sample", lazy="dynamic")
 
     __tablename__ = "Sample"
@@ -57,18 +58,12 @@ class Sample(SurrogatePK, Model):
         return "<Sample name: %s>" % self.name
 
 
-def get_samples_query_by_user():
-    if current_user.is_authenticated:
-        return current_user.group.samples
-
-    return None
-
-
 class DataGroup(SurrogatePK, Model):
     name = Column(String(50), nullable=False)
     description = Column(Text)
     creation_date = Column(Date, default=utils.get_current_date())
     updated_date = Column(Date, onupdate=utils.get_current_date())
+    running = Column(SmallInteger(), default=False)
 
     user_id = reference_col("User", nullable=True)
     group_id = reference_col("Group", nullable=True)
@@ -95,89 +90,17 @@ class DataItem(SurrogatePK, Model):
     unlocalised_path = Column(String(100), nullable=False)
 
     data_group_id = reference_col("DataGroup")
+    group_id = reference_col("Group", nullable=True)
     sample_id = reference_col("Sample", nullable=True)
 
     __tablename__ = "DataItem"
 
-    def __init__(self, name, unlocalised_path, data_group):
+    def __init__(self, name, unlocalised_path, data_group, group):
         db.Model.__init__(self, name=name, unlocalised_path=unlocalised_path)
         data_group.data.append(self)
         data_group.save()
-
-
-# class DataSource(SurrogatePK, Model):
-#     source_pipeline_id = reference_col("PipelineInstance", nullable=True)
-#     running_pipeline_id = reference_col("PipelineInstance", nullable=True)
-#
-#     source_pipeline = relationship(PipelineInstance, foreign_keys=[source_pipeline_id], uselist=False)
-#     running_pipeline = relationship(PipelineInstance, foreign_keys=[running_pipeline_id], uselist=False)
-#     run_pipelines = relationship(PipelineInstance, foreign_keys=[PipelineInstance.data_consigner_id], backref=backref("data_consigner", uselist=False))
-#
-#     type = Column(String(50), nullable=False)
-#
-#     __tablename__ = "DataSource"
-#     __mapper_args__ = {"polymorphic_on": type}
-#
-#     def __init__(self, **kwargs):
-#         db.Model.__init__(self, **kwargs)
-#
-#
-# class Submission(DataSource):
-#     id = reference_col("DataSource", primary_key=True)
-#
-#     name = Column(String(50), nullable=False)
-#     description = Column(String(500), nullable=False)
-#     validated = Column(SmallInteger, default=False, nullable=False)
-#
-#     group_id = reference_col("Group")
-#     submitter_id = reference_col("User")
-#
-#     __tablename__ = "Submission"
-#     __mapper_args__ = {"polymorphic_identity": "Submission", "inherit_condition": (id == DataSource.id)}
-#
-#     def __init__(self, name, description):
-#         DataSource.__init__(self, name=name, description=description)
-#
-#     def __repr__(self):
-#         return "<Submission %s>" % self.name
-#
-#
-# def get_submissions_query_by_user():
-#     if current_user.is_authenticated:
-#         return current_user.group.submissions.filter_by(validated=True)
-#
-#     return None
-#
-#
-# class SampleGroup(DataSource):
-#     id = reference_col("DataSource", primary_key=True)
-#
-#     name = Column(String(50), nullable=False)
-#     modifiable = Column(SmallInteger, default=True)
-#
-#     creator_id = reference_col("User", nullable=True)
-#     group_id = reference_col("Group", nullable=True)
-#
-#     __tablename__ = "SampleGroup"
-#     __mapper_args__ = {"polymorphic_identity": "SampleGroup", "inherit_condition": (id == DataSource.id)}
-#
-#     def __init__(self, name, creator, group, pipeline):
-#         DataSource.__init__(self, name=name)
-#         self.update(source_pipeline=pipeline)
-#         creator.sample_groups.append(self)
-#         creator.update()
-#         group.sample_groups.append(self)
-#         group.update()
-#
-#     def __repr__(self):
-#         return "<SampleGroup created by %s for %s>" % (self.creator.name, self.group.name)
-#
-#
-# def get_sample_groups_query_by_user():
-#     if current_user.is_authenticated:
-#         return current_user.group.sample_groups
-#
-#     return None
+        group.data_items.append(self)
+        group.save()
 
 
 class Project(SurrogatePK, Model):
@@ -191,13 +114,12 @@ class Project(SurrogatePK, Model):
 
     documents = relationship("Document", backref="project")
     samples = relationship("Sample", secondary=project_sample_association_table, lazy="dynamic", backref=backref("projects", lazy="dynamic"))
+    pipeline_outputs = relationship("DataGroup", secondary=project_data_group_association_table, lazy="dynamic")
 
     __tablename__ = "Project"
 
     def __init__(self, name, description, creator):
-        today = datetime.date.today()
-        db.Model.__init__(self, name=name, description=description, creator=creator, group=creator.group,
-                          open_date=str(today.year) + "-" + str(today.month) + "-" + str(today.day))
+        db.Model.__init__(self, name=name, description=description, user=creator, group=creator.group)
 
     def __repr__(self):
         return "<Project: %s, %s>" % (self.name, self.description)

@@ -3,7 +3,7 @@
 {% block info_panel %}
 <h3>Info</h3>
 <h4>The panel to the right shows the projects that have been created by you or your group members.</h4>
-<h4>Projects are groupings of outputs from a pipeline. These can either be by sample or by sample group.</h4>
+<h4>Projects are groupings of outputs from a pipeline. These can either be by sample or pipeline specific outputs.</h4>
 {% endblock %}
 
 {% block main_panel_view %}
@@ -13,6 +13,8 @@
         <th>Name</th>
         <th>Description</th>
         <th>Creator</th>
+        <th>Creation Date</th>
+        <th>Updated Date</th>
     </tr>
 
     {% if obs %}
@@ -20,7 +22,9 @@
     <tr>
         <td><a href="{{ url_for('manage.project', oid=item.display_key) }}">{{ item.name }}</a></td>
         <td>{{ item.description }}</td>
-        <td>{{ item.creator.username }}</td>
+        <td>{{ item.user.username }}</td>
+        <td>{{ item.creation_date }}</td>
+        <td>{{ item.updated_date }}</td>
     </tr>
     {% endfor %}
     {% endif %}

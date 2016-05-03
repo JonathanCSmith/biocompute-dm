@@ -262,7 +262,7 @@ def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
             return
 
         source_data_group = DataGroup.query.filter_by(display_key=source_data_group_id).first()
-        if source_data_group is None:
+        if source_data_group is None or source_data_group.running:
             flash("Could not identify the source data for initialising the pipeline.", "error")
             return
 
@@ -302,6 +302,7 @@ def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
                     pass
 
         target_pipeline.update(current_execution_status="WAITING", current_execution_index=0)
+        source_data_group.update(running=True)
         source_data_group.pipeline_instances.append(target_pipeline)
         source_data_group.save()
 
@@ -430,55 +431,144 @@ def finish_pipeline_instance(app, running_pipeline_id):
                 app.logger.error("Cannot finalise pipeline when it has not finished all of its modules.")
                 return
 
-            # Create a new data group for the outputs
-            data_group = DataGroup.create(
-                name="Data Group from the " + running_pipeline.pipeline.name + " pipeline",
-                user=running_pipeline.user,
-                group=running_pipeline.group,
-                source_pipeline=running_pipeline
-            )
+            # Dummy container
+            data_group = None
 
             # Walk the output directory to find samples
-            local_pipeline_output_directory = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), running_pipeline.display_key), "samples_output")
-            filepaths = next(os.walk(local_pipeline_output_directory))
+            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), running_pipeline.display_key);
+            local_pipeline_sample_output_directory = os.path.join(local_pipeline_directory, "samples_output")
+            filepaths = next(os.walk(local_pipeline_sample_output_directory))
             for source in filepaths[1]:
-                # Create new samples
-                if running_pipeline.pipeline.type == "I":
-                    s = Sample.create(name=source, pipeline=running_pipeline)
-                    utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
 
-                # Link new data to old samples
-                else:
-                    s = Sample.query.filter_by(display_key=source).first()
+                # Verify that there is data within  the directory, if so index it
+                sample_filepaths = next(os.walk(os.path.join(local_pipeline_sample_output_directory, source)))
+                if sample_filepaths[1] or sample_filepaths[2]:
+                    # Create a new data group for the outputs
+                    if data_group is None:
+                        data_group = DataGroup.create(
+                            name="Data Group from the " + running_pipeline.pipeline.name + " pipeline",
+                            user=running_pipeline.user,
+                            group=running_pipeline.group,
+                            source_pipeline=running_pipeline
+                        )
 
-                # Transfer the data using an sh
-                destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key), running_pipeline.display_key)
-                utils.make_directory(destination_path)
-                script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
-                script_path = os.path.join(script_path, "move.sh")
-                subprocess.Popen(
-                    [
-                        "sudo",
-                        script_path,
-                        "-s=" + os.path.join(local_pipeline_output_directory, source),
-                        "-t=" + destination_path
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                ).wait()
+                    # Create new samples
+                    if running_pipeline.pipeline.type == "I":
+                        s = Sample.create(name=source, pipeline=running_pipeline)
+                        utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
 
-                # Create a new data item and append to sample and data group
-                item = DataItem.create(
-                    name=running_pipeline.display_key,
-                    unlocalised_path=os.path.join(s.display_key, running_pipeline.display_key),
-                    data_group=data_group
+                    # Link new data to old samples
+                    else:
+                        s = Sample.query.filter_by(display_key=source).first()
+                        if s is None:
+                            s = Sample.create(name=source, pipeline=running_pipeline)
+                            utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+
+                    # Transfer the data using an sh
+                    destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key), running_pipeline.display_key)
+                    utils.make_directory(destination_path)
+                    script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
+                    script_path = os.path.join(script_path, "move.sh")
+                    subprocess.Popen(
+                        [
+                            "sudo",
+                            script_path,
+                            "-s=" + os.path.join(local_pipeline_sample_output_directory, source),
+                            "-t=" + destination_path
+                        ],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
+                    ).wait()
+
+                    output_files = next(os.walk(destination_path))
+                    for file in output_files[1]:
+                        # Create a new data item and append to sample and data group
+                        item = DataItem.create(
+                            name=file,
+                            unlocalised_path=os.path.join(s.display_key, running_pipeline.display_key),
+                            data_group=data_group,
+                            group=running_pipeline.group
+                        )
+
+                        s.data.append(item)
+
+                    for file in output_files[2]:
+                        # Create a new data item and append to sample and data group
+                        item = DataItem.create(
+                            name=file,
+                            unlocalised_path=os.path.join(s.display_key, running_pipeline.display_key),
+                            data_group=data_group,
+                            group=running_pipeline.group
+                        )
+
+                        s.data.append(item)
+
+            # Build pipeline outputs (no sample association)
+            local_pipeline_pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
+            filepaths = next(os.walk(local_pipeline_pipeline_output_directory))
+            if filepaths[1] or filepaths[2]:
+                # Create a new data group for the outputs
+                pipeline_data_group = DataGroup.create(
+                    name="Runtime Data from the " + running_pipeline.pipeline.name + " pipeline",
+                    user=running_pipeline.user,
+                    group=running_pipeline.group,
+                    source_pipeline=None
                 )
 
-                s.data.append(item)
+                for file in filepaths[1]:
+                    item = DataItem.create(
+                        name=file,
+                        unlocalised_path=os.path.join(running_pipeline.display_key, "pipeline_output"),
+                        data_group=pipeline_data_group,
+                        group=running_pipeline.group
+                    )
 
-                # Currently not updating sample's pipeline runs as I think it may work better if this information is stored in data groups. So sample -> data group -> pipeline runs
+                for file in filepaths[2]:
+                    item = DataItem.create(
+                        name=file,
+                        unlocalised_path=os.path.join(running_pipeline.display_key, "pipeline_output"),
+                        data_group=pipeline_data_group,
+                        group=running_pipeline.group
+                    )
+
+                running_pipeline.update(pipeline_output=pipeline_data_group)
+
+            # Build module outputs (no sample association)
+            local_pipeline_module_output_directory = os.path.join(local_pipeline_directory, "modules_output")
+            for module_instance in running_pipeline.module_instances:
+
+                local_module_output_directory = os.path.join(local_pipeline_module_output_directory, module_instance.module.name)
+                filepaths = next(os.walk(local_module_output_directory))
+                if filepaths[1] or filepaths[2]:
+                    # Create a new data group for the outputs
+                    module_data_group = DataGroup.create(
+                        name="Module Data from the " + running_pipeline.pipeline.name + " pipeline, module: " + module_instance.module.name,
+                        user=running_pipeline.user,
+                        group=running_pipeline.group,
+                        source_pipeline=None
+                    )
+
+                    for file in filepaths[1]:
+                        item = DataItem.create(
+                            name=file,
+                            unlocalised_path=os.path.join(os.path.join(running_pipeline.display_key, "modules_output"), module_instance.module.name),
+                            data_group=module_data_group,
+                            group=running_pipeline.group
+                        )
+
+                    for file in filepaths[2]:
+                        item = DataItem.create(
+                            name=file,
+                            unlocalised_path=os.path.join(os.path.join(running_pipeline.display_key, "modules_output"), module_instance.module.name),
+                            data_group=module_data_group,
+                            group=running_pipeline.group
+                        )
+
+                    module_instance.update(module_output=module_data_group)
 
             running_pipeline.update(current_execution_status="FINISHED")
+            source_data_group = DataGroup.query.filter_by(display_key=running_pipeline.consignor.display_key).first()
+            source_data_group.update(running=True)
 
     except Exception as e:
         app.logger.error("There was an exception when executing the current pipeline: " + str(e))

@@ -9,18 +9,29 @@
 {% block info_panel %}
 <h3>Info</h3>
 <h4>The panels on the right show the current details of your project.</h4>
-<h4>From these panels you can find the ability to add sample groups and documents.</h4>
+<h4>Also listed are any associated data sets.</h4>
+<h4>Data sets can be added on the respective data set's page.</h4>
 {% endblock %}
 
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Project Properties</h3>
-        <ul>
-            <li>Project Name: {{ project.name }}</li>
-            <li>Project Description: {{ project.description }}</li>
-            <li>Start Date: {{ project.open_date }}</li>
-        </ul>
+
+        <table class="content">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Creation Date</th>
+                <th>Last Updated</th>
+            </tr>
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.description }}</td>
+                <td>{{ project.creation_date }}</td>
+                <td>{{ project.updated_date }}</td>
+            </tr>
+        </table>
     </div>
 
     <div class="spacer"></div>
@@ -28,55 +39,65 @@
     <div class="action exempt">
         <h3>Project Samples</h3>
 
+        {% if project.samples.all()|length > 0 %}
         <table class="content">
             <tr>
-                <th>Sample Name</th>
-                <th>Sample Description</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Creation Date</th>
+                <th>Updated Date</th>
             </tr>
 
-            {% for group in project.samples %}
+            {% for sample in project.samples %}
             <tr>
-                <td><a href="{{ url_for('manage.data_group', oid=group.display_key) }}">{{ group.name }}</a></td>
+                <td><a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a></td>
+                <td>{{ sample.description }}</td>
+                <td>{{ sample.creation_date }}</td>
+                <td>{{ sample.updated_date }}</td>
             </tr>
             {% endfor %}
         </table>
-        <br>
+        {% else %}
+        <h4>There are currently no linked samples!</h4>
+        {% endif %}
     </div>
 
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Potential Samples</h3>
+        <h3>Project Pipeline Outputs</h3>
 
-        <form action="{{ url_for('manage.project', oid=project.display_key) }}" method=post >
+        {% if project.pipeline_outputs.all()|length > 0 %}
+        <table class="content">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Creation Date</th>
+                <th>Updated Date</th>
+            </tr>
 
-            <table class="content2">
-                <tr>
-                    <th>Sample Grouping Name</th>
-                    <th>Add to Project?</th>
-                </tr>
-
-                {% for sample in potential_samples %}
-                <tr>
-                    <td>{{ sample.name }}</td>
-                    <td><input type="checkbox" name="do_select" value="{{ sample.display_key }}"></td>
-                </tr>
-                {% endfor %}
-            </table>
-
-            {{ form.submit(class_="input") }}
-        </form>
+            {% for pipeline_output in project.pipeline_outputs %}
+            <tr>
+                <td><a href="{{ url_for('manage.data_group', oid=pipeline_output.display_key, data_type='pipeline') }}">{{ pipeline_output.name }}</a></td>
+                <td>{{ pipeline_output.description }}</td>
+                <td>{{ pipeline_output.creation_date }}</td>
+                <td>{{ pipeline_output.updated_date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <h4>There are currently no linked pipeline outputs!</h4>
+        {% endif %}
     </div>
 
     <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Project Documents</h3>
-        <ul>
-            <li><a class="input" href="{{ url_for('manage.add_document', oid=project.display_key) }}">Add a document</a></li>
-            <li></li>
-        </ul>
 
+        {% if project.documents|length > 0 %}
+
+        <div class="spacer"></div>
         <table class="content3">
             <tr>
                 <th>Document Name</th>
@@ -91,9 +112,18 @@
             </tr>
             {% endfor %}
         </table>
+
+        <div class="spacer"></div>
+        {% else %}
+        <h4>There are currently no linked documents!</h4>
+        {% endif %}
+
+        {% if g.user.get_role() != "Site Admin" %}
+        <a class="input" href="{{ url_for('manage.add_document', oid=project.display_key) }}">Add a document</a>
+        {% endif %}
     </div>
 
-    {% if g.user.type == "User" %}
+    {% if g.user.type == "User" and g.user.get_role() != "Site Admin" %}
     <div class="spacer"></div>
 
     <div class="action exempt">
@@ -101,7 +131,7 @@
 
         <table>
             <tr>
-                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=project.display_key, origin='project') }}">Link to Consignor</a></td>
+                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=project.display_key, origin='project') }}">Share with Consignor</a></td>
             </tr>
         </table>
     </div>

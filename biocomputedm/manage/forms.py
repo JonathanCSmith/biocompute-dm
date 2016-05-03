@@ -15,17 +15,17 @@ class NewSubmissionForm(Form):
 #     submit_field = SubmitField("Submit")
 #
 #
-class UpdateDataGroupForm(Form):
-    source_type = SelectField("Data Source (Pipeline)")
-    submit = SubmitField("Submit")
-
-    def fill(self, source_pipelines):
-        if source_pipelines is None:
-            self.source_type.choices = [("NA", "No Common Source Data")]
-        else:
-            self.source_type.choices = [(s, s) for s in source_pipelines]
-
-        return
+# class UpdateDataGroupForm(Form):
+#     source_type = SelectField("Data Source (Pipeline)")
+#     submit = SubmitField("Submit")
+#
+#     def fill(self, source_pipelines):
+#         if source_pipelines is None:
+#             self.source_type.choices = [("NA", "No Common Source Data")]
+#         else:
+#             self.source_type.choices = [(s, s) for s in source_pipelines]
+#
+#         return
 
 
 class NewProjectForm(Form):
@@ -41,11 +41,11 @@ class NewProjectForm(Form):
         return True
 
 
+class SelectProjectForm(Form):
+    submit = SubmitField("Submit")
+
+
 class AddDocumentForm(Form):
     description = StringField("Document Desription", validators=[DataRequired()])
     file_upload = FileField("Upload File")
     submit = SubmitField("Upload")
-
-
-class UpdateProjectForm(Form):
-    submit = SubmitField("Submit")

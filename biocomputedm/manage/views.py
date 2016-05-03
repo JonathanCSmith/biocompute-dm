@@ -4,8 +4,8 @@ import time
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
-from biocomputedm.manage.models import Submission, get_samples_query_by_user, Project, Document, Sample, DataGroup, DataItem
-from biocomputedm.pipelines.models import Pipeline, PipelineInstance
+from biocomputedm.manage.models import Submission, Project, Document, DataGroup, DataItem, Sample
+from biocomputedm.pipelines.models import Pipeline
 from flask import Blueprint, render_template, redirect, url_for
 from flask import abort
 from flask import current_app
@@ -43,14 +43,16 @@ def message(oid=""):
                     data_item = DataItem.create(
                         name=folder,
                         unlocalised_path=os.path.join(submission.display_key),
-                        data_group=data_group
+                        data_group=data_group,
+                        group=submission.group
                     )
 
                 for file in paths[2]:
                     data_item = DataItem.create(
                         name=file,
                         unlocalised_path=os.path.join(submission.display_key),
-                        data_group=data_group
+                        data_group=data_group,
+                        group=submission.group
                     )
 
                 # Ensure the submission knows about the data group
@@ -65,86 +67,33 @@ def user_profile():
     return redirect(url_for("empty"))
 
 
-@manage.route("/display_data/<data_source_type>|<data_source>|<name>")
-@manage.route("/display_data/<data_source_type>|<data_source>|<name>|<data_file>")
+@manage.route("/display_data/<item_id>|<data_type>")
 @login_required("ANY")
-def display_data(data_source_type="", data_source="", name="", data_file=""):
-    if data_source_type == "" or data_source == "" or name == "":
+def display_data(item_id="", data_type=""):
+    if item_id == "" or data_type == "":
         flash("Could not identify the provided data set", "warning")
         return redirect(url_for("empty"))
 
-    if data_source_type == "pipeline_output":
-        pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=data_source).first()
-        if pipeline_instance is None:
-            flash("Could not identify the provided data set", "warning")
-            return redirect(url_for("empty"))
-
-        data_path = os.path.join(
-                os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), pipeline_instance.display_key),
-                             "pipeline_output"), name)
-
-        return render_template("data_viewer.html", data_path=data_path,
-                               return_path="pipelines.display_pipeline_instance", oid=pipeline_instance.display_key,
-                               data_file="")
-
-    elif data_source_type == "module_output":
-        pipeline_instances = current_user.group.pipeline_instances.all()
-        p_instance = None
-        m_instance = None
-        for pipeline_instance in pipeline_instances:
-            module_instances = pipeline_instance.module_instances.all()
-            for module_instance in module_instances:
-                if module_instance.display_key == data_source:
-                    p_instance = pipeline_instance
-                    m_instance = module_instance
-                    break
-
-            if m_instance is not None:
-                break
-
-        if m_instance is None:
-            flash("Could not locate the provided module instance", "warning")
-            return redirect(url_for("empty"))
-
-        data_path = os.path.join(
-                os.path.join(
-                        os.path.join(
-                                os.path.join(
-                                        utils.get_path("pipeline_data", "serve"),
-                                        p_instance.display_key
-                                ),
-                                "modules_output"
-                        ),
-                        m_instance.module.name),
-                name
-        )
-
-        return render_template("data_viewer.html", data_path=data_path, return_path="pipelines.module_instance",
-                               oid=m_instance.display_key, data_file="")
-
-    elif data_source_type == "sample_data":
-        sample = current_user.group.samples.filter_by(display_key=data_source).first()
-        if sample is None:
-            flash("Could not identify the provided data set", "warning")
-            return redirect(url_for("empty"))
-
-        data_path = os.path.join(
-                os.path.join(
-                        os.path.join(
-                                utils.get_path("sample_data", "serve"),
-                                sample.display_key
-                        ),
-                        data_file
-                ),
-                name
-        )
-
-        return render_template("data_viewer.html", data_path=data_path, return_path="manage.sample_data",
-                               oid=sample.display_key, data_file=data_file)
-
-    else:
+    data_item = current_user.group.data_items.filter_by(display_key=item_id).first()
+    if data_item is None:
         flash("Could not identify the provided data set", "warning")
         return redirect(url_for("empty"))
+
+    data_path = None
+    if data_type == "sample":
+        data_path = os.path.join(os.path.join(utils.get_path("sample_data", "serve"), data_item.unlocalised_path), data_item.name)
+
+    elif data_type == "pipeline":
+        data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), data_item.unlocalised_path), data_item.name)
+
+    elif data_type == "module":
+        data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), data_item.unlocalised_path), data_item.name)
+
+    if data_path is None:
+        flash("Could not identify the provided data set's path", "warning")
+        return redirect(url_for("empty"))
+
+    return render_template("data_viewer.html", title="Data Display", data_item=data_item, data_path=data_path)
 
 
 # Move data from external into landing_zone
@@ -244,7 +193,11 @@ def download():
 @manage.route("/submissions")
 @login_required("ANY")
 def submissions(page=1):
-    items = current_user.group.submissions.filter_by(validated=True)
+    if current_user.get_role() == "Site Admin":
+        items = Submission.query.filter_by(validated=True)
+    else:
+        items = current_user.group.submissions.filter_by(validated=True)
+
     if items is not None:
         items = items.paginate(page=page, per_page=20)
 
@@ -316,16 +269,16 @@ def new_submission():
 
                 # Execute our move, unpack and delete script asynchronously so as to not interrupt webserving
                 subprocess.Popen(
-                        [
-                            "sudo",
-                            script_path,
-                            "-d=" + output_directory_path,
-                            "-s=" + sources,
-                            "-i=" + submission.display_key,
-                            "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
-                        ],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE
+                    [
+                        "sudo",
+                        script_path,
+                        "-d=" + output_directory_path,
+                        "-s=" + sources,
+                        "-i=" + submission.display_key,
+                        "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
                 )  # We are allowing this to execute on it's own - no need to monitor
 
                 # In the meantime we will inform the user and display confirmation
@@ -344,54 +297,26 @@ def submission(sid=""):
         flash("No submission id was provided", "warning")
         return redirect(url_for("index"))
 
-    submission = Submission.query.filter_by(display_key=sid).first()
+    submission = current_user.group.submissions.filter_by(display_key=sid).first()
     if submission is None:
         flash("Invald submission id", "error")
         return redirect(url_for("index"))
 
-    # Current submission information
-    folder = submission.display_key
-
-    # Build path to the users sftp dir
-    directory_path = os.path.join(utils.get_path("submission_data", "webserver"), folder)
-
-    # list of the available files TODO: Take this from submission directly?
-    filepaths = next(os.walk(directory_path))
-    files = []
-    for file in filepaths[1]:
-        try:
-            s = os.stat(os.path.join(directory_path, file))
-            files.append({
-                "name": file,
-                "size": s.st_size,
-                "date": time.ctime(s.st_ctime)
-            })
-        except:
-            pass
-
-    for file in filepaths[2]:
-        try:
-            s = os.stat(os.path.join(directory_path, file))
-            files.append({
-                "name": file,
-                "size": s.st_size,
-                "date": time.ctime(s.st_ctime)
-            })
-        except:
-            pass
-
     # list of the available type I pipelines
     pipelines = Pipeline.query.filter_by(type="I", executable=True)
 
-    return render_template("submission.html", title="Submission", submission=submission, files=files,
-                           pipelines=pipelines)
+    return render_template("submission.html", title="Submission", submission=submission, pipelines=pipelines)
 
 
 @manage.route("/samples/<int:page>")
 @manage.route("/samples")
 @login_required("ANY")
 def samples(page=1):
-    items = get_samples_query_by_user()
+    if current_user.get_role() == "Site Admin":
+        items = Sample.query
+    else:
+        items = current_user.group.samples
+
     if items is not None:
         items = items.paginate(page=page, per_page=20)
 
@@ -399,88 +324,25 @@ def samples(page=1):
 
 
 @manage.route("/sample/<oid>")
-@manage.route("/sample/<oid>|<data_file>")
 @login_required("ANY")
-def sample(oid="", data_file=""):
+def sample(oid=""):
     sample = current_user.group.samples.filter_by(display_key=oid).first()
     if sample is None:
         flash("Could not locate the provided sample", "warning")
         return redirect(url_for("empty"))
 
-    data_path = os.path.join(utils.get_path("sample_data", "webserver"), sample.display_key)
-    filepaths = next(os.walk(data_path))
-    datasets = []
-    for file in filepaths[1]:
-        try:
-            pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=file).first()
-            if pipeline_instance is None:
-                continue
-
-            item = {
-                "name": file,
-                "pipeline": pipeline_instance
-            }
-            datasets.append(item)
-
-        except:
-            pass
-
-    if len(datasets) == 0:
-        datasets = None
-
-    return render_template("sample.html",
-                           title="Sample " + sample.name,
-                           sample=sample,
-                           data_source_type="sample_pipelines",
-                           oid=sample.display_key,
-                           datasets=datasets)
-
-
-@manage.route("/sample_data/<oid>|<data_file>")
-@login_required("ANY")
-def sample_data(oid="", data_file=""):
-    if oid == "" or data_file == "":
-        flash("Could not locate the provided sample group", "warning")
-        return redirect(url_for("empty"))
-
-    sample = current_user.group.samples.filter_by(display_key=oid).first()
-    if sample is None:
-        flash("Could not locate the provided sample", "warning")
-        return redirect(url_for("empty"))
-
-    # TODO: Take this from data items
-    data_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), sample.display_key), data_file)
-    filepaths = next(os.walk(data_path))
-    datasets = []
-    for file in filepaths[2]:
-        try:
-            item = {
-                "name": file,
-                "path": os.path.join(data_path, file)
-            }
-            datasets.append(item)
-
-        except:
-            pass
-
-    if len(datasets) == 0:
-        datasets = None
-
-    return render_template("sample_data.html",
-                           title="Sample Data " + sample.name,
-                           sample=sample,
-                           data_source_type="sample_data",
-                           oid=sample.display_key,
-                           datasets=datasets,
-                           data_file=data_file,
-                           pipeline=PipelineInstance.query.filter_by(display_key=data_file).first())
+    return render_template("sample.html", title="Sample " + sample.name, sample=sample)
 
 
 @manage.route("/data_groups/<int:page>")
 @manage.route("/data_groups")
 @login_required("ANY")
 def data_groups(page=1):
-    items = current_user.group.data_groups
+    if current_user.get_role() == "Site Admin":
+        items = DataGroup.query.filter(DataGroup.pipeline_source != None)
+    else:
+        items = current_user.group.data_groups.filter(DataGroup.pipeline_source != None)
+
     if items is not None:
         items = items.paginate(page=page, per_page=20)
 
@@ -527,16 +389,16 @@ def data_groups(page=1):
 
 
 # TODO: Pagination of samples?
-@manage.route("/data_group/<oid>", methods=["GET", "POST"])
+@manage.route("/data_group/<oid>|<data_type>")
 @login_required("ANY")
-def data_group(oid=""):
-    if oid == "":
+def data_group(oid="", data_type=""):
+    if oid == "" or data_type == "":
         flash("Could not locate the provided data group", "error")
         return redirect(url_for("index"))
 
     data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
     if data_group is None:
-        flash("Could not locate the provided sample group", "error")
+        flash("Could not locate the provided data group", "error")
         return redirect(url_for("index"))
 
     # if request.method == "POST":
@@ -588,12 +450,9 @@ def data_group(oid=""):
     #     pipelines = None
     #     source_pipelines = None
 
-    valid_pipelines = None
     pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
 
-    from biocomputedm.manage import forms
-    form = forms.UpdateDataGroupForm()
-    form.fill(valid_pipelines)
+    # TODO: Verify valid pipelines using regex
 
     running_pipeline = None
     for run_pipeline in data_group.pipeline_instances:
@@ -601,14 +460,18 @@ def data_group(oid=""):
             running_pipeline = run_pipeline
             break
 
-    return render_template("data_group.html", data_group=data_group, form=form, pipelines=pipelines, running_pipeline=running_pipeline)
+    return render_template("data_group.html", data_group=data_group, pipelines=pipelines, running_pipeline=running_pipeline, data_type=data_type)
 
 
 @manage.route("/projects/<int:page>")
 @manage.route("/projects")
 @login_required("ANY")
 def projects(page=1):
-    items = current_user.group.projects
+    if current_user.get_role() == "Site Admin":
+        items = Project.query
+    else:
+        items = current_user.group.projects
+
     if items is not None:
         items = items.paginate(page=page, per_page=20)
 
@@ -625,10 +488,9 @@ def new_project():
 
     else:
         if form.validate_on_submit():
-            project = Project.create(name=str(form.investigation_name.data),
-                                     description=str(form.investigation_description.data), creator=current_user)
+            project = Project.create(name=str(form.investigation_name.data), description=str(form.investigation_description.data), creator=current_user)
             utils.make_directory(os.path.join(utils.get_path("project_data", "webserver"), project.display_key))
-            flash("Investigation successfully registered!", "info")
+            flash("Project successfully registered!", "info")
             return redirect(url_for("manage.project", oid=project.display_key))
 
         return render_template("new_project.html", title="New Project", form=form)
@@ -646,29 +508,101 @@ def project(oid=""):
         flash("Could not identify the provided project.", "error")
         return redirect(url_for("index"))
 
-    from biocomputedm.manage import forms
-    form = forms.UpdateProjectForm()
-    if request.method == "POST":
-        ids = request.form.getlist("do_select")
-        if ids is not None and len(ids) != 0:
-            for key in ids:
-                sample = current_user.group.samples.filter_by(display_key=key).first()
-                if sample is not None:
-                    project.samples.append(sample)
-                    project.save()
+    return render_template("project.html", title="Project", project=project)
 
-            flash("Project was successfully updated", "success")
+
+@manage.route("/link_to_project/<oid>|<data_type>|<int:page>", methods=["GET", "POST"])
+@manage.route("/link_to_project/<oid>|<data_type>", methods=["GET", "POST"])
+@login_required("ANY")
+def link_to_project(page=1, oid="", data_type=""):
+    if oid == "":
+        flash("Could not link the provided information to a project", "error")
+        return redirect(url_for("index"))
+
+    if data_type != "sample" and data_type != "sample_data" and data_type != "pipeline":
+        flash("Could not link the provided information to a project", "error")
+        return redirect(url_for("index"))
+
+    if request.method == "GET":
+        from biocomputedm.manage import forms
+        form = forms.SelectProjectForm()
+
+        projects = current_user.group.projects
+        if projects is not None:
+            projects = projects.paginate(page=page, per_page=20)
+
+        if projects is None:
+            flash("There are no projects available to you, please create one first.", "error")
+            return redirect(url_for("index"))
+
+        return render_template("link_to_project.html", page=page, projects=projects, oid=oid, data_type=data_type, form=form)
+
+    else:
+        # Check to see that at least 1 upload was selected - empty submissions have no use
+        ids = request.form.getlist("do_select")
+        if ids is None or len(ids) == 0:
+            flash("No project was selected.", "warning")
+
+            projects = current_user.group.projects
+            if projects is not None:
+                projects = projects.paginate(page=page, per_page=20)
+
+            if projects is None or len(projects) == 0:
+                flash("There are no projects available to you, please create one first.", "error")
+                return redirect(url_for("index"))
+
+            return render_template("link_to_project.html", page=page, projects=projects, oid=oid, data_type=data_type)
 
         else:
-            flash("No sample groups were selected", "warning")
+            # Per project appending of the data
+            has_real_project = False
+            for i in ids:
+                project = current_user.group.projects.filter_by(display_key=i).first()
+                if project is None:
+                    continue
 
-    current_samples = project.samples
-    potential_samples = []
-    for sample in samples:
-        if sample not in current_samples:
-            potential_samples.append(sample)
+                has_real_project = True
 
-    return render_template("project.html", title="Project", project=project, potential_samples=potential_samples, form=form)
+                # Switch behaviour based on the data item
+                if data_type == "sample":
+                    sample = current_user.group.samples.filter_by(display_key=oid).first()
+                    if sample is None:
+                        flash("Could not identify the sample to link to the project", "warning")
+                        return redirect(url_for("index"))
+
+                    project.samples.append(sample)
+
+                elif data_type == "sample_data":
+                    data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
+                    if data_group is None:
+                        flash("Could not identify the sample set to link to the project", "warning")
+                        return redirect(url_for("index"))
+
+                    has_real_data = False
+                    for data in data_group.data:
+                        if data.sample:
+                            project.samples.append(data.sample)
+
+                    if not has_real_data:
+                        flash("None of the data items in the provided group had samples to link", "warning")
+                        return redirect(url_for("index"))
+
+                else:
+                    data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
+                    if data_group is None:
+                        flash("Could not identify the data group to link to the project.", "warning")
+                        return redirect(url_for("index"))
+
+                    project.pipeline_outputs.append(data_group)
+
+                project.save()
+
+            if not has_real_project:
+                flash("No valid projects were provided", "warning")
+                return redirect(url_for("index"))
+
+            flash("Projects were updated successfully", "success")
+            return redirect(url_for("index"))
 
 
 @manage.route("/add_document/<oid>", methods=["GET", "POST"])
@@ -696,7 +630,7 @@ def add_document(oid=""):
             # Handle a document already existing
             if os.path.exists(filepath):
                 flash("A document with this location (i.e. filename) already exists", "error")
-                return redirect(url_for("investigations"))
+                return redirect(url_for("projects"))
 
             # Save the file to the given path
             form.file_upload.data.save(filepath)

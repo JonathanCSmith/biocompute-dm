@@ -38,24 +38,48 @@
         <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=module_instance.pipeline_instance.display_key) }}">Return</a>
     </div>
 
+    {% if module_instance.option_values.all() | length > 0 %}
     <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Step Options</h3>
+
+        <table class="content">
+            <tr>
+                <th>Option Information</th>
+                <th>Option Value</th>
+            </tr>
+            {% for value in module_instance.option_values %}
+            <tr>
+                <td>{{ value.value }}</td>
+                <td>{{ value.option.display_name }}</td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
+    {% endif %}
 
-    <div class="spacer"></div>
-
-    <div class="action exempt">
-        <h3>Step Status</h3>
-    </div>
-
+    {# If the module has data #}
+    {% if module_instance.module_output and module_instance.module_output.data.all() | length > 0 %}
     <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Step Outputs</h3>
 
-        {% include "data_lister.html" %}
+        {% for batch in module_instance.module_output.data | batch(4, 'empty') %}
+        <div class="container-fluid">
+            <div class="row">
+                {% for data in batch %}
+                {% if data != "empty" %}
+                <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                    <a href="{{ url_for('manage.display_data', item_id=data.display_key, data_type='module') }}">{{ data.name }}</a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
     </div>
+    {% endif %}
 </div>
 {% endblock %}

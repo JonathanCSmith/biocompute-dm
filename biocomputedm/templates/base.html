@@ -56,11 +56,12 @@
 
                             <li><a href="{{ url_for('manage.samples') }}">Samples</a></li>
                             <li><a href="{{ url_for('manage.data_groups') }}">Data Groups</a></li>
-                            <li><a href="{{ url_for('manage.projects') }}">Projects</a></li>
 
                             {% if g.user.type == "User" %}
-                            <li><a href="{{ url_for('pipelines.display_pipeline_instances') }}">Runs</a></li>
+                            <li><a href="{{ url_for('pipelines.display_pipeline_instances') }}">Pipeline Runs</a></li>
                             {% endif %}
+
+                            <li><a href="{{ url_for('manage.projects') }}">Projects</a></li>
 
                             {% endif %}
                         </ul>

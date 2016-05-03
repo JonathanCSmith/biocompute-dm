@@ -132,29 +132,20 @@
     </div>
     {% endif %}
 
-    {% if pipeline_instance.current_execution_status != "NOT_STARTED"  and datasets %}
+    {# If the pipeline has outputs specific to itself (and not a sample) #}
+    {% if pipeline_instance.current_execution_status == "FINISHED" and pipeline_instance.pipeline_output and pipeline_instance.pipeline_output.data.all() | length > 0 %}
     <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Pipeline Outputs</h3>
 
-        {% include "data_lister.html" %}
-    </div>
-    {% endif %}
-
-    {% if pipeline_instance.current_execution_status == "FINISHED" and pipeline_instance.samples.all()|length != 0 %}
-    <div class="spacer"></div>
-
-    <div class="action exempt">
-        <h3>Generated Sample Data - Select for More Information</h3>
-
-        {% for data_group in pipeline_instance.samples  | batch(4, 'empty') %}
+        {% for batch in pipeline_instance.pipeline_output.data %}
         <div class="container-fluid">
             <div class="row">
-                {% for sample in data_group %}
-                {% if data != "empty" %}
+                {% for output in batch %}
+                {% if sample != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
-                    <a href="{{ url_for('manage.sample_data', oid=sample.display_key, data_file=pipeline_instance.display_key) }}">{{ sample.name }}</a>
+                    <a href="{{ url_for('manage.display_data', item_id=data.display_key, data_type='pipeline') }}">{{ data.name }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
@@ -162,6 +153,70 @@
         </div>
         {% endfor %}
     </div>
+    {% endif %}
+
+    {# If the pipeline has finished and it has created new samples #}
+    {% if pipeline_instance.current_execution_status == "FINISHED" and pipeline_instance.sample_output and pipeline_instance.samples %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Newly Generated Samples</h3>
+
+        {% for batch in pipeline_instance.samples | batch(4, 'empty') %}
+        <div class="container-fluid">
+            <div class="row">
+                {% for sample in batch %}
+                {% if sample != "empty" %}
+                <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                    <a href="{{ url_for('manage.sample', oid=sample.display_key) }}">{{ sample.name }}</a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# If the pipeline has finished and there are new datasets (irrespective of whether or not a sample was new) #}
+    {% if pipeline_instance.current_execution_status == "FINISHED" and pipeline_instance.sample_output.data %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>New Sample Specific Data</h3>
+
+        {% for batch in pipeline_instance.sample_output.data | batch(4, 'empty') %}
+        <div class="container-fluid">
+            <div class="row">
+                {% for data in batch %}
+                {% if data != "empty" %}
+                <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                    <a href="{{ url_for('manage.display_data', item_id=data.display_key, data_type='sample') }}">{{ data.name }}</a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if pipeline_instance.current_execution_status == "FINISHED" and g.user.type == "User" and g.user.get_role() != "Site Admin" %}
+    {% if pipeline_instance.sample_output or pipeline_instance.pipeline_output %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Manage</h3>
+
+        {% if pipeline_instance.pipeline_output %}
+        <a class="input" href="{{ url_for('manage.link_to_project', oid=pipeline_instance.pipeline_output.display_key, data_type='pipeline') }}">Link Pipeline Outputs Data to Project</a>
+        {% endif %}
+
+        {% if pipeline_instance.sample_output %}
+        <a class="input" href="{{ url_for('manage.link_to_project', oid=pipeline_instance.sample_output.display_key, data_type='sample_data') }}">Link Sample Outputs to Project</a>
+        {% endif %}
+    </div>
+    {% endif %}
     {% endif %}
 </div>
 {% endblock %}

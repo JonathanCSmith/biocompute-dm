@@ -1,2 +1,0 @@
-MySQL_Username = blah
-MySQL_Password = blahblah

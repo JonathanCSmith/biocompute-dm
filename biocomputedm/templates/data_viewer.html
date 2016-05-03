@@ -7,14 +7,6 @@
 <div class="input-table clear">
     <div class="action exempt">
         <iframe width="100%" height="100%" src="{{ url_for('static', filename=data_path) }}"></iframe>
-
-        <div class="spacer"></div>
-
-        {% if data_file %}
-        <a class="input" href="{{ url_for(return_path, oid=oid, data_file=data_file) }}">Return</a>
-        {% else %}
-        <a class="input" href="{{ url_for(return_path, oid=oid) }}">Return</a>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

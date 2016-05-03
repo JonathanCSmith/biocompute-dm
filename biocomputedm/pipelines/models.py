@@ -115,11 +115,14 @@ class PipelineInstance(SurrogatePK, Model):
     pipeline_id = reference_col("Pipeline")
     user_id = reference_col("User")
     group_id = reference_col("Group", nullable=True)
+
     consignor_data_group_id = reference_col("DataGroup", nullable=True)
-    output_data_group_id = reference_col("DataGroup", nullable=True)
+    sample_output_data_group_id = reference_col("DataGroup", nullable=True)
+    pipeline_output_data_group_id = reference_col("DataGroup", nullable=True)
 
     consignor = relationship("DataGroup", backref="pipeline_instances", foreign_keys=[consignor_data_group_id], uselist=False)
-    output = relationship("DataGroup", backref=backref("pipeline_source", uselist=False), foreign_keys=[output_data_group_id], uselist=False)
+    sample_output = relationship("DataGroup", backref=backref("pipeline_source", uselist=False), foreign_keys=[sample_output_data_group_id], uselist=False)
+    pipeline_output = relationship("DataGroup", foreign_keys=[pipeline_output_data_group_id], uselist=False)
 
     module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic", cascade="all, delete-orphan")
 
@@ -140,10 +143,12 @@ class PipelineInstance(SurrogatePK, Model):
 class PipelineModuleInstance(SurrogatePK, Model):
     module_id = reference_col("PipelineModule")
     pipeline_instance_id = reference_col("PipelineInstance")
+    module_output_data_group_id = reference_col("DataGroup", nullable=True)
 
     module = relationship("PipelineModule", uselist=False)
     instance = relationship("PipelineInstance", uselist=False)
     option_values = relationship("PipelineModuleOptionValue", backref="module", lazy="dynamic", cascade="all, delete-orphan")
+    module_output = relationship("DataGroup", uselist=False)
 
     __tablename__ = "PipelineModuleInstance"
 

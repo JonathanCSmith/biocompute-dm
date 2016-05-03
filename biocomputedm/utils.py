@@ -54,4 +54,4 @@ def make_directory(directory):
 
 
 def get_current_date():
-    return datetime.datetime.now()
+    return datetime.datetime.now().date()

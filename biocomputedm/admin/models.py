@@ -32,6 +32,7 @@ class Group(SurrogatePK, Model):
     pipeline_instances = relationship("PipelineInstance", lazy="dynamic", backref="group")
     samples = relationship("Sample", lazy="dynamic", backref="group")
     data_groups = relationship("DataGroup", lazy="dynamic", backref="group")
+    data_items = relationship("DataItem", lazy="dynamic", backref="group")
     projects = relationship("Project", lazy="dynamic", backref="group")
 
     __tablename__ = "Group"

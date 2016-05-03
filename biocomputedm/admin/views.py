@@ -83,12 +83,10 @@ def show_users(page=1):
         u = Person.query.paginate(page=page, per_page=20)
 
     elif current_user.type == "Customer":
-        g = current_user.group
-        u = Customer.query.filter_by(group_id=g.id).paginate(page=page, per_page=20)
+        u = current_user.group.members.paginate(page=page, per_page=20)
 
     else:
-        g = current_user.group
-        u = User.query.filter_by(group_id=g.id).paginate(page=page, per_page=20)
+        u = current_user.group.members.paginate(page=page, per_page=20)
 
     return render_template("people.html", title="Users", page=page, obs=u)
 
@@ -176,20 +174,13 @@ def add_customer():
 @admin.route("/link_to_customer/<oid>|<origin>", methods=["GET", "POST"])
 @login_required("ANY")
 def link_to_customer(oid="", origin=""):
-    if oid == "" or origin == "":
-        flash("Could not locate the provided sample group", "error")
+    if oid == "" or origin != "project":
+        flash("Could not locate the provided information", "error")
         return redirect(url_for("index"))
 
-    if origin == "sample":
-        obj = current_user.group.samples.filter_by(display_key=oid).first()
-    elif origin == "project":
-        obj = current_user.group.projects.filter_by(display_key=oid).first()
-    else:
-        flash("Could not identify the object to link", "error")
-        return redirect(url_for("index"))
-
-    if obj is None:
-        flash("Could not identify the object to link", "error")
+    project = current_user.group.projects.filter_by(display_key=oid).first()
+    if project is None:
+        flash("Could not identify the provided project.", "error")
         return redirect(url_for("index"))
 
     from biocomputedm.admin import forms
@@ -201,50 +192,33 @@ def link_to_customer(oid="", origin=""):
             for key in ids:
                 group = Group.query.filter_by(display_key=key).first()
                 if group is not None:
-                    if origin == "sample":
-                        group.samples.append(obj)
-                        group.save()
-
-                    else:
-                        group.projects.append(obj)
-                        group.save()
+                    group.projects.append(project)
+                    group.save()
 
             flash("Consignor was successfully updated", "success")
+            return redirect(url_for("index"))
 
         else:
             flash("No consignors were selected.", "warning")
+            return redirect(url_for("index"))
 
     consignors = Group.query.filter_by(parent_id=current_user.group.id).all()
     potential_consignors = []
     for consignor in consignors:
         skip = False
-        if origin == "sample":
-            samples = consignor.samples
-            for sample in samples:
-                if sample.id == obj.id:
-                    skip = True
-                    break
+        projects = consignor.projects
+        for project in projects:
+            if project.id == project.id:
+                skip = True
+                break
 
-            if skip:
-                continue
-
-            else:
-                potential_consignors.append(consignor)
+        if skip:
+            continue
 
         else:
-            projects = consignor.projects
-            for project in projects:
-                if project.id == obj.id:
-                    skip = True
-                    break
+            potential_consignors.append(consignor)
 
-            if skip:
-                continue
-
-            else:
-                potential_consignors.append(consignor)
-
-    return render_template("select_customer.html", title="Link to Consignor", customers=consignors, obj=obj, origin=origin, form=form)
+    return render_template("select_customer.html", title="Link to Consignor", customers=consignors, obj=project, origin=origin, form=form)
 
 
 @admin.route("/refresh_reference_data")

@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block main_panel_view %}
-<h3>Sample Groups</h3>
+<h3>Data Groups</h3>
 <table class="content">
     <tr>
         <th>Name</th>
@@ -18,7 +18,7 @@
     {% if obs %}
     {% for item in obs.items %}
     <tr>
-        <td><a href="{{ url_for('manage.data_group', oid=item.display_key) }}">{{ item.name }}</a></td>
+        <td><a href="{{ url_for('manage.data_group', oid=item.display_key, data_type='sample') }}">{{ item.name }}</a></td>
         <td>{{ item.group.name }}</td>
         <td>{{ item.data.all()|length }}</td>
         {% if item.pipeline_source %}

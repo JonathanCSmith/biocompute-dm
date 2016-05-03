@@ -109,7 +109,7 @@ def upgrade():
     op.create_table('DataGroup',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('display_key', sa.String(length=32), nullable=True),
-    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('creation_date', sa.Date(), nullable=True),
     sa.Column('updated_date', sa.Date(), nullable=True),

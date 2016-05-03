@@ -16,63 +16,22 @@
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
-        <h3>Submission: {{ submission.name }}</h3>
-
-        <div class="input-table clear">
-            <table class="small_content">
-                <tr>
-                    <th>Submitted by:</th>
-                    <td>{{ submission.user.username }}</td>
-                </tr>
-
-                <tr>
-                    <th>Description:</th>
-                    <td>{{ submission.description }}</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="spacer"></div>
+        <h3>Submission Details</h3>
 
         <table class="content">
             <tr>
-                <th>File Name</th>
-                <th>File Size (bytes)</th>
-                <th>File Creation Date</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Creation Date</th>
+                <th>Updated Date</th>
+                <th>Creator</th>
             </tr>
-
-            {% for file in files %}
             <tr>
-                <td>{{ file["name"] }}</td>
-                <td>{{ file["size"] }}</td>
-                <td>{{ file["date"] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-
-        <div class="spacer"></div>
-
-        <table class="pagenator">
-            <tr>
-                <td></td>
-                <td>&lt;&lt;</td>
-                <td>
-                    {% if has_prev %}
-                    <a href="{{ url_for(request.endpoint, page=obs.prev_num) }}">Previous</a>
-                    {% else %}
-                    Previous
-                    {% endif %}
-                </td>
-                <td>|</td>
-                <td>
-                    {% if has_next %}
-                    <a href="{{ url_for(request.endpoint, page=obs.next_num) }}">Next</a>
-                    {% else %}
-                    Next
-                    {% endif %}
-                </td>
-                <td>&gt;&gt;</td>
-                <td></td>
+                <td>{{ submission.name }}</td>
+                <td>{{ submission.description }}</td>
+                <td>{{ submission.creation_date }}</td>
+                <td>{{ submission.updated_date }}</td>
+                <td>{{ submission.user.username }}</td>
             </tr>
         </table>
     </div>
@@ -80,7 +39,35 @@
     <div class="spacer"></div>
 
     <div class="action exempt">
-        {% if submission.running_pipeline %}
+        <h3>Raw Data</h3>
+
+        {% if submission.data_group %}
+        <table class="content">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Creation Date</th>
+                <th>Updated Date</th>
+            </tr>
+            {% for data in submission.data_group.data %}
+            <tr>
+                <td>{{ data.name }}</td>
+                <td>{{ data.description }}</td>
+                <td>{{ data.creation_date }}</td>
+                <td>{{ data.updated_date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        {% else %}
+        <h4>No data items were unpacked when the submission was created.</h4>
+        {% endif %}
+    </div>
+
+    {% if submission.running_pipeline %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
         <h3>Currently Running Pipeline</h3>
         <table class="content2">
             <tr>
@@ -148,8 +135,12 @@
                 </tr>
             </table>
         </div>
+    </div>
 
-        {% elif submission.data_group %}
+    {% elif submission.data_group and g.user.get_role() != "Site Admin" %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
         <h3>Select a Pipeline to Run</h3>
         <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
         <select class="selection">
@@ -197,8 +188,8 @@
             <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=submission.data_group.display_key, pid=pipeline.display_key) }}">Select</a>
         </div>
         {% endfor %}
-        {% endif %}
     </div>
+    {% endif %}
 </div>
 {% endblock %}
 

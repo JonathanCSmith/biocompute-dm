@@ -6,11 +6,9 @@
 
 {% block info_panel %}
 <h3>Info</h3>
-<ul>
-    <li><h4>A project allows a custom aggregation of samples and sample groups.</h4></li>
-    <li><h4>Use the panel on the right to set the initial properties of your project.</h4></li>
-    <li><h4>From there on you may select from all of the relevant samples and add them.</h4></li>
-</ul>
+<h4>A project allows a custom aggregation of samples and pipeline outputs.</h4>
+<h4>Use the panel on the right to set the initial properties of your project.</h4>
+<h4>From there on you may select from all of the relevant samples and add them in their respective pages.</h4>
 {% endblock %}
 
 {% block main_panel %}
@@ -19,30 +17,19 @@
         <h3>New Project</h3>
 
         <form action="{{ url_for('manage.new_project') }}" method=post>
+            {{ form.hidden_tag() }}
             <table class="small_content">
                 <tr>
+                    <td>{{ form.investigation_name.label }}</td>
+                    <td>{{ form.investigation_name }}</td>
                     <td>
-                        {{ form.hidden_tag() }}
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.investigation_name.label }}</td>
-                                <td>{{ form.investigation_name }}</td>
-                            </tr>
-                        </table>
-                    </td>
                 </tr>
                 <tr>
-                    <td>
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.investigation_description.label }}</td>
-                                <td>{{ form.investigation_description }}</td>
-                            </tr>
-                        </table>
-                    </td>
+                    <td>{{ form.investigation_description.label }}</td>
+                    <td>{{ form.investigation_description }}</td>
                 </tr>
                 <tr>
-                    <td>
+                    <td colspan="2">
                         {{ form.submit }}
                     </td>
                 </tr>

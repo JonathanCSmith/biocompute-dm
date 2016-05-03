@@ -17,48 +17,62 @@
     <div class="action exempt">
         <h3>Sample Information</h3>
 
-        <table class="small_content">
+        <table class="content">
             <tr>
                 <th>Name</th>
+                <th>Description</th>
+                <th>Creation Date</th>
+                <th>Updated Date</th>
+            </tr>
+
+            <tr>
                 <td>{{ sample.name }}</td>
+                <td>{{ sample.description }}</td>
+                <td>{{ sample.creation_date }}</td>
+                <td>{{ sample.updated_date }}</td>
             </tr>
         </table>
     </div>
 
+    {% if sample.data %}
     <div class="spacer"></div>
 
     <div class="action exempt">
-        <h3>Sample Datasets</h3>
+        <h3>Data Items</h3>
 
-        {% if datasets %}
-        <table class="small_content">
+        <table class="content">
             <tr>
-                <th>Dataset ID</th>
-                <th>Pipeline Source</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Creation Date</th>
+                <th>Update Date</th>
+                <th>Data Group</th>
             </tr>
-            {% for data in datasets %}
+
+            {% for data in sample.data %}
             <tr>
-                <td><a href="{{ url_for('manage.sample_data', oid=oid, data_file=data['name']) }}">{{ data['name'] }}</a></td>
-                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=data['pipeline'].display_key) }}">{{ data['pipeline'].pipeline.name }}</a></td>
+                <td><a href="{{ url_for('manage.display_data', item_id=data.display_key, data_type='sample') }}">{{ data.name }}</a></td>
+                <td>{{ data.description }}</td>
+                <td>{{ data.creation_date }}</td>
+                <td>{{ data.updated_date }}</td>
+                {% if g.user.type == "User" %}
+                <td><a href="{{ url_for('manage.data_group', oid=data.data_group.display_key, data_type='sample') }}">{{ data.data_group.name }}</a></td>
+                {% else %}
+                <td>{{ data.data_group.name }}</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
-        {% else %}
-        <h3>No output information available for this pipeline instance.</h3>
-        {% endif %}
     </div>
+    {% endif %}
 
-    {% if g.user.type == "User" %}
+    {% if g.user.type == "User" and g.user.get_role() != "Site Admin" %}
     <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Manage</h3>
 
-        <table>
-            <tr>
-                <td><a class="input" href="{{ url_for('admin.link_to_customer', oid=sample.display_key, origin='sample') }}">Link to Consignor</a></td>
-            </tr>
-        </table>
+        <a class="input" href="{{ url_for('manage.link_to_project', oid=sample.display_key, data_type='sample') }}">Link Sample Data to Project</a>
     </div>
     {% endif %}
 </div>

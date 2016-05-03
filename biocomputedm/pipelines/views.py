@@ -5,7 +5,7 @@ from datetime import datetime
 from biocomputedm import utils
 from biocomputedm.admin.models import ReferenceData
 from biocomputedm.decorators import login_required
-from biocomputedm.manage.models import DataGroup, Sample
+from biocomputedm.manage.models import DataGroup
 from biocomputedm.pipelines import models
 from biocomputedm.pipelines.forms import build_options_form, PipelinePropertiesForm
 from biocomputedm.pipelines.models import Pipeline, PipelineInstance, PipelineModuleInstance, PipelineModuleOptionValue
@@ -163,40 +163,14 @@ def display_pipeline_instances(page=1):
 
 
 @pipelines.route("/display_pipeline_instance/<oid>")
-@pipelines.route("/display_pipeline_instance/<oid>|<data_file>")
 @login_required("ANY")
-def display_pipeline_instance(oid="", data_file=""):
+def display_pipeline_instance(oid=""):
     pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
     if pipeline_instance is None:
         flash("Could not locate the provided pipeline instance", "warning")
         return redirect(url_for("empty"))
 
-    data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key), "pipeline_output")
-    filepaths = next(os.walk(data_path))
-    datasets = []
-    for file in filepaths[2]:
-        try:
-            item = {
-                "name": file,
-                "path": os.path.join(data_path, file)
-            }
-            datasets.append(item)
-
-        except:
-            pass
-
-    if len(datasets) == 0:
-        datasets = None
-
-    return render_template(
-        "pipeline_instance.html",
-        title="Pipeline Instance",
-        pipeline_instance=pipeline_instance,
-        data_source_type="pipeline_output",
-        oid=pipeline_instance.display_key,
-        datasets=datasets,
-        data_file=""
-    )
+    return render_template("pipeline_instance.html", title="Pipeline Instance", pipeline_instance=pipeline_instance)
 
 
 @pipelines.route("/build_pipeline_instance/<oid>|<pid>", methods=["GET", "POST"])
@@ -248,10 +222,9 @@ def build_pipeline_instance(oid="", pid=""):
             return redirect(url_for("index"))
 
         # Previous runs check
-        for source_data_pipeline in source_data_group.pipeline_instances:
-            if source_data_pipeline.current_execution_status == "RUNNING":
-                flash("Cannot execute a pipeline on a data group when a pipeline is already running. Please ensure you finish or quit the current pipeline before proceeding", "warning")
-                return redirect(url_for("index"))
+        if source_data_group.running:
+            flash("Cannot execute a pipeline on a data group when a pipeline is already running. Please ensure you finish or quit the current pipeline before proceeding", "warning")
+            return redirect(url_for("index"))
 
         # Instance creation and assignment
         pipeline_instance = PipelineInstance.create(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=current_user, consignor=source_data_group)
@@ -285,7 +258,7 @@ def build_module_instance(pid="", oid="", index=-1):
         flash("There was an error with your provided information.", "error")
         return redirect(url_for("index"))
 
-    pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
+    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=pid).first()
     if pipeline_instance is None:
         flash("There was an error with your provided information.", "error")
         return redirect(url_for("index"))
@@ -474,22 +447,19 @@ def build_module_instance(pid="", oid="", index=-1):
 
 
 @pipelines.route("/module_instance/<oid>")
-@pipelines.route("/module_instance/<oid>|<data_file>")
 @login_required("ANY")
-def module_instance(oid="", data_file=""):
+def module_instance(oid=""):
     if oid == "":
         flash("No instance identifiers were provided!", "warning")
         return redirect(url_for("empty"))
 
     pipeline_instances = current_user.group.pipeline_instances.all()
-    p_instance = None
     m_instance = None
     for pipeline_instance in pipeline_instances:
         module_instances = pipeline_instance.module_instances.all()
         for module_instance in module_instances:
             if module_instance.display_key == oid:
                 m_instance = module_instance
-                p_instance = pipeline_instance
                 break
 
         if m_instance is not None:
@@ -499,38 +469,7 @@ def module_instance(oid="", data_file=""):
         flash("Could not locate the provided module instance", "warning")
         return redirect(url_for("empty"))
 
-    data_path = os.path.join(
-        os.path.join(
-            os.path.join(
-                utils.get_path("pipeline_data", "webserver"),
-                p_instance.display_key),
-            "modules_output"),
-        m_instance.module.name)
-
-    datasets = []
-    if os.path.isdir(data_path):
-        filepaths = next(os.walk(data_path))
-        for file in filepaths[2]:
-            try:
-                item = {
-                    "name": file,
-                    "path": os.path.join(data_path, file)
-                }
-                datasets.append(item)
-
-            except:
-                pass
-
-    if len(datasets) == 0:
-        datasets = None
-
-    return render_template("module_instance.html",
-                           title="Module Instance",
-                           module_instance=m_instance,
-                           data_source_type="module_output",
-                           oid=m_instance.display_key,
-                           datasets=datasets,
-                           data_file="")
+    return render_template("module_instance.html", title="Module Instance", module_instance=m_instance)
 
 
 @pipelines.route("/continue_pipeline_instance/<oid>")

@@ -1,0 +1,49 @@
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<h4>Use this page to select a project (or projects) with which you will be linking your previously selected data.</h4>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Available Projects</h3>
+
+        <form action="{{ url_for('manage.link_to_project', page=page, oid=oid, data_type=data_type) }}" method=post>
+            {{ form.hidden_tag() }}
+
+            <div class="input-table clear">
+                <table class="content">
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Creation Date</th>
+                        <th>Updated Date</th>
+                        <th>Select</th>
+                    </tr>
+
+                    {% for project in projects.items %}
+                    <tr>
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.description }}</td>
+                        <td>{{ project.creation_date }}</td>
+                        <td>{{ project.updated_date }}</td>
+                        <td><input type="checkbox" name="do_select" value="{{ project.display_key }}"></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="spacer"></div>
+
+            {{ form.submit(class_="input") }}
+        </form>
+    </div>
+</div>
+{% endblock %}
