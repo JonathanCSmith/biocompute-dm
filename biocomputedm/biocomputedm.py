@@ -1,4 +1,4 @@
-from biocomputedm.admin.models import User, Group, Person
+from biocomputedm.admin.models import User, Person, UserGroup
 from biocomputedm.admin.models import refresh_reference_data_library
 from biocomputedm.pipelines.models import refresh_pipelines
 from flask import Flask
@@ -140,13 +140,13 @@ def load_defaults(app):
     admin = User.query.filter_by(username=app.config["SITE_ADMIN_USERNAME"]).first()
 
     if admin is None:
-        group = Group.create(name="Site Admins")
-        admin = User.create(username=app.config["SITE_ADMIN_USERNAME"],
-                            password=app.config["SITE_ADMIN_PASSWORD"],
-                            email=app.config["SITE_ADMIN_EMAIL"],
-                            group=group)
-        group.set_administrator(admin)
-        group.save()
+        group = UserGroup.create(
+            group_name="Site Admins",
+            admin_name=app.config["SITE_ADMIN_USERNAME"],
+            admin_password=app.config["SITE_ADMIN_PASSWORD"],
+            admin_email=app.config["SITE_ADMIN_EMAIL"]
+        )
+        admin = group.members.first()
         admin.set_role("Site Admin")
         admin.save()
 

@@ -1,7 +1,7 @@
 from biocomputedm import utils
 from biocomputedm.admin import forms
 from biocomputedm.admin import models
-from biocomputedm.admin.models import User, Group, create_group, ReferenceData, create_customer_group, Person, Customer
+from biocomputedm.admin.models import User, ReferenceData, Person, Customer, UserGroup, CustomerGroup, Group
 from biocomputedm.decorators import login_required
 from flask import Blueprint, request, render_template, redirect, url_for, flash, g
 from flask.ext.login import login_user, logout_user, current_user
@@ -66,11 +66,11 @@ def add_group():
             return render_template("add_group.html", title="Group Creation", form=form)
 
         else:
-            create_group(
-                    str(form.group_name.data),
-                    str(form.admin_login.data),
-                    str(form.admin_password.data),
-                    str(form.admin_email.data)
+            UserGroup.create(
+                    group_name=str(form.group_name.data),
+                    admin_name=str(form.admin_login.data),
+                    admin_password=str(form.admin_password.data),
+                    admin_email=str(form.admin_email.data)
             )
             return redirect(url_for("admin.show_groups"))
 
@@ -117,7 +117,7 @@ def add_user():
 @admin.route("/show_customers/<int:page>")
 @login_required("Group Admin")
 def show_customers(page=1):
-    g = Group.query.filter_by(parent_id=current_user.group.id)
+    g = current_user.group.customer_groups
     if g is not None:
         g = g.paginate(page=page, per_page=20)
     return render_template("groups.html", title="Consignors", page=page, obs=g)
@@ -136,15 +136,13 @@ def add_customer_group():
             return render_template("add_group.html", title="Consignor Creation", form=form)
 
         else:
-            customer_group = create_customer_group(
-                    str(form.group_name.data),
-                    str(form.admin_login.data),
-                    str(form.admin_password.data),
-                    str(form.admin_email.data)
+            customer_group = CustomerGroup.create(
+                group_name=str(form.group_name.data),
+                admin_name=str(form.admin_login.data),
+                admin_password=str(form.admin_password.data),
+                admin_email=str(form.admin_email.data),
+                parent_group=current_user.group
             )
-
-            customer_group.parent_id = current_user.group.id
-            customer_group.save()
 
             return redirect(url_for("admin.show_customers"))
 
@@ -190,9 +188,19 @@ def link_to_customer(oid="", origin=""):
         ids = request.form.getlist("do_select")
         if ids is not None and len(ids) != 0:
             for key in ids:
-                group = Group.query.filter_by(display_key=key).first()
+                group = CustomerGroup.query.filter_by(display_key=key).first()
                 if group is not None:
                     group.projects.append(project)
+                    group.save()
+
+                    for sample in project.samples:
+                        group.samples.append(sample)
+
+                    group.save()
+
+                    for pipeline_output in project.pipeline_outputs:
+                        group.data_groups.append(pipeline_output)
+
                     group.save()
 
             flash("Consignor was successfully updated", "success")
@@ -202,7 +210,7 @@ def link_to_customer(oid="", origin=""):
             flash("No consignors were selected.", "warning")
             return redirect(url_for("index"))
 
-    consignors = Group.query.filter_by(parent_id=current_user.group.id).all()
+    consignors = CustomerGroup.query.filter_by(parent_id=current_user.group.id).all()
     potential_consignors = []
     for consignor in consignors:
         skip = False

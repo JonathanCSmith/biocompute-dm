@@ -75,6 +75,7 @@ def display_data(item_id="", data_type=""):
         return redirect(url_for("empty"))
 
     data_item = current_user.group.data_items.filter_by(display_key=item_id).first()
+
     if data_item is None:
         flash("Could not identify the provided data set", "warning")
         return redirect(url_for("empty"))
@@ -290,14 +291,14 @@ def new_submission():
             return render_template("new_submission.html", title="New Data Submission", form=form, files=files)
 
 
-@manage.route("/submission/<sid>")
+@manage.route("/submission/<oid>")
 @login_required("ANY")
-def submission(sid=""):
-    if sid == "":
+def submission(oid=""):
+    if oid == "":
         flash("No submission id was provided", "warning")
         return redirect(url_for("index"))
 
-    submission = current_user.group.submissions.filter_by(display_key=sid).first()
+    submission = current_user.group.submissions.filter_by(display_key=oid).first()
     if submission is None:
         flash("Invald submission id", "error")
         return redirect(url_for("index"))
@@ -582,6 +583,7 @@ def link_to_project(page=1, oid="", data_type=""):
                     for data in data_group.data:
                         if data.sample:
                             project.samples.append(data.sample)
+                            has_real_data = True
 
                     if not has_real_data:
                         flash("None of the data items in the provided group had samples to link", "warning")

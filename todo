@@ -1,7 +1,4 @@
 Readme:
-	sshd
-	visudo
-	unzipper dependency
 	expected output structure from pipelines
 	module working directory structure
 Content:
@@ -17,11 +14,6 @@ Feature:
 		views for messages in admin console
 
 Ordered TODO list:
-	* Switch instances of filepaths (next(os.walk)) to use the new data items infrastructure
-
-	* Cycle exome pipeline until I am sure it is working
-		* Attempt align pipeline with a real world example
-
 	* Download infrastructrue
 		* SFTP infrastructure
 			* Group creation adds a group sftp - users added to this group including group admin are added to this group
@@ -33,9 +25,9 @@ Ordered TODO list:
 
 	* Fix pipeline restart controlls not working
 
-====== Release v1
+	* MOAR PIPELINEZ
 
-	* Permissions for all data manipulations / access
+====== Release v1
 
 	* Pipeline Documentation text, documentation file
 

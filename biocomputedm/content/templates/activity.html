@@ -6,10 +6,17 @@
 {% block content %}
 <div class="input-table clear">
     <div class="action exempt">
+        {% if g.user.get_role() != "Site Admin" %}
         <h3>Biocompute-DM Activity Window</h3>
         <h4>Here you can find a list of activities available for you to perform.</h4>
         <h4>In the toolbar above you can find summaries for your activities.</h4>
         <h4>In the toolbar below you can find site, and user, specific information.</h4>
+        {% else %}
+        <h4>Welcome System Administrator {{ g.user.username }}</h4>
+        <h4>As System Administrator you can view all data within the Biocompute-DM database.</h4>
+        <h4>In order to add data, you must create a group and a group administrator. A group administrator can then upload data themselves or create new users with the previously described permissions.</h4>
+        <h4>Group admins also have the ability to add consignors for data sharing, these work like groups except they have no permission to add new data and can only access data that has been shared with them.</h4>
+        {% endif %}
     </div>
 </div>
 

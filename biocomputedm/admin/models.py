@@ -8,34 +8,21 @@ from flask.ext.login import UserMixin
 from sqlalchemy import update
 from werkzeug.security import generate_password_hash, check_password_hash
 
-sample_customer_table = Table("SampleToCustomer",
-                              Column("sample_id", Integer, ForeignKey("Sample.id")),
-                              Column("customer_id", Integer, ForeignKey("Customer.id")))
-
-data_group_customer_table = Table("DataGroupToCustomer",
-                                  Column("data_group_id", Integer, ForeignKey("DataGroup.id")),
-                                  Column("customer_id", Integer, ForeignKey("Customer.id")))
-
-project_customer_table = Table("ProjectToCustomer",
-                               Column("project_id", Integer, ForeignKey("Project.id")),
-                               Column("customer_id", Integer, ForeignKey("Customer.id")))
+customer_to_sample_mapping = Table("CustomerSampleMapping", Column("customer_id", Integer, ForeignKey("CustomerGroup.id")), Column("sample_id", Integer, ForeignKey("Sample.id")))
+customer_to_data_group_mapping = Table("CustomerDataGroupMapping", Column("customer_id", Integer, ForeignKey("CustomerGroup.id")), Column("data_group_id", Integer, ForeignKey("DataGroup.id")))
+customer_to_data_item_mapping = Table("CustomerDataItemMapping", Column("customer_id", Integer, ForeignKey("CustomerGroup.id")), Column("data_item_id", Integer, ForeignKey("DataItem.id")))
+customer_to_project_mapping = Table("CustomerProjectMapping", Column("customer_id", Integer, ForeignKey("CustomerGroup.id")), Column("project_id", Integer, ForeignKey("Project.id")))
 
 
 # Permissions wrapper & environment contextualiser
 class Group(SurrogatePK, Model):
     name = Column(String(50), unique=True, nullable=False)
-
-    parent_id = reference_col("Group", nullable=True)
+    type = Column(String(50), nullable=False)
 
     members = relationship("Person", backref="group", lazy="dynamic")
-    submissions = relationship("Submission", lazy="dynamic", backref="group")
-    pipeline_instances = relationship("PipelineInstance", lazy="dynamic", backref="group")
-    samples = relationship("Sample", lazy="dynamic", backref="group")
-    data_groups = relationship("DataGroup", lazy="dynamic", backref="group")
-    data_items = relationship("DataItem", lazy="dynamic", backref="group")
-    projects = relationship("Project", lazy="dynamic", backref="group")
 
     __tablename__ = "Group"
+    __mapper_args__ = {"polymorphic_on": type}
 
     def __init__(self, name):
         db.Model.__init__(self, name=name)
@@ -58,18 +45,50 @@ class Group(SurrogatePK, Model):
         self.members.append(administrator)
 
 
-def create_group(group_name, admin_name, admin_password, admin_email, type):
-    group = Group.create(name=group_name)
-    user = User.create(username=admin_name, email=admin_email, password=admin_password, group=group)
-    group.set_administrator(user)
-    return group
+class UserGroup(Group):
+    id = reference_col("Group", primary_key=True)
+
+    submissions = relationship("Submission", lazy="dynamic", backref="group")
+    pipeline_instances = relationship("PipelineInstance", lazy="dynamic", backref="group")
+    samples = relationship("Sample", lazy="dynamic", backref="group")
+    data_groups = relationship("DataGroup", lazy="dynamic", backref="group")
+    data_items = relationship("DataItem", lazy="dynamic", backref="group")
+    projects = relationship("Project", lazy="dynamic", backref="group")
+
+    __tablename__ = "UserGroup"
+    __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Group.id)}
+
+    def __init__(self, group_name, admin_name, admin_password, admin_email):
+        Group.__init__(self, name=group_name)
+        user = User.create(username=admin_name, email=admin_email, password=admin_password, group=self)
+        self.set_administrator(user)
+
+    def __repr__(self):
+        return "<UserGroup %r>" % self.name
 
 
-def create_customer_group(group_name, admin_name, admin_password, admin_email):
-    group = Group.create(name=group_name)
-    user = Customer.create(username=admin_name, email=admin_email, password=admin_password, group=group)
-    group.set_administrator(user)
-    return group
+class CustomerGroup(Group):
+    id = reference_col("Group", primary_key=True)
+
+    parent_id = reference_col("Group", nullable=True)
+
+    parent_group = relationship("UserGroup", backref=backref("customer_groups", uselist=True, lazy="dynamic"), foreign_keys=parent_id, uselist=False)
+    samples = relationship("Sample", secondary=customer_to_sample_mapping, lazy="dynamic")
+    data_groups = relationship("DataGroup", secondary=customer_to_data_group_mapping, lazy="dynamic")
+    data_items = relationship("DataItem", secondary=customer_to_data_item_mapping, lazy="dynamic")
+    projects = relationship("Project", secondary=customer_to_project_mapping, lazy="dynamic")
+
+    __tablename__ = "CustomerGroup"
+    __mapper_args__ = {"polymorphic_identity": "Customer", "inherit_condition": (id == Group.id)}
+
+    def __init__(self, group_name, admin_name, admin_password, admin_email, parent_group):
+        Group.__init__(self, name=group_name)
+        self.parent_group=parent_group
+        user = Customer.create(username=admin_name, email=admin_email, password=admin_password, group=self)
+        self.set_administrator(user)
+
+    def __repr__(self):
+        return "<CustomerGroup %r>" % self.name
 
 
 # Person table, abstract parent for individuals interacting with the software
@@ -139,9 +158,6 @@ class User(Person):
 # Customer table
 class Customer(Person):
     id = reference_col("Person", primary_key=True)
-
-    samples = relationship("Sample", secondary=sample_customer_table, lazy="dynamic")
-    projects = relationship("Project", secondary=project_customer_table, lazy="dynamic")
 
     __tablename__ = "Customer"
     __mapper_args__ = {"polymorphic_identity": "Customer", "inherit_condition": (id == Person.id)}

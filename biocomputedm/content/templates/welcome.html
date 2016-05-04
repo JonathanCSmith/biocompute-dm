@@ -1,9 +1,16 @@
 {% extends "index.html" %}
+
 {% block main %}
 <h3>Welcome to Biocompute-DM - An Interactive Tool for the Execution of Bioinformatics Pipelines</h3>
+
 {% if user.is_authenticated %}
 <h4>Welcome to Biocompute-DM, a tool designed to ease the execution of complex, and often times computationally expensive, bioinformatics pipelines.</h4>
-<h4>Biocompute-DM offers several key features to its users (listed below) and is enhanced using custom bioinformatics pipelines, details on which can be found in the available plugins tab.</h4>
+<h4>Biocompute-DM offers several key features to its users (listed below)</h4>
+<h4>Primarily Biocompute-DM utilises a streamlined user interface that hides many of the time consuming aspects of running a bioinformatics pipeline.</h4>
+<h4>Biocompute-DM's power is directly enhanced using custom bioinformatics pipelines, details on which can be found in the available pipelines tab (in your activity window when logged in).</h4>
+<h4>Biocompute-DM also offers bioinformaticians a unique platform to facilitate productionising and deploying their pipelines.</h4>
+
+
 {% else %}
 <a class="input" href="{{ url_for('admin.login') }}">Login</a>
 <ul>

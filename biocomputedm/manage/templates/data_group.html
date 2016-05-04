@@ -78,11 +78,10 @@
     </div>
 
     {% if g.user.type == "User" %}
-
+    {% if running_pipeline %}
     <div class="spacer"></div>
 
     <div class="action exempt">
-        {% if running_pipeline %}
         <table class="content2">
             <tr>
                 <th>Pipeline Name</th>
@@ -149,8 +148,12 @@
                 </tr>
             </table>
         </div>
+    </div>
 
-        {% else %}
+    {% elif g.user.get_role() != "Site Admin" %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
         <h3>Select a Pipeline to Run on this Data Group</h3>
         <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
         <select class="selection">
@@ -200,8 +203,8 @@
             <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=data_group.display_key, pid=pipeline.display_key) }}">Select</a>
         </div>
         {% endfor %}
-        {% endif %}
     </div>
+    {% endif %}
     {% endif %}
 </div>
 {% endblock %}

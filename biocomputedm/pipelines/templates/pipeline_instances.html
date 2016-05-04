@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block main_panel_view %}
-<h3>Pipelines</h3>
+<h3>Pipeline Runs</h3>
 <table class="content">
     <tr>
         <th>Pipeline Name</th>
@@ -30,4 +30,10 @@
     </tr>
     {% endfor %}
 </table>
+{% endblock %}
+
+{% block post_pagination %}
+<div class="spacer"></div>
+
+<a class="input" href="{{ url_for('pipelines.display_pipelines') }}">View Available Pipelines</a>
 {% endblock %}

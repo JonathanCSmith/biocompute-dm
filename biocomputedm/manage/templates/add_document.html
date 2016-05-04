@@ -16,30 +16,18 @@
     <div class="action">
         <h3>Add a document</h3>
         <form action="{{ url_for('manage.add_document', oid=oid) }}" method=post enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
             <table class="small_content">
                 <tr>
-                    <td>
-                        {{ form.hidden_tag() }}
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.description.label }}</td>
-                                <td>{{ form.description }}</td>
-                            </tr>
-                        </table>
-                    </td>
+                    <td>{{ form.description.label }}</td>
+                    <td>{{ form.description }}</td>
                 </tr>
                 <tr>
-                    <td>
-                        <table class="internal">
-                            <tr>
-                                <td>{{ form.file_upload.label }}</td>
-                                <td>{{ form.file_upload }}</td>
-                            </tr>
-                        </table>
-                    </td>
+                    <td>{{ form.file_upload.label }}</td>
+                    <td>{{ form.file_upload }}</td>
                 </tr>
                 <tr>
-                    <td>
+                    <td colspan="2">
                         {{ form.submit }}
                     </td>
                 </tr>

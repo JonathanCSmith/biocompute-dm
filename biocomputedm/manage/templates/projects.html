@@ -31,3 +31,9 @@
 
 </table>
 {% endblock %}
+
+{% block post_pagination %}
+<div class="spacer"></div>
+
+<a class="input" href="{{ url_for('manage.new_project') }}">Create a New Project</a>
+{% endblock %}

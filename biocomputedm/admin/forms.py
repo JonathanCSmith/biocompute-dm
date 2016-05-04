@@ -37,7 +37,6 @@ class CreateGroupForm(Form):
 
     def validate(self):
         if not Form.validate(self):
-            flash("There was an error in your submission", "error")
             return False
 
         user = User.query.filter_by(email=str(self.admin_email.data)).first()

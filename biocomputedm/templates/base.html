@@ -50,7 +50,9 @@
                             {% if g.user.is_authenticated %}
 
                             {% if g.user.type == "User" %}
+                            {% if g.user.get_role() != "Site Admin" %}
                             <li><a href="{{ url_for('manage.uploads') }} ">Staging Drive</a></li>
+                            {% endif %}
                             <li><a href="{{ url_for('manage.submissions') }} ">Submissions</a></li>
                             {% endif %}
 

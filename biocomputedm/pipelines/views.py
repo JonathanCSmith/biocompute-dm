@@ -491,10 +491,8 @@ def continue_pipeline(oid=""):
 
     # We have the options already - from a state perspective I am not sure how this will arise but its best to handle
     if pipeline_instance.execution_type == "Continuous":
-        from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
-        execute_module_instance(current_app._get_current_object(),
-                                pipeline_instance.display_key,
-                                pipeline_instance.data_consigner.display_key)
+        from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_module
+        execute_pipeline_module(current_app._get_current_object(), pipeline_instance.display_key)
 
         flash("Submitting the next module for execution!", "success")
         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))

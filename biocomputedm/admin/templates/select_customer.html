@@ -1,5 +1,3 @@
-{% set admin_flag = True %}
-
 {% extends "information_panel.html" %}
 
 {% block custom_css %}
@@ -40,5 +38,6 @@
 {% endblock %}
 
 {% block custom_scripts %}
+{{ super() }}
 <script src="/static/js/selectContent.js"></script>
 {% endblock %}
