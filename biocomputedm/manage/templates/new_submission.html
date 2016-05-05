@@ -6,22 +6,22 @@
 
 {% block info_panel %}
 <h3>Info</h3>
-<h4>In order to run a pipeline on a set of data, it must first be submitted.</h4>
-<h4>This submission form allows you to assign the data.</h4>
-<h4>Please use the panel to the right to select the data and properties of your submission.</h4>
+<p>In order to run a pipeline on a set of files, a submsission must first be created.</p>
+<p>This submission form allows you to assign which files you wish to group together when running a pipeline.</p>
+<p>Please use the panel to the right to select the data and properties of your submission.</p>
 {% endblock %}
 
 {% block main_panel %}
 <div class="input-table clear">
-    <div class="action exempt">
-        <h3>New Submission Information</h3>
+    <form action="{{ url_for('manage.new_submission') }}" method=post>
+        {{ form.hidden_tag() }}
 
-        <h4>The information below must be input in order to generate a new submission</h4>
+        <div class="action exempt">
+            <h3>New Submission Properties</h3>
 
-        <div class="spacer"></div>
+            <h4>The information below must be input in order to generate a new submission</h4>
 
-        <form action="{{ url_for('manage.new_submission') }}" method=post>
-            {{ form.hidden_tag() }}
+            <div class="spacer"></div>
 
             <div class="input-table clear">
                 <table class="small_content">
@@ -35,33 +35,43 @@
                     </tr>
                 </table>
             </div>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="action exempt">
+            <h3>Files to Add to Submission</h3>
+
+            <h4>Select which files you wish to group together within this submission.</h4>
 
             <div class="spacer"></div>
 
-            <div class="input-table clear">
-                <table class="content">
-                    <tr>
-                        <th>File Name</th>
-                        <th>File Size (bytes)</th>
-                        <th>File Creation Date</th>
-                        <th>Submit?</th>
-                    </tr>
+            <table class="content">
+                <tr>
+                    <th>File Name</th>
+                    <th>File Size (bytes)</th>
+                    <th>File Creation Date</th>
+                    <th>Submit?</th>
+                </tr>
 
-                    {% for file in files %}
-                    <tr>
-                        <td>{{ file["name"] }}</td>
-                        <td>{{ file["size"] }}</td>
-                        <td>{{ file["date"] }}</td>
-                        <td><input type="checkbox" name="do_select" value="{{ file['name'] }}"></td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file["name"] }}</td>
+                    <td>{{ file["size"] }}</td>
+                    <td>{{ file["date"] }}</td>
+                    <td><input type="checkbox" name="do_select" value="{{ file['name'] }}"></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
 
-            <div class="spacer"></div>
+        <div class="spacer"></div>
+
+        <div class="action exempt">
+            <h3>Finish and Submit</h3>
 
             {{ form.submit(class_="input") }}
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 {% endblock %}

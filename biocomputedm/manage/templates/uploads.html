@@ -7,7 +7,7 @@
 
 {% block info_panel %}
 <h3>Info</h3>
-<h4>The panels on the right list your uploaded files as well as your files prepared for download.</h4>
+<p>The panels on the right list the files uploaded or available for download.</p>
 {% endblock %}
 
 {% block main_panel %}
@@ -59,7 +59,7 @@
 
         <div class="spacer"></div>
 
-        <a class="input" href="{{ url_for('manage.upload_data') }}">Upload Data</a>
+        <a class="input" href="{{ url_for('manage.upload_data') }}">Upload Files to Staging Drive</a>
     </div>
 </div>
 {% endblock %}

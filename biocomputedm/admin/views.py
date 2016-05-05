@@ -25,7 +25,7 @@ def login():
 
         else:
             user = Person.query.filter_by(username=str(form.username.data)).first()
-            flash("Successfully logged in!", "success")
+            flash("Successfully logged in.", "success")
             login_user(user)
 
             next = request.args.get('next')

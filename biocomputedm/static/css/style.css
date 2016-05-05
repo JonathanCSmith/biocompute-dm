@@ -64,7 +64,7 @@ footer {
     /* Text properties */
     text-align: center;
     color: #fff;
-    text-shadow: 2px 2px #a6a6a6;
+    text-shadow: 1px 1px 2px black, 0 0 25px #d6f5f5, 0 0 5px #239090;
 }
 
 .brand h1 {

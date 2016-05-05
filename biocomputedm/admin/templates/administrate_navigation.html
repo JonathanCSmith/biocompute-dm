@@ -25,9 +25,9 @@
     <li><a class="input fixed" href="{{ url_for('pipelines.refresh_pipelines') }}">Refresh Pipelines</a></li>
     {% endif %}
 
-    <li><a class="input fixed" href="{{ url_for('admin.display_reference_data') }}">Show Reference Datasets</a></li>
+    <li><a class="input fixed" href="{{ url_for('admin.display_reference_data') }}">Show Reference Files</a></li>
     {% if g.user.get_role() == "Site Admin" %}
-    <li><a class="input fixed" href="{{ url_for('admin.refresh_reference_data') }}">Refresh Reference Data</a></li>
+    <li><a class="input fixed" href="{{ url_for('admin.refresh_reference_data') }}">Refresh Reference Files</a></li>
     {% endif %}
     {% endif %}
 </ul>

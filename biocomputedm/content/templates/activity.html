@@ -46,8 +46,8 @@
 
             <td>
                 <div class="action">
-                    <h3>Upload Data</h3>
-                    <a class="input" href="{{ url_for('manage.upload_data') }}">Upload a new dataset</a>
+                    <h3>Upload Files to Staging Drive</h3>
+                    <a class="input" href="{{ url_for('manage.upload_data') }}">Upload Files</a>
                     <ul>
                         <li>Allows you to upload zipped data to a personal storage area within Biocompute-DM. Uploaded zips then become available to send to pipelines.</li>
                     </ul>
@@ -57,9 +57,9 @@
             <td>
                 <div class="action">
                     <h3>Select Data to Submit to a Pipeline</h3>
-                    <a class="input" href="{{ url_for('manage.new_submission') }}">Select Data for Submission!</a>
+                    <a class="input" href="{{ url_for('manage.new_submission') }}">Select Data for Submission</a>
                     <ul>
-                        <li>Select the data (from your uploads) that you wish to submit to a pipeline. Please note, some pipelines expect files in a very specific format, so please refer to the pipelines of interest before submitting!</li>
+                        <li>Select the data (from your uploads) that you wish to submit to a pipeline. Please note, some pipelines expect files in a very specific format, so please refer to the pipelines of interest before submitting.</li>
                     </ul>
                 </div>
             </td>
@@ -67,7 +67,7 @@
             <td>
                 <div class="action">
                     <h3>Run a Pipeline on a Data Group</h3>
-                    <a class="input" href="{{ url_for('manage.data_groups') }}">Run a Pipeline!</a>
+                    <a class="input" href="{{ url_for('manage.data_groups') }}">Run a Pipeline</a>
                     <ul>
                         <li>Select a data group from those already available (these are produced by pipelines) in order to run a new pipeline on it. In future you will be able to create custom data groups.</li>
                     </ul>

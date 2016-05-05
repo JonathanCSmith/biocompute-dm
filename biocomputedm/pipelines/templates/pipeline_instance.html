@@ -8,17 +8,17 @@
 
 {% block info_panel %}
 <h3>Info</h3>
-<h4>To the right is all of the information associated with your pipeline run.</h4>
-<h4>It contains details on the the pipeline steps and links to their available information.</h4>
-<h4>The current status of the overall pipeline execution is indicated in the 'pipe'.</h4>
-<h4>Pipeline specific (as opposed to step specific) outputs are listed in a dedicated section when necessary.</h4>
-<h4>Samples generated when the pipeline finishes are also detailed in a separate section.</h4>
+<p>To the right is all of the information associated with your pipeline run.</p>
+<p>It contains details on the the pipeline steps and links to their available information.</p>
+<p>The current status of the overall pipeline execution is indicated in the 'pipe'.</p>
+<p>Pipeline specific (as opposed to step specific) outputs are listed in a dedicated section when necessary.</p>
+<p>Samples generated when the pipeline finishes are also detailed in a separate section.</p>
 {% endblock %}
 
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
-        <h3>Pipeline Properties</h3>
+        <h3>Pipeline Run Properties</h3>
 
         <table class="content2">
             <tr>
@@ -27,7 +27,7 @@
                 <th>Pipeline Author</th>
                 <th>Pipeline Version</th>
                 <th>Current Step</th>
-                <th>Current Status</th>
+                <th>Pipeline Run Status</th>
             </tr>
             <tr>
                 <td>{{ pipeline_instance.pipeline.name }}</td>
@@ -94,7 +94,7 @@
                     {% else %}
                         <td class="resize img2 bg5">
                     {% endif %}
-                    <a style="display: block;" href="{{ url_for('pipelines.module_instance', oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
+                    <a style="display: block;" href="{{ url_for('pipelines.module_instance', pid=pipeline_instance.display_key, oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
                 </td>
                 {% endfor %}
 

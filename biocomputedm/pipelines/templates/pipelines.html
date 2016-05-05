@@ -9,8 +9,8 @@
 {% include "administrate_navigation.html" %}
 {% else %}
 <h3>Info</h3>
-<h4>The panel on the right shows all of the plugins available to you.</h4>
-<h4>Within each of the pipelines you can find details about the pipeline's data prerequisites as well as a link to any documentation</h4>
+<p>The panel on the right shows all of the plugins available to you.</p>
+<p>Within each of the pipelines you can find details about the pipeline's data prerequisites as well as a link to any documentation</p>
 {% endif %}
 {% endblock %}
 
@@ -31,7 +31,14 @@
         <td>{{ pipeline.description }}</td>
         <td>{{ pipeline.author }}</td>
         <td>{{ pipeline.version }}</td>
-        <td>{{ pipeline.type }}</td>
+
+        {% if pipeline.type == "I" %}
+        <td>Pre Processing</td>
+        {% elif pipeline.type == "II" %}
+        <td>Processing</td>
+        {% else %}
+        <td>Post Processing</td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>

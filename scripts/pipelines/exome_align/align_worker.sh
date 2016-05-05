@@ -49,40 +49,38 @@ IFS=',' read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA < <(sed -n $
 READ_1=""
 READ_2=""
 
-# Expectation of nested pipeline datasets within sample dir (current layout of biocompute - may change, see the two errors below)
-for d in "${SAMPLE_INPUT_PATH}/*/"; do
-
-    # We are looking for a specific file type
-    for f in ${d}/*_R1.fastq; do
-        if [ "${READ_1}" ]; then
-            echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+# We are looking for a specific file type
+for f in ${d}/*_R1.fastq; do
+    if [ "${READ_1}" ]; then
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
 curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
-            exit
-        else
-            READ_1="${f}"
-        fi
-    done
+        exit
 
-    # We are looking for a specific file type
-    for f in ${d}/*_R2.fastq; do
-        if [ "${READ_2}" ]; then
-            echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+    else
+        READ_1="${f}"
+    fi
+done
+
+# We are looking for a specific file type
+for f in ${SAMPLE_INPUT_PATH}/*_R2.fastq; do
+    if [ "${READ_2}" ]; then
+        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
 curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
-            exit
-        else
-            READ_2="${f}"
-        fi
-    done
+        exit
+
+    else
+        READ_2="${f}"
+    fi
 done
 
 if [ -z "${READ_1}" ]; then
@@ -94,12 +92,21 @@ curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
     exit
+
+elif [[ "${READ_1}" =~ ".**.*" ]]; then
+    exit
+
 else
     echo "Read 1 was identified as: ${READ_1}"
 fi
 
 if [ "${READ_2}" ]; then
     echo "Read 2 was identified as: ${READ_2}"
+
+    if [[ "${READ_2}" =~ ".**.*" ]]; then
+        echo "Read 2 was likely malformed as it contained a regex pointer. Read 2 will be discarded"
+        READ_2 = ""
+    fi
 fi
 
 ############################### ALIGNMENT TO THE REFERENCE GENOME #######################################

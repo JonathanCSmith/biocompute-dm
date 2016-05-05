@@ -298,7 +298,11 @@ def submission(oid=""):
         flash("No submission id was provided", "warning")
         return redirect(url_for("index"))
 
-    submission = current_user.group.submissions.filter_by(display_key=oid).first()
+    if current_user.get_role() == "Site Admin":
+        submission = Submission.query.filter_by(display_key=oid).first()
+    else:
+        submission = current_user.group.submissions.filter_by(display_key=oid).first()
+
     if submission is None:
         flash("Invald submission id", "error")
         return redirect(url_for("index"))
@@ -327,7 +331,15 @@ def samples(page=1):
 @manage.route("/sample/<oid>")
 @login_required("ANY")
 def sample(oid=""):
-    sample = current_user.group.samples.filter_by(display_key=oid).first()
+    if oid == "":
+        flash("Could not locate the provided sample", "warning")
+        return redirect(url_for("empty"))
+
+    if current_user.get_role() == "Site Admin":
+        sample = Sample.query.filter_by(display_key=oid).first()
+    else:
+        sample = current_user.group.samples.filter_by(display_key=oid).first()
+
     if sample is None:
         flash("Could not locate the provided sample", "warning")
         return redirect(url_for("empty"))
@@ -397,7 +409,11 @@ def data_group(oid="", data_type=""):
         flash("Could not locate the provided data group", "error")
         return redirect(url_for("index"))
 
-    data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
+    if current_user.get_role() == "Site Admin":
+        data_group = DataGroup.query.filter_by(display_key=oid).first()
+    else:
+        data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
+
     if data_group is None:
         flash("Could not locate the provided data group", "error")
         return redirect(url_for("index"))
@@ -491,7 +507,7 @@ def new_project():
         if form.validate_on_submit():
             project = Project.create(name=str(form.investigation_name.data), description=str(form.investigation_description.data), creator=current_user)
             utils.make_directory(os.path.join(utils.get_path("project_data", "webserver"), project.display_key))
-            flash("Project successfully registered!", "info")
+            flash("Project successfully registered.", "info")
             return redirect(url_for("manage.project", oid=project.display_key))
 
         return render_template("new_project.html", title="New Project", form=form)
@@ -504,7 +520,12 @@ def project(oid=""):
         flash("Could not identify the provided project.", "error")
         return redirect(url_for("index"))
 
-    project = current_user.group.projects.filter_by(display_key=oid).first()
+    if current_user.get_role() == "Site Admin":
+        project = Project.query.filter_by(display_key=oid).first()
+
+    else :
+        project = current_user.group.projects.filter_by(display_key=oid).first()
+
     if project is None:
         flash("Could not identify the provided project.", "error")
         return redirect(url_for("index"))

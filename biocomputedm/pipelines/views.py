@@ -158,14 +158,26 @@ def display_pipeline(pid="", download=0):
 @pipelines.route("/display_pipeline_instances")
 @login_required("ANY")
 def display_pipeline_instances(page=1):
-    obs = current_user.group.pipeline_instances.paginate(page=page, per_page=20)
+    if current_user.get_role() == "Site Admin":
+        obs = PipelineInstance.query.paginate(page=page, per_page=20)
+    else:
+        obs = current_user.group.pipeline_instances.paginate(page=page, per_page=20)
+
     return render_template("pipeline_instances.html", title="Pipeline Instances", page=page, obs=obs)
 
 
 @pipelines.route("/display_pipeline_instance/<oid>")
 @login_required("ANY")
 def display_pipeline_instance(oid=""):
-    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+    if oid == "":
+        flash("Could not identify the provided pipeline run", "warning")
+        return redirect(url_for("index"))
+
+    if current_user.get_role() == "Site Admin":
+        pipeline_instance = PipelineInstance.query.filter_by(display_key=oid).first()
+    else:
+        pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+
     if pipeline_instance is None:
         flash("Could not locate the provided pipeline instance", "warning")
         return redirect(url_for("empty"))
@@ -266,7 +278,7 @@ def build_module_instance(pid="", oid="", index=-1):
     # We are out of modules
     module_instances = pipeline_instance.module_instances.all()
     if index >= len(module_instances):
-        flash("There are no more modules to build!", "warning")
+        flash("There are no more modules to build.", "warning")
         pipeline_instance.update(current_execution_status="FINISHED")
         return redirect(url_for("pipelines.display_pipeline_instance", oid=pipeline_instance.display_key))
 
@@ -446,23 +458,27 @@ def build_module_instance(pid="", oid="", index=-1):
                            form=form)
 
 
-@pipelines.route("/module_instance/<oid>")
+@pipelines.route("/module_instance/<pid>|<oid>")
 @login_required("ANY")
-def module_instance(oid=""):
-    if oid == "":
-        flash("No instance identifiers were provided!", "warning")
+def module_instance(pid="", oid=""):
+    if pid == "" or oid == "":
+        flash("No instance identifiers were provided.", "warning")
         return redirect(url_for("empty"))
 
-    pipeline_instances = current_user.group.pipeline_instances.all()
-    m_instance = None
-    for pipeline_instance in pipeline_instances:
-        module_instances = pipeline_instance.module_instances.all()
-        for module_instance in module_instances:
-            if module_instance.display_key == oid:
-                m_instance = module_instance
-                break
+    if current_user.get_role() == "Site Admin":
+        pipeline_instance = PipelineInstance.query.filter_by(display_key=pid).first()
+    else:
+        pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=pid).first()
 
-        if m_instance is not None:
+    if pipeline_instance is None:
+        flash("Could not identify the module parent", "warning")
+        return redirect(url_for("index"))
+
+    m_instance = None
+    module_instances = pipeline_instance.module_instances.all()
+    for module_instance in module_instances:
+        if module_instance.display_key == oid:
+            m_instance = module_instance
             break
 
     if m_instance is None:
@@ -494,7 +510,7 @@ def continue_pipeline(oid=""):
         from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_module
         execute_pipeline_module(current_app._get_current_object(), pipeline_instance.display_key)
 
-        flash("Submitting the next module for execution!", "success")
+        flash("Submitting the next module for execution.", "success")
         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     # Need to obtain the options
@@ -529,7 +545,7 @@ def change_module(oid="", change_type="", force=0):
 
     if change_type == "back":
         if pipeline_instance.current_execution_index == 0:
-            flash("Cannot go back a step when there are no previous steps!", "error")
+            flash("Cannot go back a step when there are no previous steps.", "error")
             return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
         pipeline_instance.update(current_execution_status="STOPPED")
@@ -568,7 +584,7 @@ def change_module(oid="", change_type="", force=0):
 
     elif change_type == "next":
         if pipeline_instance.current_execution_index >= len(pipeline_instance.module_instances.all()) - 1:
-            flash("Cannot proceed to the next step when there are no more steps!", "error")
+            flash("Cannot proceed to the next step when there are no more steps.", "error")
             return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
         pipeline_instance.update(current_execution_status="STOPPED")
@@ -614,7 +630,7 @@ def change_module(oid="", change_type="", force=0):
                                 pipeline_instance.display_key,
                                 pipeline_instance.data_consigner.display_key)
 
-        flash("Submitting the next module for execution!", "success")
+        flash("Submitting the next module for execution.", "success")
         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
 
     # Need to obtain the options
@@ -685,7 +701,7 @@ def restart_pipeline(oid="", force=0):
     data_source.run_pipelines.append(pipeline_instance)
     data_source.update(running_pipeline=None)
 
-    flash("The previous pipeline has been removed, follow the instructions below to restart!", "success")
+    flash("The previous pipeline has been removed, follow the instructions below to restart.", "success")
     return redirect(url_for("pipelines.build_pipeline_instance",
                             pid=pipeline_instance.pipeline.display_key,
                             oid=data_source.display_key,

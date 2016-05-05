@@ -2,7 +2,7 @@
 
 {% block info_panel %}
 <h3>Info</h3>
-<h4>The panel to the right shows the pipelines that have been run by you or your group members.</h4>
+<p>The panel to the right shows the pipelines that have been run by you or your group members.</p>
 {% endblock %}
 
 {% block main_panel_view %}
@@ -14,8 +14,8 @@
         <th>Author</th>
         <th>Version</th>
         <th>Type</th>
-        <th>Current Status</th>
-        <th>Current Execution Index</th>
+        <th>Current Step</th>
+        <th>Pipeline Run Status</th>
     </tr>
 
     {% for pipeline_instance in obs.items %}
@@ -25,8 +25,8 @@
         <td>{{ pipeline_instance.pipeline.author }}</td>
         <td>{{ pipeline_instance.pipeline.version }}</td>
         <td>{{ pipeline_instance.pipeline.type }}</td>
-        <td>{{ pipeline_instance.current_execution_status }}</td>
         <td>{{ pipeline_instance.current_execution_index + 1 }}</td>
+        <td>{{ pipeline_instance.current_execution_status }}</td>
     </tr>
     {% endfor %}
 </table>
