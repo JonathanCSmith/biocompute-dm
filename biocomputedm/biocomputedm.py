@@ -1,4 +1,4 @@
-from biocomputedm.admin.models import User, Person, UserGroup
+from biocomputedm.admin.models import User, Person, UserGroup, Group
 from biocomputedm.admin.models import refresh_reference_data_library
 from biocomputedm.pipelines.models import refresh_pipelines
 from flask import Flask
@@ -49,11 +49,11 @@ def setup_logging(app):
 
     # Create a mail specific log handler
     mail_log = SMTPHandler(
-            app.config["MAIL_SERVER"],
-            app.config["MAIL_USERNAME"],
-            app.config["MAIL_SOURCE_ADDRESS"],
+            (app.config["MAIL_SERVER"], app.config["MAIL_PORT"]),
+            app.config["MAIL_DEFAULT_SENDER"],
+            app.config["MAIL_DEFAULT_SENDER"],
             '0_ops... Biocompute-DM failed!',
-            (app.config["MAIL_USERNAME"], app.config["MAIL_PASSWORD"])
+            credentials=(app.config["MAIL_USERNAME"], app.config["MAIL_PASSWORD"])
     )
     mail_log.setLevel(logging.ERROR)
     mail_log.setFormatter(
@@ -141,7 +141,8 @@ def load_defaults(app):
 
     if admin is None:
         group = UserGroup.create(
-            group_name="Site Admins",
+            group_name="Site_Admins",
+            password=app.config["SITE_GROUP_PASSWORD"],
             admin_name=app.config["SITE_ADMIN_USERNAME"],
             admin_password=app.config["SITE_ADMIN_PASSWORD"],
             admin_email=app.config["SITE_ADMIN_EMAIL"]
@@ -158,9 +159,17 @@ def load_defaults(app):
 
 
 def get_registered_users(app):
-    persons = User.query.all()
+    persons = Person.query.all()
     names = []
     for person in persons:
         names.append(person.username)
+
+    return names
+
+def get_registered_groups(app):
+    groups = Group.query.all()
+    names = []
+    for group in groups:
+        names.append(group.name)
 
     return names

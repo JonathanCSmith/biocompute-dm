@@ -39,6 +39,40 @@ def logout():
     return redirect(url_for("index"))
 
 
+@admin.route("/change_password/<type>", methods=["GET", "POST"])
+@login_required("ANY")
+def change_password(type=""):
+    if type != "User" and type != "Group":
+        flash("Your change password request could not be processed", "warning")
+        return redirect(url_for("index"))
+
+    from biocomputedm.admin.forms import ChangePasswordForm
+    form = ChangePasswordForm()
+    if request.method == "Get":
+        return render_template("change_password.html", form=form, type=type)
+
+    else:
+        if form.validate_on_submit():
+            if type == "User":
+                item = current_user
+            else:
+                item = current_user.group
+
+            if item.check_password(str(form.old_password.data)):
+                item.set_password(str(form.new_password.data))
+                item.save()
+
+            else:
+                flash("Incorrect password", "warning")
+                return redirect(url_for("admin.change_password", type=type))
+
+            flash("Password changed successfully", "success")
+            return redirect(url_for("admin.change_password", type=type))
+
+        else:
+            utils.flash_errors(form)
+            return render_template("change_password.html", form=form, type=type)
+
 @admin.route("/administrate")
 @login_required("Site Admin", "Group Admin")
 def administrate():
@@ -68,8 +102,10 @@ def add_group():
         else:
             UserGroup.create(
                     group_name=str(form.group_name.data),
+                    password=None,
                     admin_name=str(form.admin_login.data),
-                    admin_password=str(form.admin_password.data),
+                    # admin_password=str(form.admin_password.data),
+                    admin_password=None,
                     admin_email=str(form.admin_email.data)
             )
             return redirect(url_for("admin.show_groups"))
@@ -106,7 +142,8 @@ def add_user():
         else:
             User.create(
                     username=str(form.login_name.data),
-                    password=str(form.login_password.data),
+                    # password=str(form.login_password.data),
+                    password=None,
                     email=str(form.login_email.data),
                     group=current_user.group
             )
@@ -138,8 +175,10 @@ def add_customer_group():
         else:
             customer_group = CustomerGroup.create(
                 group_name=str(form.group_name.data),
+                password=None,
                 admin_name=str(form.admin_login.data),
-                admin_password=str(form.admin_password.data),
+                # admin_password=str(form.admin_password.data),
+                admin_password=None,
                 admin_email=str(form.admin_email.data),
                 parent_group=current_user.group
             )
@@ -162,7 +201,8 @@ def add_customer():
         else:
             Customer.create(
                 username=str(form.login_name.data),
-                password=str(form.login_password.data),
+                # password=str(form.login_password.data),
+                password=None,
                 email=str(form.login_email.data),
                 group=current_user.group
             )

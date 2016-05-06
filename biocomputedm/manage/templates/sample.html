@@ -73,6 +73,8 @@
         <h3>Manage</h3>
 
         <a class="input" href="{{ url_for('manage.link_to_project', oid=sample.display_key, data_type='sample') }}">Link Sample Data to Project</a>
+        <a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=sample.display_key, data_type='sample') }}">Copy Sample Data to Staging Drive</a>
+
     </div>
     {% endif %}
 </div>

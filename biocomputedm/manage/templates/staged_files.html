@@ -1,0 +1,66 @@
+{% extends "information_panel.html" %}
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
+
+{% block info_panel %}
+<h3>Info</h3>
+<p>To the right is a form for transferring files to Biocompute-DM. If the form does not display correctly please use the SFTP details provided to you in your sign up email.</p>
+<p>Files must be either .zip or .gz</p>
+<p>Files will be placed in a quarantined zone.</p>
+<p>The data are unzipped when you have created a submission.</p>
+<p>Note: Files that you do not wish unzipped (such as fastq.gz) should be zipped again before transferring.</p>
+{% endblock %}
+
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>SFTP Client</h3>
+
+        <object width="800" height="600" classid="clsid:CAFEEFAC-0016-0000-FFFF-ABCDEFFEDCBA"
+                codebase="http://java.sun.com/update/1.6.0/jinstall-6-windows-i586.cab#Version=6,0,0,0">
+            <param name="code" value="com.jscape.ftpapplet.FtpApplet.class">
+            <param name="archive" value="{{ url_for('static', filename='ftp/anyclient-enterprise.jar') }},{{ url_for('static', filename='ftp/bcpg-jdk15on-147.jar') }},{{ url_for('static', filename='ftp/bcprov-jdk15on-147.jar') }}">
+            <param name="scriptable" value="false">
+            <param name="hostname" value="{{ request.url_root }}">
+            <param name="username" value="biocompute-DM_user_{{ g.user.username}}">
+            <param name="autoConnect" value="true">
+            <param name="connectionType" value="sftp">
+            <param name="showHiddenFiles" value="false">
+            <param name="showButtons" value="false">
+            <param name="promptForPassword" value="true">
+            <param name="enableRemoteCreateDir" value="false">
+            <param name="localFilter" value="^(.*)\.(gz|zip)$">
+            <param name="invertLocalFilter" value="true">
+            <param name="remoteDir" value="/staged_files">
+            <comment>
+                <embed
+                        type="application/x-java-applet;version=1.6" \
+                        code="com.jscape.ftpapplet.FtpApplet.class" \
+                        archive="{{ url_for('static', filename='ftp/anyclient-enterprise.jar') }},{{ url_for('static', filename='ftp/bcpg-jdk15on-147.jar') }},{{ url_for('static', filename='ftp/bcprov-jdk15on-147.jar') }}" \
+                        name="anyclient-enterprise" \
+                        width="800" \
+                        height="600" \
+                        scriptable="false" \
+                        pluginspage = "http://java.sun.com/products/plugin/index.html#download" \
+                        hostname="{{ request.url_root }}" \
+                        username="biocompute-DM_user_{{ g.user.username}}" \
+                        autoConnect="true" \
+                        connectionType="sftp" \
+                        showHiddenFiles="false" \
+                        showButtons="false" \
+                        promptForPassword="true" \
+                        enableRemoteCreateDir="false" \
+                        localFilter="^(.*)\.(gz|zip)$" \
+                        invertLocalFilter="true" \
+                        remoteDir="/staged_files">
+                    <noembed>
+                    </noembed>
+                </embed>
+            </comment>
+        </object>
+        <p>Full fledged SFTP accounts are available and can be used instead of this embedded client. To log in, please connect to the website url root on port 21 using your username (prefaced with "biocompute-DM_user_") and your password.</p>
+    </div>
+</div>
+{% endblock %}

@@ -14,14 +14,8 @@ Feature:
 		views for messages in admin console
 
 Ordered TODO list:
-	* Download infrastructrue
-		* SFTP infrastructure
-			* Group creation adds a group sftp - users added to this group including group admin are added to this group
-
 	* Pipeline Regex check (see if files contain the type that we need to run it)
 		* Error checking in current pipelines (valid file checking etc)
-
-	* Email infrastructure
 
 	* Fix pipeline restart controlls not working
 
@@ -31,7 +25,7 @@ Ordered TODO list:
 
 	* Pipeline Documentation text, documentation file
 
-	* Pipeline predicate?
+	* Pipeline predicate? (i.e. needs x to have run before!)
 		
 	* Stats for module and pipeline execution
 		* Additional data metrics / information in db entries and how to propagate from submissions

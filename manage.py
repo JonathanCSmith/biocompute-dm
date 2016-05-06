@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from biocomputedm import utils
-from biocomputedm.biocomputedm import create_app, load_defaults, get_registered_users
+from biocomputedm.biocomputedm import create_app, load_defaults, get_registered_users, get_registered_groups
 from biocomputedm.extensions import db
 from biocomputedm.extensions import migrate as migrator
 from flask.ext.migrate import MigrateCommand, init, migrate, upgrade
@@ -84,7 +84,19 @@ def clean(key):
             [
                 "sudo",
                 os.path.join(cleanup_directory, "wipe_user.sh"),
-                "-u=" + user
+                "-u=" + user,
+                "-t=user"
+            ]
+        ).wait()
+
+    groups = get_registered_groups(app)
+    for group in groups:
+        subprocess.Popen(
+            [
+                "sudo",
+                os.path.join(cleanup_directory, "wipe_user.sh"),
+                "-u=" + group,
+                "-t=group"
             ]
         ).wait()
 

@@ -210,10 +210,12 @@
 
         {% if pipeline_instance.pipeline_output %}
         <a class="input" href="{{ url_for('manage.link_to_project', oid=pipeline_instance.pipeline_output.display_key, data_type='pipeline') }}">Link Pipeline Outputs Data to Project</a>
+        <a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=pipeline_instance.display_key, data_type='pipeline_output') }}">Copy Pipeline Outputs to Staging Drive</a>
         {% endif %}
 
         {% if pipeline_instance.sample_output %}
         <a class="input" href="{{ url_for('manage.link_to_project', oid=pipeline_instance.sample_output.display_key, data_type='sample_data') }}">Link Sample Outputs to Project</a>
+        <a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=pipeline_instance.display_key, data_type='pipeline_sample_group') }}">Copy Sample Data to Staging Drive</a>
         {% endif %}
     </div>
     {% endif %}

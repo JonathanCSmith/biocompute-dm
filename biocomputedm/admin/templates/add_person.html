@@ -10,32 +10,36 @@
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Add User to Current Group</h3>
-        <div action="{{ url_for('admin.add_user') }}" method=post>
-            {% if title == "Add Consignor" %}
-            <form action="{{ url_for('admin.add_customer') }}" method=post>
-            {% else %}
-            <form action="{{ url_for('admin.add_user') }}" method=post>
-            {% endif %}
-                {{ form.hidden_tag() }}
-                <table class="small_content">
-                    <tr>
-                        <th>{{ form.login_name.label }}</th>
-                        <td>{{ form.login_name }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.login_password.label }}</th>
-                        <td>{{ form.login_password }}</td>
-                    </tr>
-                    <tr>
-                        <th>{{ form.login_email.label }}</th>
-                        <td>{{ form.login_email }}</td>
-                    </tr>
-                    <tr>
-                        <td style="column-span: 2">
-                            {{ form.submit(class_="input") }}
-                        </td>
-                    </tr>
-                </table>
+
+        {% if title == "Add Consignor" %}
+        <form action="{{ url_for('admin.add_customer') }}" method=post>
+        {% else %}
+        <form action="{{ url_for('admin.add_user') }}" method=post>
+        {% endif %}
+            {{ form.hidden_tag() }}
+            <table class="small_content">
+                <tr>
+                    <th>{{ form.login_name.label }}</th>
+                    <td>{{ form.login_name }}</td>
+                </tr>
+                <!--<tr>-->
+                    <!--<th>{{ form.login_password.label }}</th>-->
+                    <!--<td>{{ form.login_password }}</td>-->
+                <!--</tr>-->
+                <tr>
+                    <th>{{ form.login_email.label }}</th>
+                    <td>{{ form.login_email }}</td>
+                </tr>
+                <tr>
+                    <th>{{ form.login_email_2.label }}</th>
+                    <td>{{ form.login_email_2 }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        {{ form.submit(class_="input") }}
+                    </td>
+                </tr>
+            </table>
         </form>
     </div>
 </div>

@@ -97,97 +97,14 @@ def display_data(item_id="", data_type=""):
     return render_template("data_viewer.html", title="Data Display", data_item=data_item, data_path=data_path)
 
 
-# Move data from external into landing_zone
-@manage.route("/upload_data/f:<file_uploaded>")
-@manage.route("/upload_data/<int:page>")
-@manage.route("/upload_data")
+@manage.route("/staged_files/<int:page>|<int:download_page>")
+@manage.route("/staged_files")
 @login_required("ANY")
-def upload_data(page=1, file_uploaded=""):
-    # Current user information
-    folder = current_user.display_key
+def staged_files():
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
 
-    # Build path to the users sftp dir
-    path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], folder)
-    path = os.path.join(path, "landing_zone")
-
-    # list of the available files
-    filepaths = next(os.walk(path))[2]
-    if len(filepaths) > 20:
-        filepaths = filepaths[(page - 1) * 20:(page * 20) - 1]
-
-        if page == 1:
-            p = False
-        else:
-            p = True
-
-        if (page * 20) - 1 < len(filepaths):
-            n = True
-        else:
-            n = False
-
-    else:
-        p = False
-        n = False
-
-    files = []
-    for file in filepaths:
-        s = os.stat(os.path.join(path, file))
-        files.append({
-            "name": file,
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
-
-    return render_template("upload.html", tile="Upload your data", files=files, page=page, has_prev=p, has_next=n)
-
-
-@manage.route("/uploads/<int:page>")
-@manage.route("/uploads")
-@login_required("ANY")
-def uploads(page=1):
-    # Current user information
-    folder = current_user.display_key
-
-    # Build path to the users sftp dir
-    path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], folder)
-    path = os.path.join(path, "landing_zone")
-
-    # list of the available files
-    filepaths = next(os.walk(path))[2]
-    if len(filepaths) > 20:
-        filepaths = filepaths[(page - 1) * 20:(page * 20) - 1]
-
-        if page == 1:
-            p = False
-        else:
-            p = True
-
-        if (page * 20) - 1 < len(filepaths):
-            n = True
-        else:
-            n = False
-
-    else:
-        p = False
-        n = False
-
-    files = []
-    for file in filepaths:
-        s = os.stat(os.path.join(path, file))
-        files.append({
-            "name": file,
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
-
-    return render_template("uploads.html", tile="My Uploads", files=files, page=page, has_prev=p, has_next=n)
-
-
-# TODO Move data from external into landing_zone
-@manage.route("/download")
-@login_required("ANY")
-def download():
-    return redirect(url_for("empty"))
+    return render_template("staged_files.html", title="My Files")
 
 
 @manage.route("/submissions/<int:page>")
@@ -205,10 +122,12 @@ def submissions(page=1):
     return render_template("submissions.html", title="Submissions", page=page, obs=items)
 
 
-# Move data from landing_zone into submission (with id)
 @manage.route("/new_submission", methods=["GET", "POST"])
 @login_required("ANY")
 def new_submission():
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     # Build the submission form
     from biocomputedm.manage import forms
     form = forms.NewSubmissionForm()
@@ -218,15 +137,29 @@ def new_submission():
 
     # Build path to the users sftp dir
     directory_path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], folder)
-    directory_path = os.path.join(directory_path, "landing_zone")
+    directory_path = os.path.join(directory_path, "staged_files")
 
-    # list of the available files
+    # list of the available files in user directory
     filepaths = next(os.walk(directory_path))[2]
     files = []
     for file in filepaths:
         s = os.stat(os.path.join(directory_path, file))
         files.append({
             "name": file,
+            "path": os.path.join(directory_path, file),
+            "size": s.st_size,
+            "date": time.ctime(s.st_ctime)
+        })
+
+    # List the available files in group directory
+    directory_path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], current_user.group.name)
+    directory_path = os.path.join(directory_path, "staged_files")
+    filepaths = next(os.walk(directory_path))[2]
+    for file in filepaths:
+        s = os.stat(os.path.join(directory_path, file))
+        files.append({
+            "name": file,
+            "path": os.path.join(directory_path, file),
             "size": s.st_size,
             "date": time.ctime(s.st_ctime)
         })
@@ -264,7 +197,7 @@ def new_submission():
                 script_path = os.path.join(script_path, "mud.sh")
                 sources = ""
                 for i in ids:
-                    source_path = os.path.join(directory_path, i)
+                    source_path = files[i]["path"]
                     sources = sources + source_path + ","
                 sources = sources[:-1]  # remove that pesky extra comma :D
 
@@ -498,6 +431,9 @@ def projects(page=1):
 @manage.route("/new_project", methods=["GET", "POST"])
 @login_required("ANY")
 def new_project():
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     from biocomputedm.manage import forms
     form = forms.NewProjectForm()
     if request.method == "GET":
@@ -523,7 +459,7 @@ def project(oid=""):
     if current_user.get_role() == "Site Admin":
         project = Project.query.filter_by(display_key=oid).first()
 
-    else :
+    else:
         project = current_user.group.projects.filter_by(display_key=oid).first()
 
     if project is None:
@@ -537,6 +473,9 @@ def project(oid=""):
 @manage.route("/link_to_project/<oid>|<data_type>", methods=["GET", "POST"])
 @login_required("ANY")
 def link_to_project(page=1, oid="", data_type=""):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if oid == "":
         flash("Could not link the provided information to a project", "error")
         return redirect(url_for("index"))
@@ -631,6 +570,9 @@ def link_to_project(page=1, oid="", data_type=""):
 @manage.route("/add_document/<oid>", methods=["GET", "POST"])
 @login_required("ANY")
 def add_document(oid=""):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if oid == "":
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
@@ -675,6 +617,9 @@ def add_document(oid=""):
 @manage.route("/remove_document/<oid>|<did>")
 @login_required("ANY")
 def remove_document(oid="", did=""):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if oid == "" or did == "":
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
@@ -697,3 +642,24 @@ def remove_document(oid="", did=""):
 
     doc.delete()
     return redirect(url_for("manage.project", oid=oid))
+
+
+@manage.route("/copy_to_staging_drive/<oid>|<data_type>")
+@login_required("ANY")
+def copy_to_staging_drive(oid="", data_type=""):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("activity"))
+
+    if oid == "":
+        flash("Could not identify the provided object.", "warning")
+        return redirect(url_for("index"))
+
+    if data_type != "pipeline_output" and data_type != "pipeline_sample_group" and data_type != "project_sample_group" and data_type != "project_pipeline_output" and data_type != "sample":
+        flash("Could not identify the object type.", "warning")
+        return redirect(url_for("index"))
+
+    from biocomputedm.manage.helpers.manage_helper import copy_data_to_staging
+    copy_data_to_staging(current_app._get_current_object(), oid, data_type, current_user.display_key)
+
+    flash("Copy process is ongoing. This may take some time to complete.", "success")
+    return redirect(url_for("index"))

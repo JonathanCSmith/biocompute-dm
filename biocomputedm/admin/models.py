@@ -3,8 +3,9 @@ import os
 from biocomputedm import utils
 from biocomputedm.admin.helpers import admin_helper
 from biocomputedm.database import *
-from biocomputedm.extensions import db
+from biocomputedm.extensions import db, mail
 from flask.ext.login import UserMixin
+from flask.ext.mail import Message
 from sqlalchemy import update
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -21,20 +22,32 @@ class Group(SurrogatePK, Model):
 
     members = relationship("Person", backref="group", lazy="dynamic")
 
+    _password = Column(String(160))
+
     __tablename__ = "Group"
     __mapper_args__ = {"polymorphic_on": type}
 
-    def __init__(self, name):
+    def __init__(self, name, password):
         db.Model.__init__(self, name=name)
+        self.set_password(password)
 
         # Hack, we need the default values here
         db.session.add(self)
         db.session.commit()
 
-        admin_helper.create_group_directory(self)
+        admin_helper.create_group_directory(self, password)
 
     def __repr__(self):
         return "<Group %r>" % self.name
+
+    def set_password(self, password):
+        if self._password is not None:
+            admin_helper.change_password("biocompute-DM_group_" + self.name, password)
+
+        self._password = generate_password_hash(password)
+
+    def check_password(self, pwd):
+        return check_password_hash(self._password, pwd)
 
     def set_administrator(self, administrator):
         # Programming error!
@@ -58,10 +71,18 @@ class UserGroup(Group):
     __tablename__ = "UserGroup"
     __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Group.id)}
 
-    def __init__(self, group_name, admin_name, admin_password, admin_email):
-        Group.__init__(self, name=group_name)
+    def __init__(self, group_name, password, admin_name, admin_password, admin_email):
+        if password is None:
+            password = uuid.uuid4().hex
+
+        Group.__init__(self, name=group_name, password=password)
         user = User.create(username=admin_name, email=admin_email, password=admin_password, group=self)
         self.set_administrator(user)
+
+        msg = Message(subject="Welcome to Biocompute-DM",
+                      body="Your email address has been registered as a biocompute-DM group admin. Your current group password is set to: " + password + " please change it from your administration panel as soon as possible",
+                      recipients=[admin_email])
+        mail.send(msg)
 
     def __repr__(self):
         return "<UserGroup %r>" % self.name
@@ -81,11 +102,19 @@ class CustomerGroup(Group):
     __tablename__ = "CustomerGroup"
     __mapper_args__ = {"polymorphic_identity": "Customer", "inherit_condition": (id == Group.id)}
 
-    def __init__(self, group_name, admin_name, admin_password, admin_email, parent_group):
-        Group.__init__(self, name=group_name)
-        self.parent_group=parent_group
+    def __init__(self, group_name, password, admin_name, admin_password, admin_email, parent_group):
+        if password is None:
+            password = uuid.uuid4().hex
+
+        Group.__init__(self, name=group_name, password=password)
+        self.parent_group = parent_group
         user = Customer.create(username=admin_name, email=admin_email, password=admin_password, group=self)
         self.set_administrator(user)
+
+        msg = Message(subject="Welcome to Biocompute-DM",
+                      body="Your email address has been registered as a biocompute-DM group admin. Your current group password is set to: " + password + " please change it from your administration panel as soon as possible",
+                      recipients=[admin_email])
+        mail.send(msg)
 
     def __repr__(self):
         return "<CustomerGroup %r>" % self.name
@@ -108,8 +137,14 @@ class Person(UserMixin, SurrogatePK, Model):
     def __init__(self, username, email, password, group):
         db.Model.__init__(self, username=username, email=email)
         self.set_password(password)
+
         group.members.append(self)
         group.save()
+
+        msg = Message(subject="Welcome to Biocompute-DM",
+                      body="Your email address has been registered as a biocompute-DM user. Your current password is set to: " + password + " please change it from your administration panel as soon as possible",
+                      recipients=[email])
+        mail.send(msg)
 
         # Hack, we need the default values here
         db.session.add(self)
@@ -122,6 +157,9 @@ class Person(UserMixin, SurrogatePK, Model):
         return self.display_key
 
     def set_password(self, password):
+        if self._password is not None:
+            admin_helper.change_password("biocompute-DM_user_" + self.username, password)
+
         self._password = generate_password_hash(password)
 
     def check_password(self, pwd):
@@ -148,6 +186,9 @@ class User(Person):
     __mapper_args__ = {"polymorphic_identity": "User", "inherit_condition": (id == Person.id)}
 
     def __init__(self, username, email, password, group):
+        if password is None:
+            password = uuid.uuid4().hex
+
         Person.__init__(self, username=username, email=email, password=password, group=group)
         admin_helper.create_user_directory(self, password)
 
@@ -163,6 +204,9 @@ class Customer(Person):
     __mapper_args__ = {"polymorphic_identity": "Customer", "inherit_condition": (id == Person.id)}
 
     def __init__(self, username, email, password, group):
+        if password is None:
+            password = uuid.uuid4().hex
+
         Person.__init__(self, username=username, email=email, password=password, group=group)
 
     def __repr__(self):

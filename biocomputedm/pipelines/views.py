@@ -188,6 +188,9 @@ def display_pipeline_instance(oid=""):
 @pipelines.route("/build_pipeline_instance/<oid>|<pid>", methods=["GET", "POST"])
 @login_required("ANY")
 def build_pipeline_instance(oid="", pid=""):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if oid == "" or pid == "":
         flash("The pipeline information provided was invalid", "error")
         return redirect(url_for("index"))
@@ -266,6 +269,9 @@ def build_pipeline_instance(oid="", pid=""):
 @pipelines.route("/build_module_instance/<pid>|<oid>|<int:index>", methods=["GET", "POST"])
 @login_required("ANY")
 def build_module_instance(pid="", oid="", index=-1):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if pid == "" or oid == "":
         flash("There was an error with your provided information.", "error")
         return redirect(url_for("index"))
@@ -491,6 +497,9 @@ def module_instance(pid="", oid=""):
 @pipelines.route("/continue_pipeline_instance/<oid>")
 @login_required("ANY")
 def continue_pipeline(oid=""):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
         return redirect(url_for("empty"))
@@ -525,6 +534,9 @@ def continue_pipeline(oid=""):
 @pipelines.route("/change_module/<oid>|<change_type>|<int:force>")
 @login_required("ANY")
 def change_module(oid="", change_type="", force=0):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if force != 1:
         return render_template("confirm.html",
                                message="Are you sure you wish to restart the current module?",
@@ -647,6 +659,9 @@ def change_module(oid="", change_type="", force=0):
 @pipelines.route("/finish_pipeline/<oid>|<int:force>")
 @login_required("ANY")
 def finish_pipeline(oid="", force=0):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if force != 1:
         return render_template("confirm.html",
                                message="Are you sure you wish to quit the current pipeline?",
@@ -678,6 +693,9 @@ def finish_pipeline(oid="", force=0):
 @pipelines.route("/restart_pipeline/<oid>|<int:force>")
 @login_required("ANY")
 def restart_pipeline(oid="", force=0):
+    if current_user.get_role() == "Site Admin":
+        return redirect(url_for("content.activity"))
+
     if force != 1:
         return render_template("confirm.html",
                                message="Are you sure you wish to restart the current pipeline?",

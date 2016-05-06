@@ -48,7 +48,7 @@ done
 
 # Add the user, to the sftp group, with password and home directory
 USER_SFTP_DIRECTORY="${SFTP_ROOT}/${USER_DIRECTORY_NAME}"
-LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/landing_zone"
+LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/staged_files"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
 # Add the user

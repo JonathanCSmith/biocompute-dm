@@ -4,7 +4,13 @@ do
 case ${i} in
     # Username
     -u=*|-user=*)
-    USERNAME="biocompute-DM_user_${i#*=}"
+    NAME="${i#*=}"
+    shift
+    ;;
+
+    # Type
+    -t=*)
+    TYPE="${i#*=}"
     shift
     ;;
 
@@ -14,6 +20,13 @@ case ${i} in
 esac
 done
 
+USER=""
+if [ "${TYPE}" == "user" ]; then
+    USER="biocompute-DM_user_${NAME}"
+else
+    USER="biocompute-DM_group_${NAME}"
+fi
+
 # Delete the user
-deluser "${USERNAME}"
+deluser "${USER}"
 exit
