@@ -1,0 +1,10 @@
+# Insert any applet parameters here in a name = value format.  Any line
+# beginning with a hash tag will be commented out.
+
+# Example
+# hostname = ftp.myhost.com
+
+autoConnect = true
+showHiddenFiles = false
+showButtons = false
+promptForPassword = true

@@ -1,6 +1,6 @@
 {
   "name": "exome_align",
-  "description": "aligns demultiplexed files for exome sequencing and produces metrics data for the aligment",
+  "description": "aligns demultiplexed files for exome sequencing and produces metrics data for the alignment",
   "pipeline_type": "II",
   "author": "Venu Pullabhatla, Jonathan Smith",
   "version": "0.0.1",

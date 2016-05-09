@@ -93,7 +93,7 @@ EOF
         elif [[ "${DUPLICATE}" =~ ".**.*" ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
-dum
+
         elif [[ "${COVERAGE}" =~ ".**.*" ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue

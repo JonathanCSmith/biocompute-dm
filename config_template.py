@@ -9,8 +9,11 @@ ERROR_LOG_LOCATION = "error.log"
 
 MAIL_USERNAME = ""
 MAIL_PASSWORD = ""
-MAIL_SERVER = ""
-MAIL_SOURCE_ADDRESS = ""
+MAIL_DEFAULT_SENDER = ""
+MAIL_SERVER = "smtp.gmail.com"
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USE_SSL = False
 
 DATABASE_USERNAME = ""
 DATABASE_PASSWORD = ""
@@ -24,6 +27,7 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, "db_repository")
 SITE_ADMIN_USERNAME = ""
 SITE_ADMIN_PASSWORD = ""
 SITE_ADMIN_EMAIL = ""
+SITE_GROUP_PASSWORD = ""
 
 # Currently used to assess whether or not we need to fake job submission (i.e. no hpc is present)
 HPC_DEBUG = "False"

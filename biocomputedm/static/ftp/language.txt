@@ -1,0 +1,323 @@
+# Buttons
+mkDirBtn = Mkdir
+mkBucketBtn = Make Bucket
+renameBtn = Rename
+deleteBtn = Delete
+refreshBtn = Refresh
+uploadItem = Upload
+downloadItem = Download
+zipUploadItem = Zip Upload
+okBtn = OK
+cancelBtn = Cancel
+connectBtn = Connect
+connectOrSyncBtn = Connect / Sync
+disconnectBtn = Disconnect
+stopSyncBtn = Stop Sync
+helpBtn = Help
+aboutBtn = About
+resumeBtn = Resume
+exitItem = Exit
+fileMenu = File
+helpMenu = Help
+contentsBtn = Contents
+siteManagerItem = Site Manager
+settingsItem = Settings
+languageLabel = Language
+themeLabel = Theme
+regionLbl = Select Region:
+overwriteYesButton = Yes
+overwriteNoButton = No
+overwriteAllButton = All
+generalTab = General
+optionsTab = Options
+syncTab = Sync
+pgpTab = PGP
+preserveUploadTimestamps = Preserve upload timestamps
+preserveDownloadTimestamps = Preserve download timestamps
+viewFileBtn = View file
+
+# Applet Labels
+localSystemLbl = Local System
+remoteSystemLbl = Remote System
+remoteSystemLblConnectedStatus = (Connected)
+restartLbl = Restart AnyClient to apply settings
+restartTitle = Settings
+siteConnectButton = Connect
+siteSyncButton = Sync
+siteCancelButton = Cancel
+siteSaveButton = Save
+siteRenameButton = Rename
+siteNewButton = New
+siteRemoveButton = Remove
+siteErrorMsg = There is an error
+siteSaveError = Error saving site
+siteSaveCompleted = Save completed
+transferCancellingLabel = Transfer canceling ...
+transferCancelledLabel = Transfer canceled
+indeterminateLabel = Progress information not available
+inProgressDebugLabel = In Progress
+successfulTransferDebugLabel = Successful
+errorTransferDebugLabel = Unsuccessful
+
+# Dialogs
+deleteLocalFileTitle = Delete local file
+deleteRemoteFileTitle = Delete remote file
+deleteRemoteBucketTitle = Delete remote bucket
+deleteFileLbl = Are you sure you want to delete the selected file(s)?
+deleteBucketLbl = Are you sure you want to delete the selected bucket(s)?
+createLocalDirTitle = Create local directory
+createRemoteDirTitle = Create remote directory
+createBucketDirTitle = Create remote bucket
+createDirLbl = Enter directory name:
+createBucketLbl = Enter bucket name:
+renameLocalFileTitle = Rename local file
+renameRemoteFileTitle = Rename remote file
+renameRemoteBucketTitle = Rename remote bucket
+renameFileLbl = Enter new name:
+renameBucketLbl = Enter new name:
+transferStatusTitle = Transfer status
+transferOkButton = OK
+transferAbortButton = Cancel
+connectTitle = Connect
+connectUsernameLbl = Username
+connectPasswordLbl = Password
+connectHostLbl = Host
+connectDomainLbl = Domain
+connectTypeLbl = Protocol
+connectAnonymousLbl = Anonymous
+connectPassiveLbl = Passive
+browseVolumesLbl = Volumes
+browseVolumesTitle = Browse local
+browseDirsTitle = Browse remote
+browseDirsLbl = Recent directories
+zipUploadDlgLbl = Please provide the remote file name 
+connectProxyHostLbl = Proxy Host 
+connectProxyTypeLbl = Proxy Type
+connectProxyUserLbl = Proxy User
+connectProxyPasswordLbl = Proxy Password
+connectProxyDomainLbl = Proxy Domain
+privateKeyFileLbl = Private Key File
+keyPasswordLbl = Key Password 
+browseLbl = Browse
+usePasswordAuthLbl = Use password authentication
+useSubsystemLbl = Use subsystem reply needed 
+usePublicKeyAuth = Use public key authentication
+generalLbl = General
+sftpAuthLbl = SFTP/SSH Authentication
+proxyLbl = Proxy Settings
+aftpSecurityLbl = Security
+aftpSecurityComboBox.NO_PROTECTION=none
+aftpSecurityComboBox.FULL_TIME_PROTECTED=credentials & data
+aftpSecurityComboBox.AUTHENTICATION_PROTECTED=credentials only
+aftpDownloadingBitRateLbl=Download rate
+aftpDownloadingBitRateUnitLbl=Kbit/s
+aftpUploadingBitRateLbl=Upload rate
+aftpUploadingBitRateUnitLbl=Kbit/s
+aftpUseCongestionControlBox=Enable congestion control
+aftpExcludeFilesWithExtension=Exclude files with extension
+aftpExcludeSmallerThan=Exclude files smaller than
+aftpCompressionPanel = AFTP Compression
+aftpEnableOption = Enable
+aftpExcludeSmallerThanSizeLbl=Kb
+settingsConfigurationTitleErr=Configuration
+settingsConfigurationLoadMsg=Could not load site configuration
+ipv6OptionsLbl = Ipv6 Options
+ftpOptionsLbl = FTP Transfer Options
+transferFailedText = Transfer Failed!
+siteMaybeModifiedMsg = Site "{0}" may have been modified, save? 
+
+pgpLbl = Settings
+pgpPrivateKeyPasswordLbl = Password
+pgpEnabledCheckBoxLbl = Enabled
+pgpDeleteSource = Delete Source
+settingsAnyClientWebLbl = AnyClient Web
+settingsAnyClientEnableLbl = Enable
+settingsAnyClientEmailLbl = Email
+settingsAnyClientPasswordLbl = Password
+settingsAnyClientLoadButton = OK
+settingsAnyClientCancelButton = Cancel
+settingsAnyClientNewAccountBtnText = Create Free Account
+settingsAnyClientErrorMessage = Unable to authenticate with app.anyclient.com. Using local site configuration.
+settingsAnyClientErrorTitle = Error
+optionsEnableCertAuth = Enable
+optionsCertFileLbl = Certificate File
+optionsCertFileBrowserBtn = Browse
+optionsCertPasswordLbl = Password
+optionsCertPnlText = Certificate Authentication
+settingsGUILbl = GUI Settings
+settingsConfigLbl = Configuration
+settingsConfigFileLbl = File / URL
+settingsConfigFileBtn = Select
+settingsConfigLoadBtn = Load 
+settingsCancelBtn = Cancel
+passwordDialogLbl = Password
+passwordDialogTitle = Enter password
+okPasswordBtn = OK
+cancelPasswordBtn = Cancel
+usePGPPrivateKeyLbl = Private key 
+pgpPrivateKeyBtnLbl = Select
+pgpExtensionLbl = Filename regex
+usePGPPublicKeyLbl = Public key 
+pgpPublicKeyBtnLbl = Select
+debugAreaTransfersTab = Transfers
+debugAreaDebugTab = Debug
+connectionTypeLbl = Connection Type
+promptForPasswordLbl = Password Options
+promptForPasswordText = Prompt for password
+
+keyTypeLbl = Key type
+certTypeLbl = Certificate type
+certVersionLbl = Version
+certSerialLbl = Serial
+certIssueLbl = Issuer
+certSubjectLbl = Subject
+certDateBeforeLbl = Valid not before
+certDateAfterLbl = Valid not after
+certSignatureLbl = Signature
+certNameLbl = Name
+certValueLbl = Value
+acceptCertificateLbl = Accept certificate?
+detailsCertificateLbl = Details
+clearMenu = Clear
+copyMenu = Copy
+detailsMenu = Details
+cancelMenu = Cancel
+cancelAllMenu = Cancel All
+clearAllMenu = Clear All
+resumeMenu = Resume
+resumeAllMenu = Resume All
+retryMenu = Retry
+retryAllMenu = Retry All
+
+localDirLabel = Local Directory
+localDirBrowse = Browse
+remoteDirLabel = Remote Directory
+debugLabel = Debug
+accessKeyLbl = Access Key
+secretKeyLbl = Secret Key
+encryptionCheckbox = Use server side encryption
+encryptionTitle = S3 Options
+
+newHostKeyTitle = New host key
+fingerprintLabel = Fingerprint:
+verifyTitle = Verify Host key
+acceptSaveButton = Accept and Save
+acceptButton = Accept
+cancelButton = Cancel
+hostConnectingLabel = Connecting to
+hostKeyVerifyCancelError = Connection was cancelled during host key verification
+binaryCheckbox = Binary
+settingsTitle = Settings
+aboutTitle = About
+certificateTitle = Certificate
+
+syncEnableCheckBoxLbl = Enable
+syncEnableRecursiveCheckBoxLbl = Sync Recursively
+syncEnableDeleteOrphanedCheckBoxLbl = Delete Orphaned Files
+syncLocalDirLbl = Local Directory
+syncLocalDirBrowseBtnLbl = Browse
+syncRemoteDirLbl = Remote Directory
+syncDirectionLbl = Sync Direction
+syncModeLbl = Sync Mode       
+syncExcludesLbl = Excludes          
+syncIncludesLbl = Includes          
+syncSettingsBorderLbl = Settings
+syncFiltersBorderLbl = File Extension Filters
+syncNotAllowedBorderLbl = Site protocol does not support sync
+
+# Progress labels
+elapsedLbl = elapsed
+remainingLbl = remaining
+completedDialogLbl = File Transfer
+completedLbl = File Transfer Completed
+cancelledLbl = File Transfer Cancelled
+ofLbl = of
+transferLocalFilename = Local File
+transferDirection = Direction
+transferRemoteFilename = Remote File
+transferProgress = Statistics
+remainingTransferLabel = remaining
+elapsedTransferLabel = elapsed
+progressMonitorTitle = Zipping files
+progressCompletedText = completed
+zipErrorTitle = Error
+zipErrorMessage = Zip filename must end with '.zip' extension
+syncCompletedDialogLbl = Sync Completed
+syncFailedDialogLbl = Sync Failed
+syncStoppedDialogLbl = Sync Stopped
+syncedFilesMessageA = {0} file(s) were synced, {1} orphaned file(s) deleted
+syncedFilesMessageB = {0} file(s) were synced
+syncedFilesMessageC = Sync interrupted by user
+syncedFilesMessageD = {0} file(s) were synced up, {1} file(s) were synced down
+syncRefreshLocalMessage = Refresh local directory?
+syncRefreshRemoteMessage = Rremote directory updated, connect and view?
+
+# Error Messages
+
+errTitle = Error
+errTransferLbl = Unable to transfer one or more file(s)
+errDeleteLbl = Unable to delete one or more file(s)
+errRenameLbl = Unable to rename one or more file(s)
+errSetDirLbl = Unable to access the specified directory
+errCreateDir = Unable to create the specified directory
+errConnection = Unable to connect to server. Try again?
+errLogin = Invalid username or password
+errSshVersion = Invalid SSH version on server
+errZipUploadLbl = Unable compress and upload files selected
+errPermissions = Access denied
+errProxy = Unable to connect to proxy server
+errUnknown = Unknown error. Please check <installdir>/var/log/error.log file
+errTransferInitFailed = Unable to initialize transfer!
+
+# Warning message
+warnUploadDirTitle = Permission Denied
+warnUploadDirLbl = Permission to create
+warnUploadDirFinish = directory denied
+permissionDeniedLbl = Server does not allow this operation
+confirmOverwriteMessage={0} already exists. Overwrite?
+confirmOverwriteTitle=Overwrite 
+
+
+# Table Columns
+imageCol =
+fileNameCol = Name
+sizeCol = Size
+dateCol = Date
+
+# GetKeystoreDialog
+GetKeystoreDialog.title=Select Keystore File
+GetKeystoreDialog.fileLabel.text=File
+GetKeystoreDialog.passwordLabel.text=Password
+GetKeystoreDialog.selectFileButton.text=Browse
+GetKeystoreDialog.selectFileButton.mnemonic=B
+GetKeystoreDialog.submitButton.text=OK
+GetKeystoreDialog.submitButton.mnemonic=O
+GetKeystoreDialog.cancelButton.text=Cancel
+GetKeystoreDialog.cancelButton.mnemonic=C
+GetKeystoreDialog.fileChooser.title=Select File
+GetKeystoreDialog.fileChooser.button.text=Select
+GetKeystoreDialog.fileChooser.button.mnemonic=S
+GetKeystoreDialog.errorDialog.title=Error
+GetKeystoreDialog.badFilenameDialog.message=Select valid keystore file!
+GetKeystoreDialog.ioErrorDialog.message=Error loading keystore: {0}
+GetKeystoreDialog.badKeyDialog.message=Error restoring key: bad password or key does not exists
+
+# OS folders
+Documents = Documents
+Desktop = Desktop
+
+# Connection Panel Menu Items
+connectionCopyMenu = Copy
+connectionCutMenu = Cut
+connectionPasteMenu = Paste
+
+# AnyClient Service Startup Dialog
+anyClientServiceDialog.Title = AnyClient Web Service
+anyClientServiceDialog.CloudDescription = Cloud storage keeps your sites in sync between all versions of AnyClient.
+anyClientServiceDialog.InstallDescription = Zero installation file transfers from your browser.
+anyClientServiceDialog.ShowCheckBoxMessage = Do not show this message again
+anyClientServiceDialog.OKButton = OK
+
+
+
+

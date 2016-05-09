@@ -1,0 +1,18 @@
+{
+  "name": "chipseq_post_align_qc",
+  "description": "Performs standardised post alignment QC on chipseq alignments",
+  "pipeline_type": "III",
+  "author": "Venu Pullabhatla, Jonathan Smith",
+  "version": "0.0.1",
+  "regex_type": "AND",
+  "file_regex": [".*\\_alignment_metrics.txt", ".*\\_duplicate_metrics.txt"],
+  "documentation_file_name": "chipseq_post_align_qc_documentation.txt",
+  "modules": [
+    {
+      "name": "collater",
+      "description": "collate chipseq alignment results into a single file",
+      "executor": "collater.sh",
+      "options": []
+    }
+  ]
+}
