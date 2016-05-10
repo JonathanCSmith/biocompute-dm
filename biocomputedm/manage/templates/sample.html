@@ -66,13 +66,16 @@
     </div>
     {% endif %}
 
-    {% if g.user.type == "User" and g.user.get_role() != "Site Admin" %}
+    {% if g.user.get_role() != "Site Admin" %}
     <div class="spacer"></div>
 
     <div class="action exempt">
         <h3>Manage</h3>
 
+        {% if g.user.type == "User" %}
         <a class="input" href="{{ url_for('manage.link_to_project', oid=sample.display_key, data_type='sample') }}">Link Sample Data to Project</a>
+        {% endif %}
+
         <a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=sample.display_key, data_type='sample') }}">Copy Sample Data to Staging Drive</a>
 
     </div>

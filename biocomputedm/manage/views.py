@@ -196,9 +196,11 @@ def new_submission():
                 script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
                 script_path = os.path.join(script_path, "mud.sh")
                 sources = ""
-                for i in ids:
-                    source_path = files[i]["path"]
-                    sources = sources + source_path + ","
+                for file in files:
+                    for i in ids:
+                        if file["name"] == i:
+                            sources = sources + file["path"] + ","
+                            break
                 sources = sources[:-1]  # remove that pesky extra comma :D
 
                 # Execute our move, unpack and delete script asynchronously so as to not interrupt webserving

@@ -21,6 +21,7 @@ class LoginForm(Form):
             if user.check_password(str(self.password.data)):
                 return True
             else:
+                flash("There was an error with your login submission.", "error")
                 return False
 
         else:
@@ -48,7 +49,6 @@ class ChangePasswordForm(Form):
 class CreateGroupForm(Form):
     group_name = StringField("Group Name", validators=[DataRequired()])
     admin_login = StringField("Administrator Name", validators=[DataRequired()])
-    #admin_password = PasswordField("Group Administrator Password", validators=[DataRequired()])
     admin_email = StringField("Administrator Email", validators=[DataRequired(), Email()])
     admin_email_2 = StringField("Repeat Email", validators=[DataRequired(), Email()])
     submit = SubmitField("Create Account")
@@ -57,9 +57,14 @@ class CreateGroupForm(Form):
         if not Form.validate(self):
             return False
 
-        trimmed_name = ''.join(str(self.group_name.data).split())
-        if trimmed_name != str(self.group_name.data):
+        trimmed_group_name = ''.join(str(self.group_name.data).split())
+        if trimmed_group_name != str(self.group_name.data):
             flash("Group names cannot contain any whitespace characters", "warning")
+            return False
+
+        trimmed_name = ''.join(str(self.admin_login.data).split())
+        if trimmed_name != str(self.admin_login.data):
+            flash("User names cannot contain any whitespace characters.", "warning")
             return False
 
         user = User.query.filter_by(email=str(self.admin_email.data)).first()
@@ -84,7 +89,6 @@ class CreateGroupForm(Form):
 
 class CreatePerson(Form):
     login_name = StringField("Login Name", validators=[DataRequired()])
-    # login_password = PasswordField("Password", validators=[DataRequired()])
     login_email = StringField("Email", validators=[DataRequired(), Email()])
     login_email_2 = StringField("Repeat Email", validators=[DataRequired(), Email()])
     submit = SubmitField("Create Account")
