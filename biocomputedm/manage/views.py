@@ -105,7 +105,7 @@ def staged_files():
         return redirect(url_for("content.activity"))
 
     path = request.url_root
-    if path.endswith("//"):
+    if path.endswith("/"):
         path = path[:-1]
 
     return render_template("staged_files.html", title="My Files", path=path)
