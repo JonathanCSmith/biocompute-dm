@@ -35,6 +35,8 @@
             <param name="localFilter" value="^(.*)\.(gz|zip)$">
             <param name="invertLocalFilter" value="true">
             <param name="remoteDir" value="/staged_files">
+            <param name="showOptionsPanel" value="false">
+            <param name="showConnectButton" value="false">
             <comment>
                 <embed
                         type="application/x-java-applet;version=1.6" \
@@ -56,7 +58,9 @@
                         enableRemoteCreateDir="false" \
                         localFilter="^(.*)\.(gz|zip)$" \
                         invertLocalFilter="true" \
-                        remoteDir="/staged_files">
+                        remoteDir="/staged_files" \
+                        showOptionsPanel="false" \
+                        showConnectButton="false">
                     <noembed>
                     </noembed>
                 </embed>

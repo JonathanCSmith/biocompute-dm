@@ -105,6 +105,8 @@ def staged_files():
         return redirect(url_for("content.activity"))
 
     path = request.url_root
+    if path.startswith("http://"):
+        path = path.replace("http://", "")
     if path.endswith("/"):
         path = path[:-1]
 
