@@ -28,6 +28,13 @@ def message(oid=""):
             submission = Submission.query.filter_by(display_key=display_key).first()
             if submission is not None:
 
+                # Clean up after ourselves
+                if submission.data_group is not None:
+                    for data in submission.data_group.data:
+                        data.delete()
+
+                    submission.data_group.delete()
+
                 # Build a data group for the submission
                 data_group = DataGroup.create(
                     name="Data Group submitted by: " + submission.user.username,
@@ -38,7 +45,7 @@ def message(oid=""):
 
                 # Walk the submission directory to find data sets
                 local_data_path = os.path.join(utils.get_path("submission_data", "webserver"), submission.display_key)
-                paths = next(os.walk(local_data_path))
+                paths = next(os.walk(local_data_path, followlinks=False))
                 for folder in paths[1]:
                     data_item = DataItem.create(
                         name=folder,
