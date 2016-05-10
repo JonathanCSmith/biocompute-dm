@@ -32,8 +32,12 @@
             <param name="showButtons" value="false">
             <param name="promptForPassword" value="true">
             <param name="enableRemoteCreateDir" value="false">
-            <param name="localFilter" value="^(.*)\.(gz|zip)$">
-            <param name="invertLocalFilter" value="true">
+
+            {#
+            <!--<param name="localFilter" value="^(.*)\.(gz|zip)$">
+            <param name="invertLocalFilter" value="true">-->
+            #}
+
             <param name="remoteDir" value="/staged_files">
             <param name="showOptionsPanel" value="false">
             <param name="showConnectButton" value="false">
@@ -56,8 +60,8 @@
                         showButtons="false" \
                         promptForPassword="true" \
                         enableRemoteCreateDir="false" \
-                        localFilter="^(.*)\.(gz|zip)$" \
-                        invertLocalFilter="true" \
+                        {#<!--localFilter="^(.*)\.(gz|zip)$" \
+                        invertLocalFilter="true" \-->#}
                         remoteDir="/staged_files" \
                         showOptionsPanel="false" \
                         showConnectButton="false">

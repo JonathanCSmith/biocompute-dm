@@ -32,6 +32,8 @@ case ${i} in
 esac
 done
 
+### NOTE REMOVED UNPACK FOR NOW
+
 IFS=',' read -r -a ARRAY <<< "${SOURCE}"
 
 # Move (and remove original), unpack and delete the newly moved files
@@ -40,7 +42,7 @@ for FILE in "${ARRAY[@]}"
 do
     mv "${FILE}" "${DIRECTORY}"
     NEW_FILE="${DIRECTORY}/$(basename "${FILE}")"
-    (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}")
+    #(cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}")
     rm -f "${NEW_FILE}"
 done
 

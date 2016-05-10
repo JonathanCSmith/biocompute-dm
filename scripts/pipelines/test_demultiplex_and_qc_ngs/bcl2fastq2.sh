@@ -25,7 +25,7 @@ EXECUTION_VARIABLES=""
 
 # Necessary information
 EXECUTION_VARIABLES+=" --output-dir ${DATA_OUTPUT_DIRECTORY}"
-EXECUTION_VARIABLES+=" --runfolder-dir ${DATA_INPUT_DIRECTORY}"
+EXECUTION_VARIABLES+=" --runfolder-dir ${DATA_INPUT_DIRECTORY}2" # TODO: This 2 allows testing as we can have a different link on webserver vs hpc (allowing static data to be symlinked)
 EXECUTION_VARIABLES+=" --reports-dir ${MODULE_OUTPUT_DIRECTORY}"
 EXECUTION_VARIABLES+=" --stats-dir ${MODULE_OUTPUT_DIRECTORY}"
 

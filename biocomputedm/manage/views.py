@@ -146,9 +146,18 @@ def new_submission():
     directory_path = os.path.join(directory_path, "staged_files")
 
     # list of the available files in user directory
-    filepaths = next(os.walk(directory_path))[2]
+    filepaths = next(os.walk(directory_path))
     files = []
-    for file in filepaths:
+    for file in filepaths[1]:
+        s = os.stat(os.path.join(directory_path, file))
+        files.append({
+            "name": file,
+            "path": os.path.join(directory_path, file),
+            "size": s.st_size,
+            "date": time.ctime(s.st_ctime)
+        })
+
+    for file in filepaths[2]:
         s = os.stat(os.path.join(directory_path, file))
         files.append({
             "name": file,
@@ -160,8 +169,17 @@ def new_submission():
     # List the available files in group directory
     directory_path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], current_user.group.name)
     directory_path = os.path.join(directory_path, "staged_files")
-    filepaths = next(os.walk(directory_path))[2]
-    for file in filepaths:
+    filepaths = next(os.walk(directory_path))
+    for file in filepaths[1]:
+        s = os.stat(os.path.join(directory_path, file))
+        files.append({
+            "name": file,
+            "path": os.path.join(directory_path, file),
+            "size": s.st_size,
+            "date": time.ctime(s.st_ctime)
+        })
+
+    for file in filepaths[2]:
         s = os.stat(os.path.join(directory_path, file))
         files.append({
             "name": file,

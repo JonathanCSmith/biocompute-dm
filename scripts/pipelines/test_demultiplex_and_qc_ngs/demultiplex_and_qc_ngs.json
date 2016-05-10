@@ -1,0 +1,194 @@
+{
+  "name": "test_demultiplex_and_qc_ngs",
+  "description": "A pipeline providing simple demultiplexing and fastqc capabilities.",
+  "pipeline_type": "I",
+  "author": "Jonathan Smith",
+  "version": "0.0.2",
+  "regex_type": "AND",
+  "file_regex": [".*\\.fastq$"],
+  "documentation_file_name": "demultiplexing_and_qc.txt",
+  "modules": [
+    {
+      "name": "bcl2fastq2",
+      "description": "Performs bcl2fastq2 demultiplexing",
+      "executor": "bcl2fastq2.sh",
+      "options": [
+        {
+          "display_name": "Sample Sheet Informations:",
+          "parameter_name": "sample_sheet",
+          "default_value": "SampleSheet.csv",
+          "user_interaction_type": "file",
+          "necessary": false,
+          "description": "Please provide a sample sheet that conforms to the template available below."
+        },
+
+        {
+          "display_name": "Adapter Stringency Value:",
+          "parameter_name": "adapter_stringency",
+          "default_value": "0.9",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "The minimum match rate that would trigger the masking or trimming process. This value is calculated as MatchCount / (MatchCount + MismatchCount) and ranges from 0 to 1, but it is not recommended to use any value < 0.5, as this value would introduce too many false positives. The default value for this parameter is 0.9, meaning that only reads with > 90% sequence identity with the adapter are trimmed."
+        },
+
+        {
+          "display_name": "Tiling behaviour:",
+          "parameter_name": "aggregated_tiles",
+          "default_value": "AUTO, YES, NO",
+          "user_interaction_type": "enum",
+          "necessary": false,
+          "description": "This flag tells the converter about the structure of the input files. Accepted values: AUTO Automatically detects the tile setting YES Tiles are aggregated into single input file NO There are separate input files for individual tiles"
+        },
+
+        {
+          "display_name": "Barcode Mismatch Allowance:",
+          "parameter_name": "barcode_mismatches",
+          "default_value": "1, 0, 2",
+          "user_interaction_type": "enum",
+          "necessary": false,
+          "description": "Number of allowed mismatches per index Multiple entries, comma delimited allowed. Each entry is applied to the corresponding index; last entry applies to  all remaining indexes."
+        },
+
+        {
+          "display_name": "Index Reads Generate FastQ Files:",
+          "parameter_name": "create_fastq_index",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Option to create fastq files for indexed reads."
+        },
+
+        {
+          "display_name": "Ignore Missing BCLs:",
+          "parameter_name": "ignore_missing_bcl",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Missing or corrupt BCL files are ignored. Assumes N/# for missing calls"
+        },
+
+        {
+          "display_name": "Ignore Missing Filter:",
+          "parameter_name": "ignore_missing_filter",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Missing or corrupt filter files are ignored. Assumes Passing Filter for all clusters in tiles where filter files are missing."
+        },
+
+        {
+          "display_name": "Ignore Missing Positions:",
+          "parameter_name": "ignore_missing_positions",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Missing or corrupt positions files are ignored. If corresponding position files are missing, bcl2fastq2 writes unique coordinate positions in fastq header."
+        },
+
+        {
+          "display_name": "Minimum Read Length For Trimming:",
+          "parameter_name": "minimum_read_length",
+          "default_value": "35",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "Minimum read length after adapter trimming. bcl2fastq trims the adapter from the read down to the value of this parameter. If there is more adapter match below this value, then those bases are masked, not trimmed (replaced by N rather than removed)"
+        },
+
+        {
+          "display_name": "Masked Adapter Read Length:",
+          "parameter_name": "masked_adapter_read_length",
+          "default_value": "22",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "This option applies when a read is trimmed to below the length specified by the --minimum-trimmed-read-length option (default of 35). These parameters specify the following behavior: If the number of bases left after adapter trimming is less than --minimum-trimmed-read-length, force the read length to be equal to --minimum-trimmed-read-length by masking adapter bases (replace with Ns) that fall below this length. If the number of ACGT bases left after this process falls below --mask-short-adapter-reads, mask all bases, resulting in a read with --minimum-trimmed-read-length number of Ns."
+        },
+
+        {
+          "display_name": "Tile Properties:",
+          "parameter_name": "tiles",
+          "default_value": "False",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "The --tiles argument takes a regular expression to select for processing only a subset of the tiles available in the flow cell. This argument can be specified multiple times, one time for each regular expression. Examples: To select all the tiles ending with 5 in all lanes: --tiles [0 to 9][0 to 9][0 to 9]5 To select tile 2 in lane 1 and all the tiles in the other lanes: --tiles s_1_0002 --tiles s_[2 to 8]"
+        },
+
+        {
+          "display_name": "Use a Base Mask:",
+          "parameter_name": "base_mask",
+          "default_value": "False",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "The --use-bases-mask string specifies how to use each cycle. An n means ignore the cycle. A Y (or y) means use the cycle. An I means use the cycle for the Index Read. A number means that the previous character is repeated that many times. An asterisk [*] means that the previous character is repeated until the end of this read or index (length according to the RunInfo.xml). The read masks are separated with commas: , The format for dual indexing is as follows: --use-bases-mask Y*,I*,I*,Y* or variations thereof as specified. You can also specify the --use-bases-mask multiple times for separate lanes, like this way: --use-bases-mask 1:y*,i*,i*,y*; *,n*,n*,y* Where the 1: means: Use this setting for lane 1. In this case, the second --use-bases-mask parameter (after the semi colon) is used for all other lanes. If this option is not specified, the mask is determined from the 'RunInfo.xml' file in the run directory. If it cannot do this determination, supply the --use-bases-mask."
+        },
+
+        {
+          "display_name": "Include Failed Reads:",
+          "parameter_name": "with_failed_reads",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Include all clusters in the output, even clusters that are non-PF. These clusters would have been excluded by default."
+        },
+
+        {
+          "display_name": "Write Reverse Complement:",
+          "parameter_name": "write_rev_comp",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Generate FASTQ files containing reverse complements of actual data"
+        },
+
+        {
+          "display_name": "No Compression in Output:",
+          "parameter_name": "no_compression",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Turn off BGZF compression for FASTQ files. BGZF compression allows downstream applications to decompress in parallel. This parameter is only available in case a consumer of FASTQ data is not able to handle all standard GZIP formats."
+        },
+
+        {
+          "display_name": "FastQ Compression Level:",
+          "parameter_name": "compression_level",
+          "default_value": "4",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "Zlib compression level (1 to 9) used for FASTQ files."
+        },
+
+        {
+          "display_name": "No Lane Splitting:",
+          "parameter_name": "no_lane_splitting",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Do not split FASTQ files by lane"
+        },
+
+        {
+          "display_name": "Find Adapters Using Sliding Window:",
+          "parameter_name": "find_adapters_using_sliding_window",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "Find adapters with simple sliding window algorithm. Insertions and deletions of bases inside the adapter sequence are not handled"
+        }
+      ]
+    },
+
+    {
+      "name": "FastQC",
+      "description": "Performs fastqc report generation",
+      "executor": "fastqc.sh",
+      "options": []
+    },
+
+    {
+      "name": "Cleanup",
+      "description": "Directory cleanup for sample submission",
+      "executor": "cleaner.sh",
+      "options": []
+    }
+  ]
+}
