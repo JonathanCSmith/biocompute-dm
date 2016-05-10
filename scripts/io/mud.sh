@@ -41,9 +41,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 for FILE in "${ARRAY[@]}"
 do
     mv "${FILE}" "${DIRECTORY}"
-    NEW_FILE="${DIRECTORY}/$(basename "${FILE}")"
-    #(cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}")
-    rm -f "${NEW_FILE}"
+#    NEW_FILE="${DIRECTORY}/$(basename "${FILE}")"
+#    (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}")
+#    rm -f "${NEW_FILE}"
 done
 
 # Post message
