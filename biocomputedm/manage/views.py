@@ -104,7 +104,11 @@ def staged_files():
     if current_user.get_role() == "Site Admin":
         return redirect(url_for("content.activity"))
 
-    return render_template("staged_files.html", title="My Files")
+    path = request.url_root
+    if path.endswit("//"):
+        path = path[:-1]
+
+    return render_template("staged_files.html", title="My Files", path=path)
 
 
 @manage.route("/submissions/<int:page>")

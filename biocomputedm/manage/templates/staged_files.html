@@ -23,7 +23,7 @@
             <param name="code" value="com.jscape.ftpapplet.FtpApplet.class">
             <param name="archive" value="{{ url_for('static', filename='ftp/anyclient-enterprise.jar') }},{{ url_for('static', filename='ftp/bcpg-jdk15on-147.jar') }},{{ url_for('static', filename='ftp/bcprov-jdk15on-147.jar') }}">
             <param name="scriptable" value="false">
-            <param name="hostname" value="{{ request.url_root }}">
+            <param name="hostname" value="{{ path }}">
             <param name="port" value="22">
             <param name="username" value="biocompute-DM_user_{{ g.user.username}}">
             <param name="autoConnect" value="true">
@@ -45,7 +45,7 @@
                         height="600" \
                         scriptable="false" \
                         pluginspage = "http://java.sun.com/products/plugin/index.html#download" \
-                        hostname="{{ request.url_root }}" \
+                        hostname="{{ path }}" \
                         port="22" \
                         username="biocompute-DM_user_{{ g.user.username}}" \
                         autoConnect="true" \
