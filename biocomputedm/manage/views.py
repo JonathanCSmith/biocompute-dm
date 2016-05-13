@@ -328,10 +328,11 @@ def submission(oid=""):
                 continue
 
     running_pipelines = []
-    for run_pipeline in data_group.pipeline_instances:
-        if run_pipeline.current_execution_status == "RUNNING":
-            running_pipelines.append(run_pipeline)
-            break
+    if submission.data_group:
+        for run_pipeline in submission.data_group.pipeline_instances:
+            if run_pipeline.current_execution_status == "RUNNING":
+                running_pipelines.append(run_pipeline)
+                break
 
     return render_template("submission.html", title="Submission", submission=submission, pipelines=valid_pipelines, running_pipelines=running_pipelines)
 
