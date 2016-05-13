@@ -236,11 +236,6 @@ def build_pipeline_instance(oid="", pid=""):
             flash("The pipeline information provided was invalid", "error")
             return redirect(url_for("index"))
 
-        # Previous runs check
-        if source_data_group.running:
-            flash("Cannot execute a pipeline on a data group when a pipeline is already running. Please ensure you finish or quit the current pipeline before proceeding", "warning")
-            return redirect(url_for("index"))
-
         # Instance creation and assignment
         pipeline_instance = PipelineInstance.create(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=current_user, consignor=source_data_group)
 

@@ -5,8 +5,9 @@
 
 ### Ubuntu Installation (mileage will vary for other OSs)
 - Setup a machine with a Lamp(y) stack
+    - Linux, apache2, mysql, python3
 
-- Create a user called biocompute-dm
+- Create a group called sftpusers, a user called biocompute-dm and add biocompute-dm to the group sftpusers
 
 - Clone branch containing the flask builds onto the machine to /var/www (or equivalent)
 
@@ -16,43 +17,33 @@
 
 - OR (if this fails):
 
-        - python3 -m venv --without-pip flask
-        - source flask/bin/activate
+        - python3 -m venv --without-pip flask_environment
+        - source flask_environment/bin/activate
         - curl https://bootstrap.pypa.io/get-pip.py | python
         - deactivate
 
 - Then install flask packages using the following commands:
 
-        - flask/bin/pip install flask
-        - flask/bin/pip install Flask-Script
-        - flask/bin/pip install PyMySQL
-        - flask/bin/pip install flask-sqlalchemy
-        - flask/bin/pip install alembic
-        - flask/bin/pip install flask-migrate
-        - flask/bin/pip install flask-login
-        - flask/bin/pip install flask-mail
-        - flask/bin/pip install flask-wtf
-        - flask/bin/pip install flask-bootstrap
-        - flask/bin/pip install jsonschema
+        - flask_environment/bin/pip install flask
+        - flask_environment/bin/pip install Flask-Script
+        - flask_environment/bin/pip install PyMySQL
+        - flask_environment/bin/pip install flask-sqlalchemy
+        - flask_environment/bin/pip install alembic
+        - flask_environment/bin/pip install flask-migrate
+        - flask_environment/bin/pip install flask-login
+        - flask_environment/bin/pip install flask-mail
+        - flask_environment/bin/pip install flask-wtf
+        - flask_environment/bin/pip install flask-bootstrap
+        - flask_environment/bin/pip install jsonschema
 
         (old for reference:)
-        - flask/bin/pip install flask-excel
-        - flask/bin/pip install pyexcel-xls
-        - flask/bin/pip install pyexcel-xlsx
-        
-- Install the following applications:
-  * 7z : sudo apt-get install p7zip-full
-  * unrar : sudo apt-get install unrar
-  * unzip : sudo apt-get install unzip
+        - flask_environment/bin/pip install flask-excel
+        - flask_environment/bin/pip install pyexcel-xls
+        - flask_environment/bin/pip install pyexcel-xlsx
         
 - Modify your apache2 installation according to the best practices listed below
   * It is always assumed that script execution on the webserver is performed using the user 'biocompute-dm'
   * This administrative user must be a member of the group sftpusers
-
-- Create your own config.py by copying the template and inserting the relevant information.
-
-- Follow database instructions for "New database schema"
-  * Note: all commands within manage.py should be called as your biocompute-dm user (or the owner of the error.log directory)
 
 - SFTP Setup
 1. Openssh sftp is allowed and configured correctly using the /etc/ssh/sshd_config file
@@ -76,25 +67,19 @@
         biocompute-dm ALL=(ALL) NOPASSWD: [path to script]
         
   * Ensure that the files are owned by root and have 700 permissions! (this prevents nefarious execution)
-  * Note, the current sftp add_user scripts use hash passwords, for this you must install whois
-        
 
+- Create your own config.py by copying the template and inserting the relevant information.
+
+- Follow database instructions for "New database schema"
+  * Note: all commands within manage.py should be called as your biocompute-dm user (or the owner of the error.log directory)
+        
 
 ### Database Commands
 #### New database schema
 
-- Create a mysql db
-- run db_create.py
-- run db_migrate.py
-
-#### First time setup
-
-- run db_create.py
-- run db_upgrade.py
-
-#### Schema update
-
-- run db_migrate.py
+- Create a mysql db according to your config.py
+- Setup a user with properties that corresponds to your config.py for accessing the db above (local only)
+- as biocompute-dm user in the website root: flask_environment/bin/python manage.py update
 
 ### Apache2 Best Practices
 

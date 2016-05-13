@@ -28,7 +28,6 @@ else
 
         ALIGNMENT=""
         DUPLICATE=""
-        COVERAGE=""
 
         # We are looking for a specific file type
         for f in ${d}/*_alignment_metrics.txt; do
@@ -101,7 +100,5 @@ EOF
         rm -rf "${d}"
     done
 fi
-
-mv "./merged_qc_table" "./pipeline_output/merged_qc_table.txt"
 
 echo "Collation process finished"

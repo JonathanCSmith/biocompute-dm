@@ -78,7 +78,7 @@
     </div>
 
     {% if g.user.type == "User" %}
-    {% if running_pipeline %}
+    {% for running_pipeline in running_pipelines %}
     <div class="spacer"></div>
 
     <div class="action exempt">
@@ -149,8 +149,9 @@
             </table>
         </div>
     </div>
+    {% endfor %}
 
-    {% elif g.user.get_role() != "Site Admin" %}
+    {% if g.user.get_role() != "Site Admin" %}
     <div class="spacer"></div>
 
     <div class="action exempt">

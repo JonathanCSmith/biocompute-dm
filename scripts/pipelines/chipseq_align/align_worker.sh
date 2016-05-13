@@ -9,6 +9,7 @@ module load novoalign/3.01.02
 module load bioinformatics/samtools/0.1.19
 module load picard-tools/2.2.2
 module load bedtools/2.16.2
+module load ucsc_tools/13_05_2016
 
 OLDIFS="${IFS}"
 date=`date`
@@ -30,6 +31,25 @@ if [ "${ref}" != "" ]; then
 
 else
     echo "Could not continue as no reference was provided"
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+    curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+    exit
+fi
+
+ANNOTATION=""
+echo "Annotation Source = ${ann}"
+if [ "${ann}" != "" ]; then
+
+    cp "${ann}" "${TMPDIR}/${ann##*/}"
+    ANNOTATION="${TMPDIR}/${ann##*/}"
+    echo "New annotation location ${ANNOTATION}"
+
+else
+    echo "Could not continue as no annotation set was provided."
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -108,7 +128,7 @@ printf "Finished indexing BAM file on $date\n\n"
 
 ############################# BAM TO BED FORMAT #########################################################
 printf "Started converting to BED format on `date`\n\n"
-$BEDTOOLS/bamToBed -i "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
+bamToBed -i "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
 printf "Finished converting to BED format on `date`\n\n"
 #########################################################################################################
 
@@ -117,12 +137,12 @@ printf "\n\n\ntotal_final_reads = $total_final_reads\n\n\n" >> "${SAMPLE_OUTPUT_
 
 ################################################ RUNNING MACS2 to make BigWig files #####################
 printf "Started running MACS2 on `date`\n\n"
-$MACS2/macs2 callpeak -t "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -f BED -g hs --keep-dup=all --outdir "${SAMPLE_OUTPUT_PATH}/macs2" -n "${SAMPLE_NAME}" -B --SPMR --nomodel --extsize=200 -q 0.05
+macs2 callpeak -t "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -f BED -g hs --keep-dup=all --outdir "${SAMPLE_OUTPUT_PATH}/macs2" -n "${SAMPLE_NAME}" -B --SPMR --nomodel --extsize=200 -q 0.05
 printf "Finished running MACS2 on `date`\n\n"
 
 printf "Started making genome browser supported files on `date`\n\n"
-$UCSC_tools/bedClip "${SAMPLE_OUTPUT_PATH}/macs2/${SAMPLE_NAME}_treat_pileup.bdg" /home/venu/repository/annotation/chromsize/hg19 "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
-$UCSC_tools/bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg" /home/venu/repository/annotation/chromsize/hg19 "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
+bedClip "${SAMPLE_OUTPUT_PATH}/macs2/${SAMPLE_NAME}_treat_pileup.bdg" "${ANNOTATION}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
+bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg" "${ANNOTATION}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
 printf "Finished making genome browser supported files on `date`\n\n"
 ##########################################################################################################
 
@@ -138,3 +158,4 @@ rm -rf "${SAMPLE_OUTPUT_PATH}/macs2"
 # ================================================== CORE SAMPLE LOOP =================================================
 
 rm "${TMPDIR}/${ref##*/}"
+rm "${TMPDIR}/${ann##*/}"

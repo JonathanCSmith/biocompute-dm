@@ -1,0 +1,54 @@
+{
+  "name": "rnaseq_align",
+  "description": "aligns demultiplexed files for rnaseq sequencing and produces metrics data for the alignment",
+  "pipeline_type": "II",
+  "author": "Filipe Gracio, Venu Pullabhatla, Jonathan Smith",
+  "version": "0.0.1",
+  "regex_type": "AND",
+  "file_regex": [".*\\.fastq$"],
+  "documentation_file_name": "rnaseq_align_documentation.txt",
+  "modules": [
+    {
+      "name": "aligner",
+      "description": "align rna sequencing",
+      "executor": "align.sh",
+      "options": [
+        {
+          "display_name": "Reference Genome Index File",
+          "parameter_name": "ref",
+          "default_value": "",
+          "user_interaction_type": "reference",
+          "necessary": true,
+          "description": "This field requires you to specify one of the reference genome indexes."
+        },
+
+        {
+          "display_name": "Splice Sites File",
+          "parameter_name": "splice",
+          "default_value": "",
+          "user_interaction_type": "reference",
+          "necessary": true,
+          "description": "This field requires you to specify a source file containing your known splice sites."
+        },
+
+        {
+          "display_name": "Annotations File",
+          "parameter_name": "ann",
+          "default_value": "",
+          "user_interaction_type": "reference",
+          "necessary": true,
+          "description": "This field requires you to specify a source file containing your annotations."
+        },
+
+        {
+          "display_name": "Genome (Chromosome?) File",
+          "parameter_name": "gen",
+          "default_value": "",
+          "user_interaction_type": "reference",
+          "necessary": true,
+          "description": "This field requires you to specify a source file containing your genome."
+        }
+      ]
+    }
+  ]
+}

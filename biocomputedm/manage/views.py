@@ -2,6 +2,8 @@ import os
 import subprocess
 import time
 
+import re
+
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
 from biocomputedm.manage.models import Submission, Project, Document, DataGroup, DataItem, Sample
@@ -276,7 +278,62 @@ def submission(oid=""):
     # list of the available type I pipelines
     pipelines = Pipeline.query.filter_by(type="I", executable=True)
 
-    return render_template("submission.html", title="Submission", submission=submission, pipelines=pipelines)
+    # use the regex information to determine if a pipeline can run
+    valid_pipelines = []
+    for pipeline in pipelines:
+        rxs = pipeline.regex.split("$$$")
+
+        if pipeline.regex_type == "OR":
+            valid_pipeline = False
+            for rx in rxs:
+                found = False
+                rx_matcher = re.compile(rx)
+                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "hpc"), oid)):
+                    for file in files:
+                        if rx_matcher.match(file):
+                            found = True
+                            break
+
+                    if found:
+                        break
+
+                if found:
+                    valid_pipeline = True
+                    break
+
+            if valid_pipeline:
+                valid_pipelines.append(pipeline)
+                continue
+
+        elif pipeline.regex_type == "AND":
+            valid_pipeline = True
+            for rx in rxs:
+                found = False
+                rx_matcher = re.compile(rx)
+                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "hpc"), oid)):
+                    for file in files:
+                        if rx_matcher.match(file):
+                            found = True
+                            break
+
+                    if found:
+                        break
+
+                if not found:
+                    valid_pipeline = False
+                    break
+
+            if valid_pipeline:
+                valid_pipelines.append(pipeline)
+                continue
+
+    running_pipelines = []
+    for run_pipeline in data_group.pipeline_instances:
+        if run_pipeline.current_execution_status == "RUNNING":
+            running_pipelines.append(run_pipeline)
+            break
+
+    return render_template("submission.html", title="Submission", submission=submission, pipelines=valid_pipelines, running_pipelines=running_pipelines)
 
 
 @manage.route("/samples/<int:page>")
@@ -377,73 +434,80 @@ def data_group(oid="", data_type=""):
 
     if current_user.get_role() == "Site Admin":
         data_group = DataGroup.query.filter_by(display_key=oid).first()
+        if data_group is None:
+            flash("Could not locate the provided data group", "error")
+            return redirect(url_for("index"))
+
+        valid_pipelines = None
+
     else:
         data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
+        if data_group is None:
+            flash("Could not locate the provided data group", "error")
+            return redirect(url_for("index"))
 
-    if data_group is None:
-        flash("Could not locate the provided data group", "error")
-        return redirect(url_for("index"))
+        pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
 
-    # if request.method == "POST":
-    #     # Check to see that at least 1 upload was selected - empty submissions have no use
-    #     ids = request.form.getlist("do_select")
-    #     if ids is not None and len(ids) != 0:
-    #         for key in ids:
-    #             new_sample = current_user.group.samples.filter_by(display_key=key).first()
-    #             if new_sample is not None:
-    #                 sample_group.samples.append(new_sample)
-    #                 sample_group.save()
-    #
-    #         flash("Sample Group was successfully updated", "success")
-    #
-    #     else:
-    #         flash("No samples were selected.", "warning")
+        # use the regex information to determine if a pipeline can run
+        valid_pipelines = []
+        root_path = utils.get_path("sample_data", "webserver")
+        files = []
+        for data in data_group.data:
+            data_path = os.path.join(os.path.join(root_path, data.unlocalised_path), data.name)
+            if not os.path.isfile(data_path):
+                for dirpath, dirnames, additional_files in os.walk(data_path):
+                    files.extend(additional_files)
 
-    # samples = current_user.group.samples.all()
-    # potential_samples = []
-    # if sample_group.modifiable:
-    #     for sample in samples:
-    #         if sample.pipeline_source.pipeline == sample_group.pipeline and sample not in current_samples:
-    #             potential_samples.append(sample)
+            else:
+                files.append(data.name)
 
-    # Check for common data source amongst samples
-    # current_data = data_group.data_items
-    # initial = True
-    # source_set = []
-    # for s in current_data:
-    #     if initial:
-    #         initial = False
-    #         for p in s.pipeline_runs:
-    #             source_set.append(p.pipeline.generate_unique())
-    #         continue
-    #
-    #     else:
-    #         sample_sources = []
-    #         for p in s.pipeline_runs:
-    #             sample_sources.append(p.pipeline.generate_unique())
-    #
-    #         source_set[:] = [x for x in source_set if x in sample_sources]
-    #
-    # # Check if our source set has some common attributes, if so build a list of pipelines
-    # if source_set:
-    #     pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
-    #     source_pipelines = [x for x in pipelines if x.generate_unique() in source_set]
-    #
-    # else:
-    #     pipelines = None
-    #     source_pipelines = None
+        for pipeline in pipelines:
+            rxs = pipeline.regex.split("$$$")
 
-    pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
+            if pipeline.regex_type == "OR":
+                valid_pipeline = False
+                for rx in rxs:
+                    found = False
+                    rx_matcher = re.compile(rx)
 
-    # TODO: Verify valid pipelines using regex
+                    for file in files:
+                        if rx_matcher.match(file):
+                            found = True
+                            break
 
-    running_pipeline = None
+                    if found:
+                        valid_pipeline = True
+                        break
+
+                if valid_pipeline:
+                    valid_pipelines.append(pipeline)
+                    continue
+
+            elif pipeline.regex_type == "AND":
+                valid_pipeline = True
+                for rx in rxs:
+                    found = False
+                    rx_matcher = re.compile(rx)
+                    for file in files:
+                        if rx_matcher.match(file):
+                            found = True
+                            break
+
+                    if not found:
+                        valid_pipeline = False
+                        break
+
+                if valid_pipeline:
+                    valid_pipelines.append(pipeline)
+                    continue
+
+    running_pipelines = []
     for run_pipeline in data_group.pipeline_instances:
         if run_pipeline.current_execution_status == "RUNNING":
-            running_pipeline = run_pipeline
+            running_pipelines.append(run_pipeline)
             break
 
-    return render_template("data_group.html", data_group=data_group, pipelines=pipelines, running_pipeline=running_pipeline, data_type=data_type)
+    return render_template("data_group.html", data_group=data_group, pipelines=valid_pipelines, running_pipelines=running_pipelines, data_type=data_type)
 
 
 @manage.route("/projects/<int:page>")

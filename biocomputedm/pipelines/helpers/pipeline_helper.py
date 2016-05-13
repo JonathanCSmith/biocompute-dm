@@ -262,8 +262,9 @@ def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
             return
 
         source_data_group = DataGroup.query.filter_by(display_key=source_data_group_id).first()
-        if source_data_group is None or source_data_group.running:
+        if source_data_group is None:
             flash("Could not identify the source data for initialising the pipeline.", "error")
+            target_pipeline.update(current_execution_status="ERROR")
             return
 
         # Build the pipeline's data

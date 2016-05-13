@@ -22,7 +22,7 @@ else
     echo "Confirmed file count: ${FILE_COUNT}"
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "DATA_FILE="${SAMPLE_CSV}",ref="${ref}",ann="${ann}",PIPELINE_SOURCE="${PIPELINE_SOURCE} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//align_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "DATA_FILE="${SAMPLE_CSV}",ref="${ref}",splice="${splice}",ann="${ann}",gen="${gen}",PIPELINE_SOURCE="${PIPELINE_SOURCE} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//align_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )

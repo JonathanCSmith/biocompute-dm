@@ -20,6 +20,15 @@
           "user_interaction_type": "reference",
           "necessary": true,
           "description": "This field requires you to specify one of the reference genome indexes."
+        },
+
+        {
+          "display_name": "Annotation Files",
+          "parameter_name": "ann",
+          "default_value": "",
+          "user_interaction_type": "reference",
+          "necessary": true,
+          "description": "This field requires you to specify a source file containing your annotation set."
         }
       ]
     }
