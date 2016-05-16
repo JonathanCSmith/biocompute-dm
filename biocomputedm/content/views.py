@@ -26,14 +26,14 @@ def about():
     return render_template("welcome.html", title="About Biocompute-DM", user=g.user)
 
 
-@content.route("/data_processing")
-def data_processing():
-    return render_template("data_processing.html", title="Data Processing", user=g.user)
-
-
 @content.route("/data_management")
 def data_management():
     return render_template("data_management.html", title="Data Management", user=g.user)
+
+
+@content.route("/data_processing")
+def data_processing():
+    return render_template("data_processing.html", title="Data Processing", user=g.user)
 
 
 @content.route("/data_monitoring")
@@ -41,9 +41,14 @@ def data_monitoring():
     return render_template("data_monitoring.html", title="Data Monitoring", user=g.user)
 
 
-@content.route("/data_analysis")
-def data_analysis():
-    return render_template("data_analysis.html", title="Data Assessment", user=g.user)
+@content.route("/data_pipelines")
+def data_pipelines():
+    return render_template("data_pipelines.html", title="Data Pipelines", user=g.user)
+
+
+@content.route("/data_use_cases")
+def data_use_cases():
+    return render_template("data_use_cases.html", title="Data Use Cases", user=g.user)
 
 
 @content.route("/terms_and_conditions")

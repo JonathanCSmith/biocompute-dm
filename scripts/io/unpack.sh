@@ -26,7 +26,7 @@ case "$@" in
   *.tar.bz2 ) tar xvjf    "$@"                ;;
   *.bz2     ) bunzip2     "$@"                ;;
   *.deb     ) ar  vx      "$@"                ;;
-  *.tar.gz  ) tar xvf     "$@"                ;;
+  *.tar.gz  ) tar xzvf    "$@"                ;;
   *.gz      ) gunzip      "$@"                ;;
   *.tar     ) tar xvf     "$@"                ;;
   *.tbz2    ) tar xvjf    "$@"                ;;
