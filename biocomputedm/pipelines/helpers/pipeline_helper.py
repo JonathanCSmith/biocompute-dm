@@ -189,11 +189,7 @@ def build(file):
         name=name,
         description=description,
         author=author,
-        version=version,
-        type=type,
-        regex=regex,
-        regex_type=rx_type,
-        documentation=documentation
+        version=version
     ).first()
 
     if pipeline is not None:
