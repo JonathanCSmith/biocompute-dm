@@ -30,13 +30,6 @@ def message(oid=""):
             submission = Submission.query.filter_by(display_key=display_key).first()
             if submission is not None:
 
-                # Clean up after ourselves
-                if submission.data_group is not None:
-                    for data in submission.data_group.data:
-                        data.delete()
-
-                    submission.data_group.delete()
-
                 # Build a data group for the submission
                 data_group = DataGroup.create(
                     name="Data Group submitted by: " + submission.user.username,
@@ -335,6 +328,36 @@ def submission(oid=""):
                 break
 
     return render_template("submission.html", title="Submission", submission=submission, pipelines=valid_pipelines, running_pipelines=running_pipelines)
+
+
+@manage.route("/remove_submission/<oid>|<int:force>")
+@login_required("ANY")
+def remove_submission(oid="", force=0):
+    if force != 1:
+        return render_template(
+            "confirm.html",
+            message="Are you sure you wish to remove this submission?",
+            oid=oid,
+            url="manage.remove_submission"
+        )
+
+    if oid == "":
+        flash("Could not identify the provided object", "warning")
+        return redirect(url_for("manage.submissions"))
+
+    if current_user.get_role() == "Site Admin":
+        submission = Submission.query.filter_by(display_key=oid).first()
+    else:
+        submission = current_user.group.submissions.filter_by(display_key=oid).first()
+
+    if submission is None:
+        flash("Could not identify the provided object", "warning")
+        return redirect(url_for("manage.submissions"))
+
+    submission.delete()
+
+    flash("Submission deletion was successful", "success")
+    return redirect(url_for("manage.submissions"))
 
 
 @manage.route("/samples/<int:page>")

@@ -14,6 +14,7 @@
         <th>Submission Description</th>
         <th>Creation Date</th>
         <th>Created By</th>
+        <th>Remove?</th>
     </tr>
 
     {% if obs %}
@@ -23,6 +24,7 @@
         <td>{{ submission.description }}</td>
         <td>{{ submission.creation_date }}</td>
         <td>{{ submission.user.username }}</td>
+        <td><a class="input" href="{{ url_for('manage.remove_submission', oid=submission.display_key, force=0) }}">Remove</a></td>
     </tr>
     {% endfor %}
     {% endif %}

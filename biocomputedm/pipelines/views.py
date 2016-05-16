@@ -541,7 +541,7 @@ def change_module(oid="", change_type="", force=0):
 
     if oid == "":
         flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+        return redirect(url_for("pipelines.display_pipelines"))
 
     pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
     if pipeline_instance is None:
