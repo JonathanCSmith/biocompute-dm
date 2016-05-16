@@ -3,7 +3,7 @@
   "description": "A pipeline providing simple demultiplexing and fastqc capabilities.",
   "pipeline_type": "I",
   "author": "Jonathan Smith",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "regex_type": "OR",
   "file_regex": [".*\\.bcl\\.gz$", ".*\\.bcl$"],
   "documentation_file_name": "demultiplexing_and_qc.txt",
