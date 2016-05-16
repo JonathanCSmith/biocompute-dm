@@ -4,8 +4,8 @@
   "pipeline_type": "I",
   "author": "Jonathan Smith",
   "version": "0.0.2",
-  "regex_type": "AND",
-  "file_regex": [".*\\.fastq$"],
+  "regex_type": "OR",
+  "file_regex": [".*\\.bcl\\.gz$", ".*\\.bcl$"],
   "documentation_file_name": "demultiplexing_and_qc.txt",
   "modules": [
     {
