@@ -338,6 +338,18 @@ def remove_submission(oid="", force=0):
         flash("Could not identify the provided object", "warning")
         return redirect(url_for("manage.submissions"))
 
+    # Execute our delete script synchronously
+    script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
+    script_path = os.path.join(script_path, "delete.sh")
+    source = os.path.join(utils.get_path("submission_data", "webserver"), submission.display_key)
+    subprocess.Popen(
+        [
+            "sudo",
+            script_path,
+            "-s=" + source
+        ]
+    ).wait()
+
     submission.delete()
 
     flash("Submission deletion was successful", "success")
