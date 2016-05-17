@@ -150,45 +150,31 @@ def new_submission():
     # list of the available files in user directory
     filepaths = next(os.walk(directory_path))
     files = []
-    for file in filepaths[1]:
-        s = os.stat(os.path.join(directory_path, file))
-        files.append({
-            "name": file,
-            "path": os.path.join(directory_path, file),
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
-
     for file in filepaths[2]:
-        s = os.stat(os.path.join(directory_path, file))
-        files.append({
-            "name": file,
-            "path": os.path.join(directory_path, file),
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
+        rx = re.compile("^(.*)(?<!\.fastq)\.(7z|bz2|deb|gz|tar|tbz2|xz|tgz|rar|zip|Z)$")
+        if rx.match(file):
+            s = os.stat(os.path.join(directory_path, file))
+            files.append({
+                "name": file,
+                "path": os.path.join(directory_path, file),
+                "size": s.st_size,
+                "date": time.ctime(s.st_ctime)
+            })
 
     # List the available files in group directory
     directory_path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], current_user.group.name)
     directory_path = os.path.join(directory_path, "staged_files")
     filepaths = next(os.walk(directory_path))
-    for file in filepaths[1]:
-        s = os.stat(os.path.join(directory_path, file))
-        files.append({
-            "name": file,
-            "path": os.path.join(directory_path, file),
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
-
     for file in filepaths[2]:
-        s = os.stat(os.path.join(directory_path, file))
-        files.append({
-            "name": file,
-            "path": os.path.join(directory_path, file),
-            "size": s.st_size,
-            "date": time.ctime(s.st_ctime)
-        })
+        rx = re.compile("^(.*)(?<!\.fastq)\.(7z|bz2|deb|gz|tar|tbz2|xz|tgz|rar|zip|Z)$")
+        if rx.match(file):
+            s = os.stat(os.path.join(directory_path, file))
+            files.append({
+                "name": file,
+                "path": os.path.join(directory_path, file),
+                "size": s.st_size,
+                "date": time.ctime(s.st_ctime)
+            })
 
     # If we are just looking at the page don't perform any of the validation work
     if request.method == "GET":
@@ -238,10 +224,8 @@ def new_submission():
                         "-s=" + sources,
                         "-i=" + submission.display_key,
                         "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )  # We are allowing this to execute on it's own - no need to monitor
+                    ]
+                ) # We are allowing this to execute on it's own - no need to monitor
 
                 # In the meantime we will inform the user and display confirmation
                 flash("Submission Successful.", "success")
@@ -274,7 +258,7 @@ def submission(oid=""):
     # use the regex information to determine if a pipeline can run
     valid_pipelines = []
     for pipeline in pipelines:
-        rxs = pipeline.regex.split("$$$")
+        rxs = pipeline.regex.split("###")
 
         if pipeline.regex_type == "OR":
             valid_pipeline = False
@@ -486,7 +470,7 @@ def data_group(oid="", data_type=""):
                 files.append(data.name)
 
         for pipeline in pipelines:
-            rxs = pipeline.regex.split("$$$")
+            rxs = pipeline.regex.split("###")
 
             if pipeline.regex_type == "OR":
                 valid_pipeline = False

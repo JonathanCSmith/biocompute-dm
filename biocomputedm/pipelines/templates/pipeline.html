@@ -57,7 +57,7 @@
     <div class="action exempt">
         <h3>Pipeline Execution Details</h3>
 
-        <h4>File regex: {{ pipeline.regex.split('$$$')|join(' ') }}</h4>
+        <h4>File regex: {{ pipeline.regex.split('###')|join(' ') }}</h4>
         <h4>Documentation: <a href="{{ url_for('pipelines.display_pipeline', pid=pipeline.display_key, download=1) }}">{{ pipeline.documentation }}</a></h4>
     </div>
 </div>

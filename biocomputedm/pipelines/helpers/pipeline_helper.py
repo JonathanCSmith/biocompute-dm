@@ -182,7 +182,7 @@ def build(file):
     regex = ""
     for rx in rxs:
         regex += rx
-        regex += "$$$"
+        regex += "###"
     regex = regex[:-3]  # Remove that pesky additional marker!
 
     pipeline = Pipeline.query.filter_by(

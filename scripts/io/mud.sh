@@ -40,9 +40,11 @@ IFS=',' read -r -a ARRAY <<< "${SOURCE}"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 for FILE in "${ARRAY[@]}"
 do
-    mv "${FILE}" "${DIRECTORY}"
-    NEW_FILE="${DIRECTORY}/$(basename "${FILE}")"
+    NEW_FILE="$(basename "${FILE}")"
+    mv "${FILE}" "${DIRECTORY}/${NEW_FILE}"
     (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}")
+    #chown -R biocompute-dm:sftpusers "${NEW_FILE}"
+    #chmod -R 660 "${NEW_FILE}"
     rm -f "${NEW_FILE}"
 done
 
