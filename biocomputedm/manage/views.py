@@ -268,7 +268,7 @@ def submission(oid=""):
             for rx in rxs:
                 found = False
                 rx_matcher = re.compile(rx)
-                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "hpc"), oid)):
+                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "webserver"), oid)):
                     for file in files:
                         if rx_matcher.match(file):
                             found = True
@@ -290,7 +290,7 @@ def submission(oid=""):
             for rx in rxs:
                 found = False
                 rx_matcher = re.compile(rx)
-                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "hpc"), oid)):
+                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "webserver"), oid)):
                     for file in files:
                         if rx_matcher.match(file):
                             found = True
