@@ -216,16 +216,19 @@ def new_submission():
                 sources = sources[:-1]  # remove that pesky extra comma :D
 
                 # Execute our move, unpack and delete script asynchronously so as to not interrupt webserving
-                subprocess.Popen(
-                    [
-                        "sudo",
-                        script_path,
-                        "-d=" + output_directory_path,
-                        "-s=" + sources,
-                        "-i=" + submission.display_key,
-                        "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
-                    ]
-                ) # We are allowing this to execute on it's own - no need to monitor
+                with open(os.devnull, "w") as fnull:
+                    subprocess.Popen(
+                        [
+                            "sudo",
+                            script_path,
+                            "-d=" + output_directory_path,
+                            "-s=" + sources,
+                            "-i=" + submission.display_key,
+                            "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
+                        ],
+                        stdout=fnull,
+                        stderr=fnull
+                    ) # We are allowing this to execute on it's own - no need to monitor
 
                 # In the meantime we will inform the user and display confirmation
                 flash("Submission Successful.", "success")
