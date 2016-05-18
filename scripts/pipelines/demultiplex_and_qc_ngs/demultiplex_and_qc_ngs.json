@@ -52,7 +52,7 @@
         {
           "display_name": "Index Reads Generate FastQ Files:",
           "parameter_name": "create_fastq_index",
-          "default_value": "False",
+          "default_value": "True",
           "user_interaction_type": "boolean",
           "necessary": false,
           "description": "Option to create fastq files for indexed reads."
@@ -61,7 +61,7 @@
         {
           "display_name": "Ignore Missing BCLs:",
           "parameter_name": "ignore_missing_bcl",
-          "default_value": "False",
+          "default_value": "True",
           "user_interaction_type": "boolean",
           "necessary": false,
           "description": "Missing or corrupt BCL files are ignored. Assumes N/# for missing calls"
@@ -70,7 +70,7 @@
         {
           "display_name": "Ignore Missing Filter:",
           "parameter_name": "ignore_missing_filter",
-          "default_value": "False",
+          "default_value": "True",
           "user_interaction_type": "boolean",
           "necessary": false,
           "description": "Missing or corrupt filter files are ignored. Assumes Passing Filter for all clusters in tiles where filter files are missing."
@@ -79,7 +79,7 @@
         {
           "display_name": "Ignore Missing Positions:",
           "parameter_name": "ignore_missing_positions",
-          "default_value": "False",
+          "default_value": "True",
           "user_interaction_type": "boolean",
           "necessary": false,
           "description": "Missing or corrupt positions files are ignored. If corresponding position files are missing, bcl2fastq2 writes unique coordinate positions in fastq header."
@@ -106,7 +106,7 @@
         {
           "display_name": "Tile Properties:",
           "parameter_name": "tiles",
-          "default_value": "False",
+          "default_value": "s_[1-8]",
           "user_interaction_type": "string",
           "necessary": false,
           "description": "The --tiles argument takes a regular expression to select for processing only a subset of the tiles available in the flow cell. This argument can be specified multiple times, one time for each regular expression. Examples: To select all the tiles ending with 5 in all lanes: --tiles [0 to 9][0 to 9][0 to 9]5 To select tile 2 in lane 1 and all the tiles in the other lanes: --tiles s_1_0002 --tiles s_[2 to 8]"
@@ -118,7 +118,7 @@
           "default_value": "False",
           "user_interaction_type": "string",
           "necessary": false,
-          "description": "The --use-bases-mask string specifies how to use each cycle. An n means ignore the cycle. A Y (or y) means use the cycle. An I means use the cycle for the Index Read. A number means that the previous character is repeated that many times. An asterisk [*] means that the previous character is repeated until the end of this read or index (length according to the RunInfo.xml). The read masks are separated with commas: , The format for dual indexing is as follows: --use-bases-mask Y*,I*,I*,Y* or variations thereof as specified. You can also specify the --use-bases-mask multiple times for separate lanes, like this way: --use-bases-mask 1:y*,i*,i*,y*; *,n*,n*,y* Where the 1: means: Use this setting for lane 1. In this case, the second --use-bases-mask parameter (after the semi colon) is used for all other lanes. If this option is not specified, the mask is determined from the 'RunInfo.xml' file in the run directory. If it cannot do this determination, supply the --use-bases-mask."
+          "description": "The --use-bases-mask string specifies how to use each cycle. An n means ignore the cycle. A Y (or y) means use the cycle. An I means use the cycle for the Index Read. A number means that the previous character is repeated that many times. An asterisk [*] means that the previous character is repeated until the end of this read or index (length according to the RunInfo.xml). The read masks are separated with commas: , The format for dual indexing is as follows: --use-bases-mask Y*,I*,I*,Y* or variations thereof as specified. You can also specify the --use-bases-mask multiple times for separate lanes, using the following syntax: --use-bases-mask 1:y*,i*,i*,y*;*,n*,n*,y* Where the 1: means: Use this setting for lane 1. In this case, the second --use-bases-mask parameter (after the semi colon) is used for all other lanes. If this option is not specified, the mask is determined from the 'RunInfo.xml' file in the run directory. If it cannot do this determination, supply the --use-bases-mask."
         },
 
         {

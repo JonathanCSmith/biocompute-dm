@@ -414,7 +414,8 @@ def build_module_instance(pid="", oid="", index=-1):
 
                     # Update the db
                     option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
-                    option_value.update(value=bool(field.data))
+                    value = bool(field.data)
+                    option_value.update(value=str(value))
                     module_instance.option_values.append(option_value)
                     module_instance.save()
 
