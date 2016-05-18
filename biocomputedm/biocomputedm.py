@@ -1,7 +1,7 @@
 from biocomputedm.admin.models import User, Person, UserGroup, Group
 from biocomputedm.admin.models import refresh_reference_data_library
 from biocomputedm.pipelines.models import refresh_pipelines
-from flask import Flask
+from flask import Flask, flash
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.login import current_user
 from .extensions import db, mail, login_manager
@@ -111,15 +111,18 @@ def setup_default_routes(app):
 
     @app.errorhandler(403)
     def forbidden_page(error):
-        return render_template("forbidden_page.html"), 403
+        flash("You do not have permission to access the page you have requested", "warning")
+        return render_template("error.html"), 403
 
     @app.errorhandler(404)
     def page_not_found(error):
-        return render_template("page_not_found.html"), 404
+        flash("The page you request was not found.", "warning")
+        return render_template("error.html"), 404
 
     @app.errorhandler(500)
     def server_error(error):
-        return render_template("server_error.html"), 500
+        flash("There was an internal server error associated with your request. Please report this to your system administrator.", "error")
+        return render_template("error.html"), 500
 
     @app.route("/")
     @app.route("/index")
