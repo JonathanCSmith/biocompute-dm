@@ -18,23 +18,19 @@
         <h4>Group admins also have the ability to add clients for data sharing, these work like groups except they have no permission to add new data and can only access data that has been shared with them.</h4>
         {% endif %}
     </div>
-</div>
 
-<div class="spacer"></div>
+    {% if g.user.get_role() == "Site Admin" %}
+    <div class="spacer"></div>
+    <div class="action exempt">
+        <h3>Administrate</h3>
+        <a class="input" href="{{ url_for('admin.administrate') }}">Administrate</a>
+    </div>
 
-<div class="input-table clear">
-    <table>
-        <tr>
-            {% if g.user.get_role() == "Site Admin" %}
-            <td>
-                <div class="action exempt">
-                    <h3>Administrate</h3>
-                    <a class="input" href="{{ url_for('admin.administrate') }}">Administrate</a>
-                </div>
-            </td>
-
-            {% elif g.user.type == "User" %}
-            <td>
+    {% elif g.user.type == "User" %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 col-md-15" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                <div class="spacer"></div>
                 <div class="action">
                     <h3>View Available Pipelines</h3>
                     <a class="input" href="{{ url_for('pipelines.display_pipelines') }}">View Pipelines</a>
@@ -42,9 +38,9 @@
                         <li>Use the link above to view the pipelines available to you as well as any specific requirements they have for data. All pipelines come with a documentation booklet that may be of interest to you.</li>
                     </ul>
                 </div>
-            </td>
-
-            <td>
+            </div>
+            <div class="col-md-2 col-md-15" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                <div class="spacer"></div>
                 <div class="action">
                     <h3>Transfer Files to Staging Drive</h3>
                     <a class="input" href="{{ url_for('manage.staged_files') }}">Transfer Files</a>
@@ -52,9 +48,9 @@
                         <li>Allows you to transfer zipped data to a personal storage area within Biocompute-DM. Transferred zips then become available within Biocompute-DM to aggregate and send to pipelines.</li>
                     </ul>
                 </div>
-            </td>
-
-            <td>
+            </div>
+            <div class="col-md-2 col-md-15" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                <div class="spacer"></div>
                 <div class="action">
                     <h3>Select Data to Submit to a Pipeline</h3>
                     <a class="input" href="{{ url_for('manage.new_submission') }}">Select Data for Submission</a>
@@ -62,9 +58,10 @@
                         <li>Select the data (from your files) that you wish to submit to a pipeline. Please note, some pipelines expect files in a very specific format, so please refer to the pipelines of interest before submitting.</li>
                     </ul>
                 </div>
-            </td>
-
-            <td>
+            </div>
+            <!-- TODO: This Should Become New Data Group -->
+            <div class="col-md-2 col-md-15" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                <div class="spacer"></div>
                 <div class="action">
                     <h3>Run a Pipeline on a Data Group</h3>
                     <a class="input" href="{{ url_for('manage.data_groups') }}">Run a Pipeline</a>
@@ -72,21 +69,9 @@
                         <li>Select a data group from those already available (these are produced by pipelines) in order to run a new pipeline on it. In future you will be able to create custom data groups.</li>
                     </ul>
                 </div>
-            </td>
-
-            {#
-            <td>
-                <div class="action">
-                    <h3>Create a Custom Data Group</h3>
-                    <a class="input" href="{{ url_for('manage.new_sample_group') }}">Add a New Data Group</a>
-                    <ul>
-                        <li>Use this option to create a custom grouping of samples, samples are created by pipelines (not manually). Please note that all of the samples grouped together must have come from the same pipeline type</li>
-                    </ul>
-                </div>
-            </td>
-            #}
-
-            <td>
+            </div>
+            <div class="col-md-2 col-md-15" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                <div class="spacer"></div>
                 <div class="action">
                     <h3>Create a Project</h3>
                     <a class="input" href="{{ url_for('manage.new_project') }}">Add a New Project</a>
@@ -94,12 +79,13 @@
                         <li>Use this option to create a new project. Projects can be used to group samples, pipeline outputs and documents.</li>
                     </ul>
                 </div>
-            </td>
-            {% else %}
+            </div>
+        </div>
+    </div>
 
-            {% endif %}
-        </tr>
-    </table>
+    {% else %}
+
+    {% endif %}
 </div>
 {% endblock %}
 

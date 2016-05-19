@@ -237,7 +237,7 @@ def build_pipeline_instance(oid="", pid=""):
             return redirect(url_for("index"))
 
         # Instance creation and assignment
-        pipeline_instance = PipelineInstance.create(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=current_user, consignor=source_data_group)
+        pipeline_instance = PipelineInstance.create(pipeline=pipeline, execution_type=execution_type, options_type=options_type, user=current_user, client=source_data_group)
 
         # Create the directory to hold the submission
         pipeline_directory = utils.get_path("pipeline_data", "webserver")

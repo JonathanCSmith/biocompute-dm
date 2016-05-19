@@ -10,8 +10,6 @@
 <table class="content">
     <tr>
         <th>Pipeline Name</th>
-        <th>Description</th>
-        <th>Author</th>
         <th>Version</th>
         <th>Type</th>
         <th>Current Step</th>
@@ -21,10 +19,16 @@
     {% for pipeline_instance in obs.items %}
     <tr>
         <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=pipeline_instance.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
-        <td>{{ pipeline_instance.pipeline.description }}</td>
-        <td>{{ pipeline_instance.pipeline.author }}</td>
         <td>{{ pipeline_instance.pipeline.version }}</td>
-        <td>{{ pipeline_instance.pipeline.type }}</td>
+
+        {% if pipeline_instance.pipeline.type == "I" %}
+        <td>Pre Processing</td>
+        {% elif pipeline_instance.pipeline.type == "II" %}
+        <td>Processing</td>
+        {% else %}
+        <td>Post Processing</td>
+        {% endif %}
+
         <td>{{ pipeline_instance.current_execution_index + 1 }}</td>
         <td>{{ pipeline_instance.current_execution_status }}</td>
     </tr>
