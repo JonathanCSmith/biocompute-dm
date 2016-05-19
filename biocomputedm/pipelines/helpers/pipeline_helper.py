@@ -348,7 +348,7 @@ def execute_pipeline_module(app, running_pipeline_id=""):
             for value in current_module_instance.option_values:
                 marker = value.option.parameter_name
                 result = value.value
-                vstring += marker + "=\"" + result + "\","
+                vstring += marker + "=\'" + result + "\',"
 
             if len(vstring) != 0:
                 vstring = vstring[:-1]

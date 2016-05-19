@@ -95,7 +95,7 @@ if [ "${base_mask}" != "False" ]; then
     IFS=";" read -r -a array <<< "${base_mask}"
     for field in "${array[@]}";
     do
-        EXECUTION_VARIABLES+=" --use-bases-mask \'${field}\'"
+        EXECUTION_VARIABLES+=" --use-bases-mask ${field}"
     done
 fi
 
