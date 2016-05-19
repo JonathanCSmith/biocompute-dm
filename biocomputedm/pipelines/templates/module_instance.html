@@ -51,8 +51,8 @@
             </tr>
             {% for value in module_instance.option_values %}
             <tr>
-                <td>{{ value.value }}</td>
                 <td>{{ value.option.display_name }}</td>
+                <td>{{ value.value }}</td>
             </tr>
             {% endfor %}
         </table>

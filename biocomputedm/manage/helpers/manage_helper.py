@@ -10,7 +10,7 @@ from biocomputedm.decorators import async
 def copy_data_to_staging(app, oid, type, user_key):
     try:
         with app.app_context():
-            # Submit the directory and uploaded file information to our m.u.d. script
+            # Submit the directory and uploaded file information to our script
             script_path = os.path.join(utils.get_path("scripts", "webserver"), "io")
             script_path = os.path.join(script_path, "copy.sh")
 
@@ -39,8 +39,8 @@ def copy_data_to_staging(app, oid, type, user_key):
                         "-s=" + source_directory,
                         "-d=" + output_directory_path
                     ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
                 )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "pipeline_sample_group":
@@ -64,8 +64,8 @@ def copy_data_to_staging(app, oid, type, user_key):
                             "-s=" + source_directory,
                             "-d=" + output_directory_path
                         ],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
                     )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "project_pipeline_output":
@@ -90,8 +90,8 @@ def copy_data_to_staging(app, oid, type, user_key):
                                 "-s=" + source_directory,
                                 "-d=" + output_directory_path
                             ],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL
                         )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "project_sample_group":
@@ -124,8 +124,8 @@ def copy_data_to_staging(app, oid, type, user_key):
                                 "-s=" + source_directory,
                                 "-d=" + output_directory_path
                             ],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL
                         )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "sample":
@@ -150,8 +150,8 @@ def copy_data_to_staging(app, oid, type, user_key):
                             "-s=" + source_directory,
                             "-d=" + output_directory_path
                         ],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
                     )  # We are allowing this to execute on it's own - no need to monitor
 
     except Exception as ex:

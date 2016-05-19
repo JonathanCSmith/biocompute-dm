@@ -1,14 +1,9 @@
-from biocomputedm.admin.models import ReferenceData
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import FileField, FileRequired
 from wtforms import StringField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired
 
-
-# class RunPipelineForm(Form):
-#
-#
-# class SelectDataForPipelineForm(Form):
+from biocomputedm.admin.models import ReferenceData
 
 
 class PipelinePropertiesForm(Form):
@@ -49,9 +44,19 @@ def build_options_form(options, post_data):
             synthetics.append(option.display_key)
 
         elif option.user_interaction_type == "boolean":
-            clazz = clazz.append_field(option.display_key,
-                                       BooleanField(option.display_name,
-                                                    description=option.description))
+            if option.default_value == "True":
+                default_value = "True"
+            else:
+                default_value = "False"
+
+            clazz = clazz.append_field(
+                option.display_key,
+                BooleanField(
+                    option.display_name,
+                    default=default_value,
+                    description=option.description
+                )
+            )
             synthetics.append(option.display_key)
 
         elif option.user_interaction_type == "reference":
