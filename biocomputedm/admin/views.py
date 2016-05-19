@@ -73,6 +73,13 @@ def change_password(type=""):
             utils.flash_errors(form)
             return render_template("change_password.html", form=form, type=type)
 
+
+@admin.route("/profile")
+@login_required("ANY")
+def profile():
+    return render_template("person.html", title="Your Profile")
+
+
 @admin.route("/administrate")
 @login_required("Site Admin", "Group Admin")
 def administrate():
@@ -157,7 +164,7 @@ def show_customers(page=1):
     g = current_user.group.customer_groups
     if g is not None:
         g = g.paginate(page=page, per_page=20)
-    return render_template("groups.html", title="Consignors", page=page, obs=g)
+    return render_template("groups.html", title="Clients", page=page, obs=g)
 
 
 @admin.route("/add_customer_group", methods=["GET", "POST"])
@@ -165,12 +172,12 @@ def show_customers(page=1):
 def add_customer_group():
     form = forms.CreateGroupForm()
     if request.method == "GET":
-        return render_template("add_group.html", title="Consignor Creation", form=form)
+        return render_template("add_group.html", title="Client Creation", form=form)
 
     else:
         if not form.validate():
             utils.flash_errors(form)
-            return render_template("add_group.html", title="Consignor Creation", form=form)
+            return render_template("add_group.html", title="Client Creation", form=form)
 
         else:
             customer_group = CustomerGroup.create(
@@ -191,12 +198,12 @@ def add_customer_group():
 def add_customer():
     form = forms.CreatePerson()
     if request.method == "GET":
-        return render_template("add_person.html", title="Add Consignor", type="User", form=form)
+        return render_template("add_person.html", title="Add Client", type="User", form=form)
 
     else:
         if not form.validate():
             utils.flash_errors(form)
-            return render_template("add_person.html", title="Add Consignor", type="User", form=form)
+            return render_template("add_person.html", title="Add Client", type="User", form=form)
 
         else:
             Customer.create(
@@ -243,18 +250,18 @@ def link_to_customer(oid="", origin=""):
 
                     group.save()
 
-            flash("Consignor was successfully updated", "success")
+            flash("Client was successfully updated", "success")
             return redirect(url_for("index"))
 
         else:
-            flash("No consignors were selected.", "warning")
+            flash("No clients were selected.", "warning")
             return redirect(url_for("index"))
 
-    consignors = CustomerGroup.query.filter_by(parent_id=current_user.group.id).all()
-    potential_consignors = []
-    for consignor in consignors:
+    clients = CustomerGroup.query.filter_by(parent_id=current_user.group.id).all()
+    potential_clients = []
+    for client in clients:
         skip = False
-        projects = consignor.projects
+        projects = client.projects
         for project in projects:
             if project.id == project.id:
                 skip = True
@@ -264,9 +271,9 @@ def link_to_customer(oid="", origin=""):
             continue
 
         else:
-            potential_consignors.append(consignor)
+            potential_clients.append(client)
 
-    return render_template("select_customer.html", title="Link to Consignor", customers=consignors, obj=project, origin=origin, form=form)
+    return render_template("select_customer.html", title="Link to Clients", clients=clients, obj=project, origin=origin, form=form)
 
 
 @admin.route("/refresh_reference_data")

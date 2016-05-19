@@ -21,9 +21,9 @@
     {% endif %}
 
     {% if g.user.type == "User" %}
-    <li><a class="input fixed" href="{{ url_for('admin.show_customers') }}">Show Consignor</a></li>
+    <li><a class="input fixed" href="{{ url_for('admin.show_customers') }}">Show Client</a></li>
     {% if g.user.get_role() == "Group Admin" %}
-    <li><a class="input fixed" href="{{ url_for('admin.add_customer_group') }}">Add Consignor</a></li>
+    <li><a class="input fixed" href="{{ url_for('admin.add_customer_group') }}">Add Clients</a></li>
     {% endif %}
 
     <li><a class="input fixed" href="{{ url_for('pipelines.display_pipelines', display=1) }}">Show Pipelines</a></li>

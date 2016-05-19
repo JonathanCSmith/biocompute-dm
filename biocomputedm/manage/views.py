@@ -63,12 +63,6 @@ def message(oid=""):
         return "success"
 
 
-@manage.route("/user_profile")
-@login_required("ANY")
-def user_profile():
-    return redirect(url_for("empty"))
-
-
 @manage.route("/display_data/<item_id>|<data_type>")
 @login_required("ANY")
 def display_data(item_id="", data_type=""):
@@ -76,7 +70,11 @@ def display_data(item_id="", data_type=""):
         flash("Could not identify the provided data set", "warning")
         return redirect(url_for("empty"))
 
-    data_item = current_user.group.data_items.filter_by(display_key=item_id).first()
+    if current_user.get_role() == "Site Admin":
+        data_item = DataItem.query.filter_by(display_key=item_id).first()
+
+    else:
+        data_item = current_user.group.data_items.filter_by(display_key=item_id).first()
 
     if data_item is None:
         flash("Could not identify the provided data set", "warning")

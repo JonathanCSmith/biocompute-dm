@@ -116,11 +116,11 @@ class PipelineInstance(SurrogatePK, Model):
     user_id = reference_col("User")
     group_id = reference_col("Group", nullable=True)
 
-    consignor_data_group_id = reference_col("DataGroup", nullable=True)
+    client_data_group_id = reference_col("DataGroup", nullable=True)
     sample_output_data_group_id = reference_col("DataGroup", nullable=True)
     pipeline_output_data_group_id = reference_col("DataGroup", nullable=True)
 
-    consignor = relationship("DataGroup", backref="pipeline_instances", foreign_keys=[consignor_data_group_id], uselist=False)
+    client = relationship("DataGroup", backref="pipeline_instances", foreign_keys=[client_data_group_id], uselist=False)
     sample_output = relationship("DataGroup", backref=backref("pipeline_source", uselist=False), foreign_keys=[sample_output_data_group_id], uselist=False)
     pipeline_output = relationship("DataGroup", foreign_keys=[pipeline_output_data_group_id], uselist=False)
 
@@ -128,10 +128,10 @@ class PipelineInstance(SurrogatePK, Model):
 
     __tablename__ = "PipelineInstance"
 
-    def __init__(self, pipeline, execution_type, options_type, user, consignor):
+    def __init__(self, pipeline, execution_type, options_type, user, client):
         db.Model.__init__(self, pipeline=pipeline, execution_type=execution_type, options_type=options_type)
         self.user = user
-        self.consignor = consignor
+        self.client = client
         self.save()
         user.group.pipeline_instances.append(self)
         user.group.save()

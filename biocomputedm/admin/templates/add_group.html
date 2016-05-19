@@ -10,7 +10,7 @@
 <div class="input-table clear">
     <div class="action exempt">
         <h3>Add Group and Respective Administrator</h3>
-        {% if title == "Consignor Creation" %}
+        {% if title == "Client Creation" %}
         <form action="{{ url_for('admin.add_customer_group') }}" method=post>
         {% else %}
         <form action="{{ url_for('admin.add_group') }}" method=post>

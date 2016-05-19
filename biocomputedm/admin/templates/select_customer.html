@@ -7,26 +7,26 @@
 
 {% block info_panel %}
 <h3>Info</h3>
-<p>Use the panel on the right to select which consignors you wish to share this data with.</p>
+<p>Use the panel on the right to select which clients you wish to share this data with.</p>
 {% endblock %}
 
 {% block main_panel %}
 <div class="input-table clear">
     <div class="action exempt">
-        <h3>Potential Consignors</h3>
+        <h3>Potential Clients</h3>
 
         <form action="{{ url_for('admin.link_to_customer', oid=obj.display_key, origin=origin) }}" method=post>
 
             <table class="content">
                 <tr>
-                    <th>Consignor</th>
+                    <th>Client</th>
                     <th>Link?</th>
                 </tr>
 
-                {% for consignor in customers %}
+                {% for client in customers %}
                 <tr>
-                    <td>{{ consignor.name }}</td>
-                    <td><input type="checkbox" name="do_select" value="{{ consignor.display_key }}"></td>
+                    <td>{{ client.name }}</td>
+                    <td><input type="checkbox" name="do_select" value="{{ client.display_key }}"></td>
                 </tr>
                 {% endfor %}
             </table>

@@ -80,6 +80,7 @@ if [ "${find_adapters_using_sliding_window}" != "False" ]; then
 fi
 
 echo "tiles = ${tiles}"
+tiles=${tiles//'%%$$$%%'/','}
 if [ "${tiles}" != "False" ]; then
     # Split semicolons and create multiple
     IFS=";" read -r -a array <<< "${tiles}"
@@ -90,6 +91,7 @@ if [ "${tiles}" != "False" ]; then
 fi
 
 echo "base_mask = ${base_mask}"
+base_mask=${base_mask//'%%$$$%%'/','}
 if [ "${base_mask}" != "False" ]; then
     # Split semicolons and create multiple
     IFS=";" read -r -a array <<< "${base_mask}"

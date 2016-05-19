@@ -128,7 +128,7 @@
         <h3>Manage</h3>
 
         {% if g.user.type == "User" %}
-        <a class="input" href="{{ url_for('admin.link_to_customer', oid=project.display_key, origin='project') }}">Share with Consignor</a>
+        <a class="input" href="{{ url_for('admin.link_to_customer', oid=project.display_key, origin='project') }}">Share with Clients</a>
         {% endif %}
 
         {% if project.pipeline_outputs.all()|length > 0 %}

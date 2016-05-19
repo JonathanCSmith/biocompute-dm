@@ -348,7 +348,7 @@ def execute_pipeline_module(app, running_pipeline_id=""):
             for value in current_module_instance.option_values:
                 marker = value.option.parameter_name
                 result = value.value
-                vstring += marker + "=\'" + result + "\',"
+                vstring += marker + "=\"" + result.replace(",", "%%$$$%%") + "\","
 
             if len(vstring) != 0:
                 vstring = vstring[:-1]
@@ -564,7 +564,7 @@ def finish_pipeline_instance(app, running_pipeline_id):
                     module_instance.update(module_output=module_data_group)
 
             running_pipeline.update(current_execution_status="FINISHED")
-            source_data_group = DataGroup.query.filter_by(display_key=running_pipeline.consignor.display_key).first()
+            source_data_group = DataGroup.query.filter_by(display_key=running_pipeline.client.display_key).first()
             source_data_group.update(running=True)
 
     except Exception as e:
