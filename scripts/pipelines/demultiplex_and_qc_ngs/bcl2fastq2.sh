@@ -86,7 +86,7 @@ if [ "${tiles}" != "False" ]; then
     IFS=";" read -r -a array <<< "${tiles}"
     for field in "${array[@]}";
     do
-        EXECUTION_VARIABLES+=" --tiles \'${field}\'"
+        EXECUTION_VARIABLES+=" --tiles ${field}"
     done
 fi
 
