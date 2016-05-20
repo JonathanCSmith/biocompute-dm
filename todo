@@ -2,26 +2,14 @@ Readme:
 	expected output structure from pipelines
 	module working directory structure
 Content:
-	long description handling
-	titles on all pages
 	pipeline / module stats display
 DB:
 	modules to store stats
-Feature:
-	Emails
-	Message Logging for Admins
-		messages to be stored in db
-		views for messages in admin console
 
 Ordered TODO list:
-	* Pipeline Regex check (see if files contain the type that we need to run it)
-		* Error checking in current pipelines (valid file checking etc)
-
-	* Fix pipeline restart controlls not working
-
-	* MOAR PIPELINEZ
 
 ====== Release v1
+	* Fix pipeline restart controlls not working
 
 	* Pipeline Documentation text, documentation file
 
