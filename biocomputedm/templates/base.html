@@ -1,4 +1,33 @@
 {% extends "bootstrap/base.html" %}
+
+{% macro show_paginate(has_next, has_prev, current, ret_path) %}
+<div class="spacer"></div>
+<table class="pagenator">
+    <tr>
+        <td></td>
+        <td>&lt;&lt;</td>
+        <td>
+            {% if has_prev %}
+            <a href="{{ url_for(ret_path, page=current-1) }}">Previous</a>
+            {% else %}
+            Previous
+            {% endif %}
+        </td>
+        <td>|</td>
+        <td>
+            {% if has_next %}
+            <a href="{{ url_for(ret_path, page=current+1) }}">Next</a>
+            {% else %}
+            Next
+            {% endif %}
+        </td>
+        <td>&gt;&gt;</td>
+        <td></td>
+    </tr>
+</table>
+{% endmacro %}
+
+
 {% block doc %}
 <html>
     <head>

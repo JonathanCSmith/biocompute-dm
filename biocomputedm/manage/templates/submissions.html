@@ -1,4 +1,9 @@
-{% extends "paginated_information_panel.html" %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
 
 {% block info_panel %}
 <h3>Info</h3>
@@ -6,35 +11,39 @@
 <p>Submissions are required in order to begin a pipeline's execution.</p>
 {% endblock %}
 
-{% block main_panel_view %}
-<h3>Submissions</h3>
-<table class="content">
-    <tr>
-        <th>Submission Name</th>
-        <th>Submission Description</th>
-        <th>Creation Date</th>
-        <th>Created By</th>
-        <th>Remove?</th>
-    </tr>
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Submissions</h3>
+        <table class="content">
+            <tr>
+                <th>Submission Name</th>
+                <th>Submission Description</th>
+                <th>Creation Date</th>
+                <th>Created By</th>
+                <th>Remove?</th>
+            </tr>
 
-    {% if obs %}
-    {% for submission in obs.items %}
-    <tr>
-        <td><a href="{{ url_for('manage.submission', oid=submission.display_key) }}">{{ submission.name }}</a></td>
-        <td>{{ submission.description }}</td>
-        <td>{{ submission.creation_date }}</td>
-        <td>{{ submission.user.username }}</td>
-        <td><a class="input" href="{{ url_for('manage.remove_submission', oid=submission.display_key, force=0) }}">Remove</a></td>
-    </tr>
-    {% endfor %}
-    {% endif %}
-</table>
-{% endblock %}
+            {% if obs %}
+            {% for submission in obs.items %}
+            <tr>
+                <td><a href="{{ url_for('manage.submission', oid=submission.display_key) }}">{{ submission.name }}</a></td>
+                <td>{{ submission.description }}</td>
+                <td>{{ submission.creation_date }}</td>
+                <td>{{ submission.user.username }}</td>
+                <td><a class="input" href="{{ url_for('manage.remove_submission', oid=submission.display_key, force=0) }}">Remove</a></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </table>
 
-{% block post_pagination %}
-{% if g.user.get_role() != "Site Admin" %}
-<div class="spacer"></div>
+        {{ show_paginate(obs.has_next, obs.has_prev, obs.page, "manage.submissions") }}
 
-<a class="input" href="{{ url_for('manage.new_submission') }}">Select Data to Submit To a Pipeline</a>
-{% endif %}
+        {% if g.user.get_role() != "Site Admin" %}
+        <div class="spacer"></div>
+
+        <a class="input" href="{{ url_for('manage.new_submission') }}">Select Data to Submit To a Pipeline</a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

@@ -2,7 +2,12 @@
 {% set admin_flag = True %}
 {% endif %}
 
-{% extends "paginated_information_panel.html" %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
 
 {% block info_panel %}
 {% if display == 1 %}
@@ -14,32 +19,62 @@
 {% endif %}
 {% endblock %}
 
-{% block main_panel_view %}
-<h3>Pipelines</h3>
-<table class="content">
-    <tr>
-        <th>Pipeline Name</th>
-        <th>Description</th>
-        <th>Author</th>
-        <th>Version</th>
-        <th>Type</th>
-    </tr>
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Pipelines</h3>
+        <table class="content">
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Description</th>
+                <th>Author</th>
+                <th>Version</th>
+                <th>Type</th>
+            </tr>
 
-    {% for pipeline in obs.items %}
-    <tr>
-        <td><a href="{{ url_for('pipelines.display_pipeline', pid=pipeline.display_key) }}">{{ pipeline.name }}</a></td>
-        <td>{{ pipeline.description }}</td>
-        <td>{{ pipeline.author }}</td>
-        <td>{{ pipeline.version }}</td>
+            {% for pipeline in obs.items %}
+            <tr>
+                <td><a href="{{ url_for('pipelines.display_pipeline', pid=pipeline.display_key) }}">{{ pipeline.name }}</a></td>
+                <td>{{ pipeline.description }}</td>
+                <td>{{ pipeline.author }}</td>
+                <td>{{ pipeline.version }}</td>
 
-        {% if pipeline.type == "I" %}
-        <td>Pre Processing</td>
-        {% elif pipeline.type == "II" %}
-        <td>Processing</td>
-        {% else %}
-        <td>Post Processing</td>
-        {% endif %}
-    </tr>
-    {% endfor %}
-</table>
+                {% if pipeline.type == "I" %}
+                <td>Pre Processing</td>
+                {% elif pipeline.type == "II" %}
+                <td>Processing</td>
+                {% else %}
+                <td>Post Processing</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="spacer"></div>
+
+        <table class="pagenator">
+            <tr>
+                <td></td>
+                <td>&lt;&lt;</td>
+                <td>
+                    {% if obs.has_prev %}
+                    <a href="{{ url_for('pipelines.display_pipelines', page=obs.page-1, display=display) }}">Previous</a>
+                    {% else %}
+                    Previous
+                    {% endif %}
+                </td>
+                <td>|</td>
+                <td>
+                    {% if obs.has_next %}
+                    <a href="{{ url_for('pipelines.display_pipelines', page=obs.page+1, display=display) }}">Next</a>
+                    {% else %}
+                    Next
+                    {% endif %}
+                </td>
+                <td>&gt;&gt;</td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
 {% endblock %}

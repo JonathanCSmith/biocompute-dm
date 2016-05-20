@@ -1,4 +1,9 @@
-{% extends "paginated_information_panel.html" %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
 
 {% block info_panel %}
 <h3>Info</h3>
@@ -6,36 +11,40 @@
 <p>Projects are groupings of outputs from a pipeline. These can either be by sample or pipeline specific outputs.</p>
 {% endblock %}
 
-{% block main_panel_view %}
-<h3>Projects</h3>
-<table class="content">
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Creator</th>
-        <th>Creation Date</th>
-        <th>Updated Date</th>
-    </tr>
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Projects</h3>
+        <table class="content">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Creator</th>
+                <th>Creation Date</th>
+                <th>Updated Date</th>
+            </tr>
 
-    {% if obs %}
-    {% for item in obs.items %}
-    <tr>
-        <td><a href="{{ url_for('manage.project', oid=item.display_key) }}">{{ item.name }}</a></td>
-        <td>{{ item.description }}</td>
-        <td>{{ item.user.username }}</td>
-        <td>{{ item.creation_date }}</td>
-        <td>{{ item.updated_date }}</td>
-    </tr>
-    {% endfor %}
-    {% endif %}
+            {% if obs %}
+            {% for item in obs.items %}
+            <tr>
+                <td><a href="{{ url_for('manage.project', oid=item.display_key) }}">{{ item.name }}</a></td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.user.username }}</td>
+                <td>{{ item.creation_date }}</td>
+                <td>{{ item.updated_date }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
 
-</table>
-{% endblock %}
+        </table>
 
-{% block post_pagination %}
-{% if g.user.type == "User" %}
-<div class="spacer"></div>
+        {{ show_paginate(obs.has_next, obs.has_prev, obs.page, "manage.projects") }}
 
-<a class="input" href="{{ url_for('manage.new_project') }}">Create a New Project</a>
-{% endif %}
+        {% if g.user.type == "User" %}
+        <div class="spacer"></div>
+
+        <a class="input" href="{{ url_for('manage.new_project') }}">Create a New Project</a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

@@ -91,7 +91,7 @@ def administrate():
 @login_required("Site Admin")
 def show_groups(page=1):
     g = Group.query.paginate(page=page, per_page=20)
-    return render_template("groups.html", title="Groups", page=page, obs=g)
+    return render_template("groups.html", title="Groups", page=page, obs=g, ret_path="admin.show_groups")
 
 
 @admin.route("/add_group", methods=["GET", "POST"])
@@ -157,14 +157,14 @@ def add_user():
             return redirect(url_for("admin.show_users"))
 
 
-@admin.route("/show_customers")
-@admin.route("/show_customers/<int:page>")
+@admin.route("/show_clients")
+@admin.route("/show_clients/<int:page>")
 @login_required("Group Admin")
-def show_customers(page=1):
+def show_clients(page=1):
     g = current_user.group.customer_groups
     if g is not None:
         g = g.paginate(page=page, per_page=20)
-    return render_template("groups.html", title="Clients", page=page, obs=g)
+    return render_template("groups.html", title="Clients", page=page, obs=g, ret_path="admin.show_clients")
 
 
 @admin.route("/add_customer_group", methods=["GET", "POST"])
@@ -190,7 +190,7 @@ def add_customer_group():
                 parent_group=current_user.group
             )
 
-            return redirect(url_for("admin.show_customers"))
+            return redirect(url_for("admin.show_clients"))
 
 
 @admin.route("/add_customer", methods=["GET", "POST"])
@@ -288,9 +288,9 @@ def refresh_reference_data():
     return redirect(url_for("admin.administrate"))
 
 
-@admin.route("/display_reference_data")
-@admin.route("/display_reference_data/<int:page>")
+@admin.route("/display_reference_files")
+@admin.route("/display_reference_files/<int:page>")
 @login_required("ANY")
-def display_reference_data(page=1):
+def display_reference_files(page=1):
     items = ReferenceData.query.paginate(page=page, per_page=20)
     return render_template("reference_libraries.html", title="Reference Data", page=page, obs=items)

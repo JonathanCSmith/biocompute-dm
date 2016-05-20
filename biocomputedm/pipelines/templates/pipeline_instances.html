@@ -1,43 +1,52 @@
-{% extends "paginated_information_panel.html" %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
 
 {% block info_panel %}
 <h3>Info</h3>
 <p>The panel to the right shows the pipelines that have been run by you or your group members.</p>
 {% endblock %}
 
-{% block main_panel_view %}
-<h3>Pipeline Runs</h3>
-<table class="content">
-    <tr>
-        <th>Pipeline Name</th>
-        <th>Version</th>
-        <th>Type</th>
-        <th>Current Step</th>
-        <th>Pipeline Run Status</th>
-    </tr>
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Pipeline Runs</h3>
+        <table class="content">
+            <tr>
+                <th>Pipeline Name</th>
+                <th>Version</th>
+                <th>Type</th>
+                <th>Current Step</th>
+                <th>Pipeline Run Status</th>
+            </tr>
 
-    {% for pipeline_instance in obs.items %}
-    <tr>
-        <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=pipeline_instance.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
-        <td>{{ pipeline_instance.pipeline.version }}</td>
+            {% for pipeline_instance in obs.items %}
+            <tr>
+                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=pipeline_instance.display_key) }}">{{ pipeline_instance.pipeline.name }}</a></td>
+                <td>{{ pipeline_instance.pipeline.version }}</td>
 
-        {% if pipeline_instance.pipeline.type == "I" %}
-        <td>Pre Processing</td>
-        {% elif pipeline_instance.pipeline.type == "II" %}
-        <td>Processing</td>
-        {% else %}
-        <td>Post Processing</td>
-        {% endif %}
+                {% if pipeline_instance.pipeline.type == "I" %}
+                <td>Pre Processing</td>
+                {% elif pipeline_instance.pipeline.type == "II" %}
+                <td>Processing</td>
+                {% else %}
+                <td>Post Processing</td>
+                {% endif %}
 
-        <td>{{ pipeline_instance.current_execution_index + 1 }}</td>
-        <td>{{ pipeline_instance.current_execution_status }}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endblock %}
+                <td>{{ pipeline_instance.current_execution_index + 1 }}</td>
+                <td>{{ pipeline_instance.current_execution_status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
-{% block post_pagination %}
-<div class="spacer"></div>
+        {{ show_paginate(obs.has_next, obs.has_prev, obs.page, "pipelines.display_pipeline_instances") }}
 
-<a class="input" href="{{ url_for('pipelines.display_pipelines') }}">View Available Pipelines</a>
+        <div class="spacer"></div>
+
+        <a class="input" href="{{ url_for('pipelines.display_pipelines') }}">View Available Pipelines</a>
+    </div>
+</div>
 {% endblock %}

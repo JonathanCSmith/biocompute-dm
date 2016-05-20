@@ -1,34 +1,45 @@
-{% extends "paginated_information_panel.html" %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
 
 {% block info_panel %}
 <h3>Info</h3>
 <p>The panel to the right shows the groups of samples that have been created by you, your group members or by pipelines after they have finished execution.</p>
 {% endblock %}
 
-{% block main_panel_view %}
-<h3>Data Groups</h3>
-<table class="content">
-    <tr>
-        <th>Name</th>
-        <th>Group</th>
-        <th>Number of Data Items</th>
-        <th>Source</th>
-    </tr>
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Data Groups</h3>
+        <table class="content">
+            <tr>
+                <th>Name</th>
+                <th>Group</th>
+                <th>Number of Data Items</th>
+                <th>Source</th>
+            </tr>
 
-    {% if obs %}
-    {% for item in obs.items %}
-    <tr>
-        <td><a href="{{ url_for('manage.data_group', oid=item.display_key, data_type='sample') }}">{{ item.name }}</a></td>
-        <td>{{ item.group.name }}</td>
-        <td>{{ item.data.all()|length }}</td>
-        {% if item.pipeline_source %}
-        <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=item.pipeline_source.display_key) }}">{{ item.pipeline_source.pipeline.name }}</a></td>
-        {% else %}
-        <td>{{ item.user.username }}</td>
-        {% endif %}
-    </tr>
-    {% endfor %}
-    {% endif %}
+            {% if obs %}
+            {% for item in obs.items %}
+            <tr>
+                <td><a href="{{ url_for('manage.data_group', oid=item.display_key, data_type='sample') }}">{{ item.name }}</a></td>
+                <td>{{ item.group.name }}</td>
+                <td>{{ item.data.all()|length }}</td>
+                {% if item.pipeline_source %}
+                <td><a href="{{ url_for('pipelines.display_pipeline_instance', oid=item.pipeline_source.display_key) }}">{{ item.pipeline_source.pipeline.name }}</a></td>
+                {% else %}
+                <td>{{ item.user.username }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            {% endif %}
 
-</table>
+        </table>
+
+        {{ show_paginate(obs.has_next, obs.has_prev, obs.page, "manage.data_groups") }}
+    </div>
+</div>
 {% endblock %}

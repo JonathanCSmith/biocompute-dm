@@ -1,26 +1,37 @@
 {% set admin_flag = True %}
 
-{% extends "paginated_information_panel.html" %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
 
 {% block info_panel %}
 {% include "administrate_navigation.html" %}
 {% endblock %}
 
-{% block main_panel_view %}
-{% if title == "Clients" %}
-<h3>Clients</h3>
-{% else %}
-<h3>Groups</h3>
-{% endif %}
-<table class="content">
-    <tr>
-        <th>Group Name</th>
-    </tr>
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        {% if title == "Clients" %}
+        <h3>Clients</h3>
+        {% else %}
+        <h3>Groups</h3>
+        {% endif %}
+        <table class="content">
+            <tr>
+                <th>Group Name</th>
+            </tr>
 
-    {% for group in obs.items %}
-    <tr>
-        <td>{{ group.name }}</td>
-    </tr>
-    {% endfor %}
-</table>
+            {% for group in obs.items %}
+            <tr>
+                <td>{{ group.name }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        {{ show_paginate(obs.has_next, obs.has_prev, obs.page, ret_path) }}
+    </div>
+</div>
 {% endblock %}

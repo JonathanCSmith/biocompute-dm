@@ -1,28 +1,39 @@
 {% set admin_flag = True %}
 
-{% extends "paginated_information_panel.html" %}
+{% extends "information_panel.html" %}
+
+{% block custom_css %}
+{{ super() }}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+{% endblock %}
 
 {% block info_panel %}
 {% include "administrate_navigation.html" %}
 {% endblock %}
 
-{% block main_panel_view %}
-<h3>Reference Files</h3>
-<table class="content">
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Version</th>
-        <th>Available</th>
-    </tr>
+{% block main_panel %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Reference Files</h3>
+        <table class="content">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Version</th>
+                <th>Available</th>
+            </tr>
 
-    {% for item in obs.items %}
-    <tr>
-        <td>{{item.name}}</td>
-        <td>{{item.description}}</td>
-        <td>{{item.version}}</td>
-        <td>{{item.current}}</td>
-    </tr>
-    {% endfor %}
-</table>
+            {% for item in obs.items %}
+            <tr>
+                <td>{{item.name}}</td>
+                <td>{{item.description}}</td>
+                <td>{{item.version}}</td>
+                <td>{{item.current}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        {{ show_paginate(obs.has_next, obs.has_prev, obs.page, "admin.display_reference_files") }}
+    </div>
+</div>
 {% endblock %}
