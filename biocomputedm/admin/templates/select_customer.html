@@ -15,7 +15,7 @@
     <div class="action exempt">
         <h3>Potential Clients</h3>
 
-        <form action="{{ url_for('admin.link_to_customer', oid=obj.display_key, origin=origin) }}" method=post>
+        <form action="{{ url_for('admin.link_to_client', oid=obj.display_key, origin=origin) }}" method=post>
 
             <table class="content">
                 <tr>
@@ -23,7 +23,7 @@
                     <th>Link?</th>
                 </tr>
 
-                {% for client in customers %}
+                {% for client in clients %}
                 <tr>
                     <td>{{ client.name }}</td>
                     <td><input type="checkbox" name="do_select" value="{{ client.display_key }}"></td>

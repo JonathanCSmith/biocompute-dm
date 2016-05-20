@@ -97,7 +97,7 @@ class CustomerGroup(Group):
     samples = relationship("Sample", secondary=customer_to_sample_mapping, lazy="dynamic")
     data_groups = relationship("DataGroup", secondary=customer_to_data_group_mapping, lazy="dynamic")
     data_items = relationship("DataItem", secondary=customer_to_data_item_mapping, lazy="dynamic")
-    projects = relationship("Project", secondary=customer_to_project_mapping, lazy="dynamic")
+    projects = relationship("Project", secondary=customer_to_project_mapping, lazy="dynamic", backref="customers")
 
     __tablename__ = "CustomerGroup"
     __mapper_args__ = {"polymorphic_identity": "Customer", "inherit_condition": (id == Group.id)}

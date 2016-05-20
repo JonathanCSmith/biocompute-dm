@@ -564,7 +564,7 @@ def finish_pipeline_instance(app, running_pipeline_id):
                     module_instance.update(module_output=module_data_group)
 
             running_pipeline.update(current_execution_status="FINISHED")
-            source_data_group = DataGroup.query.filter_by(display_key=running_pipeline.client.display_key).first()
+            source_data_group = DataGroup.query.filter_by(display_key=running_pipeline.data_consignor.display_key).first()
             source_data_group.update(running=True)
 
     except Exception as e:

@@ -118,5 +118,5 @@ class CreatePerson(Form):
         return True
 
 
-class UpdateCustomerLinkForm(Form):
+class UpdateClientLinkForm(Form):
     submit = SubmitField("Submit")

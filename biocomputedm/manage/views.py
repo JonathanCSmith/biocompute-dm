@@ -664,11 +664,19 @@ def link_to_project(page=1, oid="", data_type=""):
                         flash("Could not identify the sample set to link to the project", "warning")
                         return redirect(url_for("index"))
 
+                    for customer in project.customers.all():
+                        customer.data_groups.append(data_group)
+                        customer.save()
+
                     has_real_data = False
                     for data in data_group.data:
                         if data.sample:
                             project.samples.append(data.sample)
                             has_real_data = True
+
+                        for customer in project.customers.all():
+                            customer.samples.append(data.sample)
+                            customer.save()
 
                     if not has_real_data:
                         flash("None of the data items in the provided group had samples to link", "warning")
@@ -681,6 +689,9 @@ def link_to_project(page=1, oid="", data_type=""):
                         return redirect(url_for("index"))
 
                     project.pipeline_outputs.append(data_group)
+                    for customer in project.customers.all():
+                        customer.data_groups.append(data_group)
+                        customer.save()
 
                 project.save()
 

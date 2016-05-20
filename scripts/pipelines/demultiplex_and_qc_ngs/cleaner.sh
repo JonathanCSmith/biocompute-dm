@@ -5,7 +5,7 @@
 OLDIFS="${IFS}"
 
 # ================================================= BUILD OUR IO VALUES ===============================================
-echo "Beginning demultiplexing module"
+echo "Beginning cleanup module"
 
 # Note we are only interested in the first line as we are only expecting 1 folder!
 IFS="," read NAME DATA_INPUT_DIRECTORY DATA_OUTPUT_DIRECTORY EXTRA < <(sed -n 1p < "${SAMPLE_CSV}")
@@ -78,7 +78,7 @@ done
 # ==================================================== SAMPLE DATA ====================================================
 
 # ===================================================== REPORTING =====================================================
-mv "${WORKING_DIRECTORY}/bcl2fastq2/html/*" "${PIPELINE_OUTPUT_DIRECTORY}"
+mv "./modules_output/bcl2fastq2/html/*" "${PIPELINE_OUTPUT_DIRECTORY}"
 
 IFS="${OLDIFS}"
 # ===================================================== REPORTING =====================================================

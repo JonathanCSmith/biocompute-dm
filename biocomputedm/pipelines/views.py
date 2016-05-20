@@ -719,7 +719,7 @@ def restart_pipeline(oid="", force=0):
 
     # TODO - If module is running parse for job id and kill all
 
-    data_source = pipeline_instance.data_consigner
+    data_source = pipeline_instance.data_consignor
     data_source.run_pipelines.append(pipeline_instance)
     data_source.update(running_pipeline=None)
 

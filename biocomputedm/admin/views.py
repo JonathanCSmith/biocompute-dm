@@ -216,9 +216,9 @@ def add_customer():
             return redirect(url_for("admin.show_users"))
 
 
-@admin.route("/link_to_customer/<oid>|<origin>", methods=["GET", "POST"])
+@admin.route("/link_to_client/<oid>|<origin>", methods=["GET", "POST"])
 @login_required("ANY")
-def link_to_customer(oid="", origin=""):
+def link_to_client(oid="", origin=""):
     if oid == "" or origin != "project":
         flash("Could not locate the provided information", "error")
         return redirect(url_for("index"))
@@ -229,7 +229,7 @@ def link_to_customer(oid="", origin=""):
         return redirect(url_for("index"))
 
     from biocomputedm.admin import forms
-    form = forms.UpdateCustomerLinkForm()
+    form = forms.UpdateClientLinkForm()
     if request.method == "POST":
         # Check to see that at least 1 upload was selected - empty submissions have no use
         ids = request.form.getlist("do_select")
