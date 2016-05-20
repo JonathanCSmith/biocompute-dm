@@ -206,12 +206,20 @@ def build_pipeline_instance(oid="", pid=""):
 
     # Build the pipeline information and get information from the user about how we want to execute
     if request.method == "GET":
+        # Pipeline defaults display
+        options = []
+        for module in pipeline.modules:
+            for option in module.options:
+                options.append(option)
+
+
         return render_template(
             "build_pipeline_instance.html",
             title="Pipeline Options",
             pid=pipeline.display_key,
             oid=oid,
             pipeline=pipeline,
+            options=options,
             form=form
         )
 

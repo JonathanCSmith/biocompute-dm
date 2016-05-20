@@ -83,15 +83,22 @@ def display_data(item_id="", data_type=""):
     data_path = None
     if data_type == "sample":
         data_path = os.path.join(os.path.join(utils.get_path("sample_data", "serve"), data_item.unlocalised_path), data_item.name)
+        file_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
     elif data_type == "pipeline":
         data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), data_item.unlocalised_path), data_item.name)
+        file_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
     elif data_type == "module":
         data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), data_item.unlocalised_path), data_item.name)
+        file_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
     if data_path is None:
         flash("Could not identify the provided data set's path", "warning")
+        return redirect(url_for("empty"))
+
+    if not os.path.isfile(file_path):
+        flash("Viewing nested data is currently not supported, please download the folder instead", "warning")
         return redirect(url_for("empty"))
 
     return render_template("data_viewer.html", title="Data Display", data_item=data_item, data_path=data_path)
