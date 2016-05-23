@@ -149,6 +149,7 @@ class Person(UserMixin, SurrogatePK, Model):
         # Hack, we need the default values here
         db.session.add(self)
         db.session.commit()
+        admin_helper.create_user_directory(self, password)
 
     def __repr__(self):
         return "<Member %r %r>" % (self.username, self.email)
@@ -190,7 +191,6 @@ class User(Person):
             password = uuid.uuid4().hex
 
         Person.__init__(self, username=username, email=email, password=password, group=group)
-        admin_helper.create_user_directory(self, password)
 
     def __repr__(self):
         return "<User %r %r>" % (self.username, self.email)
