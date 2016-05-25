@@ -139,13 +139,13 @@
     <div class="action exempt">
         <h3>Pipeline Outputs</h3>
 
-        {% for batch in pipeline_instance.pipeline_output.data %}
+        {% for batch in pipeline_instance.pipeline_output.data | batch(4, 'empty') %}
         <div class="container-fluid">
             <div class="row">
                 {% for output in batch %}
                 {% if sample != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
-                    <a href="{{ url_for('manage.display_data', item_id=data.display_key, data_type='pipeline') }}">{{ data.name }}</a>
+                    <a href="{{ url_for('manage.display_data', item_id=output.display_key, data_type='pipeline') }}">{{ output.name }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
