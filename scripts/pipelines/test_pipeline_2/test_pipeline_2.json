@@ -1,0 +1,88 @@
+{
+  "name": "test_pipeline_2",
+  "description": "Testing Pipeline",
+  "pipeline_type": "II",
+  "author": "Jonathan Smith",
+  "version": "0.0.4",
+  "regex_type": "OR",
+  "file_regex": [".*\\.fastq$", "\\.fastq.gz$"],
+  "documentation_file_name": "test.txt",
+  "modules": [
+    {
+      "name": "test",
+      "description": "tester for inputs and server side execution",
+      "executor": "test.sh",
+      "options": [
+        {
+          "display_name": "Text Field!",
+          "parameter_name": "t",
+          "default_value": "No Text",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "this is a text field"
+        },
+
+        {
+          "display_name": "Boolean Field!",
+          "parameter_name": "b",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "this is a boolean field"
+        },
+
+        {
+          "display_name": "Library Field!",
+          "parameter_name": "l",
+          "default_value": "Def",
+          "user_interaction_type": "reference",
+          "necessary": false,
+          "description": "this is a library field"
+        },
+
+        {
+          "display_name": "File Field!",
+          "parameter_name": "f",
+          "default_value": "default.html",
+          "user_interaction_type": "file",
+          "necessary": false,
+          "description": "this is a file field"
+        }
+      ]
+    },
+
+    {
+      "name": "test_2",
+      "description": "tester for the server side reporting and display",
+      "executor": "test_2.sh",
+      "options": [
+        {
+          "display_name": "Text Field!",
+          "parameter_name": "T",
+          "default_value": "No Text",
+          "user_interaction_type": "string",
+          "necessary": false,
+          "description": "this is a text field"
+        },
+
+        {
+          "display_name": "Boolean Field!",
+          "parameter_name": "B",
+          "default_value": "False",
+          "user_interaction_type": "boolean",
+          "necessary": false,
+          "description": "this is a boolean field"
+        },
+
+        {
+          "display_name": "Library Field!",
+          "parameter_name": "L",
+          "default_value": "Def",
+          "user_interaction_type": "reference",
+          "necessary": false,
+          "description": "this is a library field"
+        }
+      ]
+    }
+  ]
+}

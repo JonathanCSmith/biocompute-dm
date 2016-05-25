@@ -19,7 +19,7 @@ do
     output_dir="${DATA_OUTPUT_DIRECTORY}//${id}"
     mkdir "${output_dir}"
 
-    outfile="${output_dir}//${id}.fastq.gz"
+    outfile="${output_dir}//${id}.txt"
     echo "test_data" > "${outfile}"
 
     echo "placed fake data at: ${outfile}"

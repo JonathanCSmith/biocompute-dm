@@ -187,7 +187,6 @@ def build(file):
 
     pipeline = Pipeline.query.filter_by(
         name=name,
-        description=description,
         author=author,
         version=version
     ).first()

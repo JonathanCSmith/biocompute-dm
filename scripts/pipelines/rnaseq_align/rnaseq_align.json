@@ -3,9 +3,9 @@
   "description": "aligns demultiplexed files for rnaseq sequencing and produces metrics data for the alignment",
   "pipeline_type": "II",
   "author": "Filipe Gracio, Venu Pullabhatla, Jonathan Smith",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "regex_type": "OR",
-  "file_regex": [".*\\.fastq$", "\\.fastq.gz$"],
+  "file_regex": [".*\\.fastq$", ".*\\.fastq\\.gz$"],
   "documentation_file_name": "rnaseq_align_documentation.txt",
   "modules": [
     {
