@@ -382,7 +382,15 @@ def build_module_instance(pid="", oid="", index=-1):
                 for option in default_options:
                     # Append the default option set
                     option_value = PipelineModuleOptionValue.create(option=option, module_instance=module_instance)
-                    option_value.update(value=option.default_value)
+
+                    # Special case enums as we should take the first value here!
+                    if option.user_interaction_type == "enum":
+                        default_value = option.default_value.split(",")[0]
+
+                    else:
+                        default_value = option.default_value
+
+                    option_value.update(value=default_value)
                     module_instance.option_values.append(option_value)
                     module_instance.save()
 
