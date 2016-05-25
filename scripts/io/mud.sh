@@ -45,7 +45,7 @@ do
     (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}")
     #chown -R biocompute-dm:sftpusers "${NEW_FILE}"
     #chmod -R 660 "${NEW_FILE}"
-    rm -f "${NEW_FILE}"
+    rm -f "${DIRECTORY}/${NEW_FILE}"
 done
 
 # Post message
