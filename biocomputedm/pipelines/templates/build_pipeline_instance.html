@@ -65,7 +65,7 @@
             <tr>
                 <td>{{ option.display_name }}</td>
                 <td>{{ option.description }}</td>
-                {% if option.user_interaction.type == "enum" %}
+                {% if option.user_interaction_type == "enum" %}
                 <td>{{ option.default_value.split(',')[0] }}</td>
                 {% else %}
                 <td>{{ option.default_value }}</td>
