@@ -370,7 +370,7 @@ def execute_pipeline_module(app, running_pipeline_id=""):
             remote_module_directory = os.path.join(remote_modules_output_directory, current_module_instance.module.name)
 
             pipeline_scripts = os.path.join(os.path.join(utils.get_path("scripts", "hpc"), "pipelines"), running_pipeline.pipeline.name)
-            pipeline_output_directory = os.path.join(local_pipeline_path, "pipeline_output")
+            pipeline_output_directory = os.path.join(remote_pipeline_path, "pipeline_output")
             with open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_out.txt"), "wb") as out, \
                     open(os.path.join(local_module_directory, current_module_instance.module.name + "_hpc_submission_error.txt"), "wb") as err:
                 subprocess.Popen(
