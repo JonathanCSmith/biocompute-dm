@@ -3,9 +3,9 @@
   "description": "loads already demultiplexed files into samples",
   "pipeline_type": "I",
   "author": "Jonathan Smith",
-  "version": "0.0.1",
-  "regex_type": "AND",
-  "file_regex": [".*\\.fastq$"],
+  "version": "0.0.2",
+  "regex_type": "OR",
+  "file_regex": [".*\\.fastq$", "\\.fastq.gz$"],
   "documentation_file_name": "fake_load_fastq_documentation.txt",
   "modules": [
     {
