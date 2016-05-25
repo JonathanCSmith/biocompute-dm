@@ -34,7 +34,7 @@
         {
           "display_name": "Tiling behaviour:",
           "parameter_name": "aggregated_tiles",
-          "default_value": "AUTO, YES, NO",
+          "default_value": "AUTO,YES,NO",
           "user_interaction_type": "enum",
           "necessary": false,
           "description": "This flag tells the converter about the structure of the input files. Accepted values: AUTO Automatically detects the tile setting YES Tiles are aggregated into single input file NO There are separate input files for individual tiles"
@@ -43,7 +43,7 @@
         {
           "display_name": "Barcode Mismatch Allowance:",
           "parameter_name": "barcode_mismatches",
-          "default_value": "1, 0, 2",
+          "default_value": "1,0,2",
           "user_interaction_type": "enum",
           "necessary": false,
           "description": "Number of allowed mismatches per index Multiple entries, comma delimited allowed. Each entry is applied to the corresponding index; last entry applies to  all remaining indexes."
