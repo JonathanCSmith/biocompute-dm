@@ -21,8 +21,8 @@ fi
 
 # Prepare a custom sample sheet that conforms to our mappings
 IFS=','
-REGEX=".*_R1_001.fastq"
-REGEX_2=".*_R1_001.fastq.gz"
+REGEX=".*_R1_001.fastq$"
+REGEX_2=".*_R1_001.fastq.gz$"
 MODIFIED_SAMPLE_CSV="modified_sample_csv.txt"
 while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
 do
