@@ -50,7 +50,7 @@ READ_1=""
 READ_2=""
 
 # We are looking for a specific file type
-for f in ${d}/*_R1.fastq; do
+for f in ${SAMPLE_INPUT_PATH}/*_R1.fastq; do
     if [ "${READ_1}" ]; then
         echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -93,7 +93,7 @@ EOF
 
     exit
 
-elif [[ "${READ_1}" =~ ".**.*" ]]; then
+elif [[ "${READ_1}" =~ ".*\*.*" ]]; then
     exit
 
 else
@@ -103,7 +103,7 @@ fi
 if [ "${READ_2}" ]; then
     echo "Read 2 was identified as: ${READ_2}"
 
-    if [[ "${READ_2}" =~ ".**.*" ]]; then
+    if [[ "${READ_2}" =~ ".*\*.*" ]]; then
         echo "Read 2 was likely malformed as it contained a regex pointer. Read 2 will be discarded"
         READ_2 = ""
     fi
