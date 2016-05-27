@@ -141,7 +141,7 @@
                     <td class="resize img2 bg5">
                     {% endif %}
 
-                        <a style="display: block;" href="{{ url_for('pipelines.module_instance', oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
+                        <a style="display: block;" href="{{ url_for('pipelines.module_instance', pid=running_pipeline.display_key, oid=module_instance.display_key) }}">{{ module_instance.module.name }}</a>
                     </td>
                     {% endfor %}
                     <td></td>
