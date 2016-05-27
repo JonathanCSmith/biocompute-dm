@@ -67,6 +67,23 @@ EOF
 done
 
 # We are looking for a specific file type
+for f in ${SAMPLE_INPUT_PATH}/*_R1.fastq.gz; do
+    if [ "${READ_1}" ]; then
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+        exit
+
+    else
+        READ_1="${f}"
+    fi
+done
+
+# We are looking for a specific file type
 for f in ${SAMPLE_INPUT_PATH}/*_R2.fastq; do
     if [ "${READ_2}" ]; then
         echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
@@ -83,6 +100,25 @@ EOF
     fi
 done
 
+# We are looking for a specific file type
+for f in ${SAMPLE_INPUT_PATH}/*_R2.fastq.gz; do
+    if [ "${READ_2}" ]; then
+        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+        exit
+
+    else
+        READ_2="${f}"
+    fi
+done
+
+REGEX=".*\\*.*"
+
 if [ -z "${READ_1}" ]; then
     echo "Could not identifiy the primary read fastq"
 
@@ -93,7 +129,7 @@ EOF
 
     exit
 
-elif [[ "${READ_1}" =~ ".*\*.*" ]]; then
+elif [[ "${READ_1}" =~ $REGEX ]]; then
     exit
 
 else
@@ -103,7 +139,7 @@ fi
 if [ "${READ_2}" ]; then
     echo "Read 2 was identified as: ${READ_2}"
 
-    if [[ "${READ_2}" =~ ".*\*.*" ]]; then
+    if [[ "${READ_2}" =~ $REGEX ]]; then
         echo "Read 2 was likely malformed as it contained a regex pointer. Read 2 will be discarded"
         READ_2 = ""
     fi
