@@ -74,8 +74,8 @@ END
 
         # If our job was not present in qacct
         echo "Job Query returned: ${RESULT}"
-        REGEX="error*"
-        if [[ ${RESULT} =~ ${REGEX} ]]; then
+        REGEX="^error*"
+        if [[ "${RESULT}" =~ $REGEX ]]; then
             NOT_PRESENT=1
             break;
         fi
