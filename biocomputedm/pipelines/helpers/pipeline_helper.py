@@ -280,7 +280,7 @@ def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
 
                     else:
                         key = source_data.sample.display_key
-                        input = os.path.join(utils.get_path("sample_data", "hpc"), source_data.unlocalised_path)
+                        input = os.path.join(os.path.join(utils.get_path("sample_data", "hpc"), source_data.unlocalised_path), source_data.name)
                         output = os.path.join(remote_output_path, source_data.unlocalised_path)
 
                     # Generate a csv row where columns 1 = sample, 2 = data input path, 3 = data output path
