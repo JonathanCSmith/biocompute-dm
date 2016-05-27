@@ -27,10 +27,10 @@ MODIFIED_SAMPLE_CSV="modified_sample_csv.txt"
 while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
 do
     if [[ "${SAMPLE_INPUT_PATH}" =~ $REGEX ]]; then
-        echo "SAMPLE_NAME,"$(dirname "${SAMPLE_INPUT_PATH}")"${SAMPLE_OUTPUT_PATH}"
+        echo "${SAMPLE_NAME},"$(dirname "${SAMPLE_INPUT_PATH}")",${SAMPLE_OUTPUT_PATH},NO"
 
     elif [[ "${SAMPLE_INPUT_PATH}" =~ $REGEX_2 ]]; then
-        echo "SAMPLE_NAME,"$(dirname "${SAMPLE_INPUT_PATH}")"${SAMPLE_OUTPUT_PATH}"
+        echo "${SAMPLE_NAME},"$(dirname "${SAMPLE_INPUT_PATH}")",${SAMPLE_OUTPUT_PATH},NO"
 
     fi
 done < "${SAMPLE_CSV}" > "${MODIFIED_SAMPLE_CSV}"
@@ -60,7 +60,7 @@ do
 
     # Poll each job id
     NOT_PRESENT=0
-    for i in $(seq 1 ${FILE_COUNT})
+    for (( i=1; i<=${FILE_COUNT}; i++ ))
     do
 
         echo "Searching for job: ${i}."
@@ -90,7 +90,7 @@ done
 echo "Successfully waited for all array jobs to finish, beginning log move."
 
 # Rename logs and exit
-for i in $(seq 1 ${FILE_COUNT})
+for (( i=1; i<=${FILE_COUNT}; i++ ))
 do
     mv "${MODULE_OUTPUT_DIRECTORY}//align_worker.sh.o${JOBID}.${i}" "${MODULE_OUTPUT_DIRECTORY}//align_worker_arrayid_${i}_out.txt"
     mv "${MODULE_OUTPUT_DIRECTORY}//align_worker.sh.po${JOBID}.${i}" "${MODULE_OUTPUT_DIRECTORY}//align_worker_arrayid_${i}_error.txt"
