@@ -51,9 +51,9 @@ READ_2=""
 REGEX=".*\\*.*"
 
 # We are looking for a specific file type
-for f in ${SAMPLE_INPUT_PATH}/*_R1.fastq; do
+for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq; do
     if [ "${READ_1}" ]; then
-        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -64,17 +64,17 @@ EOF
 
     elif [[ "${f}" =~ $REGEX ]]; then
         echo "Ignoring: ${f} as it is likely a false positive"
-        continue
 
     else
+        echo "Identified ${f}"
         READ_1="${f}"
     fi
 done
 
 # We are looking for a specific file type
-for f in ${SAMPLE_INPUT_PATH}/*_R1.fastq.gz; do
+for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq.gz; do
     if [ "${READ_1}" ]; then
-        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -85,15 +85,15 @@ EOF
 
     elif [[ "${f}" =~ $REGEX ]]; then
         echo "Ignoring: ${f} as it is likely a false positive"
-        continue
 
     else
+        echo "Identified ${f}"
         READ_1="${f}"
     fi
 done
 
 # We are looking for a specific file type
-for f in ${SAMPLE_INPUT_PATH}/*_R2.fastq; do
+for f in ${SAMPLE_INPUT_PATH}/*_R2_001.fastq; do
     if [ "${READ_2}" ]; then
         echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
 
@@ -106,15 +106,15 @@ EOF
 
     elif [[ "${f}" =~ $REGEX ]]; then
         echo "Ignoring: ${f} as it is likely a false positive"
-        continue
 
     else
+        echo "Identified ${f}"
         READ_2="${f}"
     fi
 done
 
 # We are looking for a specific file type
-for f in ${SAMPLE_INPUT_PATH}/*_R2.fastq.gz; do
+for f in ${SAMPLE_INPUT_PATH}/*_R2_001.fastq.gz; do
     if [ "${READ_2}" ]; then
         echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
 
@@ -127,9 +127,9 @@ EOF
 
     elif [[ "${f}" =~ $REGEX ]]; then
         echo "Ignoring: ${f} as it is likely a false positive"
-        continue
 
     else
+        echo "Identified ${f}"
         READ_2="${f}"
     fi
 done
