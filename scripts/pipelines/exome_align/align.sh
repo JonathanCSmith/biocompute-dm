@@ -23,7 +23,7 @@ fi
 IFS=','
 REGEX=".*_R1_001.fastq"
 REGEX_2=".*_R1_001.fastq.gz"
-MODIFIED_SAMPLE_CSV="${WORKING_DIRECTORY}/modified_sample_csv.txt"
+MODIFIED_SAMPLE_CSV="modified_sample_csv.txt"
 while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
 do
     if [[ "${SAMPLE_INPUT_PATH}" =~ $REGEX ]]; then
@@ -33,7 +33,7 @@ do
         echo "SAMPLE_NAME,"$(dirname "${SAMPLE_INPUT_PATH}")"${SAMPLE_OUTPUT_PATH}"
 
     fi
-done < "${SAMPLE_CSV}" > ${MODIFIED_SAMPLE_CSV}
+done < "${SAMPLE_CSV}" > "${MODIFIED_SAMPLE_CSV}"
 
 FILE_COUNT=$(wc -l < "${MODIFIED_SAMPLE_CSV}")
 
@@ -41,7 +41,7 @@ FILE_COUNT=$(wc -l < "${MODIFIED_SAMPLE_CSV}")
 echo "Confirmed file count: ${FILE_COUNT}"
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "DATA_FILE="${MODIFIED_SAMPLE_CSV}",ref="${ref}",PIPELINE_SOURCE="${PIPELINE_SOURCE} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//align_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "DATA_FILE="${MODIFIED_SAMPLE_CSV}",ref="${ref}",PIPELINE_SOURCE="${PIPELINE_SOURCE} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" -wd "${WORKING_DIRECTORY}" "${PIPELINE_SOURCE}//align_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )
