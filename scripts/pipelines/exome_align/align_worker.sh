@@ -48,6 +48,7 @@ IFS=',' read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA < <(sed -n $
 
 READ_1=""
 READ_2=""
+REGEX=".*\\*.*"
 
 # We are looking for a specific file type
 for f in ${SAMPLE_INPUT_PATH}/*_R1.fastq; do
@@ -60,6 +61,9 @@ curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
         exit
+
+    elif [[ "${f}" =~ $REGEX ]]; then
+        continue
 
     else
         READ_1="${f}"
@@ -78,6 +82,9 @@ EOF
 
         exit
 
+    elif [[ "${f}" =~ $REGEX ]]; then
+        continue
+
     else
         READ_1="${f}"
     fi
@@ -86,7 +93,7 @@ done
 # We are looking for a specific file type
 for f in ${SAMPLE_INPUT_PATH}/*_R2.fastq; do
     if [ "${READ_2}" ]; then
-        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -94,6 +101,9 @@ curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
         exit
+
+    elif [[ "${f}" =~ $REGEX ]]; then
+        continue
 
     else
         READ_2="${f}"
@@ -103,7 +113,7 @@ done
 # We are looking for a specific file type
 for f in ${SAMPLE_INPUT_PATH}/*_R2.fastq.gz; do
     if [ "${READ_2}" ]; then
-        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -112,12 +122,13 @@ EOF
 
         exit
 
+    elif [[ "${f}" =~ $REGEX ]]; then
+        continue
+
     else
         READ_2="${f}"
     fi
 done
-
-REGEX=".*\\*.*"
 
 if [ -z "${READ_1}" ]; then
     echo "Could not identifiy the primary read fastq"
