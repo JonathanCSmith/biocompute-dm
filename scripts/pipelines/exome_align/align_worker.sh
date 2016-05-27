@@ -63,6 +63,7 @@ EOF
         exit
 
     elif [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
         continue
 
     else
@@ -83,6 +84,7 @@ EOF
         exit
 
     elif [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
         continue
 
     else
@@ -103,6 +105,7 @@ EOF
         exit
 
     elif [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
         continue
 
     else
@@ -123,6 +126,7 @@ EOF
         exit
 
     elif [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
         continue
 
     else
