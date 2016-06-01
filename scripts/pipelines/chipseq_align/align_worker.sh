@@ -10,6 +10,7 @@ module load bioinformatics/samtools/0.1.19
 module load picard-tools/2.2.2
 module load bedtools/2.16.2
 module load ucsc_tools/13_05_2016
+module load general/python/2.7.10
 
 OLDIFS="${IFS}"
 date=`date`
