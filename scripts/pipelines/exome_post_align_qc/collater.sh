@@ -18,37 +18,25 @@ ssh ${USERNAME}@${HPC_IP} << EOF
     curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
-else
+    exit
 
-    # Loop through samples
-    echo "Beginning loop for samples"
-    IFS=","
-    while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
-    do
+fi
 
-        ALIGNMENT=""
+# Prepare a custom sample sheet with only the data we are interested in
+IFS=','
+REGEX="_alignment_metrics.txt"
+REGEX_2=".*\\*.*"
+while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
+do
+    if [[ "${SAMPLE_INPUT_PATH}" =~ $REGEX ]]; then
+
+        SAMPLE_PATH=$(dirname "${SAMPLE_INPUT_PATH}")
+        ALIGNMENT="${SAMPLE_INPUT_PATH}"
         DUPLICATE=""
         COVERAGE=""
 
         # We are looking for a specific file type
-        for f in ${d}/*_alignment_metrics.txt; do
-            if [ "${ALIGNMENT}" ]; then
-                echo "More that one alignment metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
-
-# Ping back our info to the webserver
-ssh ${USERNAME}@${HPC_IP} << EOF
-curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
-EOF
-
-                exit
-            else
-                ALIGNMENT="${f}"
-                echo "Identified alignment file: ${ALIGNMENT}"
-            fi
-        done
-
-        # We are looking for a specific file type
-        for f in ${d}/*_duplicate_metrics.txt; do
+        for f in "${SAMPLE_PATH}"/*_duplicate_metrics.txt; do
             if [ "${DUPLICATE}" ]; then
                 echo "More that one duplicate metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -65,7 +53,7 @@ EOF
         done
 
         # We are looking for a specific file type
-        for f in ${d}/*_coverage_metrics.txt; do
+        for f in "${SAMPLE_PATH}"/*_coverage_metrics.txt; do
             if [ "${COVERAGE}" ]; then
                 echo "More that one coverage metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -86,15 +74,15 @@ EOF
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
-        elif [[ "${ALIGNMENT}" =~ ".**.*" ]]; then
+        elif [[ "${ALIGNMENT}" =~ $REGEX_2 ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
-        elif [[ "${DUPLICATE}" =~ ".**.*" ]]; then
+        elif [[ "${DUPLICATE}" =~ $REGEX_2 ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
-        elif [[ "${COVERAGE}" =~ ".**.*" ]]; then
+        elif [[ "${COVERAGE}" =~ $REGEX_2 ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
@@ -106,22 +94,21 @@ EOF
         cp "${ALIGNMENT}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_alignment_metrics.txt"
         cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_duplicate_metrics.txt"
         cp "${COVERAGE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_coverage_metrics.txt"
+    fi
+done < "${SAMPLE_CSV}"
 
-    done < "${SAMPLE_CSV}"
+# Validate cwd is not empty
+FILE_COUNT=$(find ./ -maxdepth 1 -type d -name 'sample_*' | wc -l)
+echo "Identified ${FILE_COUNT} viable metric sets to process"
 
-    # Validate cwd is not empty
-    FILE_COUNT=$(find ./ -maxdepth 1 -type d -name 'sample_*' | wc -l)
-    echo "Identified ${FILE_COUNT} viable metric sets to process"
+# Execute perl
+echo "Executing perl script"
+"${PIPELINE_SOURCE}"/get_qc_data.pl
 
-    # Execute perl
-    echo "Executing perl script"
-    "${PIPELINE_SOURCE}"/get_qc_data.pl
-
-    # Cleanup cwd
-    for d in ./sample_*/; do
-        echo "Removing directory: ${d}"
-        rm -rf "${d}"
-    done
-fi
+# Cleanup cwd
+for d in ./sample_*/; do
+    echo "Removing directory: ${d}"
+    rm -rf "${d}"
+done
 
 echo "Collation process finished"

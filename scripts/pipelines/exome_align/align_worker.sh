@@ -237,13 +237,13 @@ printf "percentage_20x\t"$cov20xpc"\n" >> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_
 
 printf "Tidying up on $date\n\n"
 
-#rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
-#rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam"
-#rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
-#rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_targets_cov.bed"
-#rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits_cov.bed"
-#rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed"
-#rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_coverage.hist"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_targets_cov.bed"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits_cov.bed"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_coverage.hist"
 # ================================================== CORE SAMPLE LOOP =================================================
 
 rm "${TMPDIR}/${ref##*/}"

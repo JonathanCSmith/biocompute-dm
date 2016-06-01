@@ -18,37 +18,23 @@ ssh ${USERNAME}@${HPC_IP} << EOF
     curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
-else
+    exit
 
-    # Loop through samples
-    echo "Beginning loop for samples"
-    IFS=","
-    while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
-    do
+fi
 
-        ALIGNMENT=""
-        DUPLICATE=""
-        COVERAGE=""
+IFS=','
+REGEX="_alignment_metrics.txt"
+REGEX_2=".*\\*.*"
+while read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA
+do
+    if [[ "$SAMPLE_INPUT_PATH}" =~ $REGEX ]]; then
 
-        # We are looking for a specific file type
-        for f in ${d}/*_alignment_metrics.txt; do
-            if [ "${ALIGNMENT}" ]; then
-                echo "More that one alignment metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
-
-# Ping back our info to the webserver
-ssh ${USERNAME}@${HPC_IP} << EOF
-curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
-EOF
-
-                exit
-            else
-                ALIGNMENT="${f}"
-                echo "Identified alignment file: ${ALIGNMENT}"
-            fi
-        done
+        SAMPLE_PATH=$(dirname "${SAMPLE_INPUT_PATH}")
+        ALIGNMENT="${SAMPLE_INPUT_PATH}"
+        DUPLICATE=""=
 
         # We are looking for a specific file type
-        for f in ${d}/*_duplicate_metrics.txt; do
+        for f in "${SAMPLE_PATH}"/*_duplicate_metrics.txt; do
             if [ "${DUPLICATE}" ]; then
                 echo "More that one duplicate metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
@@ -69,11 +55,11 @@ EOF
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
-        elif [[ "${ALIGNMENT}" =~ ".**.*" ]]; then
+        elif [[ "${ALIGNMENT}" =~ $REGEX_2 ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
-        elif [[ "${DUPLICATE}" =~ ".**.*" ]]; then
+        elif [[ "${DUPLICATE}" =~ $REGEX_2 ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
@@ -85,23 +71,24 @@ EOF
         cp "${ALIGNMENT}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_alignment_metrics.txt"
         cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_duplicate_metrics.txt"
 
-    done < "${SAMPLE_CSV}"
+    fi
+done < "${SAMPLE_CSV}"
 
-    # Validate cwd is not empty
-    FILE_COUNT=$(find ./ -maxdepth 1 -type d -name 'sample_*' | wc -l)
-    echo "Identified ${FILE_COUNT} viable metric sets to process"
+# Validate cwd is not empty
+FILE_COUNT=$(find ./ -maxdepth 1 -type d -name 'sample_*' | wc -l)
+echo "Identified ${FILE_COUNT} viable metric sets to process"
 
-    # Execute perl
-    echo "Executing perl script"
-    "${PIPELINE_SOURCE}"/get_qc_data.pl
+# Execute perl
+echo "Executing perl script"
+"${PIPELINE_SOURCE}"/get_qc_data.pl
 
-    # Cleanup cwd
-    for d in ./sample_*/; do
-        echo "Removing directory: ${d}"
-        rm -rf "${d}"
-    done
-fi
+# Cleanup cwd
+for d in ./sample_*/; do
+    echo "Removing directory: ${d}"
+    rm -rf "${d}"
+done
 
+# Store this in pipeline outputs for later usage
 mv "./merged_qc_table" "./pipeline_output/merged_qc_table.txt"
 
 echo "Collation process finished"
