@@ -72,8 +72,11 @@ REGEX=".*\\*.*"
 
 # We are looking for a specific file type
 for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq; do
-    if [ "${READ_1}" ]; then
-        echo "More that one R1 was identified. ChIPseq alignment cannot determine which you wish to align"
+    if [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
+
+    elif [ "${READ_1}" ]; then
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align."
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -81,9 +84,6 @@ curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
         exit
-
-    elif [[ "${f}" =~ $REGEX ]]; then
-        echo "Ignoring: ${f} as it is likely a false positive"
 
     else
         echo "Identified ${f}"
@@ -93,8 +93,12 @@ done
 
 # We are looking for a specific file type
 for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq.gz; do
-    if [ "${READ_1}" ]; then
-        echo "More that one R1 was identified. ChIPseq alignment cannot determine which you wish to align"
+
+    if [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
+
+    elif [ "${READ_1}" ]; then
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -102,9 +106,6 @@ curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
 EOF
 
         exit
-
-    elif [[ "${f}" =~ $REGEX ]]; then
-        echo "Ignoring: ${f} as it is likely a false positive"
 
     else
         echo "Identified ${f}"

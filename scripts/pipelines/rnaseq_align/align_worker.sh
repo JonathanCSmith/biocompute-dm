@@ -105,11 +105,15 @@ echo "Beginning alignment module"
 IFS=',' read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA < <(sed -n ${SGE_TASK_ID}p ${DATA_FILE})
 
 READ_1=""
+REGEX=".*\\*.*"
 
 # We are looking for a specific file type
-for f in ${d}/*_R1.fastq; do
-    if [ "${READ_1}" ]; then
-        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq; do
+    if [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
+
+    elif [ "${READ_1}" ]; then
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align."
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -119,6 +123,29 @@ EOF
         exit
 
     else
+        echo "Identified ${f}"
+        READ_1="${f}"
+    fi
+done
+
+# We are looking for a specific file type
+for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq.gz; do
+
+    if [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
+
+    elif [ "${READ_1}" ]; then
+        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align"
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+        exit
+
+    else
+        echo "Identified ${f}"
         READ_1="${f}"
     fi
 done
@@ -133,7 +160,7 @@ EOF
 
     exit
 
-elif [[ "${READ_1}" =~ ".**.*" ]]; then
+elif [[ "${READ_1}" =~ $REGEX ]]; then
     exit
 
 else
