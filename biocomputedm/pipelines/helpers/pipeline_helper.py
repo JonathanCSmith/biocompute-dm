@@ -279,7 +279,7 @@ def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
                         output = remote_output_path
 
                     else:
-                        key = source_data.sample.display_key
+                        key = source_data.sample.name
                         input = os.path.join(os.path.join(utils.get_path("sample_data", "hpc"), source_data.unlocalised_path), source_data.name)
                         output = os.path.join(remote_output_path, source_data.unlocalised_path.split('/')[0])
 
