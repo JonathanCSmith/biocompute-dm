@@ -5,8 +5,8 @@
 
 OLDIFS="${IFS}"
 echo "Beginning load module"
-RX_1=".*_R1\.fastq"
-RX_2=".*_R2\.fastq"
+RX_1=".*_R1_001\.fastq"
+RX_2=".*_R2_001\.fastq"
 
 # ============================================ IDENTIFY AND MOVE OUR FILES ============================================
 echo "Data CSV at: ${SAMPLE_CSV}"

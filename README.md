@@ -74,21 +74,18 @@
   * Note: all commands within manage.py should be called as your biocompute-dm user (or the owner of the error.log directory)
         
 
-### Database Commands
+### Database Commands - TODO: This information is outdated - update!!
 #### New database schema
 
 - Create a mysql db according to your config.py
 - Setup a user with properties that corresponds to your config.py for accessing the db above (local only)
 - as biocompute-dm user in the website root: flask_environment/bin/python manage.py update
 
-### Apache2 Best Practices
-
-- TODO: Bug me if you need this asap
-
-
 ### Pipeline Patterns - Rolling your own
 
-#### Pipeline Types
+TODO Overview text here
+
+#### Pipeline Types - TODO: This information is outdated - update!!
 There are three pipeline types that can be created in Biocompute-DM, respectfully represented by their roman numerals. 
 
 * Type I plugins deconvolute information into separate samples. This pipeline type is markedly different from its counterparts
@@ -104,7 +101,7 @@ There are three pipeline types that can be created in Biocompute-DM, respectfull
           "notes": "sample_notes_500_characters",
           "internal_reference_id": "internal_ref",
           "client_reference_id": "client_ref"
-        }
+        } TODO: We don't have this anymore - remove!!!
   
 * Type II plugins work on a group of samples produced by the same Type I pipeline instance. This normally represents the
  processing stage.
@@ -113,7 +110,16 @@ There are three pipeline types that can be created in Biocompute-DM, respectfull
 * Type III plugins work on groups of sample groups, normally attributed to a project and may contain cross-sample, cross-batch
  type controls.
  
-##### Example Pipeline
+#### Pipeline Properties
+
+
+#### Pipeline module options
+
+
+#### Pipeline Executor Environmental Variables
+
+ 
+#### Example Pipeline - TODO: This information is outdated - update!!
 Below is an example pipeline. Things to note:
 
 * pipeline_type is an enum of I, II or III
@@ -163,4 +169,6 @@ Below is an example pipeline. Things to note:
         }
       ]
     }
+    
+### Reference Files
 
