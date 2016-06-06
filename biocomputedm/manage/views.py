@@ -8,11 +8,7 @@ from biocomputedm import utils
 from biocomputedm.decorators import login_required
 from biocomputedm.manage.models import Submission, Project, Document, DataGroup, DataItem, Sample
 from biocomputedm.pipelines.models import Pipeline
-from flask import Blueprint, render_template, redirect, url_for
-from flask import abort
-from flask import current_app
-from flask import flash
-from flask import request
+from flask import Blueprint, render_template, redirect, url_for, abort, current_app, flash, request, send_from_directory
 from flask.ext.login import current_user
 
 manage = Blueprint("manage", __name__, static_folder="static", template_folder="templates")
@@ -574,9 +570,10 @@ def new_project():
         return render_template("new_project.html", title="New Project", form=form)
 
 
+@manage.route("/project/<oid>|<did>", methods=["GET", "POST"])
 @manage.route("/project/<oid>", methods=["GET", "POST"])
 @login_required("ANY")
-def project(oid=""):
+def project(oid="", did=""):
     if oid == "":
         flash("Could not identify the provided project.", "error")
         return redirect(url_for("index"))
@@ -590,6 +587,11 @@ def project(oid=""):
     if project is None:
         flash("Could not identify the provided project.", "error")
         return redirect(url_for("index"))
+
+    if request.method == "POST" and did != "":
+        for document in project.documents:
+            if document.display_key == did:
+                return send_from_directory(os.path.join(utils.get_path("project_data", "webserver"), project.display_key), document.name)
 
     return render_template("project.html", title="Project", project=project)
 
