@@ -570,8 +570,8 @@ def new_project():
         return render_template("new_project.html", title="New Project", form=form)
 
 
-@manage.route("/project/<oid>|<did>", methods=["GET", "POST"])
-@manage.route("/project/<oid>", methods=["GET", "POST"])
+@manage.route("/project/<oid>|<did>")
+@manage.route("/project/<oid>")
 @login_required("ANY")
 def project(oid="", did=""):
     if oid == "":
@@ -588,7 +588,7 @@ def project(oid="", did=""):
         flash("Could not identify the provided project.", "error")
         return redirect(url_for("index"))
 
-    if request.method == "POST" and did != "":
+    if did != "":
         for document in project.documents:
             if document.display_key == did:
                 return send_from_directory(os.path.join(utils.get_path("project_data", "webserver"), project.display_key), document.name)
