@@ -100,7 +100,6 @@ def display_data(item_id="", data_type=""):
     return render_template("data_viewer.html", title="Data Display", data_item=data_item, data_path=data_path)
 
 
-@manage.route("/staged_files/<int:page>|<int:download_page>")
 @manage.route("/staged_files")
 @login_required("ANY")
 def staged_files():

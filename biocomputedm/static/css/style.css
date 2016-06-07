@@ -499,6 +499,49 @@ div.content tbody tr td, div.content tbody tr th, div.content thead tr th {
     box-shadow: 0 0 3px rgba(0, 0, 0, .7) inset;
 }
 
+.input-table .input2 {
+    position: relative;
+    padding: 8px 20px;
+    margin: 0 0 0 0;
+    color: #fff;
+    font: bold 14px Arial, Helvetica;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    background-color: #2db9b9;
+    background-image: -moz-linear-gradient(#2db9b9, #239090);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#2db9b9), to(#239090));
+    background-image: -webkit-linear-gradient(#2db9b9, #239090);
+    background-image: -o-linear-gradient(#2db9b9, #239090);
+    background-image: -ms-linear-gradient(#2db9b9, #239090);
+    background-image: linear-gradient(#2db9b9, #239090);
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    text-shadow: 0 1px 0 rgba(0,0,0,.3);
+    -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, .5), 0 2px 0 rgba(0, 0, 0, .7);
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, .5), 0 2px 0 rgba(0, 0, 0, .7);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .5), 0 2px 0 rgba(0, 0, 0, .7);
+}
+
+.input-table .input2:hover {
+    background-color: #239090;
+    background-image: -moz-linear-gradient(#239090, #2db9b9);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#239090), to(#2db9b9));
+    background-image: -webkit-linear-gradient(#239090, #2db9b9);
+    background-image: -o-linear-gradient(#239090, #2db9b9);
+    background-image: -ms-linear-gradient(#239090, #2db9b9);
+    background-image: linear-gradient(#239090, #2db9b9);
+}
+
+.input-table .input2:active, .input-table .input2:focus {
+    background: #239090;
+    top: 2px;
+    -moz-box-shadow: 0 0 3px rgba(0, 0, 0, .7) inset;
+    -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .7) inset;
+    box-shadow: 0 0 3px rgba(0, 0, 0, .7) inset;
+}
+
 .col-xs-15,
 .col-sm-15,
 .col-md-15,
