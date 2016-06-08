@@ -766,7 +766,7 @@ def remove_document(oid="", did=""):
         return redirect(url_for("index"))
 
     doc = None
-    projects = current_user.groups.projects.all()
+    projects = current_user.group.projects.all()
     for project in projects:
         documents = project.documents
         for document in documents:
