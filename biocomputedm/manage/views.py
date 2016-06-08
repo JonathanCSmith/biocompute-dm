@@ -742,8 +742,7 @@ def add_document(oid=""):
             form.file_upload.data.save(filepath)
 
             # Save the document to the db
-            document = Document.create(name=str(form.file_upload.data.filename),
-                                       description=str(form.description.data))
+            document = Document.create(name=filename, description=str(form.description.data))
             project.documents.append(document)
             project.save()
 
@@ -777,9 +776,9 @@ def remove_document(oid="", did=""):
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
 
-    path = doc.location
-    if os.path.exists(path):
-        os.remove(path)
+    filepath = os.path.join(os.path.join(utils.get_path("project_data", "webserver"), project.display_key), doc.name)
+    if os.path.exists(filepath):
+        os.remove(filepath)
 
     doc.delete()
     return redirect(url_for("manage.project", oid=oid))
