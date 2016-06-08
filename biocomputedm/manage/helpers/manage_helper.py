@@ -20,7 +20,7 @@ def copy_data_to_staging(app, oid, type, user_key):
                 return
 
             if type == "pipeline_output":
-                pipeline_instance = person.group.pipeline_instances.query.filter_by(display_key=oid).first()
+                pipeline_instance = person.group.pipeline_instances.filter_by(display_key=oid).first()
                 if pipeline_instance is None:
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
@@ -39,7 +39,9 @@ def copy_data_to_staging(app, oid, type, user_key):
                         "-s=" + source_directory,
                         "-d=" + output_directory_path,
                         "-f=folder"
-                    ]
+                    ],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
                 )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "pipeline_sample_group":
