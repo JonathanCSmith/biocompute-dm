@@ -135,7 +135,7 @@
         <a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=project.display_key, data_type='project_pipeline_output') }}">Copy Pipeline Outputs to Staging Drive</a>
         {% endif %}
 
-        {#% if project.samples.all()|length > 0 %}
+        {% if project.samples.all()|length > 0 %}
         <a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=project.display_key, data_type='project_sample_group') }}">Copy Sample Data to Staging Drive</a>
         {% endif %#}
     </div>
