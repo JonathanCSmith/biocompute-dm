@@ -79,10 +79,11 @@
 
                             {% if g.user.is_authenticated %}
 
-                            {% if g.user.type == "User" %}
                             {% if g.user.get_role() != "Site Admin" %}
                             <li><a href="{{ url_for('manage.staged_files') }} ">Staging Drive</a></li>
                             {% endif %}
+
+                            {% if g.user.type == "User" %}
                             <li><a href="{{ url_for('manage.submissions') }} ">Submissions</a></li>
                             {% endif %}
 
