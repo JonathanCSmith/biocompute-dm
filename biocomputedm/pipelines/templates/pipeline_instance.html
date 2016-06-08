@@ -198,6 +198,10 @@
             </div>
         </div>
         {% endfor %}
+
+        <div class="spacer"></div>
+
+        <a href="{{ url_for('manage.data_group', oid=pipeline_instance.sample_output.display_key) }}">Go to Data Group</a>
     </div>
     {% endif %}
 
