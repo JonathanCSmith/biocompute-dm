@@ -39,9 +39,7 @@ def copy_data_to_staging(app, oid, type, user_key):
                         "-s=" + source_directory,
                         "-d=" + output_directory_path,
                         "-f=folder"
-                    ],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    ]
                 )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "pipeline_sample_group":
