@@ -249,7 +249,7 @@ def link_to_client(oid="", origin=""):
                     for pipeline_output in project.pipeline_outputs:
                         group.data_groups.append(pipeline_output)
 
-                        for data in pipeline_output:
+                        for data in pipeline_output.data:
                             group.data_items.append(data)
 
                     group.save()
