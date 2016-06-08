@@ -590,7 +590,7 @@ def project(oid="", did=""):
     if did != "":
         for document in project.documents:
             if document.display_key == did:
-                return send_from_directory(os.path.join(utils.get_path("project_data", "webserver"), project.display_key), document.name)
+                return send_from_directory(os.path.join(utils.get_path("project_data", "webserver"), project.display_key), document.name, as_attachment=True, attachment_filename=document.name)
 
     return render_template("project.html", title="Project", project=project)
 
