@@ -729,7 +729,7 @@ def add_document(oid=""):
         if form.validate_on_submit():
             # Handle maliciously named files (i.e. ../..)
             from werkzeug.utils import secure_filename
-            filename = secure_filename(form.file_upload.data.filename)
+            filename = secure_filename(form.file_upload.data.filename).replace(" ", "_")
             filepath = os.path.join(os.path.join(utils.get_path("project_data", "webserver"), project.display_key),
                                     filename)
 
