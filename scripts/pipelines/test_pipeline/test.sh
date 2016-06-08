@@ -6,4 +6,5 @@ echo "t: ${t}"
 echo "b: ${b}"
 echo "l: ${l}"
 echo "f: ${f}"
+touch "${PIPELINE_OUTPUT_DIRECTORY}/out.txt"
 

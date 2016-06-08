@@ -14,10 +14,21 @@ case ${i} in
     shift
     ;;
 
+    -f=*)
+    FILE="${i*-}"
+    shift
+    ;;
+
     # Unknown
     *)
     ;;
 esac
 done
 
-cp -rf "${SOURCE}" "${TARGET}"
+if [ -z "$FILE" ]; then
+    cp -a "${SOURCE}/." "${TARGET}/"
+
+else
+    cp -rf "${SOURCE}" "${TARGET}"
+
+fi

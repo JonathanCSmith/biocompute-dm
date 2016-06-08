@@ -37,7 +37,8 @@ def copy_data_to_staging(app, oid, type, user_key):
                         "sudo",
                         script_path,
                         "-s=" + source_directory,
-                        "-d=" + output_directory_path
+                        "-d=" + output_directory_path,
+                        "-f=folder"
                     ],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL
