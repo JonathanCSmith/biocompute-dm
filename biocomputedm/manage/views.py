@@ -765,18 +765,20 @@ def remove_document(oid="", did=""):
         return redirect(url_for("index"))
 
     doc = None
+    pro = None
     projects = current_user.group.projects.all()
     for project in projects:
         documents = project.documents
         for document in documents:
             if document.display_key == did:
-                doc = document;
+                doc = document
+                pro = project
 
     if doc is None:
         flash("Incorrect arguments for query provided", "error")
         return redirect(url_for("index"))
 
-    filepath = os.path.join(os.path.join(utils.get_path("project_data", "webserver"), project.display_key), doc.name)
+    filepath = os.path.join(os.path.join(utils.get_path("project_data", "webserver"), pro.display_key), doc.name)
     if os.path.exists(filepath):
         os.remove(filepath)
 
