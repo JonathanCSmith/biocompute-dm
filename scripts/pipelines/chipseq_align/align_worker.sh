@@ -41,13 +41,13 @@ EOF
     exit
 fi
 
-ANNOTATION=""
-echo "Annotation Source = ${ann}"
-if [ "${ann}" != "" ]; then
+CHROMOSOME_SIZE=""
+echo "Annotation Source = ${size}"
+if [ "${size}" != "" ]; then
 
-    cp "${ann}" "${TMPDIR}/${ann##*/}"
-    ANNOTATION="${TMPDIR}/${ann##*/}"
-    echo "New annotation location ${ANNOTATION}"
+    cp "${size}" "${TMPDIR}/${size##*/}"
+    CHROMOSOME_SIZE="${TMPDIR}/${size##*/}"
+    echo "New annotation location ${CHROMOSOME_SIZE}"
 
 else
     echo "Could not continue as no annotation set was provided."
@@ -171,8 +171,8 @@ macs2 callpeak -t "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -f BED -g hs 
 printf "Finished running MACS2 on `date`\n\n"
 
 printf "Started making genome browser supported files on `date`\n\n"
-bedClip "${SAMPLE_OUTPUT_PATH}/macs2/${SAMPLE_NAME}_treat_pileup.bdg" "${ANNOTATION}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
-bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg" "${ANNOTATION}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
+bedClip "${SAMPLE_OUTPUT_PATH}/macs2/${SAMPLE_NAME}_treat_pileup.bdg" "${CHROMOSOME_SIZE}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
+bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg" "${CHROMOSOME_SIZE}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
 printf "Finished making genome browser supported files on `date`\n\n"
 ##########################################################################################################
 
@@ -188,4 +188,4 @@ rm -rf "${SAMPLE_OUTPUT_PATH}/macs2"
 # ================================================== CORE SAMPLE LOOP =================================================
 
 rm "${TMPDIR}/${ref##*/}"
-rm "${TMPDIR}/${ann##*/}"
+rm "${TMPDIR}/${size##*/}"

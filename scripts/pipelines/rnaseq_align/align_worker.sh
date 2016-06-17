@@ -60,7 +60,7 @@ EOF
 fi
 
 ANNOTATIONS=""
-echo "splice sites = ${ann}"
+echo "annotations = ${ann}"
 if [ "${ann}" != "" ]; then
 
     cp "${ann}" "${TMPDIR}/${ann##*/}"
@@ -78,13 +78,13 @@ EOF
     exit
 fi
 
-GENOME=""
-echo "splice sites = ${gen}"
+CHROMOSOME_SIZE=""
+echo "chromozome size = ${size}"
 if [ "${gen}" != "" ]; then
 
-    cp "${gen}" "${TMPDIR}/${gen##*/}"
-    GENOME="${TMPDIR}/${gen##*/}"
-    echo "New reference location: ${GENOME}"
+    cp "${gen}" "${TMPDIR}/${size##*/}"
+    CHROMOSOME_SIZE="${TMPDIR}/${size##*/}"
+    echo "New reference location: ${CHROMOSOME_SIZE}"
 
 else
     echo "Could not continue as no genome was provided"
@@ -212,7 +212,7 @@ printf "Finished collecting metrics on `date`  \n\n"
 
 ############################# GENERATE BIGWIG FILES  ####################################################
 printf "Started making BIGWIG file on `date`  \n\n"
-genomeCoverageBed -split -bg -ibam "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" -g "${GENOME}" > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bdg"
+genomeCoverageBed -split -bg -ibam "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" -g "${CHROMOSOME_SIZE}" > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bdg"
 
 ##### Remove the ERCC lines from the bedGraph file #####
 grep -v ERCC "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bdg" > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_mod.bdg"
@@ -224,7 +224,7 @@ awk '{FS=OFS="\t"; print $1,$2,$3,($4/'$total_size')*1000000}' "${SAMPLE_OUTPUT_
 
 
 ##### Converting bedGraph to bigWig #####
-bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bdg" "${GENOME}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
+bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bdg" "${CHROMOSOME_SIZE}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
 printf "Finished making BIGWIG file on `date`  \n\n"
 #########################################################################################################
 
@@ -242,4 +242,4 @@ rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bdg"
 rm "${TMPDIR}/${ref##*/}"
 rm "${TMPDIR}/${splice##*/}"
 rm "${TMPDIR}/${ann##*/}"
-rm "${TMPDIR}/${gen##*/}"
+rm "${TMPDIR}/${size##*/}"

@@ -41,12 +41,12 @@
         },
 
         {
-          "display_name": "Genome (Chromosome?) File",
-          "parameter_name": "gen",
+          "display_name": "Chromosome Size",
+          "parameter_name": "size",
           "default_value": "",
           "user_interaction_type": "reference",
           "necessary": true,
-          "description": "This field requires you to specify a source file containing your genome."
+          "description": "This field requires you to specify a source file containing your chromosome sizes."
         }
       ]
     }

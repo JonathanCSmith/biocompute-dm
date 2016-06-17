@@ -23,12 +23,12 @@
         },
 
         {
-          "display_name": "Annotation Files",
-          "parameter_name": "ann",
+          "display_name": "Chromosome size files",
+          "parameter_name": "size",
           "default_value": "",
           "user_interaction_type": "reference",
           "necessary": true,
-          "description": "This field requires you to specify a source file containing your annotation set."
+          "description": "This field requires you to specify a source file containing your chromosome's size."
         }
       ]
     }
