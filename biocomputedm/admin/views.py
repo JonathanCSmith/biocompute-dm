@@ -118,18 +118,26 @@ def add_group():
             return redirect(url_for("admin.show_groups"))
 
 
-@admin.route("/show_users")
+@admin.route("/show_users/<int:page>|<oid>")
 @admin.route("/show_users/<int:page>")
+@admin.route("/show_users")
 @login_required("Site Admin", "Group Admin")
-def show_users(page=1):
+def show_users(page=1, oid=""):
     if current_user.get_role() == "Site Admin":
         u = Person.query.paginate(page=page, per_page=20)
 
-    elif current_user.type == "Customer":
-        u = current_user.group.members.paginate(page=page, per_page=20)
-
     else:
-        u = current_user.group.members.paginate(page=page, per_page=20)
+        if oid != "":
+            p = current_user.group.members.filte_by(display_key=oid).first()
+            if p is not None:
+                p.set_role("Group Admin")
+                p.save()
+
+        if current_user.type == "Customer":
+            u = current_user.group.members.order_by(Person.role).paginate(page=page, per_page=20)
+
+        else:
+            u = current_user.group.members.order_by(Person.role).paginate(page=page, per_page=20)
 
     return render_template("people.html", title="Users", page=page, obs=u)
 
