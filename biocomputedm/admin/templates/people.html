@@ -36,6 +36,8 @@
 
                 {% if g.user.get_role() == "Site Admin" %}
                 <td>{{ user.group.name }}</td>
+                {% elif user.get_role() == "Group Admin" %}
+                <td>Already a Manager</td>
                 {% else %}
                 <a class="input" href="{{ url_for('admin.show_users', page=obs.page, oid=user.display_key) }}">Elevate</a>
                 {% endif %}
