@@ -322,7 +322,8 @@ def submission(oid="", option=0):
     if pipeline_string is not None:
         pipeline_keys = pipeline_string.split(",")
         for pipeline_key in pipeline_keys:
-            pipeline = Pipeline.query.filter_by(display_key=pipeline_key).first()
+            # We check for executable here as well as the list may be old
+            pipeline = Pipeline.query.filter_by(display_key=pipeline_key, executable=True).first()
             if pipeline is not None:
                 valid_pipelines.append(pipeline)
 
@@ -559,7 +560,8 @@ def data_group(oid="", data_type="", option=0):
         if key_string is not None:
             pipeline_keys = key_string.split(",")
             for pipeline_key in pipeline_keys:
-                pipeline = Pipeline.query.filter_by(display_key=pipeline_key).first()
+                # We check for executable here as well as the list may be old
+                pipeline = Pipeline.query.filter_by(display_key=pipeline_key, executable=True).first()
                 if pipeline is not None:
                     valid_pipelines.append(pipeline)
 
