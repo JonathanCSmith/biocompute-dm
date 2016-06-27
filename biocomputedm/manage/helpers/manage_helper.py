@@ -297,3 +297,26 @@ def calculate_viable_pipelines_for_data_group(oid):
                 continue
 
     data_group.update(valid_pipelines=valid_pipelines)
+
+
+@async
+def asynchronously_calculate_viable_pipelines_for_submission(app, oid):
+    try:
+        with app.app_context():
+            calculate_viable_pipelines_for_submission(oid)
+
+    except Exception as e:
+        app.logger.error("There was an exception when calculating viable pipelines: " + str(e))
+        return
+
+
+@async
+def asynchronously_calculate_viable_pipelines_for_data_group(app, oid):
+    try:
+        with app.app_context():
+            calculate_viable_pipelines_for_data_group(oid)
+
+    except Exception as e:
+        app.logger.error("There was an exception when calculating viable pipelines: " + str(e))
+        return
+

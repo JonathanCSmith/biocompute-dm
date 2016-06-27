@@ -158,6 +158,9 @@
 
     <div class="action exempt">
         <h3>Select a Pipeline to Run on this Data Group</h3>
+
+        <a class="action" href="{{ url_for('manage.data_group', oid=submission.display_key, option=1) }}">Refresh available pipelines</a>
+
         <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
         <select class="selection">
             <option selected value="None">None</option>

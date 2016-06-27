@@ -63,7 +63,7 @@ class DataGroup(SurrogatePK, Model):
     description = Column(Text)
     creation_date = Column(Date, default=utils.get_current_date())
     updated_date = Column(Date, onupdate=utils.get_current_date())
-    valid_pipelines = Column(String, nullable=True)
+    valid_pipelines = Column(Text, nullable=True)
 
     user_id = reference_col("User", nullable=True)
     group_id = reference_col("Group", nullable=True)

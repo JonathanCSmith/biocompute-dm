@@ -6,7 +6,7 @@ import re
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
-from biocomputedm.manage.helpers.manage_helper import calculate_viable_pipelines_for_submission
+from biocomputedm.manage.helpers.manage_helper import calculate_viable_pipelines_for_submission, asynchronously_calculate_viable_pipelines_for_data_group, asynchronously_calculate_viable_pipelines_for_submission
 from biocomputedm.manage.models import Submission, Project, Document, DataGroup, DataItem, Sample
 from biocomputedm.pipelines.models import Pipeline
 from flask import Blueprint, render_template, redirect, url_for, abort, current_app, flash, request, send_from_directory
@@ -243,9 +243,10 @@ def new_submission():
             return render_template("new_submission.html", title="New Data Submission", form=form, files=files)
 
 
+@manage.route("/submission/<oid>|<int:option>")
 @manage.route("/submission/<oid>")
 @login_required("ANY")
-def submission(oid=""):
+def submission(oid="", option=0):
     if oid == "":
         flash("No submission id was provided", "warning")
         return redirect(url_for("index"))
@@ -257,6 +258,11 @@ def submission(oid=""):
 
     if submission is None:
         flash("Invald submission id", "error")
+        return redirect(url_for("index"))
+
+    if option == 1:
+        asynchronously_calculate_viable_pipelines_for_submission(current_app._get_current_object(), data_group.display_key)
+        flash("Your submission is currently recalculating it's available pipelines. This may take some time. Please wait 5 minutes before re-trying!", "success")
         return redirect(url_for("index"))
 
     # # list of the available type I pipelines
@@ -459,9 +465,10 @@ def data_groups(page=1):
 
 
 # TODO: Pagination of samples?
+@manage.route("/data_group/<oid>|<data_type>|<int:option>")
 @manage.route("/data_group/<oid>|<data_type>")
 @login_required("ANY")
-def data_group(oid="", data_type=""):
+def data_group(oid="", data_type="", option=0):
     if oid == "" or data_type == "":
         flash("Could not locate the provided data group", "error")
         return redirect(url_for("index"))
@@ -472,12 +479,22 @@ def data_group(oid="", data_type=""):
             flash("Could not locate the provided data group", "error")
             return redirect(url_for("index"))
 
+        if option == 1:
+            asynchronously_calculate_viable_pipelines_for_data_group(current_app._get_current_object(), data_group.display_key)
+            flash("Your data group is currently recalculating it's available pipelines. This may take some time. Please wait 5 minutes before re-trying!")
+            return redirect(url_for("index"))
+
         valid_pipelines = None
 
     else:
         data_group = current_user.group.data_groups.filter_by(display_key=oid).first()
         if data_group is None:
             flash("Could not locate the provided data group", "error")
+            return redirect(url_for("index"))
+
+        if option == 1:
+            asynchronously_calculate_viable_pipelines_for_data_group(current_app._get_current_object(), data_group.display_key)
+            flash("Your data group is currently recalculating it's available pipelines. This may take some time. Please wait 5 minutes before re-trying!", "success")
             return redirect(url_for("index"))
 
         # pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
