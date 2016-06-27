@@ -1,9 +1,13 @@
 import os
 import subprocess
 
+import re
+
 from biocomputedm import utils
 from biocomputedm.admin.models import Person
 from biocomputedm.decorators import async
+from biocomputedm.manage.models import Submission, DataGroup
+from biocomputedm.pipelines.models import Pipeline
 
 
 @async
@@ -158,3 +162,138 @@ def copy_data_to_staging(app, oid, type, user_key):
     except Exception as ex:
         app.logger.error("There was an exception when copying data from oid: " + oid + " type: " + type + " with error: " + str(ex))
         return
+
+@async
+def calculate_viable_pipelines_for_submission(oid):
+    # Get the submission
+    submission = Submission.query.filter_by(display_key=oid).first()
+    if submission is None:
+        return
+    data_group = submission.data_group
+
+    # list of the available type I pipelines
+    pipelines = Pipeline.query.filter_by(type="I", executable=True)
+
+    # use the regex information to determine if a pipeline can run
+    valid_pipelines = ""
+    for pipeline in pipelines:
+        rxs = pipeline.regex.split("###")
+
+        if pipeline.regex_type == "OR":
+            valid_pipeline = False
+            for rx in rxs:
+                found = False
+                rx_matcher = re.compile(rx)
+                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "webserver"), oid)):
+                    for file in files:
+                        if rx_matcher.match(file):
+                            found = True
+                            break
+
+                    if found:
+                        break
+
+                if found:
+                    valid_pipeline = True
+                    break
+
+            if valid_pipeline:
+                if valid_pipelines != "":
+                    valid_pipelines += ","
+
+                valid_pipelines += pipeline.display_key
+                continue
+
+        elif pipeline.regex_type == "AND":
+            valid_pipeline = True
+            for rx in rxs:
+                found = False
+                rx_matcher = re.compile(rx)
+                for dirpath, dirnames, files in os.walk(os.path.join(utils.get_path("submission_data", "webserver"), oid)):
+                    for file in files:
+                        if rx_matcher.match(file):
+                            found = True
+                            break
+
+                    if found:
+                        break
+
+                if not found:
+                    valid_pipeline = False
+                    break
+
+            if valid_pipeline:
+                if valid_pipelines != "":
+                    valid_pipelines += ","
+
+                valid_pipelines += pipeline.display_key
+                continue
+
+    data_group.update(valid_pipelines=valid_pipelines)
+
+
+def calculate_viable_pipelines_for_data_group(oid):
+    data_group = DataGroup.query.filter_by(display_key=oid).first()
+
+    pipelines = Pipeline.query.filter((Pipeline.type == "II") | (Pipeline.type == "III")).filter_by(executable=True)
+
+    # use the regex information to determine if a pipeline can run
+    valid_pipelines = ""
+    root_path = utils.get_path("sample_data", "webserver")
+    files = []
+    for data in data_group.data:
+        data_path = os.path.join(os.path.join(root_path, data.unlocalised_path), data.name)
+        if not os.path.isfile(data_path):
+            for dirpath, dirnames, additional_files in os.walk(data_path):
+                files.extend(additional_files)
+
+        else:
+            files.append(data.name)
+
+    for pipeline in pipelines:
+        rxs = pipeline.regex.split("###")
+
+        if pipeline.regex_type == "OR":
+            valid_pipeline = False
+            for rx in rxs:
+                found = False
+                rx_matcher = re.compile(rx)
+
+                for file in files:
+                    if rx_matcher.match(file):
+                        found = True
+                        break
+
+                if found:
+                    valid_pipeline = True
+                    break
+
+            if valid_pipeline:
+                if valid_pipelines != "":
+                    valid_pipelines +=","
+
+                valid_pipelines += pipeline.display_key
+                continue
+
+        elif pipeline.regex_type == "AND":
+            valid_pipeline = True
+            for rx in rxs:
+                found = False
+                rx_matcher = re.compile(rx)
+                for file in files:
+                    if rx_matcher.match(file):
+                        found = True
+                        break
+
+                if not found:
+                    valid_pipeline = False
+                    break
+
+            if valid_pipeline:
+                if valid_pipelines != "":
+                    valid_pipelines += ","
+
+                valid_pipelines += pipeline.display_key
+                continue
+
+    data_group.update(valid_pipelines=valid_pipelines)

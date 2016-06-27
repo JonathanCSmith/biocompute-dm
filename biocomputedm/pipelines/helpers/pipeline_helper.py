@@ -7,6 +7,7 @@ import subprocess
 import jsonschema
 from biocomputedm import utils
 from biocomputedm.decorators import async
+from biocomputedm.manage.helpers.manage_helper import calculate_viable_pipelines_for_data_group
 from biocomputedm.manage.models import Sample, DataGroup, DataItem
 from biocomputedm.pipelines.models import Pipeline, PipelineModule, PipelineModuleOption, PipelineInstance
 from flask import current_app
@@ -498,6 +499,9 @@ def finish_pipeline_instance(app, running_pipeline_id):
                         )
 
                         s.data.append(item)
+
+            # Calculate viable pipelines
+            calculate_viable_pipelines_for_data_group(data_group.display_key)
 
             # Build pipeline outputs (no sample association)
             local_pipeline_pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
