@@ -261,7 +261,7 @@ def submission(oid="", option=0):
         return redirect(url_for("index"))
 
     if option == 1:
-        asynchronously_calculate_viable_pipelines_for_submission(current_app._get_current_object(), data_group.display_key)
+        asynchronously_calculate_viable_pipelines_for_submission(current_app._get_current_object(), submission.display_key)
         flash("Your submission is currently recalculating it's available pipelines. This may take some time. Please wait 5 minutes before re-trying!", "success")
         return redirect(url_for("index"))
 
@@ -318,11 +318,13 @@ def submission(oid="", option=0):
     #             continue
 
     valid_pipelines = []
-    pipeline_keys = data_group.valid_pipelines.split(",")
-    for pipeline_key in pipeline_keys:
-        pipeline = Pipeline.query.filter_by(display_key=pipeline_key).first()
-        if pipeline is not None:
-            valid_pipelines.append(pipeline)
+    pipeline_string = submission.data_group.valid_pipelines
+    if pipeline_string is not None:
+        pipeline_keys = pipeline_string.split(",")
+        for pipeline_key in pipeline_keys:
+            pipeline = Pipeline.query.filter_by(display_key=pipeline_key).first()
+            if pipeline is not None:
+                valid_pipelines.append(pipeline)
 
     running_pipelines = []
     if submission.data_group:
@@ -553,11 +555,13 @@ def data_group(oid="", data_type="", option=0):
         #             continue
 
         valid_pipelines = []
-        pipeline_keys = data_group.valid_pipelines.split(",")
-        for pipeline_key in pipeline_keys:
-            pipeline = Pipeline.query.filter_by(display_key=pipeline_key).first()
-            if pipeline is not None:
-                valid_pipelines.append(pipeline)
+        key_string = data_group.valid_pipelines
+        if key_string is not None:
+            pipeline_keys = key_string.split(",")
+            for pipeline_key in pipeline_keys:
+                pipeline = Pipeline.query.filter_by(display_key=pipeline_key).first()
+                if pipeline is not None:
+                    valid_pipelines.append(pipeline)
 
     running_pipelines = []
     for run_pipeline in data_group.pipeline_instances:

@@ -163,7 +163,7 @@ def copy_data_to_staging(app, oid, type, user_key):
         app.logger.error("There was an exception when copying data from oid: " + oid + " type: " + type + " with error: " + str(ex))
         return
 
-@async
+
 def calculate_viable_pipelines_for_submission(oid):
     # Get the submission
     submission = Submission.query.filter_by(display_key=oid).first()
