@@ -55,7 +55,7 @@ done
 # Add the user, to the sftp group, with password and home directory
 TMP_USER_DIRECTORY="${TEMP_DIRECTORY}/${USER_DIRECTORY_NAME}"
 USER_SFTP_DIRECTORY="${SFTP_ROOT}/${USER_DIRECTORY_NAME}"
-TMP_LANDING_DIRECTORY="${TEMP_DIRECTORY}/staged_files"
+TMP_LANDING_DIRECTORY="${TEMP_USER_DIRECTORY}/staged_files"
 #LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/staged_files"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
@@ -64,7 +64,6 @@ useradd "${USERNAME}" -g sftpusers -d "${USER_SFTP_DIRECTORY}" -s /sbin/nologin
 echo "${USERNAME}":"${PASSWORD}" | chpasswd
 
 # Make everything in the temporary directory
-echo "${TMP_USER_DIRECTORY}"
 mkdir "${TMP_USER_DIRECTORY}"
 chown root:sftpusers "${TMP_USER_DIRECTORY}"
 chmod 750 "${TMP_USER_DIRECTORY}"
