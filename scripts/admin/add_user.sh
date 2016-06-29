@@ -42,7 +42,7 @@ case $i in
 
     # Temp directory
     -t=*)
-    TEMP_DIRECTORY="${i#*]}"
+    TEMP_DIRECTORY="${i#*=}"
     shift
     ;;
 
