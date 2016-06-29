@@ -116,6 +116,10 @@ EXECUTION_VARIABLES+=" --loading-threads 4 --demultiplexing-threads 2 --processi
 echo "Calculated runtime arguments: ${EXECUTION_VARIABLES}"
 # =================================== DONE BUILDING OUR EXECUTION VARIABLES! ==========================================
 
+# Band-aid for bcl2fastq2 opening too many files when there are many samples
+ulimit -n 4096
+
+# Run bcl2fastq2
 module load bioinformatics/bcl2fastq2/2.17.1.14
 bcl2fastq ${EXECUTION_VARIABLES} || post_error
 

@@ -42,6 +42,7 @@ HPC_USERNAME = ""  # Must have full permissions, i.e. ssh credentials to access 
 # mount, sshfs, samba etc - they can also be exactly the same path if the webserver is executed from the HPC environ)
 HPC_ROOT_PATH = ""
 WEBSERVER_ROOT_PATH = ""
+TEMP_DIRECTORY = "/"
 SFTP_USER_ROOT_PATH = ""
 
 # THIS CONFIGURATION IS PROVIDED FOR FLEXIBILITY BUT IT IS ASSUMED THAT THE FILE NAMES & STRUCTURE WILL BE MAINTAINED!

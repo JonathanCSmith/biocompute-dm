@@ -40,6 +40,12 @@ case $i in
     shift
     ;;
 
+    # Temp directory
+    -t=*)
+    TEMP_DIRECTORY="${i#*]}"
+    shift
+    ;;
+
     # Unknown
     *)
     ;;
@@ -47,22 +53,35 @@ esac
 done
 
 # Add the user, to the sftp group, with password and home directory
+TMP_USER_DIRECTORY="${TEMP_DIRECTORY}/${USER_DIRECTORY_NAME}"
 USER_SFTP_DIRECTORY="${SFTP_ROOT}/${USER_DIRECTORY_NAME}"
-LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/staged_files"
+TMP_LANDING_DIRECTORY="${TEMP_DIRECTORY}/staged_files"
+#LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/staged_files"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
+
+# Make everything in the temporary directory
+mkdir "${TMP_USER_DIRECTORY}"
+chown root:sftpusers "${TMP_USER_DIRECTORY}"
+chmod 750 "${TMP_USER_DIRECTORY}"
+mkdir "${TMP_LANDING_DIRECTORY}"
+chown "${USERNAME}":sftpusers "${TMP_LANDING_DIRECTORY}"
+chmod 755 "${TMP_LANDING_DIRECTORY}"
+
+# Deploy to actual directory - handles the case where sftp dir is a mount of a remote dir
+mv "${TMP_USER_DIRECTORY}" "${SFTP_ROOT}"
 
 # Add the user
 useradd "${USERNAME}" -g sftpusers -d "${USER_SFTP_DIRECTORY}" -s /sbin/nologin
 echo "${USERNAME}":"${PASSWORD}" | chpasswd
 
-# Create the user's directory - note it must be owned by root!
-mkdir "${USER_SFTP_DIRECTORY}"
-chown root:sftpusers "${USER_SFTP_DIRECTORY}"
-chmod 750 "${USER_SFTP_DIRECTORY}"
-
-# Create a user writable directory - this is their landing zone
-mkdir "${LANDING_DIRECTORY}"
-chown "${USERNAME}":sftpusers "${LANDING_DIRECTORY}"
-chmod 775 "${LANDING_DIRECTORY}"
+## Create the user's directory - note it must be owned by root!
+#mkdir "${USER_SFTP_DIRECTORY}"
+#chown root:sftpusers "${USER_SFTP_DIRECTORY}"
+#chmod 750 "${USER_SFTP_DIRECTORY}"
+#
+## Create a user writable directory - this is their landing zone
+#mkdir "${LANDING_DIRECTORY}"
+#chown "${USERNAME}":sftpusers "${LANDING_DIRECTORY}"
+#chmod 775 "${LANDING_DIRECTORY}"
 
 exit

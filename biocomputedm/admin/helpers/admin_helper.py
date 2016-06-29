@@ -13,7 +13,8 @@ def create_group_directory(group, realpass):
                 path,
                 "-g=" + group.name,
                 "-p=" + realpass,
-                "-r=" + current_app.config["SFTP_USER_ROOT_PATH"]
+                "-r=" + current_app.config["SFTP_USER_ROOT_PATH"],
+                "-t=" + current_app.config["TEMP_DIRECTORY"]
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -33,7 +34,8 @@ def create_user_directory(user, realpass):
                 "-u=" + user.username,
                 "-p=" + realpass,
                 "-r=" + current_app.config["SFTP_USER_ROOT_PATH"],
-                "-d=" + user.display_key
+                "-d=" + user.display_key,
+                "-t=" + current_app.config["TEMP_DIRECTORY"]
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
