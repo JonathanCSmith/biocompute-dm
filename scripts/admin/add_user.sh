@@ -73,7 +73,8 @@ chown "${USERNAME}":sftpusers "${TMP_LANDING_DIRECTORY}"
 chmod 755 "${TMP_LANDING_DIRECTORY}"
 
 # Deploy to actual directory - handles the case where sftp dir is a mount of a remote dir
-mv "${TMP_USER_DIRECTORY}" "${SFTP_ROOT}"
+cp -rf "${TMP_USER_DIRECTORY}" "${SFTP_ROOT}"
+rm -rf "${TMP_USER_DIRECTORY}"
 
 ## Create the user's directory - note it must be owned by root!
 #mkdir "${USER_SFTP_DIRECTORY}"

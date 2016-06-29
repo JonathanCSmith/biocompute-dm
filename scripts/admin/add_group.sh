@@ -49,7 +49,8 @@ chown "biocompute-DM_group_${GROUP_NAME}":sftpusers "${TMP_LANDING_DIRECTORY}"
 chmod 755 "${TMP_LANDING_DIRECTORY}"
 
 # Deploy to actual directory - handles the case where sftp dir is a mount of a remote dir
-mv "${TMP_GROUP_DIRECTORY}" "${SFTP_ROOT}"
+cp -rf "${TMP_GROUP_DIRECTORY}" "${SFTP_ROOT}"
+rm -rf "${TMP_GROUP_DIRECTORY}"
 
 #mkdir "${GROUP_SFTP_DIRECTORY}"
 #chown root:sftpusers "${GROUP_SFTP_DIRECTORY}"
