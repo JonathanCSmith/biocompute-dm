@@ -60,6 +60,7 @@ TMP_LANDING_DIRECTORY="${TEMP_DIRECTORY}/staged_files"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
 # Make everything in the temporary directory
+echo "${TMP_USER_DIRECTORY}"
 mkdir "${TMP_USER_DIRECTORY}"
 chown root:sftpusers "${TMP_USER_DIRECTORY}"
 chmod 750 "${TMP_USER_DIRECTORY}"
