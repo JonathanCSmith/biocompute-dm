@@ -54,8 +54,8 @@ done
 
 # Add the user, to the sftp group, with password and home directory
 TMP_USER_DIRECTORY="${TEMP_DIRECTORY}/${USER_DIRECTORY_NAME}"
+TMP_LANDING_DIRECTORY="${TMP_USER_DIRECTORY}/staged_files"
 USER_SFTP_DIRECTORY="${SFTP_ROOT}/${USER_DIRECTORY_NAME}"
-TMP_LANDING_DIRECTORY="${TEMP_USER_DIRECTORY}/staged_files"
 #LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/staged_files"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
