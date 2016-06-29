@@ -59,6 +59,10 @@ TMP_LANDING_DIRECTORY="${TEMP_DIRECTORY}/staged_files"
 #LANDING_DIRECTORY="${USER_SFTP_DIRECTORY}/staged_files"
 #ENCRYPTED_PASS=$(mkpasswd -m sha-512 ${PASSWORD})
 
+# Add the user
+useradd "${USERNAME}" -g sftpusers -d "${USER_SFTP_DIRECTORY}" -s /sbin/nologin
+echo "${USERNAME}":"${PASSWORD}" | chpasswd
+
 # Make everything in the temporary directory
 echo "${TMP_USER_DIRECTORY}"
 mkdir "${TMP_USER_DIRECTORY}"
@@ -70,10 +74,6 @@ chmod 755 "${TMP_LANDING_DIRECTORY}"
 
 # Deploy to actual directory - handles the case where sftp dir is a mount of a remote dir
 mv "${TMP_USER_DIRECTORY}" "${SFTP_ROOT}"
-
-# Add the user
-useradd "${USERNAME}" -g sftpusers -d "${USER_SFTP_DIRECTORY}" -s /sbin/nologin
-echo "${USERNAME}":"${PASSWORD}" | chpasswd
 
 ## Create the user's directory - note it must be owned by root!
 #mkdir "${USER_SFTP_DIRECTORY}"
