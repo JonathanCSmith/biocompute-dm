@@ -72,7 +72,11 @@
 
 - Follow database instructions for "New database schema"
   * Note: all commands within manage.py should be called as your biocompute-dm user (or the owner of the error.log directory)
-        
+  
+- Install the following unpacking programs:
+  * 7z
+  * unrar
+  * unzip
 
 ### Database Commands - TODO: This information is outdated - update!!
 #### New database schema

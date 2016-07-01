@@ -42,10 +42,16 @@ for FILE in "${ARRAY[@]}"
 do
     NEW_FILE="$(basename "${FILE}")"
     mv "${FILE}" "${DIRECTORY}/${NEW_FILE}"
-    (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}")
+
+    if (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}"); then
+        rm -f "${DIRECTORY}/${NEW_FILE}"
+    else
+        mv "${DIRECTORY}/${NEW_FILE}" "${FILE}"
+        exit
+    fi
+
     #chown -R biocompute-dm:sftpusers "${NEW_FILE}"
     #chmod -R 660 "${NEW_FILE}"
-    rm -f "${DIRECTORY}/${NEW_FILE}"
 done
 
 # Post message

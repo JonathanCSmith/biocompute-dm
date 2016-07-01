@@ -36,5 +36,4 @@ case "$@" in
   #*.rar     ) 7z  x       "$@"                ;;
   *.zip     ) unzip       "$@"                ;;
   *.Z       ) uncompress  "$@"                ;;
-  *         ) echo " Unsupported file format" ;;
 esac

@@ -22,6 +22,6 @@ done
 
 # We want to move all files within the source directory (doesn't catch . files) into the destination directory
 echo "Moving: ${SOURCE} to ${TARGET}"
-mv -v "${SOURCE}"/{.,}* "${TARGET}"
+mv -v "${SOURCE}"/{.,}* "${TARGET}" || exit
 rm -rf "${SOURCE}"
 exit
