@@ -35,11 +35,6 @@
         - flask_environment/bin/pip install flask-wtf
         - flask_environment/bin/pip install flask-bootstrap
         - flask_environment/bin/pip install jsonschema
-
-        (old for reference:)
-        - flask_environment/bin/pip install flask-excel
-        - flask_environment/bin/pip install pyexcel-xls
-        - flask_environment/bin/pip install pyexcel-xlsx
         
 - Modify your apache2 installation according to the best practices listed below
   * It is always assumed that script execution on the webserver is performed using the user 'biocompute-dm'

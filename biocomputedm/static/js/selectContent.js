@@ -4,9 +4,10 @@
 
 function addSelectionGroupBehaviours() {
     $('.selection').change(function() {
-        var selected = $(this).find(':selected').text();
+        var selected = $(this).find(':selected').index();
         $(".description").hide();
-        $("[id='" + selected + "'").show();
+        //$("[id='" + selected + "'").show();
+        $('#' + selected).show();
         selected == "None" ? $('#toggle').show() : $('#toggle').hide();
         window.dispatchEvent(new Event('resize'));
         $(window).trigger('resize');
