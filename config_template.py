@@ -31,7 +31,7 @@ SITE_GROUP_PASSWORD = ""
 
 # Currently used to assess whether or not we need to fake job submission (i.e. no hpc is present)
 HPC_DEBUG = "False"
-LOCAL_WEBSERVER_PORT = "5000"  # Flask default
+LOCAL_WEBSERVER_PORT = ""  # Default, however if debugging then flask normally starts it on port 5000
 NETWORK_PATH_TO_WEBSERVER_FROM_HPC = ""
 NETWORK_PATH_TO_HPC_FROM_WEBSERVER = ""
 HPC_USERNAME = ""  # Must have full permissions, i.e. ssh credentials to access from webserver

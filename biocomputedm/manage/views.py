@@ -55,7 +55,7 @@ def message(oid=""):
                     )
 
                 # Async submission to pipeline calculator
-                calculate_viable_pipelines_for_submission(submission.display_key)
+                asynchronously_calculate_viable_pipelines_for_submission(current_app._get_current_object(), submission.display_key)
 
                 # Ensure the submission knows about the data group
                 submission.update(validated=True, data_group=data_group)
