@@ -78,6 +78,65 @@
     </div>
 
     {% if g.user.type == "User" %}
+    {% if g.user.get_role() != "Site Admin" %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Select a Pipeline to Run on this Data Group</h3>
+
+        <a class="input" href="{{ url_for('manage.data_group', oid=data_group.display_key, data_type=data_type, option=1) }}">Refresh available pipelines</a>
+
+        <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
+        <select class="selection">
+            <option selected value="None">None</option>
+            {% for pipeline in pipelines %}
+            <option value="{{ pipeline.name ~ ': ' ~ pipeline.version }}">{{ pipeline.name ~ ': ' ~ pipeline.version }}</option>
+            {% endfor %}
+        </select>
+
+        {% for pipeline in pipelines %}
+
+        <div id="{{ pipeline.name ~ ': ' ~ pipeline.version }}" class="description" style="display: none">
+
+            <div class="spacer"></div>
+
+            <table class="content2">
+                <tr>
+                    <th>Pipeline Name</th>
+                    <th>Pipeline Description</th>
+                    <th>Pipeline Author</th>
+                    <th>Pipeline Version</th>
+                </tr>
+                <tr>
+                    <td>{{ pipeline.name }}</td>
+                    <td>{{ pipeline.description }}</td>
+                    <td>{{ pipeline.author }}</td>
+                    <td>{{ pipeline.version }}</td>
+                </tr>
+            </table>
+
+            <div class="spacer"></div>
+
+            <div class="input-table clear">
+                <table class="table-resize">
+                    <tr>
+                        <td></td>
+                        {% for stage in pipeline.modules %}
+                        <td class="resize img1 bg5">{{ stage.name }}</td>
+                        {% endfor %}
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="spacer"></div>
+
+            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=data_group.display_key, pid=pipeline.display_key) }}">Select</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% for running_pipeline in running_pipelines %}
     <div class="spacer"></div>
 
@@ -152,65 +211,6 @@
         </div>
     </div>
     {% endfor %}
-
-    {% if g.user.get_role() != "Site Admin" %}
-    <div class="spacer"></div>
-
-    <div class="action exempt">
-        <h3>Select a Pipeline to Run on this Data Group</h3>
-
-        <a class="input" href="{{ url_for('manage.data_group', oid=data_group.display_key, data_type=data_type, option=1) }}">Refresh available pipelines</a>
-
-        <div id="toggle"><h4>No current pipeline - please select a pipeline to begin a run</h4></div>
-        <select class="selection">
-            <option selected value="None">None</option>
-            {% for pipeline in pipelines %}
-            <option value="{{ pipeline.name ~ ': ' ~ pipeline.version }}">{{ pipeline.name ~ ': ' ~ pipeline.version }}</option>
-            {% endfor %}
-        </select>
-
-        {% for pipeline in pipelines %}
-
-        <div id="{{ pipeline.name ~ ': ' ~ pipeline.version }}" class="description" style="display: none">
-
-            <div class="spacer"></div>
-
-            <table class="content2">
-                <tr>
-                    <th>Pipeline Name</th>
-                    <th>Pipeline Description</th>
-                    <th>Pipeline Author</th>
-                    <th>Pipeline Version</th>
-                </tr>
-                <tr>
-                    <td>{{ pipeline.name }}</td>
-                    <td>{{ pipeline.description }}</td>
-                    <td>{{ pipeline.author }}</td>
-                    <td>{{ pipeline.version }}</td>
-                </tr>
-            </table>
-
-            <div class="spacer"></div>
-
-            <div class="input-table clear">
-                <table class="table-resize">
-                    <tr>
-                        <td></td>
-                        {% for stage in pipeline.modules %}
-                        <td class="resize img1 bg5">{{ stage.name }}</td>
-                        {% endfor %}
-                        <td></td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="spacer"></div>
-
-            <a class="input" href="{{ url_for('pipelines.build_pipeline_instance', oid=data_group.display_key, pid=pipeline.display_key) }}">Select</a>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
     {% endif %}
 </div>
 {% endblock %}

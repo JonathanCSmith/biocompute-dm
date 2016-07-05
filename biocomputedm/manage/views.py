@@ -330,7 +330,7 @@ def submission(oid="", option=0):
     running_pipelines = []
     if submission.data_group:
         for run_pipeline in submission.data_group.pipeline_instances:
-            if run_pipeline.current_execution_status == "RUNNING":
+            if run_pipeline.current_execution_status != "STOPPED" and run_pipeline.current_execution_status != "FINISHED":
                 running_pipelines.append(run_pipeline)
                 break
 
@@ -567,7 +567,7 @@ def data_group(oid="", data_type="", option=0):
 
     running_pipelines = []
     for run_pipeline in data_group.pipeline_instances:
-        if run_pipeline.current_execution_status == "RUNNING":
+        if run_pipeline.current_execution_status != "STOPPED" and run_pipeline.current_execution_status != "FINISHED":
             running_pipelines.append(run_pipeline)
             break
 
