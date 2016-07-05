@@ -699,12 +699,6 @@ def finish_pipeline(oid="", force=0):
 
     pipeline_instance.update(current_execution_status="STOPPED")
 
-    # TODO - If module is running parse for job id and kill all
-
-    current_data_source = pipeline_instance.data_consignor
-    current_data_source.run_pipelines.append(pipeline_instance)
-    current_data_source.update(currently_running_pipeline=None)
-
     flash("The pipeline was stopped and disassociated with your parent data set", "success")
     return redirect(url_for("index"))
 
