@@ -19,13 +19,15 @@
 
             <table class="content">
                 <tr>
-                    <th>Client</th>
+                    <th>Name</th>
+                    <th>Group Type</th>
                     <th>Link?</th>
                 </tr>
 
                 {% for client in clients %}
                 <tr>
                     <td>{{ client.name }}</td>
+                    <td>{{ client.type }}</td>
                     <td><input type="checkbox" name="do_select" value="{{ client.display_key }}"></td>
                 </tr>
                 {% endfor %}

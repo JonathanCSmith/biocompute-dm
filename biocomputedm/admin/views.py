@@ -285,6 +285,7 @@ def link_to_client(oid="", origin=""):
         else:
             potential_clients.append(client)
 
+    potential_clients.extend(UserGroup.query.filter(UserGroup.name != "Site_Admins").all())
     return render_template("select_customer.html", title="Link to Clients", clients=clients, obj=project, origin=origin, form=form)
 
 
