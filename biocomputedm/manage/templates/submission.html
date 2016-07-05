@@ -78,16 +78,16 @@
                 <th>Pipeline Version</th>
             </tr>
             <tr>
-                <td>{{ submission.running_pipeline.pipeline.name }}</td>
-                <td>{{ submission.running_pipeline.pipeline.description }}</td>
-                <td>{{ submission.running_pipeline.pipeline.author }}</td>
-                <td>{{ submission.running_pipeline.pipeline.version }}</td>
+                <td>{{ running_pipeline.pipeline.name }}</td>
+                <td>{{ running_pipeline.pipeline.description }}</td>
+                <td>{{ running_pipeline.pipeline.author }}</td>
+                <td>{{ running_pipeline.pipeline.version }}</td>
             </tr>
         </table>
 
         <div class="spacer"></div>
 
-        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=submission.running_pipeline.display_key) }}">View Pipeline Instance</a>
+        <a class="input" href="{{ url_for('pipelines.display_pipeline_instance', oid=running_pipeline.display_key) }}">View Pipeline Instance</a>
 
         <div class="spacer"></div>
 
