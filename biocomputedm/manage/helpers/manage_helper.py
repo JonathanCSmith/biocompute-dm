@@ -6,8 +6,8 @@ import re
 from biocomputedm import utils
 from biocomputedm.admin.models import Person
 from biocomputedm.decorators import async
-from biocomputedm.manage.models import Submission, DataGroup
-from biocomputedm.pipelines.models import Pipeline
+from biocomputedm.manage.models import Submission, DataGroup, Project, Sample
+from biocomputedm.pipelines.models import Pipeline, PipelineInstance
 
 
 @async
@@ -46,7 +46,7 @@ def copy_data_to_staging(app, oid, type, user_key):
                 )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "project_pipeline_output":
-                project = person.group.projects.query.filter_by(display_key=oid).first()
+                project = Project.query.filter_by(display_key=oid).first()
                 if project is None:
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
@@ -73,7 +73,7 @@ def copy_data_to_staging(app, oid, type, user_key):
                     )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "pipeline_sample_group":
-                pipeline_instance = person.group.pipeline_instances.filter_by(display_key=oid).first()
+                pipeline_instance = PipelineInstance.filter_by(display_key=oid).first()
                 if pipeline_instance is None:
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
@@ -101,7 +101,7 @@ def copy_data_to_staging(app, oid, type, user_key):
                     )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "project_sample_group":
-                project = person.group.projects.query.filter_by(display_key=oid).first()
+                project = Project.query.filter_by(display_key=oid).first()
                 if project is None:
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
@@ -128,7 +128,7 @@ def copy_data_to_staging(app, oid, type, user_key):
                     )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "sample":
-                sample = person.group.samples.filter_by(display_key=oid).first()
+                sample = Sample.filter_by(display_key=oid).first()
                 if sample is None:
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
