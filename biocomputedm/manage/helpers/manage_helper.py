@@ -80,7 +80,7 @@ def copy_data_to_staging(app, oid, type, user_key):
 
                 done = []
                 for data in pipeline_instance.sample_output.data:
-                    if data.sample in done:
+                    if data.unlocalised_path in done:
                         continue
 
                     data.append(data.unlocalised_path)
