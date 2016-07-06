@@ -122,7 +122,7 @@ class PipelineInstance(SurrogatePK, Model):
 
     data_consignor = relationship("DataGroup", backref="pipeline_instances", foreign_keys=[data_consignor_data_group_id], uselist=False)
     sample_output = relationship("DataGroup", backref=backref("pipeline_source", uselist=False), foreign_keys=[sample_output_data_group_id], uselist=False)
-    pipeline_output = relationship("DataGroup", foreign_keys=[pipeline_output_data_group_id], uselist=False, cascade="all, delete-orphan")
+    pipeline_output = relationship("DataGroup", foreign_keys=[pipeline_output_data_group_id], uselist=False)
 
     module_instances = relationship("PipelineModuleInstance", backref="pipeline_instance", lazy="dynamic", cascade="all, delete-orphan")
 
