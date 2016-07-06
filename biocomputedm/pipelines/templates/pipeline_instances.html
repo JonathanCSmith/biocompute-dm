@@ -21,6 +21,7 @@
                 <th>Type</th>
                 <th>Current Step</th>
                 <th>Pipeline Run Status</th>
+                <th>Delete?</th>
             </tr>
 
             {% for pipeline_instance in obs.items %}
@@ -38,6 +39,7 @@
 
                 <td>{{ pipeline_instance.current_execution_index + 1 }}</td>
                 <td>{{ pipeline_instance.current_execution_status }}</td>
+                <td><a class="input" href="{{ url_for('pipelines.delete_pipeline_instance', oid=pipeline_instance.display_key) }}">Delete</a></td>
             </tr>
             {% endfor %}
         </table>

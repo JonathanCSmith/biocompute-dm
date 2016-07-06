@@ -514,6 +514,49 @@ def module_instance(pid="", oid=""):
     return render_template("module_instance.html", title="Module Instance", module_instance=m_instance)
 
 
+@pipelines.route("/delete_pipeline_instance/<oid>")
+@pipelines.route("/delete_pipeline_instance/<oid>|<int:force>")
+def delete_pipeline_instance(oid="", force=0):
+    if force != 1:
+        return render_template(
+            "confirm.html",
+            message="Are you sure you wish to remove this pipeline run?",
+            oid=oid,
+            url="pipelines.delete_pipeline_instance"
+        )
+
+    if oid == "":
+        flash("No instance identifiers were provided.", "warning")
+        return redirect(url_for("empty"))
+
+    if current_user.get_role() == "Site Admin":
+        pipeline_instance = PipelineInstance.query.filter_by(display_key=oid).first()
+    else:
+        pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+
+    if pipeline_instance is None:
+        flash("Could not identify the module parent", "warning")
+        return redirect(url_for("index"))
+
+    if pipeline_instance.data_group is not None:
+        for data_item in pipeline_instance.data_group.data:
+            data_item.delete()
+
+        pipeline_instance.data_group.delete()
+
+    pipeline_instance.delete()
+
+    subprocess.Popen(
+        [
+            "sudo",
+            os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "delete.sh"),
+            os.path.join(utils.get_path("pipeline_data", "webserver"), oid)
+        ]
+    )
+
+    flash("Pipeline was deleted successfully", "success")
+    return redirect(url_for("pipelines.display_pipeline_instances"))
+
 @pipelines.route("/continue_pipeline_instance/<oid>")
 @login_required("ANY")
 def continue_pipeline(oid=""):
