@@ -538,13 +538,10 @@ def delete_pipeline_instance(oid="", force=0):
         flash("Could not identify the module parent", "warning")
         return redirect(url_for("index"))
 
-    if pipeline_instance.pipeline_output is not None:
-        for data_item in pipeline_instance.pipeline_output.data:
-            data_item.delete()
-
-            pipeline_instance.pipeline_output.delete()
-
+    data_group = pipeline_instance.pipeline_output
     pipeline_instance.delete()
+    if data_group is not None:
+        data_group.delete()
 
     subprocess.Popen(
         [
