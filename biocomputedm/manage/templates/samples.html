@@ -29,7 +29,7 @@
                 <td><a href="{{ url_for('manage.sample', oid=item.display_key) }}">{{ item.name }}</a></td>
                 <td>{{ item.creation_date }}</td>
                 <td>{{ item.updated_date }}</td>
-                {% if item.pipeline_source is None %}
+                {% if not item.pipeline_source %}
                 <td>Deleted</td>
                 {% else %}
                 {% autoescape false %}
