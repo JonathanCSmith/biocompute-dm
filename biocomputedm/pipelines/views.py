@@ -539,11 +539,10 @@ def delete_pipeline_instance(oid="", force=0):
         return redirect(url_for("index"))
 
     if pipeline_instance.pipeline_output is not None:
-        for data_group in pipeline_instance.pipeline_output.all():
-            for data_item in data_group:
-                data_item.delete()
+        for data_item in pipeline_instance.pipeline_output.data:
+            data_item.delete()
 
-            data_group.delete()
+            pipeline_instance.pipeline_output.delete()
 
     pipeline_instance.delete()
 
