@@ -83,9 +83,9 @@ def copy_data_to_staging(app, oid, type, user_key):
                     if data.unlocalised_path in done:
                         continue
 
-                    data.append(data.unlocalised_path)
+                    done.append(data.unlocalised_path)
                     source_directory = os.path.join(utils.get_path("sample_data", "webserver"), data.unlocalised_path)
-                    output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Sample_Data_For_Sample_s" + data.sample.name)
+                    output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Sample_Data_For_Sample_" + data.sample.name)
                     utils.make_directory(output_directory_path)
 
                     # Execute our copy script
