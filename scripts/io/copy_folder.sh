@@ -25,10 +25,12 @@ case ${i} in
 esac
 done
 
-if [ -z "$FILE" ]; then
-    cp -a "${SOURCE}/." "${TARGET}/"
+cp -rf "${SOURCE}"/* "${TARGET}/"
 
-else
-    cp -rf "${SOURCE}" "${TARGET}"
-
-fi
+#if [ -z "$FILE" ]; then
+#    cp -a "${SOURCE}/." "${TARGET}/"
+#
+#else
+#    cp -rf "${SOURCE}" "${TARGET}"
+#
+#fi
