@@ -550,12 +550,13 @@ def delete_pipeline_instance(oid="", force=0):
         [
             "sudo",
             os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "delete.sh"),
-            os.path.join(utils.get_path("pipeline_data", "webserver"), oid)
+            "-s=" + os.path.join(utils.get_path("pipeline_data", "webserver"), oid)
         ]
     )
 
     flash("Pipeline was deleted successfully", "success")
     return redirect(url_for("pipelines.display_pipeline_instances"))
+
 
 @pipelines.route("/continue_pipeline_instance/<oid>")
 @login_required("ANY")
