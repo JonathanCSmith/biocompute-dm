@@ -83,7 +83,7 @@ def copy_data_to_staging(app, oid, type, user_key, group=""):
                     )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "pipeline_sample_group":
-                pipeline_instance = PipelineInstance.filter_by(display_key=oid).first()
+                pipeline_instance = PipelineInstance.query.filter_by(display_key=oid).first()
                 if pipeline_instance is None:
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
@@ -147,7 +147,7 @@ def copy_data_to_staging(app, oid, type, user_key, group=""):
                     )  # We are allowing this to execute on it's own - no need to monitor
 
             elif type == "sample":
-                sample = Sample.filter_by(display_key=oid).first()
+                sample = Sample.query.filter_by(display_key=oid).first()
                 if sample is None:
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
