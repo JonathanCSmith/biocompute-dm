@@ -56,8 +56,9 @@ def copy_data_to_staging(app, oid, type, user_key):
 
                 for pipeline_output in project.pipeline_outputs:
                     pipeline_key = pipeline_output.data[0].unlocalised_path.split("/")[0]
+                    pipeline = Pipeline.query.filter_by(display_key=pipeline_key).first()
                     source_directory = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_key, "pipeline_output"))
-                    output_directory_path = os.path.join(parent_directory_path, pipeline_key)
+                    output_directory_path = os.path.join(parent_directory_path, pipeline.name)
                     utils.make_directory(output_directory_path)
 
                     # Execute our copy script
