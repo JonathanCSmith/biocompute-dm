@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block custom_css %}
+<link rel=stylesheet type="text/css" href="/static/css/large_table.css">
+<link rel=stylesheet type="text/css" href="/static/css/square_cell.css">
+{% endblock %}
+
+{% block content %}
+<div class="input-table clear">
+    <div class="action exempt">
+        <h3>Which SFTP directory do you wish to share this data with?</h3>
+
+        <div class="spacer"></div>
+
+        <table class="small_content">
+            <tr>
+                <td><a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=oid, data_type=data_type, move_type='self') }}">My Directory</a></td>
+                <td><a class="input" href="{{ url_for('manage.copy_to_staging_drive', oid=oid, data_type=data_type, move_type='group') }}">Group Directory</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

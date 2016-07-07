@@ -827,9 +827,13 @@ def remove_document(oid="", did=""):
     return redirect(url_for("manage.project", oid=oid))
 
 
+@manage.route("/copy_to_staging_drive/<oid>|<data_type>|<move_type>")
 @manage.route("/copy_to_staging_drive/<oid>|<data_type>")
 @login_required("ANY")
-def copy_to_staging_drive(oid="", data_type=""):
+def copy_to_staging_drive(oid="", data_type="", move_type=""):
+    if move_type == "":
+        return render_template("transfer_target.html", oid=oid, data_type=data_type)
+
     if current_user.get_role() == "Site Admin":
         return redirect(url_for("activity"))
 
@@ -842,7 +846,10 @@ def copy_to_staging_drive(oid="", data_type=""):
         return redirect(url_for("index"))
 
     from biocomputedm.manage.helpers.manage_helper import copy_data_to_staging
-    copy_data_to_staging(current_app._get_current_object(), oid, data_type, current_user.display_key)
+    if move_type == "self":
+        copy_data_to_staging(current_app._get_current_object(), oid, data_type, current_user.display_key)
+    else:
+        copy_data_to_staging(current_app._get_current_object(), oid, data_type, current_user.display_key, "yes")
 
     flash("Copy process is ongoing. This may take some time to complete.", "success")
     return redirect(url_for("index"))

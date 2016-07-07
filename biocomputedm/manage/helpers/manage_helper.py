@@ -4,14 +4,14 @@ import subprocess
 import re
 
 from biocomputedm import utils
-from biocomputedm.admin.models import Person
+from biocomputedm.admin.models import Person, Group
 from biocomputedm.decorators import async
 from biocomputedm.manage.models import Submission, DataGroup, Project, Sample
 from biocomputedm.pipelines.models import Pipeline, PipelineInstance
 
 
 @async
-def copy_data_to_staging(app, oid, type, user_key):
+def copy_data_to_staging(app, oid, type, user_key, group=""):
     try:
         with app.app_context():
             person = Person.query.filter_by(display_key=user_key).first()
@@ -30,7 +30,12 @@ def copy_data_to_staging(app, oid, type, user_key):
                     return
 
                 source_directory = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key), "pipeline_output")
-                output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Pipeline_Data_From_" + pipeline_instance.pipeline.name)
+
+                if group == "":
+                    output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Pipeline_Data_From_" + pipeline_instance.pipeline.name)
+                else:
+                    output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], person.group.name), "staged_files"), "Pipeline_Data_From_" + pipeline_instance.pipeline.name)
+
                 utils.make_directory(output_directory_path)
 
                 # Execute our copy script
@@ -51,7 +56,11 @@ def copy_data_to_staging(app, oid, type, user_key):
                     app.logger.error("Could not identify the provided object: " + oid + " with type: " + type)
                     return
 
-                parent_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Project_Pipeline_Data_From_" + project.name)
+                if group == "":
+                    parent_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Project_Pipeline_Data_From_" + project.name)
+                else:
+                    parent_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], person.group.name), "staged_files"), "Project_Pipeline_Data_From_" + project.name)
+
                 utils.make_directory(parent_directory_path)
 
                 for pipeline_output in project.pipeline_outputs:
@@ -86,7 +95,12 @@ def copy_data_to_staging(app, oid, type, user_key):
 
                     done.append(data.unlocalised_path)
                     source_directory = os.path.join(utils.get_path("sample_data", "webserver"), data.unlocalised_path)
-                    output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Sample_Data_For_Sample_" + data.sample.name)
+
+                    if group == "":
+                        output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Sample_Data_For_Sample_" + data.sample.name)
+                    else:
+                        output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], person.group.name), "staged_files"), "Sample_Data_For_Sample_" + data.sample.name)
+
                     utils.make_directory(output_directory_path)
 
                     # Execute our copy script
@@ -108,7 +122,11 @@ def copy_data_to_staging(app, oid, type, user_key):
                     return
 
                 # Create the directory to hold the data
-                project_output_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Project_Sample_Data_From_" + project.name)
+                if group == "":
+                    project_output_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Project_Sample_Data_From_" + project.name)
+                else:
+                    project_output_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], person.group.name), "staged_files"), "Project_Sample_Data_From_" + project.name)
+
                 utils.make_directory(project_output_path)
 
                 for sample in project.samples:
@@ -135,7 +153,11 @@ def copy_data_to_staging(app, oid, type, user_key):
                     return
 
                 # Create the directory to hold the data
-                output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Sample_Data_For_Sample_" + sample.name)
+                if group == "":
+                    output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], user_key), "staged_files"), "Sample_Data_For_Sample_" + sample.name)
+                else:
+                    output_directory_path = os.path.join(os.path.join(os.path.join(app.config["SFTP_USER_ROOT_PATH"], person.group.name), "staged_files"), "Sample_Data_For_Sample_" + sample.name)
+
                 utils.make_directory(output_directory_path)
                 source_directory = os.path.join(utils.get_path("sample_data", "webserver"), sample.display_key)
 
