@@ -37,7 +37,8 @@ EXECUTION_VARIABLES+=" --stats-dir ${MODULE_OUTPUT_DIRECTORY}"
 
 echo "sample_sheet = ${sample_sheet}"
 if [ "${sample_sheet}" != "SampleSheet.csv" ]; then
-    cut -d, -f7 --complement "${sample_sheet}" > tmpfile # Remove the project column as it is not wanted! :D
+    awk -F',' -v OFS="," '$7="";8' "${sample_sheet}" > tmpfile  # Remove the project column as it is not wanted! :D
+#    cut -d, -f7 --complement "${sample_sheet}" > tmpfile # Remove the project column as it is not wanted! :D
     mv tmpfile "${sample_sheet}"
     EXECUTION_VARIABLES+=" --sample-sheet ${sample_sheet}"
 fi
