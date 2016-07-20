@@ -1,11 +1,13 @@
 import os
+import re
 import subprocess
 
-import re
+from flask.ext.mail import Message
 
 from biocomputedm import utils
-from biocomputedm.admin.models import Person, Group
+from biocomputedm.admin.models import Person
 from biocomputedm.decorators import async
+from biocomputedm.extensions import mail
 from biocomputedm.manage.models import Submission, DataGroup, Project, Sample
 from biocomputedm.pipelines.models import Pipeline, PipelineInstance
 
@@ -172,6 +174,18 @@ def copy_data_to_staging(app, oid, type, user_key, group=""):
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL
                 )  # We are allowing this to execute on it's own - no need to monitor
+            transfer_text = "Your data can be accessed using the SFTP protocol at: " + app.config["EXTERNAL_SFTP_ADDRESS"] + " with the username: "
+            if group == "":
+                transfer_text += "biocompute-dm_user_" + person.username + " and your BioCompute-DM password."
+
+            else:
+                transfer_text += "biocompute-dm_group_" + person.group.name + " and your group's BioCompute-DM password (contact your group administrator)."
+
+            msg = Message(subject="Data Successfully Transferred",
+                          body="Your data has been successfully transfered to the staging drive. Generally this is accessible using the web interface or through a command line SFTP transfer. For customers external to the KCL network currently the command line option must be used." + transfer_text,
+                          recipients=[person.email])
+
+            mail.send(msg)
 
     except Exception as ex:
         app.logger.error("There was an exception when copying data from oid: " + oid + " type: " + type + " with error: " + str(ex))
@@ -284,7 +298,7 @@ def calculate_viable_pipelines_for_data_group(oid):
 
             if valid_pipeline:
                 if valid_pipelines != "":
-                    valid_pipelines +=","
+                    valid_pipelines += ","
 
                 valid_pipelines += pipeline.display_key
                 continue
@@ -333,4 +347,3 @@ def asynchronously_calculate_viable_pipelines_for_data_group(app, oid):
     except Exception as e:
         app.logger.error("There was an exception when calculating viable pipelines: " + str(e))
         return
-

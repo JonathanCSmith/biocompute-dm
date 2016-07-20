@@ -851,5 +851,5 @@ def copy_to_staging_drive(oid="", data_type="", move_type=""):
     else:
         copy_data_to_staging(current_app._get_current_object(), oid, data_type, current_user.display_key, "yes")
 
-    flash("Copy process is ongoing. This may take some time to complete.", "success")
+    flash("Your files are now being moved to a secure location. This may take some time to complete. You will receive an email when this process is finished.", "success")
     return redirect(url_for("index"))
