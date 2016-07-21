@@ -13,10 +13,10 @@ echo "File List: ${FILE_LIST}"
 
 # Parse the file path
 OLFIFS="${IFS}"
-IFS=","
-read -a FILE_PATHS <<< "${FILE_LIST}"
+IFS="," read -ra FILE_PATHS <<< "${FILE_LIST}"
 IFS="${OLFIFS}"
-echo "File Paths: ${FILE_PATHS}"
+
+#echo "File Paths: ${FILE_PATHS}"
 
 INDEX=$((${SGE_TASK_ID}-1))
 echo "File worker index: ${INDEX}"

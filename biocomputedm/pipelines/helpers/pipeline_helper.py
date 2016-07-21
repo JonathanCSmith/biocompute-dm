@@ -311,6 +311,9 @@ def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
         return
 
 
+# TODO: If you are looking for better reporting, module outputs (and probably pipeline outputs) should be refreshed every module, however I was worried about db io and so didnt
+# TODO: implement this yet. (Would have to destroy / create the DataGroups every time!)
+
 @async
 def execute_pipeline_module(app, running_pipeline_id=""):
     running_pipeline = None
@@ -571,6 +574,104 @@ def finish_pipeline_instance(app, running_pipeline_id):
                     module_instance.update(module_output=module_data_group)
 
             running_pipeline.update(current_execution_status="FINISHED")
+            source_data_group = DataGroup.query.filter_by(display_key=running_pipeline.data_consignor.display_key).first()
+            source_data_group.update(running=False)
+
+    except Exception as e:
+        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
+        return
+
+@async
+def parse_outputs(app, running_pipeline_id):
+    try:
+        with app.app_context():
+            # Pipeline properties
+            if running_pipeline_id == "":
+                app.logger.error("Could not identify the running pipeline in order to initialise.")
+                return
+
+            running_pipeline = PipelineInstance.query.filter_by(display_key=running_pipeline_id).first()
+            if running_pipeline is None:
+                app.logger.error("Could not identify the running pipeline in order to initialise.")
+                return
+
+            if running_pipeline.current_execution_status != "STOPPED":
+                app.logger.error("Could not execute the next pipeline module as it is not in the 'WAITING' phase.")
+                return
+
+            if running_pipeline.current_execution_index != len(running_pipeline.pipeline.modules.all()) - 1:
+                app.logger.error("Cannot finalise pipeline when it has not finished all of its modules.")
+                return
+
+            # Dummy container
+            data_group = None
+
+            # Walk the output directory to find samples
+            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), running_pipeline.display_key)
+
+            # Build pipeline outputs (no sample association)
+            local_pipeline_pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
+            filepaths = next(os.walk(local_pipeline_pipeline_output_directory))
+            if filepaths[1] or filepaths[2]:
+                # Create a new data group for the outputs
+                pipeline_data_group = DataGroup.create(
+                    name="Runtime Data from the " + running_pipeline.pipeline.name + " pipeline",
+                    user=running_pipeline.user,
+                    group=running_pipeline.group,
+                    source_pipeline=None
+                )
+
+                for file in filepaths[1]:
+                    item = DataItem.create(
+                        name=file,
+                        unlocalised_path=os.path.join(running_pipeline.display_key, "pipeline_output"),
+                        data_group=pipeline_data_group,
+                        group=running_pipeline.group
+                    )
+
+                for file in filepaths[2]:
+                    item = DataItem.create(
+                        name=file,
+                        unlocalised_path=os.path.join(running_pipeline.display_key, "pipeline_output"),
+                        data_group=pipeline_data_group,
+                        group=running_pipeline.group
+                    )
+
+                running_pipeline.update(pipeline_output=pipeline_data_group)
+
+            # Build module outputs (no sample association)
+            local_pipeline_module_output_directory = os.path.join(local_pipeline_directory, "modules_output")
+            for module_instance in running_pipeline.module_instances:
+
+                local_module_output_directory = os.path.join(local_pipeline_module_output_directory, module_instance.module.name)
+                filepaths = next(os.walk(local_module_output_directory))
+                if filepaths[1] or filepaths[2]:
+                    # Create a new data group for the outputs
+                    module_data_group = DataGroup.create(
+                        name="Module Data from the " + running_pipeline.pipeline.name + " pipeline, module: " + module_instance.module.name,
+                        user=running_pipeline.user,
+                        group=running_pipeline.group,
+                        source_pipeline=None
+                    )
+
+                    for file in filepaths[1]:
+                        item = DataItem.create(
+                            name=file,
+                            unlocalised_path=os.path.join(os.path.join(running_pipeline.display_key, "modules_output"), module_instance.module.name),
+                            data_group=module_data_group,
+                            group=running_pipeline.group
+                        )
+
+                    for file in filepaths[2]:
+                        item = DataItem.create(
+                            name=file,
+                            unlocalised_path=os.path.join(os.path.join(running_pipeline.display_key, "modules_output"), module_instance.module.name),
+                            data_group=module_data_group,
+                            group=running_pipeline.group
+                        )
+
+                    module_instance.update(module_output=module_data_group)
+
             source_data_group = DataGroup.query.filter_by(display_key=running_pipeline.data_consignor.display_key).first()
             source_data_group.update(running=False)
 

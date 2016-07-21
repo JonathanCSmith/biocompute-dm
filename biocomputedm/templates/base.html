@@ -88,7 +88,10 @@
                             {% endif %}
 
                             <li><a href="{{ url_for('manage.samples') }}">Samples</a></li>
+
+                            {% if g.user.type == "User" %}
                             <li><a href="{{ url_for('manage.data_groups') }}">Data Groups</a></li>
+                            {% endif %}
 
                             {% if g.user.type == "User" %}
                             <li><a href="{{ url_for('pipelines.display_pipeline_instances') }}">Pipeline Runs</a></li>

@@ -101,6 +101,9 @@ def message(oid=""):
                 return "<html>old message!</html>"
                 return abort(404)
 
+            from biocomputedm.pipelines.helpers.pipeline_helper import parse_outputs
+            parse_outputs(current_app._get_current_object(), pipeline_instance.display_key)
+
             module_instance.pipeline_instance.update(current_execution_status="ERROR")
 
         # WHA
