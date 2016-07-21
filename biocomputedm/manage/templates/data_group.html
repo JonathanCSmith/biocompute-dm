@@ -96,7 +96,7 @@
 
         {% for pipeline in pipelines %}
 
-        <div id="{{ pipeline.name ~ ': ' ~ pipeline.version }}" class="description" style="display: none">
+        <div id="{{ loop.index }}" class="description" style="display: none">
 
             <div class="spacer"></div>
 
