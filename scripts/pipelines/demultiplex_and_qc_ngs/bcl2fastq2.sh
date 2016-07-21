@@ -130,8 +130,10 @@ module load bioinformatics/bcl2fastq2/2.17.1.14
 bcl2fastq ${EXECUTION_VARIABLES} || post_error
 
 # Flatten bcl2fastq2s stupid output directory structure
-if [[ ! -z find "${DATA_OUTPUT_DIRECTORY}" -type d ]]; then
+folders=$(find "${DATA_OUTPUT_DIRECTORY}" -type d)
+if [[ ! -z folders ]]; then
     find "${DATA_OUTPUT_DIRECTORY}" -mindepth 2 -type f -exec mv -i '{}' "${DATA_OUTPUT_DIRECTORY}" ';'
+    find "${DATA_OUTPUT_DIRECTORY}" -depth -type d -empty -exec rmdir {} \;
 fi
 
 IFS="${OLDIFS}"
