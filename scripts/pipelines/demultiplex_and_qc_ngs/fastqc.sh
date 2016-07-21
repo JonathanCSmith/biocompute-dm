@@ -18,19 +18,15 @@ echo "Module output directory: ${MODULE_OUTPUT_DIRECTORY}"
 
 # ============================================== SUBMISSION PROPERTIES=================================================
 # Traverse the output path to generate a csv series of file paths
-FILE_LIST="\'"
+FILE_LIST="${MODULE_OUTPUT_DIRECTORY}/samples.csv"
 FILE_COUNT=0
 for f in ${DATA_OUTPUT_DIRECTORY}/*.fastq.gz # We are only interested in demuxed files!
 do
     FILE_COUNT=$((FILE_COUNT+1))
-    FILE_LIST+="${f},"
-done
+    echo "${f}"
+done > "${FILE_LIST}"
 
 echo "File Count ${FILE_COUNT}"
-
-# Get rid of the extra comma
-FILE_LIST="${FILE_LIST%?}\'"
-echo "File List ${FILE_LIST}"
 # ============================================== SUBMISSION PROPERTIES=================================================
 
 # ================================================== SUBMISSION DATA ==================================================
@@ -52,7 +48,7 @@ else
 # Don't call as an array job
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -v "FILE_LIST="${FILE_LIST}",SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -v "FILE_LIST=${FILE_LIST},SGE_TASK_ID=1" -o "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_out.txt" -e "${MODULE_OUTPUT_DIRECTORY}//fastqc_worker_error.txt" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )
@@ -91,7 +87,7 @@ END
 echo "Confirmed file count: ${FILE_COUNT}"
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "FILE_LIST="${FILE_LIST} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "FILE_LIST=${FILE_LIST}" -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" "${PIPELINE_SOURCE}//fastqc_worker.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )
