@@ -578,7 +578,7 @@ def finish_pipeline_instance(app, running_pipeline_id):
             source_data_group.update(running=False)
 
     except Exception as e:
-        app.logger.error("There was an exception when executing the current pipeline: " + str(e))
+        app.logger.error("There was an exception when ending the current pipeline: " + str(e))
         return
 
 @async

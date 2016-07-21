@@ -35,6 +35,7 @@ LOCAL_WEBSERVER_PORT = ""  # Default, however if debugging then flask normally s
 NETWORK_PATH_TO_WEBSERVER_FROM_HPC = ""
 NETWORK_PATH_TO_HPC_FROM_WEBSERVER = ""
 HPC_USERNAME = ""  # Must have full permissions, i.e. ssh credentials to access from webserver
+EXTERNAL_SFTP_PORT = "22"
 
 # ======================== NOTE Everything below here should be OS independent paths (i.e. //) =========================
 

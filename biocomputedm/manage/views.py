@@ -116,7 +116,7 @@ def staged_files():
     if path.endswith("/"):
         path = path[:-1]
 
-    return render_template("staged_files.html", title="My Files", path=path)
+    return render_template("staged_files.html", title="My Files", path=path, port=current_app.config["EXTERNAL_SFTP_PORT"])
 
 
 @manage.route("/submissions/<int:page>")

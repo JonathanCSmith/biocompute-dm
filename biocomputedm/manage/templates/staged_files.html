@@ -24,7 +24,7 @@
             <param name="archive" value="{{ url_for('static', filename='ftp/anyclient-enterprise.jar') }},{{ url_for('static', filename='ftp/bcpg-jdk15on-147.jar') }},{{ url_for('static', filename='ftp/bcprov-jdk15on-147.jar') }}">
             <param name="scriptable" value="false">
             <param name="hostname" value="{{ path }}">
-            <param name="port" value="22">
+            <param name="port" value="{{ port }}">
             <param name="username" value="biocompute-DM_user_{{ g.user.username}}">
             <param name="autoConnect" value="true">
             <param name="connectionType" value="sftp">
@@ -49,7 +49,7 @@
                         scriptable="false" \
                         pluginspage = "http://java.sun.com/products/plugin/index.html#download" \
                         hostname="{{ path }}" \
-                        port="22" \
+                        port="{{ port }}" \
                         username="biocompute-DM_user_{{ g.user.username}}" \
                         autoConnect="true" \
                         connectionType="sftp" \

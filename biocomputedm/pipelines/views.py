@@ -84,9 +84,9 @@ def message(oid=""):
 
             # Check that the pipeline isn't in blocking mode
             pipeline_instance = module_instance.pipeline_instance
-            if pipeline_instance.current_execution_status != "RUNNING":
-                return "<html>pipeline is in a false state</html>"
-                return abort(404)
+            # if pipeline_instance.current_execution_status != "RUNNING":
+            #     return "<html>pipeline is in a false state</html>"
+            #     return abort(404)
 
             # Find the correct module template
             module_instances = pipeline_instance.module_instances.all()
