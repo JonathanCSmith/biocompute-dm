@@ -41,7 +41,7 @@ FILE_COUNT=$(wc -l < "${MODIFIED_SAMPLE_CSV}")
 echo "Confirmed file count: ${FILE_COUNT}"
 JOBID=$(ssh ${USERNAME}@${HPC_IP} << END
     source /etc/profile;
-    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "DATA_FILE="${MODIFIED_SAMPLE_CSV}",ref="${ref}",PIPELINE_SOURCE="${PIPELINE_SOURCE} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" -wd "${WORKING_DIRECTORY}" "${PIPELINE_SOURCE}//align_worker.sh" | cut -d ' ' -f 3);
+    JOBID=\$(qsub -t 1-${FILE_COUNT} -v "DATA_FILE="${MODIFIED_SAMPLE_CSV}",ref="${ref}",PIPELINE_SOURCE="${PIPELINE_SOURCE} -o "${MODULE_OUTPUT_DIRECTORY}" -e "${MODULE_OUTPUT_DIRECTORY}" -wd "${WORKING_DIRECTORY}" "${PIPELINE_SOURCE}//WES_pipeline_v2.sh" | cut -d ' ' -f 3);
     echo \$JOBID
 END
 )

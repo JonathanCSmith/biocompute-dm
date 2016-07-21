@@ -3,7 +3,7 @@
   "description": "aligns demultiplexed files for exome sequencing and produces metrics data for the alignment",
   "pipeline_type": "II",
   "author": "Venu Pullabhatla, Jonathan Smith",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "regex_type": "OR",
   "file_regex": [".*\\.fastq$", ".*\\.fastq\\.gz$"],
   "documentation_file_name": "exome_align_documentation.txt",
@@ -14,7 +14,7 @@
       "executor": "align.sh",
       "options": [
         {
-          "display_name": "Reference Genome Index File",
+          "display_name": "Reference Genome",
           "parameter_name": "ref",
           "default_value": "",
           "user_interaction_type": "reference",
