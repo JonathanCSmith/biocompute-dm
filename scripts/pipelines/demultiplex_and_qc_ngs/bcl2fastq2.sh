@@ -8,7 +8,10 @@ OLDIFS="${IFS}"
 
 function post_error {
 ssh ${USERNAME}@${HPC_IP} << EOF
-    curl --form event="module_error" ${SERVER}/message/pipelines|${TICKET}
+
+    # Ping back our info to the webserver
+    ADDRESS="${SERVER}/message/pipelines|${TICKET}"
+    curl --form "event=module_error" "\${ADDRESS}"
 EOF
 }
 

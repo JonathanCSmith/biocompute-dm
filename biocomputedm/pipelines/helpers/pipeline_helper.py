@@ -432,7 +432,7 @@ def finish_pipeline_instance(app, running_pipeline_id):
             data_group = None
 
             # Walk the output directory to find samples
-            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), running_pipeline.display_key);
+            local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), running_pipeline.display_key)
             local_pipeline_sample_output_directory = os.path.join(local_pipeline_directory, "samples_output")
             filepaths = next(os.walk(local_pipeline_sample_output_directory))
             for source in filepaths[1]:
@@ -460,6 +460,9 @@ def finish_pipeline_instance(app, running_pipeline_id):
                         if s is None:
                             s = Sample.create(name=source, pipeline=running_pipeline)
                             utils.make_directory(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key))
+
+                    if s is None:
+                        continue
 
                     # Transfer the data using an sh
                     destination_path = os.path.join(os.path.join(utils.get_path("sample_data", "webserver"), s.display_key), running_pipeline.display_key)
@@ -501,7 +504,8 @@ def finish_pipeline_instance(app, running_pipeline_id):
                         s.data.append(item)
 
             # Calculate viable pipelines
-            calculate_viable_pipelines_for_data_group(data_group.display_key)
+            if data_group is not None:
+                calculate_viable_pipelines_for_data_group(data_group.display_key)
 
             # Build pipeline outputs (no sample association)
             local_pipeline_pipeline_output_directory = os.path.join(local_pipeline_directory, "pipeline_output")
