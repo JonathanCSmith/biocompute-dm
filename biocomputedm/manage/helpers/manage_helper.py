@@ -176,10 +176,10 @@ def copy_data_to_staging(app, oid, type, user_key, group=""):
                 )  # We are allowing this to execute on it's own - no need to monitor
             transfer_text = "Your data can be accessed using the SFTP protocol at: " + app.config["EXTERNAL_SFTP_ADDRESS"] + " with the username: "
             if group == "":
-                transfer_text += "biocompute-dm_user_" + person.username + " and your BioCompute-DM password."
+                transfer_text += "biocompute-DM_user_" + person.username + " and your BioCompute-DM password."
 
             else:
-                transfer_text += "biocompute-dm_group_" + person.group.name + " and your group's BioCompute-DM password (contact your group administrator)."
+                transfer_text += "biocompute-DM_group_" + person.group.name + " and your group's BioCompute-DM password (contact your group administrator)."
 
             msg = Message(subject="Data Successfully Transferred",
                           body="Your data has been successfully transfered to the staging drive. Generally this is accessible using the web interface or through a command line SFTP transfer. For customers external to the KCL network currently the command line option must be used." + transfer_text,

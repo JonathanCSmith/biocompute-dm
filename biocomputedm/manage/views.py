@@ -106,6 +106,11 @@ def display_data(item_id="", data_type=""):
         flash("Could not identify the provided data set's path", "warning")
         return redirect(url_for("empty"))
 
+    stats = os.stat(data_path)
+    if stats.st_size > 5242880: #5mb
+        flash("The file is too big to download from the browser, please use the SFTP process instead.", "info")
+        return redirect(url_for("empty"))
+
     if not os.path.isfile(file_path):
         flash("Viewing nested data is currently not supported, please download the folder instead", "warning")
         return redirect(url_for("empty"))
