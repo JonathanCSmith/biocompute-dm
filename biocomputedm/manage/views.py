@@ -114,15 +114,18 @@ def staged_files():
     if path.startswith("http://"):
         path = path.replace("http://", "")
 
+    if path.startswith("https://")
+        path = path.replace("https://", "")
+
     if path.endswith("/"):
         path = path[:-1]
 
     if ":" in path:
         splitz = path.split(":")
-        if path.startswith("https://"):
-            path = splitz[0] + ":" + splitz[1]
-        else:
-            path = splitz[0]
+        # if path.startswith("https://"):
+        #     path = splitz[0] + ":" + splitz[1]
+        # else:
+        path = splitz[0]
 
 
     #TODO: Can make this a config option that allows us to exclude certain addresses for external port config
