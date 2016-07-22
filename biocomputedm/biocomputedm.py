@@ -128,7 +128,10 @@ def setup_default_routes(app):
     @app.route("/index")
     def index():
         if current_user is not None and current_user.is_authenticated:
-            return redirect(url_for("content.activity"))
+            if current_user.type == "Customer":
+                return redirect(url_for("manage.projects"))
+            else:
+                return redirect(url_for("content.activity"))
 
         else:
             return redirect(url_for("content.welcome"))

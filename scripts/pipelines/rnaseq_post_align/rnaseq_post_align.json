@@ -3,9 +3,9 @@
   "description": "Performs standardised post alignment QC on rnaseq alignments",
   "pipeline_type": "III",
   "author": "Venu Pullabhatla, Jonathan Smith",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "regex_type": "AND",
-  "file_regex": [".*\\_alignment_metrics.txt", ".*\\_duplicate_metrics.txt"],
+  "file_regex": [".*\\_alignment_metrics.txt", ".*\\_duplicate_metrics.txt", ".*\\_RnaSeqMetrics.txt", ".*\\_RnaSeqMetrics_upto4Kb.txt", ".*\\_RnaSeqMetrics_4To8Kb.txt", ".*\\_RnaSeqMetrics_8Kb.txt"],
   "documentation_file_name": "rnaseq_post_align_documentation.txt",
   "modules": [
     {

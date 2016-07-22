@@ -28,11 +28,15 @@ else
 
         ALIGNMENT=""
         DUPLICATE=""
+        METRICS=""
+        METRICS0_4=""
+        METRICS4_8=""
+        METRICS0_8=""
 
         # We are looking for a specific file type
         for f in ${d}/*_alignment_metrics.txt; do
             if [ "${ALIGNMENT}" ]; then
-                echo "More that one alignment metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+                echo "More that one alignment metrics was identified. RNAseq post align qc cannot determine which you wish to use. New file is: ${f}."
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -49,7 +53,7 @@ EOF
         # We are looking for a specific file type
         for f in ${d}/*_duplicate_metrics.txt; do
             if [ "${DUPLICATE}" ]; then
-                echo "More that one duplicate metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+                echo "More that one duplicate metrics was identified. RNAseq post align qc cannot determine which you wish to use. New file is: ${f}."
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -63,8 +67,76 @@ EOF
             fi
         done
 
+        # We are looking for a specific file type
+        for f in ${d}/*_RnaSeqMetrics.txt; do
+            if [ "${METRICS}" ]; then
+                echo "More that one rnaseq metrics was identified. RNAseq post align qc cannot determine which you wish to use. New file is: ${f}."
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+                exit
+            else
+                METRICS="${f}"
+                echo "Identified metrics file: ${METRICS}"
+            fi
+        done
+
+        # We are looking for a specific file type
+        for f in ${d}/*_RnaSeqMetrics_upto4kb.txt; do
+            if [ "${METRICS0_4}" ]; then
+                echo "More that one duplicate metrics was identified. RNAseq post align qc cannot determine which you wish to use. New file is: ${f}."
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+                exit
+            else
+                METRICS0_4="${f}"
+                echo "Identified metrics (up to 4kb) file: ${METRICS0_4}"
+            fi
+        done
+
+        # We are looking for a specific file type
+        for f in ${d}/*_RnaSeqMetrics_4to8kb.txt; do
+            if [ "${METRICS4_8}" ]; then
+                echo "More that one duplicate metrics was identified. RNAseq post align qc cannot determine which you wish to use. New file is: ${f}."
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+                exit
+            else
+                METRICS4_8="${f}"
+                echo "Identified metrics (up to 4kb) file: ${METRICS4_8}"
+            fi
+        done
+
+        # We are looking for a specific file type
+        for f in ${d}/*_RnaSeqMetrics_8kb.txt; do
+            if [ "${METRICS0_8}" ]; then
+                echo "More that one duplicate metrics was identified. RNAseq post align qc cannot determine which you wish to use. New file is: ${f}."
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+                exit
+            else
+                METRICS0_8="${f}"
+                echo "Identified metrics (8kb) file: ${METRICS0_8}"
+            fi
+        done
+
         # Validate not null
-        if [[ -z "${ALIGNMENT}" || -z "${DUPLICATE}" ]]; then
+        if [[ -z "${ALIGNMENT}" || -z "${DUPLICATE}" || -z "${METRICS}" || -z "${METRICS0_4}" || -z "${METRICS4_8}"|| -z "${METRICS0_8}" ]]; then
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
@@ -76,6 +148,22 @@ EOF
             echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
             continue
 
+        elif [[ "${METRICS}" =~ ".**.*" ]]; then
+            echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
+            continue
+
+        elif [[ "${METRICS0_4}" =~ ".**.*" ]]; then
+            echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
+            continue
+
+        elif [[ "${METRICS4_8}" =~ ".**.*" ]]; then
+            echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
+            continue
+
+        elif [[ "${METRICS0_8}" =~ ".**.*" ]]; then
+            echo "One of the expected metrics for ${SAMPLE_NAME} was missing, this sample will be skipped"
+            continue
+
         fi
 
         # Move to current working directory
@@ -83,6 +171,10 @@ EOF
         mkdir "./sample_${SAMPLE_NAME}"
         cp "${ALIGNMENT}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_alignment_metrics.txt"
         cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_duplicate_metrics.txt"
+        cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_RnaSeqMetrics.txt"
+        cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_RnaSeqMetrics_upto4Kb.txt"
+        cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_RnaSeqMetrics_4To8Kb.txt"
+        cp "${DUPLICATE}" "./sample_${SAMPLE_NAME}/sample_${SAMPLE_NAME}_RnaSeqMetrics_8Kb.txt"
 
     done < "${SAMPLE_CSV}"
 

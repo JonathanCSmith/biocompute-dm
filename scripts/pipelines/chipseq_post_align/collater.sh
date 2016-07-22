@@ -36,7 +36,7 @@ do
         # We are looking for a specific file type
         for f in "${SAMPLE_PATH}"/*_duplicate_metrics.txt; do
             if [ "${DUPLICATE}" ]; then
-                echo "More that one duplicate metrics was identified. Exome post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
+                echo "More that one duplicate metrics was identified. ChIPSeq post align qc cannot determine which you wish to use. New file is: ${f}. This is a programming error and indicative of a current flaw in Biocompute that will be addressed asap"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF

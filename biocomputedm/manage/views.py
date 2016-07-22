@@ -1,16 +1,18 @@
 import os
+import re
 import subprocess
 import time
 
-import re
+from flask import Blueprint, render_template, redirect, url_for, abort, current_app, flash, request, send_from_directory
+from flask.ext.login import current_user
+from flask.ext.mail import Message
 
 from biocomputedm import utils
 from biocomputedm.decorators import login_required
-from biocomputedm.manage.helpers.manage_helper import calculate_viable_pipelines_for_submission, asynchronously_calculate_viable_pipelines_for_data_group, asynchronously_calculate_viable_pipelines_for_submission
+from biocomputedm.extensions import mail
+from biocomputedm.manage.helpers.manage_helper import asynchronously_calculate_viable_pipelines_for_data_group, asynchronously_calculate_viable_pipelines_for_submission
 from biocomputedm.manage.models import Submission, Project, Document, DataGroup, DataItem, Sample
 from biocomputedm.pipelines.models import Pipeline
-from flask import Blueprint, render_template, redirect, url_for, abort, current_app, flash, request, send_from_directory
-from flask.ext.login import current_user
 
 manage = Blueprint("manage", __name__, static_folder="static", template_folder="templates")
 
@@ -59,6 +61,13 @@ def message(oid=""):
 
                 # Ensure the submission knows about the data group
                 submission.update(validated=True, data_group=data_group)
+
+                # Good place to let the user know their submission is done - technically the calc valid pipelines stuff isn't but here is where we have user context
+                msg = Message(subject="Data Successfully Submitted",
+                              body="Your data for " + submission.name + " has been successfully submitted.",
+                              recipients=[submission.user.email])
+
+                mail.send(msg)
 
         return "success"
 
@@ -127,8 +136,7 @@ def staged_files():
         # else:
         path = splitz[0]
 
-
-    #TODO: Can make this a config option that allows us to exclude certain addresses for external port config
+    # TODO: Can make this a config option that allows us to exclude certain addresses for external port config
     # Allows us to have a different port for LAN and WAN - may be necessary with certain configs
     if path.startswith("10") or path.startswith("127"):
         port = "22"
@@ -188,16 +196,25 @@ def new_submission():
     directory_path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], current_user.group.name)
     directory_path = os.path.join(directory_path, "staged_files")
     filepaths = next(os.walk(directory_path))
+
+    for file in filepaths[1]:
+        files.append({
+            "name": file,
+            "path": os.path.join(directory_path, file),
+            "size": "directory",
+            "date": time.ctime(s.st_ctime)
+        })
+
     for file in filepaths[2]:
-        rx = re.compile("^(.*)(?<!\.fastq)\.(7z|bz2|deb|gz|tar|tbz2|xz|tgz|rar|zip|Z)$")
-        if rx.match(file):
-            s = os.stat(os.path.join(directory_path, file))
-            files.append({
-                "name": file,
-                "path": os.path.join(directory_path, file),
-                "size": s.st_size,
-                "date": time.ctime(s.st_ctime)
-            })
+        # rx = re.compile("^(.*)(?<!\.fastq)\.(7z|bz2|deb|gz|tar|tbz2|xz|tgz|rar|zip|Z)$")
+        # if rx.match(file):
+        s = os.stat(os.path.join(directory_path, file))
+        files.append({
+            "name": file,
+            "path": os.path.join(directory_path, file),
+            "size": s.st_size,
+            "date": time.ctime(s.st_ctime)
+        })
 
     # If we are just looking at the page don't perform any of the validation work
     if request.method == "GET":
@@ -214,6 +231,13 @@ def new_submission():
             else:
                 # Create the submission entry
                 submission = Submission(name=str(form.submission_name.data), description=str(form.submission_description.data))
+
+                # Unpack option
+                unpack = bool(form.submission_unpack.data)
+                if unpack:
+                    unpack = "True"
+                else:
+                    unpack = "False"
 
                 # Get the user and group
                 group = current_user.group
@@ -247,11 +271,12 @@ def new_submission():
                             "-d=" + output_directory_path,
                             "-s=" + sources,
                             "-i=" + submission.display_key,
-                            "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"]
+                            "-p=" + current_app.config["LOCAL_WEBSERVER_PORT"],
+                            "-u=" + unpack
                         ],
                         stdout=fnull,
                         stderr=fnull
-                    ) # We are allowing this to execute on it's own - no need to monitor
+                    )  # We are allowing this to execute on it's own - no need to monitor
 
                 # In the meantime we will inform the user and display confirmation
                 flash("Submission Successful.", "success")

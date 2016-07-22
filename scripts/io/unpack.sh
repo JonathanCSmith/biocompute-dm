@@ -36,4 +36,5 @@ case "$@" in
   #*.rar     ) 7z  x       "$@"                ;;
   *.zip     ) unzip       "$@"                ;;
   *.Z       ) uncompress  "$@"                ;;
+  *         )             "$@"                ;;
 esac

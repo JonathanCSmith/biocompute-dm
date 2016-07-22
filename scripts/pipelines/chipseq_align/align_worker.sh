@@ -56,7 +56,7 @@ for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq; do
         echo "Ignoring: ${f} as it is likely a false positive"
 
     elif [ "${READ_1}" ]; then
-        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align."
+        echo "More that one R1 was identified. ChIPSeq alignment cannot determine which you wish to align."
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -78,7 +78,7 @@ for f in ${SAMPLE_INPUT_PATH}/*_R1_001.fastq.gz; do
         echo "Ignoring: ${f} as it is likely a false positive"
 
     elif [ "${READ_1}" ]; then
-        echo "More that one R1 was identified. Exome alignment cannot determine which you wish to align"
+        echo "More that one R1 was identified. ChIPSeq alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -99,7 +99,7 @@ for f in ${SAMPLE_INPUT_PATH}/*_R2_001.fastq; do
         echo "Ignoring: ${f} as it is likely a false positive"
 
     elif [ "${READ_2}" ]; then
-        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
+        echo "More that one R2 was identified. ChIPSeq alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF
@@ -120,7 +120,7 @@ for f in ${SAMPLE_INPUT_PATH}/*_R2_001.fastq.gz; do
         echo "Ignoring: ${f} as it is likely a false positive"
 
     elif [ "${READ_2}" ]; then
-        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
+        echo "More that one R2 was identified. ChIPSeq alignment cannot determine which you wish to align"
 
 # Ping back our info to the webserver
 ssh ${USERNAME}@${HPC_IP} << EOF

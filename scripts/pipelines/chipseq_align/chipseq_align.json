@@ -3,7 +3,7 @@
   "description": "aligns demultiplexed files for chipseq sequencing and produces metrics data for the alignment",
   "pipeline_type": "II",
   "author": "Venu Pullabhatla, Jonathan Smith",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "regex_type": "OR",
   "file_regex": [".*\\.fastq$", ".*\\.fastq\\.gz$"],
   "documentation_file_name": "chipseq_align_documentation.txt",

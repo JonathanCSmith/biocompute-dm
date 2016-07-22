@@ -26,6 +26,12 @@ case ${i} in
     shift
     ;;
 
+    # Should unpack
+    -u=*)
+    UNPACK="${i#*=}"
+    shift
+    ;;
+
     # Unknown
     *)
     ;;
@@ -43,11 +49,13 @@ do
     NEW_FILE="$(basename "${FILE}")"
     mv "${FILE}" "${DIRECTORY}/${NEW_FILE}"
 
-    if (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}"); then
-        rm -f "${DIRECTORY}/${NEW_FILE}"
-    else
-        mv "${DIRECTORY}/${NEW_FILE}" "${FILE}"
-        exit
+    if [ "$UNPACK" == "True" ]; then
+        if (cd "${DIRECTORY}"; "${DIR}"/unpack.sh "${NEW_FILE}"); then
+            rm -f "${DIRECTORY}/${NEW_FILE}"
+        else
+            mv "${DIRECTORY}/${NEW_FILE}" "${FILE}"
+            exit
+        fi
     fi
 
     #chown -R biocompute-dm:sftpusers "${NEW_FILE}"
