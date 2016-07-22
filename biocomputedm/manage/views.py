@@ -113,8 +113,12 @@ def staged_files():
     path = request.url_root
     if path.startswith("http://"):
         path = path.replace("http://", "")
+
     if path.endswith("/"):
         path = path[:-1]
+
+    if ":" in path:
+        path = path.split(":")[0]
 
     #TODO: Can make this a config option that allows us to exclude certain addresses for external port config
     # Allows us to have a different port for LAN and WAN - may be necessary with certain configs
