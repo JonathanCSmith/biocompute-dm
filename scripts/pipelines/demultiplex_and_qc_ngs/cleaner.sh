@@ -34,6 +34,8 @@ do
         IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
         echo "Sample identifier parsed as: ${ID}"
 
+        ID=${ID/"£££"/"_"}
+
         DIR="${DATA_OUTPUT_DIRECTORY}"
         if [[ ${ID} == Undetermine* ]]; then
             DIR+="/${NAME_WITHOUT_EXTENSION}"
@@ -55,6 +57,8 @@ do
         NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_fastqc}"
         NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
         NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
+
+        ID=${ID/"£££"/"_"}
 
         # Identify the correct directory name
         IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"

@@ -43,6 +43,10 @@ if [ "${sample_sheet}" != "SampleSheet.csv" ]; then
     awk -F',' -v OFS="," '$7="";8' "${sample_sheet}" > tmpfile  # Remove the project column as it is not wanted! :D
 #    cut -d, -f7 --complement "${sample_sheet}" > tmpfile # Remove the project column as it is not wanted! :D
     mv tmpfile "${sample_sheet}"
+
+    awk 'BEGIN {FS=OFS=","} {for (i=2;i<=NF;i++) sub(/_/,"£££",$i)} 1' "${sample_sheet}" > tmpfile
+    mv tmpfile "${sample_sheet}"
+
     EXECUTION_VARIABLES+=" --sample-sheet ${sample_sheet}"
 fi
 
