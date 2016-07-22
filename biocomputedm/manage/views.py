@@ -89,6 +89,7 @@ def display_data(item_id="", data_type=""):
         flash("Could not identify the provided data set", "warning")
         return redirect(url_for("empty"))
 
+    file_path = None
     data_path = None
     if data_type == "sample":
         data_path = os.path.join(os.path.join(utils.get_path("sample_data", "serve"), data_item.unlocalised_path), data_item.name)
@@ -102,11 +103,11 @@ def display_data(item_id="", data_type=""):
         data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), data_item.unlocalised_path), data_item.name)
         file_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
-    if data_path is None:
+    if data_path is None or file_path is None:
         flash("Could not identify the provided data set's path", "warning")
         return redirect(url_for("empty"))
 
-    stats = os.stat(data_path)
+    stats = os.stat(file_path)
     if stats.st_size > 5242880: #5mb
         flash("The file is too big to download from the browser, please use the SFTP process instead.", "info")
         return redirect(url_for("empty"))
