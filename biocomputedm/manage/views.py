@@ -120,7 +120,7 @@ def staged_files():
     if ":" in path:
         splitz = path.split(":")
         if path.startswith("https://"):
-            path = splitz[0] + splitz[1]
+            path = splitz[0] + ":" + splitz[1]
         else:
             path = splitz[0]
 
