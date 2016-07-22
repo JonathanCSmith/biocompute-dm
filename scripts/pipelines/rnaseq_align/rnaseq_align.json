@@ -14,39 +14,12 @@
       "executor": "align.sh",
       "options": [
         {
-          "display_name": "Reference Genome Index File",
+          "display_name": "Reference Genome Files",
           "parameter_name": "ref",
           "default_value": "",
           "user_interaction_type": "reference",
           "necessary": true,
           "description": "This field requires you to specify one of the reference genome indexes."
-        },
-
-        {
-          "display_name": "Splice Sites File",
-          "parameter_name": "splice",
-          "default_value": "",
-          "user_interaction_type": "reference",
-          "necessary": true,
-          "description": "This field requires you to specify a source file containing your known splice sites."
-        },
-
-        {
-          "display_name": "Annotations File",
-          "parameter_name": "ann",
-          "default_value": "",
-          "user_interaction_type": "reference",
-          "necessary": true,
-          "description": "This field requires you to specify a source file containing your annotations."
-        },
-
-        {
-          "display_name": "Chromosome Size",
-          "parameter_name": "size",
-          "default_value": "",
-          "user_interaction_type": "reference",
-          "necessary": true,
-          "description": "This field requires you to specify a source file containing your chromosome sizes."
         }
       ]
     }

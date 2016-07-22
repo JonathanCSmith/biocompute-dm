@@ -92,7 +92,7 @@ EOF
 
     # Execute perl
     echo "Executing perl script"
-    "${PIPELINE_SOURCE}"/get_qc_data.pl
+    "${PIPELINE_SOURCE}"/collect_RNASeq_metrics.pl
 
     # Cleanup cwd
     for d in ./sample_*/; do

@@ -1,0 +1,27 @@
+{
+  "name": "wgs_align",
+  "description": "aligns demultiplexed files for WGS sequencing and produces metrics data for the alignment",
+  "pipeline_type": "II",
+  "author": "Venu Pullabhatla, Jonathan Smith",
+  "version": "0.0.1",
+  "regex_type": "OR",
+  "file_regex": [".*\\.fastq$", ".*\\.fastq\\.gz$"],
+  "documentation_file_name": "wgs_align_documentation.txt",
+  "modules": [
+    {
+      "name": "aligner",
+      "description": "align WGS sequencing",
+      "executor": "align.sh",
+      "options": [
+        {
+          "display_name": "Reference Genome",
+          "parameter_name": "ref",
+          "default_value": "",
+          "user_interaction_type": "reference",
+          "necessary": true,
+          "description": "This field requires you to specify one of the reference genome indexes."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "wgs_post_align_qc",
+  "description": "Performs standardised post alignment QC on WGS alignments",
+  "pipeline_type": "III",
+  "author": "Venu Pullabhatla, Jonathan Smith",
+  "version": "0.0.1",
+  "regex_type": "AND",
+  "file_regex": [".*\\_alignment_metrics.txt", ".*\\_duplicate_metrics.txt", ".*\\_coverage_metrics.txt"],
+  "documentation_file_name": "wgs_post_align_qc_documentation.txt",
+  "modules": [
+    {
+      "name": "collater",
+      "description": "colate exome alignment results into a single file",
+      "executor": "collater.sh",
+      "options": []
+    },
+    {
+      "name": "plotter",
+      "description": "plot the collated results from the post alignment QC",
+      "executor": "plotter.sh",
+      "options": []
+    }
+  ]
+}

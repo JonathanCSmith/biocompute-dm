@@ -7,8 +7,9 @@ source ${HOME}/.bashrc
 
 module load novoalign/3.01.02
 module load bioinformatics/samtools/0.1.19
-module load picard-tools/2.2.2
+module load picard-tools/2.2.1
 module load bedtools/2.16.2
+module load gatk/3.4-0
 
 OLDIFS="${IFS}"
 date=`date`
@@ -20,12 +21,12 @@ echo "Data File: ${DATA_FILE}"
 # =========================================== BUILD OUR EXECUTION VARIABLES! ==========================================
 echo "Beginning runtime arguments parsing..."
 
-REFERENCE=""
+REF=""
 echo "reference_genome = ${ref}"
 if [ "${ref}" != "" ]; then
 
     cp "${ref}" "${TMPDIR}/${ref##*/}"
-    REFERENCE="${TMPDIR}/${ref##*/}"
+    REF="${TMPDIR}/${ref##*/}"
     echo "New reference location: ${REFERENCE}"
 
 else
@@ -163,9 +164,10 @@ fi
 
 mkdir -p "${SAMPLE_OUTPUT_PATH}"
 
+
 ############################### ALIGNMENT TO THE REFERENCE GENOME #######################################
 printf "Started Alignment on $date\n\n"
-novoalign -F STDFQ -f "${READ_1}" "${READ_2}" -d "${REFERENCE}" -o SAM -o SoftClip --Q2Off -k -a -g 65 -x 7 -c 8 2> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_alignment_metrics.txt" | samtools view -bS - > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
+novoalign -F STDFQ -f "${READ_1}" "${READ_2}" -d $REF/novoindex/novoindex -o SAM -o SoftClip --Q2Off -k -a -g 65 -x 7 -c 8 2> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_alignment_metrics.txt" | samtools view -bS - > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
 printf "Finished Alignment on $date\n\n"
 #########################################################################################################
 
@@ -191,9 +193,9 @@ printf "Finished indexing BAM file on $date\n\n"
 
 # coverage calculations
 samtools view -bq 20 -F 1796 "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" | bamToBed -i stdin > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
-coverageBed -hist -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b "${PIPELINE_SOURCE}"/bed_files/targets.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_targets_cov.bed" &
-coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b "${PIPELINE_SOURCE}"/bed_files/baits.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits_cov.bed" &
-coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b "${PIPELINE_SOURCE}"/bed_files/baits_plus_150bp.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed" &
+coverageBed -hist -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b $REF/bedfiles/wes_targets.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_targets_cov.bed" &
+coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b $REF/bedfiles/wes_baits.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits_cov.bed" &
+coverageBed -a "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -b $REF/bedfiles/wes_baits_padded.bed > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed" &
 wait
 
 #efficiency of capture
@@ -236,6 +238,22 @@ printf "target_bases_20x\t"$cov20x"\n" >> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_
 printf "percentage_20x\t"$cov20xpc"\n" >> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_coverage_metrics.txt"
 #####################################################################################################
 
+
+############################# Post Alignment QC Metrics ##########################################################
+
+java -Xmx30g -jar ${PICARD}/picard.jar AddOrReplaceReadGroups I="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" O="${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam" RGLB="Library1" RGPL="illumina" RGPU="HISEQ3000" RGSM=$sample
+
+samtools index "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam"
+
+
+java -Xmx30g -jar ${GATK}/GenomeAnalysisTK.jar -T DiagnoseTargets -R $REF/refgenome/ -I "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam" -L $REF/bedfiles/wes_targets.bed -missing "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_missing_intervals.txt" -o "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_DiagnoseTargets.txt"
+
+
+java -Xmx30g -jar ${GATK}/GenomeAnalysisTK.jar -T DepthOfCoverage -R $REF/refgenome/ -o "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_DepthOfCoverage.txt" -I "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam" -L $REF/bedfiles/wes_targets.bed
+
+
+##################################################################################################################
+
 printf "Tidying up on $date\n\n"
 
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
@@ -245,6 +263,7 @@ rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_targets_cov.bed"
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits_cov.bed"
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_baits150_cov.bed"
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_coverage.hist"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam"
 # ================================================== CORE SAMPLE LOOP =================================================
 
 rm "${TMPDIR}/${ref##*/}"

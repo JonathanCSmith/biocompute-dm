@@ -7,10 +7,8 @@ source ${HOME}/.bashrc
 
 module load novoalign/3.01.02
 module load bioinformatics/samtools/0.1.19
-module load picard-tools/2.2.2
+module load picard-tools/2.0.1
 module load bedtools/2.16.2
-module load ucsc_tools/13_05_2016
-module load general/python/2.7.10
 
 OLDIFS="${IFS}"
 date=`date`
@@ -40,25 +38,6 @@ EOF
 
     exit
 fi
-
-CHROMOSOME_SIZE=""
-echo "Annotation Source = ${size}"
-if [ "${size}" != "" ]; then
-
-    cp "${size}" "${TMPDIR}/${size##*/}"
-    CHROMOSOME_SIZE="${TMPDIR}/${size##*/}"
-    echo "New annotation location ${CHROMOSOME_SIZE}"
-
-else
-    echo "Could not continue as no annotation set was provided."
-
-# Ping back our info to the webserver
-ssh ${USERNAME}@${HPC_IP} << EOF
-    curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
-EOF
-
-    exit
-fi
 # =================================== DONE BUILDING OUR EXECUTION VARIABLES! ==========================================
 
 # ================================================== CORE SAMPLE LOOP =================================================
@@ -68,6 +47,7 @@ echo "Beginning alignment module"
 IFS=',' read SAMPLE_NAME SAMPLE_INPUT_PATH SAMPLE_OUTPUT_PATH EXTRA < <(sed -n ${SGE_TASK_ID}p ${DATA_FILE})
 
 READ_1=""
+READ_2=""
 REGEX=".*\\*.*"
 
 # We are looking for a specific file type
@@ -113,6 +93,48 @@ EOF
     fi
 done
 
+# We are looking for a specific file type
+for f in ${SAMPLE_INPUT_PATH}/*_R2_001.fastq; do
+    if [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
+
+    elif [ "${READ_2}" ]; then
+        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+        exit
+
+    else
+        echo "Identified ${f}"
+        READ_2="${f}"
+    fi
+done
+
+# We are looking for a specific file type
+for f in ${SAMPLE_INPUT_PATH}/*_R2_001.fastq.gz; do
+    if [[ "${f}" =~ $REGEX ]]; then
+        echo "Ignoring: ${f} as it is likely a false positive"
+
+    elif [ "${READ_2}" ]; then
+        echo "More that one R2 was identified. Exome alignment cannot determine which you wish to align"
+
+# Ping back our info to the webserver
+ssh ${USERNAME}@${HPC_IP} << EOF
+curl --form event="module_error" ${SERVER}\'/message/pipelines|${TICKET}\'
+EOF
+
+        exit
+
+    else
+        echo "Identified ${f}"
+        READ_2="${f}"
+    fi
+done
+
 if [ -z "${READ_1}" ]; then
     echo "Could not identifiy the primary read fastq"
 
@@ -130,11 +152,21 @@ else
     echo "Read 1 was identified as: ${READ_1}"
 fi
 
+if [ "${READ_2}" ]; then
+    echo "Read 2 was identified as: ${READ_2}"
+
+    if [[ "${READ_2}" =~ $REGEX ]]; then
+        echo "Read 2 was likely malformed as it contained a regex pointer. Read 2 will be discarded"
+        READ_2 = ""
+    fi
+fi
+
 mkdir -p "${SAMPLE_OUTPUT_PATH}"
+
 
 ############################### ALIGNMENT TO THE REFERENCE GENOME #######################################
 printf "Started Alignment on $date\n\n"
-novoalign -F STDFQ -f "${READ_1}" -d "${REFERENCE}" -o SAM -o SoftClip --Q2Off -k -a -g 65 -x 7 -c 8 2> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_alignment_metrics.txt" | samtools view -bS - > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
+novoalign -F STDFQ -f "${READ_1}" "${READ_2}" -d $REF/novoindex/novoindex -o SAM -o SoftClip --Q2Off -k -a -g 65 -x 7 -c 8 2> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_alignment_metrics.txt" | samtools view -bS - > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
 printf "Finished Alignment on $date\n\n"
 #########################################################################################################
 
@@ -156,36 +188,40 @@ samtools index "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam"
 printf "Finished indexing BAM file on $date\n\n"
 #########################################################################################################
 
-############################# BAM TO BED FORMAT #########################################################
-printf "Started converting to BED format on `date`\n\n"
-bamToBed -i "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bam" > "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
-printf "Finished converting to BED format on `date`\n\n"
-#########################################################################################################
 
 total_final_reads=`cat "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" | wc -l`
+
 printf "\n\n\ntotal_final_reads = $total_final_reads\n\n\n" >> "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_alignment_metrics.txt"
 
-################################################ RUNNING MACS2 to make BigWig files #####################
+
+################################################ RUNNING MACS2 to make BigWig files ###############################
+
 printf "Started running MACS2 on `date`\n\n"
-macs2 callpeak -t "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -f BED -g hs --keep-dup=all --outdir "${SAMPLE_OUTPUT_PATH}/macs2" -n "${SAMPLE_NAME}" -B --SPMR --nomodel --extsize=200 -q 0.05
+
+macs2 callpeak -t "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -f BED -g hs --keep-dup=all --outdir "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_macs2" -n $sample -B --SPMR --nomodel --extsize=200 -q 0.05
+
 printf "Finished running MACS2 on `date`\n\n"
 
 printf "Started making genome browser supported files on `date`\n\n"
-bedClip "${SAMPLE_OUTPUT_PATH}/macs2/${SAMPLE_NAME}_treat_pileup.bdg" "${CHROMOSOME_SIZE}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
-bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg" "${CHROMOSOME_SIZE}" "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
-printf "Finished making genome browser supported files on `date`\n\n"
-##########################################################################################################
 
-printf "Tidying up on `date`\n\n"
+bedClip "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_macs2/${SAMPLE_NAME}_treat_pileup.bdg" $REF/chromsize/chromsize "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
+
+bedGraphToBigWig "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg" $REF/chromsize/chromsize "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bw"
+
+printf "Finished making genome browser supported files on `date`\n\n"
+
+###############################################################################################################################
+
+
+
+printf "Tidying up on $date\n\n"
 
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}.bam"
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_sorted.bam"
-rm "${SAMPLE_OUTPUT_PATH}/macs2/${SAMPLE_NAME}_treat_pileup.bdg"
-rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
 rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed"
+rm "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_treat_temp.bdg"
 rm -rf "${SAMPLE_OUTPUT_PATH}/macs2"
 
 # ================================================== CORE SAMPLE LOOP =================================================
 
 rm "${TMPDIR}/${ref##*/}"
-rm "${TMPDIR}/${size##*/}"

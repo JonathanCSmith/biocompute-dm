@@ -116,7 +116,14 @@ def staged_files():
     if path.endswith("/"):
         path = path[:-1]
 
-    return render_template("staged_files.html", title="My Files", path=path, port=current_app.config["EXTERNAL_SFTP_PORT"])
+    #TODO: Can make this a config option that allows us to exclude certain addresses for external port config
+    # Allows us to have a different port for LAN and WAN - may be necessary with certain configs
+    if path.startswith("10") or path.startwith("127"):
+        port = "22"
+    else:
+        port = current_app.config["EXTERNAL_SFTP_PORT"]
+
+    return render_template("staged_files.html", title="My Files", path=path, port=port)
 
 
 @manage.route("/submissions/<int:page>")
