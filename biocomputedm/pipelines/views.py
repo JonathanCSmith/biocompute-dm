@@ -519,6 +519,7 @@ def module_instance(pid="", oid=""):
 
 @pipelines.route("/delete_pipeline_instance/<oid>")
 @pipelines.route("/delete_pipeline_instance/<oid>|<int:force>")
+@login_required("ANY")
 def delete_pipeline_instance(oid="", force=0):
     if force != 1:
         return render_template(

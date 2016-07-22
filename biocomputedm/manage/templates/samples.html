@@ -21,6 +21,10 @@
                 <th>Last Updated</th>
                 <th>Pipeline Source</th>
                 <th>Number of Data Sets</th>
+
+                {% if g.user.get_role() == "Site Admin" %}
+                <th>Remove</th>
+                {% endif %}
             </tr>
 
             {% if obs %}
@@ -37,6 +41,10 @@
                 {% endautoescape %}
                 {% endif %}
                 <td>{{ item.data.all()|length }}</td>
+
+                {% if g.user.get_role() == "Site Admin" %}
+                <td><a class="input" href="{{ url_for('manage.delete_sample', oid=item.display_key) }}">Delete</a></td>
+                {% endif %}
             </tr>
             {% endfor %}
             {% endif %}

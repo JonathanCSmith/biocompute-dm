@@ -462,6 +462,52 @@ def sample(oid=""):
     return render_template("sample.html", title="Sample " + sample.name, sample=sample)
 
 
+@manage.route("/delete_sample/<oid>")
+@manage.route("/delete_sample/<oid>|<int:force>")
+@login_required("Site Admin")
+def delete_sample(oid="", force=0):
+    if force != 1:
+        return render_template(
+            "confirm.html",
+            message="Are you sure you wish to remove this sample?",
+            oid=oid,
+            url="manage.delete_sample"
+        )
+
+    if oid == "":
+        flash("No instance identifiers were provided.", "warning")
+        return redirect(url_for("empty"))
+
+    if current_user.get_role() == "Site Admin":
+        sample = Sample.query.filter_by(display_key=oid).first()
+    else:
+        flash("You do not have permission to do this.", "warning")
+        return redirect(url_for("index"))
+
+    if sample is None:
+        flash("Could not identify the sample", "warning")
+        return redirect(url_for("index"))
+
+    for data in sample.data:
+        data_group = data.data_group
+        data.delete()
+        if data_group.data is None or not data_group.data:
+            data_group.delete()
+
+    sample.delete()
+
+    subprocess.Popen(
+        [
+            "sudo",
+            os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "delete.sh"),
+            "-s=" + os.path.join(utils.get_path("sample_data", "webserver"), oid)
+        ]
+    )
+
+    flash("Sample was deleted successfully", "success")
+    return redirect(url_for("manage.samples"))
+
+
 @manage.route("/data_groups/<int:page>")
 @manage.route("/data_groups")
 @login_required("ANY")
