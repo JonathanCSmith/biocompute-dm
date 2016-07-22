@@ -114,7 +114,7 @@ def staged_files():
     if path.startswith("http://"):
         path = path.replace("http://", "")
 
-    if path.startswith("https://")
+    if path.startswith("https://"):
         path = path.replace("https://", "")
 
     if path.endswith("/"):
