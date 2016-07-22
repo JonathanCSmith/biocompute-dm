@@ -118,7 +118,7 @@ def staged_files():
 
     #TODO: Can make this a config option that allows us to exclude certain addresses for external port config
     # Allows us to have a different port for LAN and WAN - may be necessary with certain configs
-    if path.startswith("10") or path.startwith("127"):
+    if path.startswith("10") or path.startswith("127"):
         port = "22"
     else:
         port = current_app.config["EXTERNAL_SFTP_PORT"]
