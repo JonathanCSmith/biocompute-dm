@@ -198,7 +198,7 @@ printf "\n\n\ntotal_final_reads = $total_final_reads\n\n\n" >> "${SAMPLE_OUTPUT_
 
 printf "Started running MACS2 on `date`\n\n"
 
-macs2 callpeak -t "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -f BED -g hs --keep-dup=all --outdir "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_macs2" -n $sample -B --SPMR --nomodel --extsize=200 -q 0.05
+macs2 callpeak -t "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final.bed" -f BED -g ${ORGANISM} --keep-dup=all --outdir "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_macs2" -n $sample -B --SPMR --nomodel --extsize=200 -q 0.05
 
 printf "Finished running MACS2 on `date`\n\n"
 

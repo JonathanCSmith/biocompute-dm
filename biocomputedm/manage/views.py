@@ -103,18 +103,23 @@ def display_data(item_id="", data_type=""):
         data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), data_item.unlocalised_path), data_item.name)
         file_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
+    elif data_type == "module_alt":
+        data_path = os.path.join(utils.get_path("pipeline_data", "serve"), item_id)
+        file_path = os.path.join(utils.get_path("pipeline_data", "webserver"), item_id)
+
     if data_path is None or file_path is None:
         flash("Could not identify the provided data set's path", "warning")
-        return redirect(url_for("empty"))
-
-    stats = os.stat(file_path)
-    if stats.st_size > 5242880: #5mb
-        flash("The file is too big to download from the browser, please use the SFTP process instead.", "info")
         return redirect(url_for("empty"))
 
     if not os.path.isfile(file_path):
         flash("Viewing nested data is currently not supported, please download the folder instead", "warning")
         return redirect(url_for("empty"))
+
+    if data_type != "module_alt":
+        stats = os.stat(file_path)
+        if stats.st_size > 5242880: #5mb
+            flash("The file is too big to download from the browser, please use the SFTP process instead.", "info")
+            return redirect(url_for("empty"))
 
     return render_template("data_viewer.html", title="Data Display", data_item=data_item, data_path=data_path)
 
@@ -187,16 +192,28 @@ def new_submission():
     # list of the available files in user directory
     filepaths = next(os.walk(directory_path))
     files = []
+
+    for file in filepaths[1]:
+        path = os.path.join(directory_path, file)
+        s = os.stat(path)
+        files.append({
+            "name": file,
+            "path": path,
+            "size": os.path.getsize(path),
+            "date": time.ctime(s.st_ctime)
+        })
+
     for file in filepaths[2]:
-        rx = re.compile("^(.*)(?<!\.fastq)\.(7z|bz2|deb|gz|tar|tbz2|xz|tgz|rar|zip|Z)$")
-        if rx.match(file):
-            s = os.stat(os.path.join(directory_path, file))
-            files.append({
-                "name": file,
-                "path": os.path.join(directory_path, file),
-                "size": s.st_size,
-                "date": time.ctime(s.st_ctime)
-            })
+        # rx = re.compile("^(.*)(?<!\.fastq)\.(7z|bz2|deb|gz|tar|tbz2|xz|tgz|rar|zip|Z)$")
+        # if rx.match(file):
+        path = os.path.join(directory_path, file)
+        s = os.stat(path)
+        files.append({
+            "name": file,
+            "path": path,
+            "size": s.st_size,
+            "date": time.ctime(s.st_ctime)
+        })
 
     # List the available files in group directory
     directory_path = os.path.join(current_app.config["SFTP_USER_ROOT_PATH"], current_user.group.name)
@@ -204,20 +221,23 @@ def new_submission():
     filepaths = next(os.walk(directory_path))
 
     for file in filepaths[1]:
+        path = os.path.join(directory_path, file)
+        s = os.stat(path)
         files.append({
             "name": file,
-            "path": os.path.join(directory_path, file),
-            "size": "directory",
+            "path": path,
+            "size": os.path.getsize(path),
             "date": time.ctime(s.st_ctime)
         })
 
     for file in filepaths[2]:
         # rx = re.compile("^(.*)(?<!\.fastq)\.(7z|bz2|deb|gz|tar|tbz2|xz|tgz|rar|zip|Z)$")
         # if rx.match(file):
-        s = os.stat(os.path.join(directory_path, file))
+        path = os.path.join(directory_path, file)
+        s = os.stat(path)
         files.append({
             "name": file,
-            "path": os.path.join(directory_path, file),
+            "path": path,
             "size": s.st_size,
             "date": time.ctime(s.st_ctime)
         })

@@ -20,6 +20,15 @@
           "user_interaction_type": "reference",
           "necessary": true,
           "description": "This field requires you to specify one of the reference genome indexes."
+        },
+
+        {
+          "display_name": "Organism Type",
+          "parameter_name": "org",
+          "default_value": "hs,mm",
+          "user_interaction_type": "enum",
+          "necessary": true,
+          "description": "Mappable size of the organism."
         }
       ]
     }

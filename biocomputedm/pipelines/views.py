@@ -514,7 +514,27 @@ def module_instance(pid="", oid=""):
         flash("Could not locate the provided module instance", "warning")
         return redirect(url_for("empty"))
 
-    return render_template("module_instance.html", title="Module Instance", module_instance=m_instance)
+    # Conditionally index the module files so that we can view them on the web page whilst executing - if the module is done (for whatever reason) instead, make use of the indexed files
+    files = None
+    if pipeline_instance.current_execution_status != "FINISHED" and pipeline_instance.current_execution_status != "STOPPED" and pipeline_instance.current_execution_status != "ERROR":
+        local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
+        local_module_directory = os.path.join(os.path.join(local_pipeline_directory, "modules_output"), m_instance.module.name)
+        filepaths = next(os.walk(local_module_directory))
+        for file in filepaths[1]:
+            path = os.path.join(os.path.join(os.path.join(pipeline_instance.display_key, "modules_output"), m_instance.display_key), file)
+            files.append({
+                "name": file,
+                "path": path
+            })
+
+        for file in filepaths[2]:
+            path = os.path.join(local_module_directory, file)
+            files.append({
+                "name": file,
+                "path": path
+            })
+
+    return render_template("module_instance.html", title="Module Instance", module_instance=m_instance, files=files)
 
 
 @pipelines.route("/delete_pipeline_instance/<oid>")

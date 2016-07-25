@@ -80,6 +80,27 @@
         </div>
         {% endfor %}
     </div>
+
+    {% elif files %}
+    <div class="spacer"></div>
+
+    <div class="action exempt">
+        <h3>Module Files</h3>
+
+        {% for batch in files | batch(4, 'empty') %}
+        <div class="container-fluid">
+            <div class="row">
+                {% for file in batch %}
+                {% if file != "empty" %}
+                <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
+                    <a href="{{ url_for('manage.display_data', item_id=files['path'], data_type='module_alt') }}">{{ file["name"] }}</a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
     {% endif %}
 </div>
 {% endblock %}
