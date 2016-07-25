@@ -599,10 +599,6 @@ def parse_outputs(app, running_pipeline_id):
                 app.logger.error("Could not execute the next pipeline module as it is in the " + running_pipeline.current_execution_status + " phase.")
                 return
 
-            if running_pipeline.current_execution_index != len(running_pipeline.pipeline.modules.all()) - 1:
-                app.logger.error("Cannot finalise pipeline when it has not finished all of its modules.")
-                return
-
             # Dummy container
             data_group = None
 
