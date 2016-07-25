@@ -197,7 +197,6 @@ def calculate_viable_pipelines_for_submission(oid):
     submission = Submission.query.filter_by(display_key=oid).first()
     if submission is None:
         return
-    data_group = submission.data_group
 
     # list of the available type I pipelines
     pipelines = Pipeline.query.filter_by(type="I", executable=True)
@@ -256,6 +255,11 @@ def calculate_viable_pipelines_for_submission(oid):
 
                 valid_pipelines += pipeline.display_key
                 continue
+
+    # Race condition?
+    data_group = submission.data_group
+    if data_group is None:
+        return
 
     data_group.update(valid_pipelines=valid_pipelines)
 

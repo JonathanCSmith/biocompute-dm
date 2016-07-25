@@ -44,7 +44,8 @@ if [ "${sample_sheet}" != "SampleSheet.csv" ]; then
 #    cut -d, -f7 --complement "${sample_sheet}" > tmpfile # Remove the project column as it is not wanted! :D
     mv tmpfile "${sample_sheet}"
 
-    awk 'BEGIN {FS=OFS=","} {for (i=2;i<=NF;i++) sub(/_/,"£££",$i)} 1' "${sample_sheet}" > tmpfile
+    # Currently removes underscores - this should be looked at but I don't consider it a full time bug to remove them as illumina does weird things with underscores
+    awk 'BEGIN {FS=OFS=","} {for (i=2;i<=NF;i++) sub(/_/,"",$i)} 1' "${sample_sheet}" > tmpfile
     mv tmpfile "${sample_sheet}"
 
     EXECUTION_VARIABLES+=" --sample-sheet ${sample_sheet}"
