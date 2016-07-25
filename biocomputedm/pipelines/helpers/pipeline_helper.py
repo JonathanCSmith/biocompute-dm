@@ -595,7 +595,7 @@ def parse_outputs(app, running_pipeline_id):
                 app.logger.error("Could not identify the running pipeline in order to initialise.")
                 return
 
-            if running_pipeline.current_execution_status != "STOPPED" or running_pipeline.current_execution_status != "ERROR":
+            if running_pipeline.current_execution_status != "STOPPED" and running_pipeline.current_execution_status != "ERROR":
                 app.logger.error("Could not execute the next pipeline module as it is in the " + running_pipeline.current_execution_status + " phase.")
                 return
 
