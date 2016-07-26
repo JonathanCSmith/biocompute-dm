@@ -110,6 +110,16 @@ def display_data(item_id="", data_type=""):
         file_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
     elif data_type == "module":
+        if current_user.get_role() == "Site Admin":
+            data_item = DataItem.query.filter_by(display_key=item_id).first()
+
+        else:
+            data_item = current_user.group.data_items.filter_by(display_key=item_id).first()
+
+        if data_item is None:
+            flash("Could not identify the provided data set", "warning")
+            return redirect(url_for("empty"))
+
         data_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "serve"), data_item.unlocalised_path), data_item.name)
         file_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
