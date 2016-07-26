@@ -94,7 +94,7 @@
                 {% if file != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
                     {% set value = [module_instance.instance.display_key, '___', module_instance.module.name, '___', file["name"] ] %}
-                    <a href="{{ url_for('manage.display_data', item_id=value|join, data_type='module') }}">{{ file["name"] }}</a>
+                    <a href="{{ url_for('manage.display_data', item_id=value|join, data_type='module_alt') }}">{{ file["name"] }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
