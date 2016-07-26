@@ -109,7 +109,7 @@ def display_data(item_id="", data_type=""):
             flash("Bad URL for module data provided", "warning")
             return redirect(url_for("empty"))
 
-        sub_path = os.path.join(os.path.join(os.path.join(data_parts[0], "module_outputs"), data_parts[1]), data_parts[2])
+        sub_path = os.path.join(os.path.join(os.path.join(data_parts[0], "modules_output"), data_parts[1]), data_parts[2])
         data_path = os.path.join(utils.get_path("pipeline_data", "serve"), sub_path)
         file_path = os.path.join(utils.get_path("pipeline_data", "webserver"), sub_path)
 
