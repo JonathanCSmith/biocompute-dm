@@ -25,22 +25,14 @@ do
     if [[ ${f} == *.fastq.gz ]]; then
         echo "Processing ${f}"
         NAME="${f##*/}"
-        NAME_WITHOUT_EXTENSION="${NAME%.*}"
-        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%.*}"
-        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
-        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
-
-        # Identify the correct directory name
-        IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
-        echo "Sample identifier parsed as: ${ID}"
-
-        ID=${ID/"£££"/"_"}
+        NAME_WITHOUT_EXTENSION="${NAME%_*_*_*}"
+        echo "Sample identifier parsed as: ${NAME_WITHOUT_EXTENSION}"
 
         DIR="${DATA_OUTPUT_DIRECTORY}"
         if [[ ${ID} == Undetermine* ]]; then
-            DIR+="/${NAME_WITHOUT_EXTENSION}"
+            DIR+="/Undetermined"
         else
-            DIR+="/${ID}"
+            DIR+="/${NAME_WITHOUT_EXTENSION}"
         fi
 
         # Make the directory if it does not exist yet
@@ -53,22 +45,14 @@ do
     elif [[ ${f} == *_fastqc.html || ${f} == *_fastqc.zip ]]; then
         echo "Processing ${f}"
         NAME="${f##*/}"
-        NAME_WITHOUT_EXTENSION="${NAME%.*}"
-        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_fastqc}"
-        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
-        NAME_WITHOUT_EXTENSION="${NAME_WITHOUT_EXTENSION%_*}"
-
-        ID=${ID/"£££"/"_"}
-
-        # Identify the correct directory name
-        IFS="_" read -r ID leftover <<< "${NAME_WITHOUT_EXTENSION}"
-        echo "Sample identifier parsed as: ${ID}"
+        NAME_WITHOUT_EXTENSION="${NAME%_*_*_*}"
+        echo "Sample identifier parsed as: ${NAME_WITHOUT_EXTENSION}"
 
         DIR="${DATA_OUTPUT_DIRECTORY}"
         if [[ ${ID} == Undetermine* ]]; then
-            DIR+="/${NAME_WITHOUT_EXTENSION}"
+            DIR+="/Undetermined"
         else
-            DIR+="/${ID}"
+            DIR+="/${NAME_WITHOUT_EXTENSION}"
         fi
 
         # Make the directory if it does not exist yet

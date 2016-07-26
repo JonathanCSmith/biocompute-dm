@@ -311,9 +311,6 @@ def initialise_running_pipeline(running_pipeline_id, source_data_group_id):
         return
 
 
-# TODO: If you are looking for better reporting, module outputs (and probably pipeline outputs) should be refreshed every module, however I was worried about db io and so didnt
-# TODO: implement this yet. (Would have to destroy / create the DataGroups every time!)
-
 @async
 def execute_pipeline_module(app, running_pipeline_id=""):
     running_pipeline = None
