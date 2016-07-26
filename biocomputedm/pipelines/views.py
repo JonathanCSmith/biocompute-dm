@@ -515,7 +515,7 @@ def module_instance(pid="", oid=""):
         return redirect(url_for("empty"))
 
     # Conditionally index the module files so that we can view them on the web page whilst executing - if the module is done (for whatever reason) instead, make use of the indexed files
-    files = None
+    files = []
     if pipeline_instance.current_execution_status != "FINISHED" and pipeline_instance.current_execution_status != "STOPPED" and pipeline_instance.current_execution_status != "ERROR":
         local_pipeline_directory = os.path.join(utils.get_path("pipeline_data", "webserver"), pipeline_instance.display_key)
         local_module_directory = os.path.join(os.path.join(local_pipeline_directory, "modules_output"), m_instance.module.name)
