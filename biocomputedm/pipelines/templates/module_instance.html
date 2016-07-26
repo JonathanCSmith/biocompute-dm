@@ -93,7 +93,7 @@
                 {% for file in batch %}
                 {% if file != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
-                    <a href="{{ url_for('manage.display_data', item_id=files['path'], data_type='module_alt') }}">{{ file["name"] }}</a>
+                    <a href="{{ url_for('manage.display_data', item_id=file['path'], data_type='module_alt') }}">{{ file["name"] }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
