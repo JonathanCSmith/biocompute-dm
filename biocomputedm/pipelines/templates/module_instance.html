@@ -72,7 +72,8 @@
                 {% for data in batch %}
                 {% if data != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
-                    <a href="{{ url_for('manage.display_data', item_id=module_instance.instance.display_key ~ '___' ~ module_instance.name ~ '___' file['name'], data_type='module') }}">{{ data.name }}</a>
+                    {% set target = module_instance.instance.display_key ~ '___' ~ module_instance.name ~ '___' file['name'] %}
+                    <a href="{{ url_for('manage.display_data', item_id=target, data_type='module') }}">{{ data.name }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
