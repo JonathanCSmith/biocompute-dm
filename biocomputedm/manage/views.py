@@ -104,8 +104,10 @@ def display_data(item_id="", data_type=""):
         file_path = os.path.join(os.path.join(utils.get_path("pipeline_data", "webserver"), data_item.unlocalised_path), data_item.name)
 
     elif data_type == "module_alt":
-        data_path = os.path.join(utils.get_path("pipeline_data", "serve"), item_id)
-        file_path = os.path.join(utils.get_path("pipeline_data", "webserver"), item_id)
+        data_parts = data_type.split("___")
+        sub_path = os.path.join(os.path.join(os.path.join(data_parts[0], "module_outputs"), data_parts[1]), data_parts[2])
+        data_path = os.path.join(utils.get_path("pipeline_data", "serve"), sub_path)
+        file_path = os.path.join(utils.get_path("pipeline_data", "webserver"), sub_path)
 
     if data_path is None or file_path is None:
         flash("Could not identify the provided data set's path", "warning")

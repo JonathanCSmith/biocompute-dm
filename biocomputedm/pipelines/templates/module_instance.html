@@ -72,7 +72,7 @@
                 {% for data in batch %}
                 {% if data != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
-                    <a href="{{ url_for('manage.display_data', item_id=data.display_key, data_type='module') }}">{{ data.name }}</a>
+                    <a href="{{ url_for('manage.display_data', item_id=module_instance.instance.display_key ~ '___' ~ module_instance.name ~ '___' file['name'], data_type='module') }}">{{ data.name }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
@@ -93,7 +93,7 @@
                 {% for file in batch %}
                 {% if file != "empty" %}
                 <div class="col-md-3" style="-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;">
-                    <a href="{{ url_for('manage.display_data', item_id=file['path'], data_type='module_alt') }}">{{ file["name"] }}</a>
+                    <a href="{{ url_for('manage.display_data', item_id=file['name'], data_type='module_alt') }}">{{ file["name"] }}</a>
                 </div>
                 {% endif %}
                 {% endfor %}
