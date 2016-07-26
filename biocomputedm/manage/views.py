@@ -79,6 +79,7 @@ def display_data(item_id="", data_type=""):
         flash("Could not identify the provided data set", "warning")
         return redirect(url_for("empty"))
 
+    data_item = None
     file_path = None
     data_path = None
     if data_type == "sample":
