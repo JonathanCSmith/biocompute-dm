@@ -13,7 +13,7 @@ class Pipeline(SurrogatePK, Model):
     version = Column(String(50), nullable=False)
     type = Column(Enum("I", "II", "III"), nullable=False)
     regex_type = Column(Enum("AND", "OR"), nullable=False)
-    regex = Column(String(100), nullable=False)
+    regex = Column(String(500), nullable=False)
     documentation = Column(String(50), nullable=False)
     executable = Column(SmallInteger(), default=False)
 

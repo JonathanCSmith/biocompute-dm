@@ -7,7 +7,7 @@ source ${HOME}/.bashrc
 
 module load novoalign/3.01.02
 module load bioinformatics/samtools/0.1.19
-module load picard-tools/2.0.1
+module load picard-tools/2.2.2
 module load bedtools/2.16.2
 
 OLDIFS="${IFS}"
@@ -24,7 +24,7 @@ REFERENCE=""
 echo "reference_genome = ${ref}"
 if [ "${ref}" != "" ]; then
 
-    cp "${ref}" "${TMPDIR}/${ref##*/}"
+    cp -a "${ref}" "${TMPDIR}/${ref##*/}"
     REFERENCE="${TMPDIR}/${ref##*/}"
     echo "New reference location: ${REFERENCE}"
 

@@ -35,7 +35,7 @@ def upgrade():
     sa.Column('version', sa.String(length=50), nullable=False),
     sa.Column('type', sa.Enum('I', 'II', 'III'), nullable=False),
     sa.Column('regex_type', sa.Enum('AND', 'OR'), nullable=False),
-    sa.Column('regex', sa.String(length=100), nullable=False),
+    sa.Column('regex', sa.String(length=500), nullable=False),
     sa.Column('documentation', sa.String(length=50), nullable=False),
     sa.Column('executable', sa.SmallInteger(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
