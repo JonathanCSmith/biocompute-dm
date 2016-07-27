@@ -67,7 +67,7 @@ def change_password(type=""):
                 return redirect(url_for("admin.change_password", type=type))
 
             flash("Password changed successfully", "success")
-            return redirect(url_for("admin.change_password", type=type))
+            return redirect(url_for("admin.profile", type=type))
 
         else:
             utils.flash_errors(form)

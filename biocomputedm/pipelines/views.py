@@ -137,7 +137,7 @@ def refresh_pipelines():
 @pipelines.route("/display_pipelines/<int:page>|<int:display>")
 @login_required("ANY")
 def display_pipelines(display=0, page=1):
-    p = Pipeline.query.paginate(page=page, per_page=20)
+    p = Pipeline.query.filter_by(executable=True).paginate(page=page, per_page=20)
     return render_template("pipelines.html", title="Pipelines", page=page, obs=p, display=display)
 
 
@@ -215,7 +215,6 @@ def build_pipeline_instance(oid="", pid=""):
             for option in module.options:
                 options.append(option)
 
-
         return render_template(
             "build_pipeline_instance.html",
             title="Pipeline Options",
@@ -229,7 +228,8 @@ def build_pipeline_instance(oid="", pid=""):
     # The user has selected the pipeline and now wants to execute it using their selection
     else:
         # Get our properties
-        execution_type = str(form.execution_field.data)
+        # execution_type = str(form.execution_field.data) # FIXME ADD BACK IN STEPWISE, IF DESIRED!
+        execution_type = "Continuous"
         options_type = str(form.options_field.data)
 
         # Check our other input args
@@ -537,207 +537,208 @@ def module_instance(pid="", oid=""):
     return render_template("module_instance.html", title="Module Instance", module_instance=m_instance, files=files)
 
 
-@pipelines.route("/delete_pipeline_instance/<oid>")
-@pipelines.route("/delete_pipeline_instance/<oid>|<int:force>")
-@login_required("ANY")
-def delete_pipeline_instance(oid="", force=0):
-    if force != 1:
-        return render_template(
-            "confirm.html",
-            message="Are you sure you wish to remove this pipeline run?",
-            oid=oid,
-            url="pipelines.delete_pipeline_instance"
-        )
-
-    if oid == "":
-        flash("No instance identifiers were provided.", "warning")
-        return redirect(url_for("empty"))
-
-    if current_user.get_role() == "Site Admin":
-        pipeline_instance = PipelineInstance.query.filter_by(display_key=oid).first()
-    else:
-        pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
-
-    if pipeline_instance is None:
-        flash("Could not identify the module parent", "warning")
-        return redirect(url_for("index"))
-
-    data_group = pipeline_instance.pipeline_output
-    pipeline_instance.delete()
-    if data_group is not None:
-        data_group.delete()
-
-    subprocess.Popen(
-        [
-            "sudo",
-            os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "delete.sh"),
-            "-s=" + os.path.join(utils.get_path("pipeline_data", "webserver"), oid)
-        ]
-    )
-
-    flash("Pipeline was deleted successfully", "success")
-    return redirect(url_for("pipelines.display_pipeline_instances"))
-
-
-@pipelines.route("/continue_pipeline_instance/<oid>")
-@login_required("ANY")
-def continue_pipeline(oid=""):
-    if current_user.get_role() == "Site Admin":
-        return redirect(url_for("content.activity"))
-
-    if oid == "":
-        flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("empty"))
-
-    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
-    if pipeline_instance is None:
-        flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("empty"))
-
-    # We were not waiting for input - something else has happened
-    if pipeline_instance.current_execution_status != "WAITING":
-        flash("Could not resume the current pipeline as it is in a false state", "error")
-        return redirect(url_for("empty"))
-
-    # We have the options already - from a state perspective I am not sure how this will arise but its best to handle
-    if pipeline_instance.execution_type == "Continuous":
-        from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_module
-        execute_pipeline_module(current_app._get_current_object(), pipeline_instance.display_key)
-
-        flash("Submitting the next module for execution.", "success")
-        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
-
-    # Need to obtain the options
-    else:
-        return redirect(url_for("pipelines.build_module_instance",
-                                pid=oid,
-                                oid=pipeline_instance.data_consigner.display_key,
-                                index=pipeline_instance.current_execution_index))
-
-
-@pipelines.route("/change_module/<oid>|<change_type>")
-@pipelines.route("/change_module/<oid>|<change_type>|<int:force>")
-@login_required("ANY")
-def change_module(oid="", change_type="", force=0):
-    if current_user.get_role() == "Site Admin":
-        return redirect(url_for("content.activity"))
-
-    if force != 1:
-        return render_template("confirm.html",
-                               message="Are you sure you wish to restart the current module?",
-                               oid=oid,
-                               url="pipelines.change_module",
-                               type=change_type)
-
-    if oid == "":
-        flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("pipelines.display_pipelines"))
-
-    pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
-    if pipeline_instance is None:
-        flash("Could not load the provided pipeline instance", "error")
-        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
-
-    # TODO - If module is running parse for job id and kill all
-
-    if change_type == "back":
-        if pipeline_instance.current_execution_index == 0:
-            flash("Cannot go back a step when there are no previous steps.", "error")
-            return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
-
-        pipeline_instance.update(current_execution_status="STOPPED")
-
-        # Find the correct module template
-        module_instances = pipeline_instance.module_instances.all()
-        module = None
-        for mod in module_instances:
-            if mod.module.execution_index == pipeline_instance.current_execution_index:
-                module = mod
-                break
-
-        # Clean the current module directory
-        subprocess.Popen(
-            [
-                "sudo",
-                os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "cleanup"), "wipe_directory.sh"),
-                "-p=" + os.path.join(
-                    os.path.join(
-                        os.path.join(
-                            utils.get_path("pipeline_data", "webserver"),
-                            pipeline_instance.display_key),
-                        "modules_output"),
-                    module.module.name)
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-
-        target_index = pipeline_instance.current_execution_index - 1
-
-    elif change_type == "current":
-        pipeline_instance.update(current_execution_status="STOPPED")
-
-        target_index = pipeline_instance.current_execution_index
-
-    elif change_type == "next":
-        if pipeline_instance.current_execution_index >= len(pipeline_instance.module_instances.all()) - 1:
-            flash("Cannot proceed to the next step when there are no more steps.", "error")
-            return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
-
-        pipeline_instance.update(current_execution_status="STOPPED")
-
-        target_index = pipeline_instance.current_execution_index + 1
-
-    else:
-        flash("Could not modify the provided pipeline instance", "error")
-        return redirect(url_for("index"))
-
-    # Find the correct module template
-    module_instances = pipeline_instance.module_instances.all()
-    module = None
-    for mod in module_instances:
-        if mod.module.execution_index == target_index:
-            module = mod
-            break
-
-    # Clean the module directory
-    subprocess.Popen(
-        [
-            "sudo",
-            os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "cleanup"), "wipe_directory.sh"),
-            "-p=" + os.path.join(
-                os.path.join(
-                    os.path.join(
-                        utils.get_path("pipeline_data", "webserver"),
-                        pipeline_instance.display_key),
-                    "modules_output"),
-                module.module.name)
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-
-    # Change the current execution index
-    pipeline_instance.update(current_execution_index=target_index)
-
-    # We have the options already
-    if pipeline_instance.execution_type == "Continuous":
-        from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
-        execute_module_instance(current_app._get_current_object(),
-                                pipeline_instance.display_key,
-                                pipeline_instance.data_consigner.display_key)
-
-        flash("Submitting the next module for execution.", "success")
-        return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
-
-    # Need to obtain the options
-    else:
-        flash("Please enter the options for this module.", "success")
-        return redirect(
-            url_for("pipelines.build_module_instance",
-                    pid=oid,
-                    oid=pipeline_instance.data_consigner.display_key,
-                    index=pipeline_instance.current_execution_index))
+# FIXME: Uncomment for step wise controls
+# @pipelines.route("/delete_pipeline_instance/<oid>")
+# @pipelines.route("/delete_pipeline_instance/<oid>|<int:force>")
+# @login_required("ANY")
+# def delete_pipeline_instance(oid="", force=0):
+#     if force != 1:
+#         return render_template(
+#             "confirm.html",
+#             message="Are you sure you wish to remove this pipeline run?",
+#             oid=oid,
+#             url="pipelines.delete_pipeline_instance"
+#         )
+#
+#     if oid == "":
+#         flash("No instance identifiers were provided.", "warning")
+#         return redirect(url_for("empty"))
+#
+#     if current_user.get_role() == "Site Admin":
+#         pipeline_instance = PipelineInstance.query.filter_by(display_key=oid).first()
+#     else:
+#         pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+#
+#     if pipeline_instance is None:
+#         flash("Could not identify the module parent", "warning")
+#         return redirect(url_for("index"))
+#
+#     data_group = pipeline_instance.pipeline_output
+#     pipeline_instance.delete()
+#     if data_group is not None:
+#         data_group.delete()
+#
+#     subprocess.Popen(
+#         [
+#             "sudo",
+#             os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "io"), "delete.sh"),
+#             "-s=" + os.path.join(utils.get_path("pipeline_data", "webserver"), oid)
+#         ]
+#     )
+#
+#     flash("Pipeline was deleted successfully", "success")
+#     return redirect(url_for("pipelines.display_pipeline_instances"))
+#
+#
+# @pipelines.route("/continue_pipeline_instance/<oid>")
+# @login_required("ANY")
+# def continue_pipeline(oid=""):
+#     if current_user.get_role() == "Site Admin":
+#         return redirect(url_for("content.activity"))
+#
+#     if oid == "":
+#         flash("Could not load the provided pipeline instance", "error")
+#         return redirect(url_for("empty"))
+#
+#     pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+#     if pipeline_instance is None:
+#         flash("Could not load the provided pipeline instance", "error")
+#         return redirect(url_for("empty"))
+#
+#     # We were not waiting for input - something else has happened
+#     if pipeline_instance.current_execution_status != "WAITING":
+#         flash("Could not resume the current pipeline as it is in a false state", "error")
+#         return redirect(url_for("empty"))
+#
+#     # We have the options already - from a state perspective I am not sure how this will arise but its best to handle
+#     if pipeline_instance.execution_type == "Continuous":
+#         from biocomputedm.pipelines.helpers.pipeline_helper import execute_pipeline_module
+#         execute_pipeline_module(current_app._get_current_object(), pipeline_instance.display_key)
+#
+#         flash("Submitting the next module for execution.", "success")
+#         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+#
+#     # Need to obtain the options
+#     else:
+#         return redirect(url_for("pipelines.build_module_instance",
+#                                 pid=oid,
+#                                 oid=pipeline_instance.data_consigner.display_key,
+#                                 index=pipeline_instance.current_execution_index))
+#
+#
+# @pipelines.route("/change_module/<oid>|<change_type>")
+# @pipelines.route("/change_module/<oid>|<change_type>|<int:force>")
+# @login_required("ANY")
+# def change_module(oid="", change_type="", force=0):
+#     if current_user.get_role() == "Site Admin":
+#         return redirect(url_for("content.activity"))
+#
+#     if force != 1:
+#         return render_template("confirm.html",
+#                                message="Are you sure you wish to restart the current module?",
+#                                oid=oid,
+#                                url="pipelines.change_module",
+#                                type=change_type)
+#
+#     if oid == "":
+#         flash("Could not load the provided pipeline instance", "error")
+#         return redirect(url_for("pipelines.display_pipelines"))
+#
+#     pipeline_instance = current_user.group.pipeline_instances.filter_by(display_key=oid).first()
+#     if pipeline_instance is None:
+#         flash("Could not load the provided pipeline instance", "error")
+#         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+#
+#     # TODO - If module is running parse for job id and kill all
+#
+#     if change_type == "back":
+#         if pipeline_instance.current_execution_index == 0:
+#             flash("Cannot go back a step when there are no previous steps.", "error")
+#             return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+#
+#         pipeline_instance.update(current_execution_status="STOPPED")
+#
+#         # Find the correct module template
+#         module_instances = pipeline_instance.module_instances.all()
+#         module = None
+#         for mod in module_instances:
+#             if mod.module.execution_index == pipeline_instance.current_execution_index:
+#                 module = mod
+#                 break
+#
+#         # Clean the current module directory
+#         subprocess.Popen(
+#             [
+#                 "sudo",
+#                 os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "cleanup"), "wipe_directory.sh"),
+#                 "-p=" + os.path.join(
+#                     os.path.join(
+#                         os.path.join(
+#                             utils.get_path("pipeline_data", "webserver"),
+#                             pipeline_instance.display_key),
+#                         "modules_output"),
+#                     module.module.name)
+#             ],
+#             stdout=subprocess.PIPE,
+#             stderr=subprocess.PIPE,
+#         )
+#
+#         target_index = pipeline_instance.current_execution_index - 1
+#
+#     elif change_type == "current":
+#         pipeline_instance.update(current_execution_status="STOPPED")
+#
+#         target_index = pipeline_instance.current_execution_index
+#
+#     elif change_type == "next":
+#         if pipeline_instance.current_execution_index >= len(pipeline_instance.module_instances.all()) - 1:
+#             flash("Cannot proceed to the next step when there are no more steps.", "error")
+#             return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+#
+#         pipeline_instance.update(current_execution_status="STOPPED")
+#
+#         target_index = pipeline_instance.current_execution_index + 1
+#
+#     else:
+#         flash("Could not modify the provided pipeline instance", "error")
+#         return redirect(url_for("index"))
+#
+#     # Find the correct module template
+#     module_instances = pipeline_instance.module_instances.all()
+#     module = None
+#     for mod in module_instances:
+#         if mod.module.execution_index == target_index:
+#             module = mod
+#             break
+#
+#     # Clean the module directory
+#     subprocess.Popen(
+#         [
+#             "sudo",
+#             os.path.join(os.path.join(utils.get_path("scripts", "webserver"), "cleanup"), "wipe_directory.sh"),
+#             "-p=" + os.path.join(
+#                 os.path.join(
+#                     os.path.join(
+#                         utils.get_path("pipeline_data", "webserver"),
+#                         pipeline_instance.display_key),
+#                     "modules_output"),
+#                 module.module.name)
+#         ],
+#         stdout=subprocess.PIPE,
+#         stderr=subprocess.PIPE,
+#     )
+#
+#     # Change the current execution index
+#     pipeline_instance.update(current_execution_index=target_index)
+#
+#     # We have the options already
+#     if pipeline_instance.execution_type == "Continuous":
+#         from biocomputedm.pipelines.helpers.pipeline_helper import execute_module_instance
+#         execute_module_instance(current_app._get_current_object(),
+#                                 pipeline_instance.display_key,
+#                                 pipeline_instance.data_consigner.display_key)
+#
+#         flash("Submitting the next module for execution.", "success")
+#         return redirect(url_for("pipelines.display_pipeline_instance", oid=oid))
+#
+#     # Need to obtain the options
+#     else:
+#         flash("Please enter the options for this module.", "success")
+#         return redirect(
+#             url_for("pipelines.build_module_instance",
+#                     pid=oid,
+#                     oid=pipeline_instance.data_consigner.display_key,
+#                     index=pipeline_instance.current_execution_index))
 
 
 @pipelines.route("/finish_pipeline/<oid>")

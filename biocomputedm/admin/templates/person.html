@@ -13,6 +13,9 @@
                 <th>Email</th>
                 <td>{{ g.user.email }}</td>
             </tr>
+            <tr>
+                <td colspan="2"><a class="input fixed" href="{{ url_for('admin.change_password', type='User') }}">Change Password</a></td>
+            </tr>
         </table>
     </div>
 </div>

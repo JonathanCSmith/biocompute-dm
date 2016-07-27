@@ -7,7 +7,7 @@ from biocomputedm.admin.models import ReferenceData
 
 
 class PipelinePropertiesForm(Form):
-    execution_field = SelectField("Execution Type:", choices=[("Continuous", "Continuous"), ("Per Module", "Stepwise")])
+    # execution_field = SelectField("Execution Type:", choices=[("Continuous", "Continuous"), ("Per Module", "Stepwise")])
     options_field = SelectField("Options Choices:", choices=[("Default", "Default"), ("Custom", "Custom")])
     submit_field = SubmitField("Submit")
 
