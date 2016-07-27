@@ -27,7 +27,7 @@ if [ "${ref}" != "" ]; then
 
     cp -a "${ref}" "${TMPDIR}/${ref##*/}"
     REF="${TMPDIR}/${ref##*/}"
-    echo "New reference location: ${REFERENCE}"
+    echo "New reference location: ${REF}"
 
 else
     echo "Could not continue as no reference was provided"
@@ -246,10 +246,10 @@ java -Xmx30g -jar ${PICARD}/picard.jar AddOrReplaceReadGroups I="${SAMPLE_OUTPUT
 samtools index "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam"
 
 
-java -Xmx30g -jar ${GATK}/GenomeAnalysisTK.jar -T DiagnoseTargets -R $REF/refgenome/ -I "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam" -L $REF/bedfiles/wes_targets.bed -missing "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_missing_intervals.txt" -o "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_DiagnoseTargets.txt"
+java -Xmx30g -jar ${GATK}/GenomeAnalysisTK.jar -T DiagnoseTargets -R $REF/refgenome/refgenome.fa -I "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam" -L $REF/bedfiles/wes_targets.bed -missing "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_missing_intervals.txt" -o "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_DiagnoseTargets.txt"
 
 
-java -Xmx30g -jar ${GATK}/GenomeAnalysisTK.jar -T DepthOfCoverage -R $REF/refgenome/ -o "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_DepthOfCoverage.txt" -I "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam" -L $REF/bedfiles/wes_targets.bed
+java -Xmx30g -jar ${GATK}/GenomeAnalysisTK.jar -T DepthOfCoverage -R $REF/refgenome/refgenome.fa -o "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_DepthOfCoverage.txt" -I "${SAMPLE_OUTPUT_PATH}/${SAMPLE_NAME}_final_mod.bam" -L $REF/bedfiles/wes_targets.bed
 
 
 ##################################################################################################################
